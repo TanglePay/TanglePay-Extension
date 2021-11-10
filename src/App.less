@@ -1,0 +1,28 @@
+.App {
+    height: 100vh;
+}
+:root:root {
+    --adm-color-primary: #0099ed;
+    --adm-color-success: #5cb85c;
+    --adm-color-warning: #f0ad4e;
+    --adm-color-danger: #d9534f;
+}
+
+// 转场动画
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter.fade-enter-active {
+    opacity: 1;
+    transition: opacity 300ms ease-in;
+}
+
+.fade-exit {
+    opacity: 1;
+}
+
+.fade-exit.fade-exit-active {
+    opacity: 0;
+    transition: opacity 300ms ease-in;
+}
