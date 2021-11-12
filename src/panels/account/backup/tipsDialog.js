@@ -1,6 +1,6 @@
 import React, { useState, useImperativeHandle } from 'react'
 import { Button, Mask } from 'antd-mobile'
-import { I18n, Base, images } from '@/common'
+import { I18n, Base, images } from '@tangle-pay/common'
 export const TipsDialog = ({ dialogRef }) => {
     const [isShow, setShow] = useState(false)
     useImperativeHandle(

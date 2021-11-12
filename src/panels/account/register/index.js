@@ -1,10 +1,10 @@
 import React, { useRef } from 'react'
-import { Base, I18n, Nav, images, Toast } from '@/common'
+import { Base, I18n, Nav, images, Toast } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import { Form, Input, Button } from 'antd-mobile'
 import * as Yup from 'yup'
-import { useStore } from '@/store'
-import { useCreateCheck } from '@/store/common'
+import { useStore } from '@tangle-pay/store'
+import { useCreateCheck } from '@tangle-pay/store/common'
 
 const schema = Yup.object().shape({
     name: Yup.string().required(),

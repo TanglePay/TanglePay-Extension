@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Base, images, I18n } from '@/common'
+import { Base, images, I18n } from '@tangle-pay/common'
 import { Loading } from 'antd-mobile'
-import { useStore } from '@/store'
-import { useGetLegal } from '@/store/common'
+import { useStore } from '@tangle-pay/store'
+import { useGetLegal } from '@tangle-pay/store/common'
 import dayjs from 'dayjs'
 
 export const CoinList = () => {
@@ -62,7 +62,6 @@ export const ActivityList = ({ search }) => {
         setHeight(height)
     }, [])
     const showList = list.filter((e) => !search || e.address.toLocaleUpperCase().includes(search.toLocaleUpperCase()))
-    console.log(showList, '======')
     return (
         <div id='activity-id' style={{ height, overflowY: 'scroll' }}>
             {showList.map((e) => {

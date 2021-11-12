@@ -1,7 +1,7 @@
 import React from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Base, Nav, I18n, images, Toast } from '@/common'
-import { useGetNodeWallet } from '@/store/common'
+import { Base, Nav, I18n, images, Toast } from '@tangle-pay/common'
+import { useGetNodeWallet } from '@tangle-pay/store/common'
 export const UserWallets = () => {
     const [, walletsList] = useGetNodeWallet()
     return (

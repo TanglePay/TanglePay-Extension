@@ -1,5 +1,5 @@
 import React from 'react'
-import { Base, I18n, images, Nav } from '@/common'
+import { Base, I18n, images, Nav } from '@tangle-pay/common'
 export const UserAboutUs = () => {
     var version = '1.0.0'
     const list = [

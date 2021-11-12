@@ -1,10 +1,10 @@
 import React, { useRef } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
-import { Base, I18n, Nav, images, IotaSDK, Toast } from '@/common'
+import { Base, I18n, Nav, images, IotaSDK, Toast } from '@tangle-pay/common'
 import { Formik } from 'formik'
-import { useAddWallet } from '@/store/common'
+import { useAddWallet } from '@tangle-pay/store/common'
 import * as Yup from 'yup'
-import { useCreateCheck } from '@/store/common'
+import { useCreateCheck } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 import './index.less'
 const schema = Yup.object().shape({

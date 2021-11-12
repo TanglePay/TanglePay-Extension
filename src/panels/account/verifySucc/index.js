@@ -1,8 +1,8 @@
 import React from 'react'
 import { Button } from 'antd-mobile'
-import { Base, I18n, IotaSDK, Toast } from '@/common'
-import { useStore } from '@/store'
-import { useAddWallet } from '@/store/common'
+import { Base, I18n, IotaSDK, Toast } from '@tangle-pay/common'
+import { useStore } from '@tangle-pay/store'
+import { useAddWallet } from '@tangle-pay/store/common'
 
 export const AccountVerifySucc = () => {
     const addWallet = useAddWallet()

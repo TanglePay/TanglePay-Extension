@@ -1,10 +1,10 @@
 import React, { useRef, useState, useImperativeHandle } from 'react'
 import { Button, Mask, Form, Input } from 'antd-mobile'
-import { I18n, IotaSDK, Toast } from '@/common'
+import { I18n, IotaSDK, Toast } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
-import { useEditWallet } from '@/store/common'
-import { useSelectWallet } from '@/store/common'
+import { useEditWallet } from '@tangle-pay/store/common'
+import { useSelectWallet } from '@tangle-pay/store/common'
 const contentW = document.body.offsetWidth
 export const PasswordDialog = ({ dialogRef }) => {
     const [isShow, setShow] = useState(false)
@@ -85,7 +85,7 @@ export const PasswordDialog = ({ dialogRef }) => {
                             </Form.Item>
                             <div className='mt30'>
                                 <Button color='primary' size='large' block onClick={handleSubmit}>
-                                    {I18n.t('assets.comfirm')}
+                                    {I18n.t('assets.confirm')}
                                 </Button>
                             </div>
                         </Form>

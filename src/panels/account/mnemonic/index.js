@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button } from 'antd-mobile'
-import { Base, Nav, I18n, IotaSDK } from '@/common'
-import { useStore } from '@/store'
+import { Base, Nav, I18n, IotaSDK } from '@tangle-pay/common'
+import { useStore } from '@tangle-pay/store'
 
 export const AccountMnemonic = () => {
     const [registerInfo, setRegisterInfo] = useStore('common.registerInfo')

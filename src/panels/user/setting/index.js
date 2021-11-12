@@ -1,6 +1,6 @@
 import React from 'react'
-import { Base, Nav, images, I18n } from '@/common'
-import { useStore } from '@/store'
+import { Base, Nav, images, I18n } from '@tangle-pay/common'
+import { useStore } from '@tangle-pay/store'
 
 export const UserSetting = () => {
     useStore('common.lang')

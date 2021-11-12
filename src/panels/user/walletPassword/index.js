@@ -1,9 +1,9 @@
 import React from 'react'
 import { Form, Input, Button } from 'antd-mobile'
-import { Base, I18n, Nav, Toast } from '@/common'
+import { Base, I18n, Nav, Toast } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
-import { useEditWallet } from '@/store/common'
+import { useEditWallet } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 
 const schema = Yup.object().shape({

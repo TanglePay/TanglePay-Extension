@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { Base, Nav, I18n } from '@/common'
+import { Base, Nav, I18n } from '@tangle-pay/common'
 import { Button, Swiper } from 'antd-mobile'
 import { useLocation } from 'react-router-dom'
 import './index.less'

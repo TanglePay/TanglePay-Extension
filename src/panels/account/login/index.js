@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { Button } from 'antd-mobile'
-import { Base, I18n } from '@/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { IntoDialog } from './intoDialog'
 
 export const AccountLogin = () => {

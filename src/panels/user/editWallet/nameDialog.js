@@ -1,9 +1,9 @@
 import React, { useState, useImperativeHandle } from 'react'
 import { Button, Mask, Form, Input } from 'antd-mobile'
-import { I18n } from '@/common'
+import { I18n } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
-import { useEditWallet } from '@/store/common'
+import { useEditWallet } from '@tangle-pay/store/common'
 import './nameDialog.less'
 const contentW = document.body.offsetWidth
 export const NameDialog = ({ dialogRef, data }) => {
@@ -52,7 +52,7 @@ export const NameDialog = ({ dialogRef, data }) => {
                             </Form.Item>
                             <div className='mt30'>
                                 <Button color='primary' size='large' block onClick={handleSubmit}>
-                                    {I18n.t('assets.comfirm')}
+                                    {I18n.t('assets.confirm')}
                                 </Button>
                             </div>
                         </Form>

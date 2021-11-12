@@ -1,6 +1,6 @@
 import React from 'react'
-import { Nav, I18n } from '@/common'
-import { useStore } from '@/store'
+import { Nav, I18n } from '@tangle-pay/common'
+import { useStore } from '@tangle-pay/store'
 
 export const UserLang = () => {
     const [lang, setLang] = useStore('common.lang')

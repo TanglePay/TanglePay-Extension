@@ -1,9 +1,9 @@
 import React, { useRef } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Base, Nav, I18n, images, Toast } from '@/common'
+import { Base, Nav, I18n, images, Toast } from '@tangle-pay/common'
 import { useLocation } from 'react-router-dom'
 import { NameDialog } from './nameDialog'
-import { useGetNodeWallet } from '@/store/common'
+import { useGetNodeWallet } from '@tangle-pay/store/common'
 const contentW = document.body.offsetWidth
 
 export const UserEditWallet = () => {

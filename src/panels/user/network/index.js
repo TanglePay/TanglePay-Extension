@@ -1,7 +1,7 @@
 import React from 'react'
-import { Nav, I18n, IotaSDK } from '@/common'
-import { useChangeNode } from '@/store/common'
-import { useStore } from '@/store'
+import { Nav, I18n, IotaSDK } from '@tangle-pay/common'
+import { useChangeNode } from '@tangle-pay/store/common'
+import { useStore } from '@tangle-pay/store'
 
 export const UserNetwork = () => {
     const [curNodeId, , dispatch] = useStore('common.curNodeId')

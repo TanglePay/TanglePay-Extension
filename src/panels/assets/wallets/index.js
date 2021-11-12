@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Base, Nav, I18n, images, Toast, NoData } from '@/common'
+import { Base, Nav, I18n, images, Toast, NoData } from '@tangle-pay/common'
 import { AddDialog } from './addDialog'
-import { useSelectWallet, useGetNodeWallet } from '@/store/common'
+import { useSelectWallet, useGetNodeWallet } from '@tangle-pay/store/common'
 const contentH = document.body.offsetHeight
 export const AssetsWallets = () => {
     const dialogRef = useRef()

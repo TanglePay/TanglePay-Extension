@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { NavBar, PullToRefresh, Loading } from 'antd-mobile'
-import { Base, Toast, images, I18n } from '@/common'
-import { useStore } from '@/store'
+import { Base, Toast, images, I18n } from '@tangle-pay/common'
+import { useStore } from '@tangle-pay/store'
 import { CoinList, ActivityList } from './list'
-import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@/store/common'
+import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 export const Assets = () => {

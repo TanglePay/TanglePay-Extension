@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { Button } from 'antd-mobile'
-import { Nav, I18n, images } from '@/common'
+import { Nav, I18n, images } from '@tangle-pay/common'
 import { TipsDialog } from './tipsDialog'
 
 export const AccountBackup = () => {

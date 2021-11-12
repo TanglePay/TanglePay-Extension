@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { panelsList } from '@/panels'
-import { Base, Trace, I18n, IotaSDK } from '@/common'
-import { useChangeNode } from '@/store/common'
+import { Base, Trace, I18n, IotaSDK } from '@tangle-pay/common'
+import { useChangeNode } from '@tangle-pay/store/common'
 import { HashRouter, Route, Redirect } from 'react-router-dom'
-import { StoreContext, useStoreReducer } from '@/store'
+import { StoreContext, useStoreReducer } from '@tangle-pay/store'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import { PasswordDialog } from '@/components/passwordDialog'
 import { CacheSwitch, CacheRoute } from 'react-router-cache-route'
-import '@/common/base.style.less'
+import '@tangle-pay/common/style/base.style.less'
 import './App.less'
 
 const AnimatedSwitch = (props) => {

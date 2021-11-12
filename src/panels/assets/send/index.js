@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
-import { Base, Nav, I18n, IotaSDK, Toast } from '@/common'
+import { Base, Nav, I18n, IotaSDK, Toast } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
-import { useStore } from '@/store'
-import { useGetNodeWallet, useUpdateBalance } from '@/store/common'
+import { useStore } from '@tangle-pay/store'
+import { useGetNodeWallet, useUpdateBalance } from '@tangle-pay/store/common'
 
 const schema = Yup.object().shape({
     // currency: Yup.string().required(),
@@ -102,7 +102,7 @@ export const AssetsSend = () => {
                                 </Form.Item>
                                 <div className='pb30' style={{ marginTop: 100 }}>
                                     <Button color='primary' size='large' block onClick={handleSubmit}>
-                                        {I18n.t('assets.comfirm')}
+                                        {I18n.t('assets.confirm')}
                                     </Button>
                                 </div>
                             </Form>

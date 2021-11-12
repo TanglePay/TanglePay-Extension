@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import { TabBar } from 'antd-mobile'
 import { Assets } from './assets'
 import { User } from './user'
-import { images, I18n, IotaSDK } from '@/common'
-import { useStore } from '@/store'
-import { useGetNodeWallet } from '@/store/common'
+import { images, I18n, IotaSDK } from '@tangle-pay/common'
+import { useStore } from '@tangle-pay/store'
+import { useGetNodeWallet } from '@tangle-pay/store/common'
 export const Main = () => {
     const [curKey, setActive] = useStore('common.curMainActive')
     const [curWallet] = useGetNodeWallet()

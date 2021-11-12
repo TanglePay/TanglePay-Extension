@@ -1,7 +1,7 @@
 import React from 'react'
-import { Base, I18n, images } from '@/common'
+import { Base, I18n, images } from '@tangle-pay/common'
 import { NavBar } from 'antd-mobile'
-import { useStore } from '@/store'
+import { useStore } from '@tangle-pay/store'
 
 export const User = () => {
     useStore('common.lang')
