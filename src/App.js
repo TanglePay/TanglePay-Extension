@@ -89,7 +89,7 @@ const App = () => {
                             return <RouteCom path={key} exact key={key} render={() => <item.component key={key} />} />
                         })}
                         <CacheRoute exact path='/'>
-                            <Redirect to={store.common.walletsList.length > 0 ? '/main' : '/account/login'} />
+                            <Redirect to={store.common.walletsList.length > 0 ? '/main' : 'account/changeNode'} />
                         </CacheRoute>
                     </AnimatedSwitch>
                 </HashRouter>

@@ -17,7 +17,12 @@ import { UserAboutUs } from './user/aboutUs'
 import { UserLang } from './user/lang'
 import { UserEditWallet } from './user/editWallet'
 import { UserWalletPassword } from './user/walletPassword'
+import { AccountChangeNode } from './account/changeNode'
 export const panelsList = [
+    {
+        path: 'account/changeNode',
+        component: AccountChangeNode
+    },
     {
         path: 'user/walletPassword',
         component: UserWalletPassword

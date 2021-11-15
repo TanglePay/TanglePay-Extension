@@ -1,13 +1,13 @@
 import React from 'react'
 import { Base, I18n, images, Nav } from '@tangle-pay/common'
 export const UserAboutUs = () => {
-    var version = '1.0.0'
+    var version = '1.0.1'
     const list = [
         {
             label: I18n.t('user.versionUpdate'),
             bottom: 10,
             value: version,
-            url: 'https://tanglepay.com'
+            url: 'https://chrome.google.com/webstore/detail/tanglepay-iota-wallet/hbneiaclpaaglopiogfdhgccebncnjmc?hl=en-US'
         },
         {
             label: I18n.t('user.website'),

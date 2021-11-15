@@ -150,8 +150,8 @@ export const AccountInto = () => {
                                                         e.preventDefault()
                                                         Base.push(
                                                             i === 1
-                                                                ? 'http://tanglepay.com/terms.html'
-                                                                : 'http://tanglepay.com/policy.html'
+                                                                ? 'https://tanglepay.com/terms.html'
+                                                                : 'https://tanglepay.com/policy.html'
                                                         )
                                                     }}
                                                     key={i}
