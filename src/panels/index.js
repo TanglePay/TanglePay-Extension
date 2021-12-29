@@ -18,7 +18,17 @@ import { UserLang } from './user/lang'
 import { UserEditWallet } from './user/editWallet'
 import { UserWalletPassword } from './user/walletPassword'
 import { AccountChangeNode } from './account/changeNode'
+import { StakingAdd } from './staking/add'
+import { StakingHistory } from './staking/history'
 export const panelsList = [
+    {
+        path: 'staking/history',
+        component: StakingHistory
+    },
+    {
+        path: 'staking/add',
+        component: StakingAdd
+    },
     {
         path: 'account/changeNode',
         component: AccountChangeNode

@@ -1,9 +1,11 @@
 import React, { useRef } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Base, Nav, I18n, images, Toast } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { useLocation } from 'react-router-dom'
 import { NameDialog } from './nameDialog'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
+import { Nav, SvgIcon, Toast } from '@/common'
+
 const contentW = document.body.offsetWidth
 
 export const UserEditWallet = () => {
@@ -25,14 +27,13 @@ export const UserEditWallet = () => {
                     <div className='flex1'>
                         <div className='flex ac row mb10'>
                             <div className='fz15 mr10'>{name}</div>
-                            <img
-                                className='press'
+                            <SvgIcon
+                                className='cB press'
                                 onClick={() => {
                                     dialogRef.current.show()
                                 }}
-                                style={{ width: 16, height: 16 }}
-                                src={images.com.edit}
-                                alt=''
+                                size={16}
+                                name='edit'
                             />
                         </div>
                         <div className='flex ac row'>
@@ -42,15 +43,12 @@ export const UserEditWallet = () => {
                                     <CopyToClipboard
                                         text={curEdit.address}
                                         onCopy={() => Toast.success(I18n.t('assets.copied'))}>
-                                        <img
-                                            className='press ml10'
-                                            style={{ width: 16, height: 16, verticalAlign: 'middle' }}
-                                            src={images.com.copy}
-                                            // onClick={(e) => {
-                                            //     e.stopPropagation()
-                                            //     e.preventDefault()
-                                            // }}
-                                            alt=''
+                                        <SvgIcon
+                                            style={{ display: 'inline-block', verticalAlign: 'middle' }}
+                                            wrapper='span'
+                                            name='copy'
+                                            size={16}
+                                            className='cB press ml10'
                                         />
                                     </CopyToClipboard>
                                 </div>
@@ -66,7 +64,7 @@ export const UserEditWallet = () => {
                     }}
                     className='press p20 flex row jsb ac border-b'>
                     <div className='fz15'>{I18n.t('user.resetPassword')}</div>
-                    <img style={{ width: 15, height: 15 }} src={images.com.right} alt='' />
+                    <SvgIcon name='right' size={15} className='cB' />
                 </div>
             </div>
             <NameDialog dialogRef={dialogRef} data={{ ...curEdit }} />

@@ -1,10 +1,11 @@
 import React from 'react'
 import { Form, Input, Button } from 'antd-mobile'
-import { Base, I18n, Nav, Toast } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useEditWallet } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
+import { Nav, Toast } from '@/common'
 
 const schema = Yup.object().shape({
     old: Yup.string().required(),

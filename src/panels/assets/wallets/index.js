@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Base, Nav, I18n, images, Toast, NoData } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { AddDialog } from './addDialog'
 import { useSelectWallet, useGetNodeWallet } from '@tangle-pay/store/common'
+import { Nav, NoData, SvgIcon, Toast } from '@/common'
+
 const contentH = document.body.offsetHeight
 export const AssetsWallets = () => {
     const dialogRef = useRef()
@@ -52,15 +54,14 @@ export const AssetsWallets = () => {
                                                 onCopy={() => {
                                                     Toast.success(I18n.t('assets.copied'))
                                                 }}>
-                                                <img
+                                                <SvgIcon
+                                                    name='copy'
+                                                    size={20}
+                                                    className={`ml30 press ${isActive ? 'cW' : 'cB'}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         e.preventDefault()
                                                     }}
-                                                    className='ml30 press'
-                                                    style={{ width: 20, height: 20 }}
-                                                    src={isActive ? images.com.copy1 : images.com.copy}
-                                                    alt=''
                                                 />
                                             </CopyToClipboard>
                                         </div>

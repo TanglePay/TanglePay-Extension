@@ -5,9 +5,9 @@ import { useChangeNode } from '@tangle-pay/store/common'
 import { HashRouter, Route, Redirect } from 'react-router-dom'
 import { StoreContext, useStoreReducer } from '@tangle-pay/store'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
-import { PasswordDialog } from '@/components/passwordDialog'
+import { PasswordDialog } from '@/common'
 import { CacheSwitch, CacheRoute } from 'react-router-cache-route'
-import '@tangle-pay/common/style/base.style.less'
+import { Toast } from '@/common'
 import './App.less'
 
 const AnimatedSwitch = (props) => {
@@ -68,8 +68,13 @@ const App = () => {
         setSceneList(panelsList)
     }
     useEffect(() => {
-        init()
+        Base.globalInit({
+            store,
+            dispatch,
+            Toast
+        })
         IotaSDK.passwordDialog = passwordDialog
+        init()
     }, [])
     if (sceneList.length === 0) {
         return null

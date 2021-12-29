@@ -1,10 +1,12 @@
 import React, { useRef, useState, useImperativeHandle } from 'react'
 import { Button, Mask, Form, Input } from 'antd-mobile'
-import { I18n, IotaSDK, Toast } from '@tangle-pay/common'
+import { I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useEditWallet } from '@tangle-pay/store/common'
 import { useSelectWallet } from '@tangle-pay/store/common'
+import { Toast } from './Toast'
+
 const contentW = document.body.offsetWidth
 export const PasswordDialog = ({ dialogRef }) => {
     const [isShow, setShow] = useState(false)

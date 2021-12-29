@@ -1,6 +1,6 @@
 {
-    "name": "iota-chrome",
-    "version": "1.0.1",
+    "name": "tangle-pay-chrome",
+    "version": "1.1.1",
     "private": true,
     "homepage": "./",
     "dependencies": {
@@ -26,6 +26,7 @@
         "react-scripts": "4.0.3",
         "react-share": "^4.4.0",
         "react-transition-group": "^4.4.2",
+        "tangle-pay": "^1.1.1",
         "web-vitals": "^1.0.1",
         "yup": "^0.32.11"
     },

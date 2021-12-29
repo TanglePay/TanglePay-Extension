@@ -1,8 +1,9 @@
 import React from 'react'
 import { Button } from 'antd-mobile'
-import { Base, I18n, IotaSDK, Toast } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { useAddWallet } from '@tangle-pay/store/common'
+import { Toast } from '@/common'
 
 export const AccountVerifySucc = () => {
     const addWallet = useAddWallet()
@@ -14,7 +15,10 @@ export const AccountVerifySucc = () => {
                     <div
                         className='fz14'
                         dangerouslySetInnerHTML={{
-                            __html: I18n.t('account.registerSucc').replace(/\n/g, '<br/>')
+                            __html: I18n.t('account.registerSucc')
+                                .replace(/\n/g, '<br/>')
+                                .replace(/\<##/g, '<div class="fw600 fz17">')
+                                .replace(/##\>/g, '</div>')
                         }}></div>
                     <Button
                         block

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Base, images, I18n } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { Loading } from 'antd-mobile'
 import { useStore } from '@tangle-pay/store'
 import { useGetLegal } from '@tangle-pay/store/common'
+import { SvgIcon } from '@/common'
 import dayjs from 'dayjs'
 
 export const CoinList = () => {
@@ -20,7 +21,12 @@ export const CoinList = () => {
                         }}
                         key={e.name}
                         className='flex row as mb10 press'>
-                        <img className='mr25' style={{ width: 35, height: 35, borderRadius: 35 }} src={e.icon} alt='' />
+                        <img
+                            className='mr15'
+                            style={{ width: 35, height: 35, borderRadius: 35 }}
+                            src={Base.getIcon(e.name)}
+                            alt=''
+                        />
                         <div className='border-b flex flex1 row ac jsb pb10'>
                             <div className='fz17'>{e.name}</div>
                             {isShowAssets ? (
@@ -65,26 +71,29 @@ export const ActivityList = ({ search }) => {
     return (
         <div id='activity-id' style={{ height, overflowY: 'scroll' }}>
             {showList.map((e) => {
+                const isOutto = [1, 3].includes(e.type)
+                const isStake = [2, 3].includes(e.type)
                 return (
                     <div key={e.id} className='flex row as mb20'>
-                        <img
-                            className='mr25'
-                            style={{ width: 25, height: 32.4 }}
-                            src={e.type === 1 ? images.com.outto : images.com.into}
-                            alt=''
-                        />
+                        <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
                         <div className='border-b flex flex1 row ac jsb pb15'>
                             <div>
-                                <div className='fz17 mb5'>
-                                    {e.type === 1 ? 'To' : 'From'} :{' '}
-                                    {e.address.replace(/(^.{4})(.+)(.{4}$)/, '$1...$3')}
-                                </div>
+                                {isStake ? (
+                                    <div className='fz17 mb5'>
+                                        {I18n.t(isOutto ? 'staking.unstake' : 'staking.stake')}
+                                    </div>
+                                ) : (
+                                    <div className='fz17 mb5'>
+                                        {isOutto ? 'To' : 'From'} : {e.address.replace(/(^.{4})(.+)(.{4}$)/, '$1...$3')}
+                                    </div>
+                                )}
+
                                 <div className='fz15 cS'>{dayjs(e.timestamp * 1000).format('YYYY-MM-DD HH:mm')}</div>
                             </div>
                             {isShowAssets ? (
                                 <div>
                                     <div className='fz15 tr mb5'>
-                                        {e.type === 1 ? '-' : '+'} {e.num} {e.coin}
+                                        {isOutto ? '-' : '+'} {e.num} {e.coin}
                                     </div>
                                     <div className='fz15 tr cS'>$ {e.assets}</div>
                                 </div>

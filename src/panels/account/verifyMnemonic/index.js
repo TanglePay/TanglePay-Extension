@@ -1,12 +1,14 @@
-import React, { useState, useRef } from 'react'
-import { Base, Nav, I18n } from '@tangle-pay/common'
+import React, { useState, useRef, useEffect } from 'react'
+import { Base, I18n } from '@tangle-pay/common'
 import { Button, Swiper } from 'antd-mobile'
 import { useLocation } from 'react-router-dom'
+import { Nav } from '@/common'
 import './index.less'
 
 const VerifyItem = ({ setNext, index, word, err, isTop, isLast }) => {
     const [error, setError] = useState(false)
     const handleVerify = (curWord) => {
+        console.log(curWord, index, '===============================')
         if (word === curWord) {
             isLast ? Base.push('/account/verifySucc') : setNext()
         }
@@ -20,10 +22,16 @@ const VerifyItem = ({ setNext, index, word, err, isTop, isLast }) => {
                 <div className={`fz16 tc ${error && 'cR'}`}>Word # {index + 1}</div>
             </div>
             <div>
-                <Button size='large' color='default' className='mb20' onClick={() => handleVerify(topStr)} block>
+                <Button
+                    type='submit'
+                    size='large'
+                    color='default'
+                    className='mb20'
+                    onClick={() => handleVerify(topStr)}
+                    block>
                     {topStr}
                 </Button>
-                <Button size='large' color='default' onClick={() => handleVerify(bottomStr)} block>
+                <Button type='submit' size='large' color='default' onClick={() => handleVerify(bottomStr)} block>
                     {bottomStr}
                 </Button>
             </div>
@@ -41,6 +49,17 @@ export const AccountVerifyMnemonic = () => {
     const setNext = () => {
         carousel.current.swipeNext()
     }
+    useEffect(() => {
+        document.onkeydown = (e) => {
+            if (e.code == 'Space') {
+                e.stopPropagation()
+                e.preventDefault()
+            }
+        }
+        return () => {
+            document.onkeydown = null
+        }
+    }, [])
     return (
         <div className='page verify-mnemonic-page'>
             <Nav title={I18n.t('account.testBackup')} />

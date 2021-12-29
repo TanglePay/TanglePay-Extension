@@ -1,7 +1,8 @@
 import React, { useRef } from 'react'
 import { Button } from 'antd-mobile'
-import { Nav, I18n, images } from '@tangle-pay/common'
+import { I18n } from '@tangle-pay/common'
 import { TipsDialog } from './tipsDialog'
+import { Nav, SvgIcon } from '@/common'
 
 export const AccountBackup = () => {
     const dialogRef = useRef()
@@ -13,7 +14,7 @@ export const AccountBackup = () => {
             <Nav title={I18n.t('account.backupTitle')} />
             <div>
                 <div className='flex c pv70'>
-                    <img style={{ width: 60, height: 55 }} src={images.com.encrypt} alt=''></img>
+                    <SvgIcon size={70} name='encrypt' className='cB' />
                 </div>
                 <div className='ph50 pb30'>
                     <div className='mb30'>
