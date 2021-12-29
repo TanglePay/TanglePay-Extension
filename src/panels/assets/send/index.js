@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
-import { Base, Nav, I18n, IotaSDK, Toast } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
 import { useGetNodeWallet, useUpdateBalance } from '@tangle-pay/store/common'
+import { Nav, Toast } from '@/common'
 
 const schema = Yup.object().shape({
     // currency: Yup.string().required(),
@@ -35,8 +36,15 @@ export const AssetsSend = () => {
                         if (password !== curWallet.password) {
                             return Toast.error(I18n.t('assets.passwordError'))
                         }
-                        if (parseInt(amount) > parseInt(assets.balance)) {
+                        const residue = parseFloat(assets.balance) - parseFloat(amount)
+                        if (parseFloat(amount) < 1) {
+                            return Toast.error(I18n.t('assets.sendBelow1Tips'))
+                        }
+                        if (residue < 0) {
                             return Toast.error(I18n.t('assets.balanceError'))
+                        }
+                        if (residue < 1 && residue != 0) {
+                            return Toast.error(I18n.t('assets.residueBelow1Tips'))
                         }
                         Toast.showLoading()
                         try {
@@ -79,11 +87,11 @@ export const AssetsSend = () => {
                                             type='number'
                                             className='pl0 flex1'
                                             placeholder={I18n.t('assets.amountTips')}
-                                            onChange={(e) => {
-                                                const value = e && parseInt(e) ? parseInt(e).toString() : ''
-                                                setFieldValue('amount', value)
-                                            }}
+                                            onChange={handleChange('amount')}
                                             value={values.amount}
+                                            onBlur={() => {
+                                                setFieldValue('amount', (parseFloat(values.amount) || 0).toString())
+                                            }}
                                         />
                                         <div className='fz14 cS'>
                                             {I18n.t('assets.balance')} {assets.balance} {assets.unit}

@@ -1,7 +1,10 @@
 import React from 'react'
-import { Base, I18n, images, Nav } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
+import { Nav, SvgIcon } from '@/common'
+import { default as logo } from '@tangle-pay/assets/images/logo.png'
+
 export const UserAboutUs = () => {
-    var version = '1.0.1'
+    var version = '1.1.1'
     const list = [
         {
             label: I18n.t('user.versionUpdate'),
@@ -31,7 +34,7 @@ export const UserAboutUs = () => {
             <Nav title={I18n.t('user.aboutUs')} />
             <div>
                 <div className='flex c column pv30'>
-                    <img style={{ width: 65, height: 65 }} src={images.com.logo} alt='' />
+                    <img style={{ width: 65, height: 65 }} src={logo} alt='' />
                     <div className='fz16 mt10'>TanglePay</div>
                     <div className='fz14 cS mt10'>
                         {I18n.t('user.curVersion')}
@@ -60,7 +63,7 @@ export const UserAboutUs = () => {
                             </div>
                             <div className='flex row ac'>
                                 {e.value && <div className='fz17 cS mr10'>{e.value}</div>}
-                                <img style={{ width: 16, height: 16 }} src={images.com.right} alt='' />
+                                <SvgIcon name='right' size={15} className='cS' />
                             </div>
                         </div>
                     )

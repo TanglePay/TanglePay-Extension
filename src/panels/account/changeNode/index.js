@@ -1,7 +1,8 @@
 import React from 'react'
-import { Base, Nav, S, SS, I18n, IotaSDK, images } from '@tangle-pay/common'
+import { Base, Nav, S, SS, I18n, IotaSDK } from '@tangle-pay/common'
 import { useChangeNode } from '@tangle-pay/store/common'
 import { useStore } from '@tangle-pay/store'
+import { default as logo_nobg } from '@tangle-pay/assets/images/logo_nobg.png'
 
 export const AccountChangeNode = () => {
     const [, , dispatch] = useStore('common.curNodeId')
@@ -10,7 +11,7 @@ export const AccountChangeNode = () => {
         <div className='page flex column'>
             <div className='flex jsb column flex1 pt40'>
                 <div className='ph25'>
-                    <img className='mb20' style={{ width: 144, height: 150 }} src={images.com.logo_nobg} />
+                    <img className='mb20' style={{ width: 144, height: 150 }} src={logo_nobg} />
                     <div>
                         <div className='fz30 fw500 mb15'>{I18n.t('account.dearFam')}</div>
                         <div

@@ -1,6 +1,7 @@
 import React, { useState, useImperativeHandle } from 'react'
 import { Mask } from 'antd-mobile'
-import { I18n, Base, Toast } from '@tangle-pay/common'
+import { I18n, Base } from '@tangle-pay/common'
+import { Toast } from '@/common'
 export const IntoDialog = ({ dialogRef }) => {
     const [isShow, setShow] = useState(false)
     useImperativeHandle(

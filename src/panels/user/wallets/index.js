@@ -1,7 +1,9 @@
 import React from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Base, Nav, I18n, images, Toast } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
+import { Nav, SvgIcon, Toast } from '@/common'
+
 export const UserWallets = () => {
     const [, walletsList] = useGetNodeWallet()
     return (
@@ -26,21 +28,20 @@ export const UserWallets = () => {
                                     <CopyToClipboard
                                         text={e.address}
                                         onCopy={() => Toast.success(I18n.t('assets.copied'))}>
-                                        <img
-                                            className='press ml30'
-                                            style={{ width: 20, height: 20 }}
-                                            src={images.com.copy}
+                                        <SvgIcon
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 e.preventDefault()
                                             }}
-                                            alt=''
+                                            name='copy'
+                                            size={20}
+                                            className='cB press ml30'
                                         />
                                     </CopyToClipboard>
                                 </div>
                             </div>
                             <div>
-                                <img style={{ width: 16, height: 16 }} src={images.com.right} alt='' />
+                                <SvgIcon name='right' size={15} className='cB' />
                             </div>
                         </div>
                     )

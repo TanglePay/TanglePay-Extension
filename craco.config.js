@@ -7,7 +7,8 @@ module.exports = {
         alias: {
             '@': pathResolve('src'),
             '@tangle-pay/common': 'tanglepay/lib/browser/common',
-            '@tangle-pay/store': 'tanglepay/lib/browser/store'
+            '@tangle-pay/store': 'tanglepay/lib/browser/store',
+            '@tangle-pay/store': 'tanglepay/lib/browser/assets'
         }
     },
     plugins: [

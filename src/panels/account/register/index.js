@@ -1,10 +1,11 @@
 import React, { useRef } from 'react'
-import { Base, I18n, Nav, images, Toast } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import { Form, Input, Button } from 'antd-mobile'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
 import { useCreateCheck } from '@tangle-pay/store/common'
+import { Nav, SvgIcon, Toast } from '@/common'
 
 const schema = Yup.object().shape({
     name: Yup.string().required(),
@@ -76,11 +77,11 @@ export const AccountRegister = () => {
                                     onClick={() => {
                                         setFieldValue('agree', !values.agree)
                                     }}>
-                                    <img
-                                        className='mr10'
-                                        style={{ widows: 15, height: 15, marginTop: 3 }}
-                                        src={values.agree ? images.com.checkbox_1 : images.com.checkbox_0}
-                                        alt=''
+                                    <SvgIcon
+                                        size={15}
+                                        className={`mr10 ${values.agree ? 'cP' : 'cB'}`}
+                                        style={{ marginTop: 3 }}
+                                        name={values.agree ? 'checkbox_1' : 'checkbox_0'}
                                     />
                                     <div
                                         className={`fz14 tl ${!errors.agree ? 'cB' : 'cR'}`}

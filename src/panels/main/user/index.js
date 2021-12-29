@@ -1,23 +1,24 @@
 import React from 'react'
-import { Base, I18n, images } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { NavBar } from 'antd-mobile'
 import { useStore } from '@tangle-pay/store'
+import { SvgIcon } from '@/common'
 
 export const User = () => {
     useStore('common.lang')
     const list = [
         {
-            icon: images.com.wallet,
+            icon: 'wallet',
             label: I18n.t('user.manageWallets'),
             path: 'user/wallets'
         },
         {
-            icon: images.com.set,
+            icon: 'set',
             label: I18n.t('user.setting'),
             path: 'user/setting'
         },
         {
-            icon: images.com.about,
+            icon: 'about',
             label: I18n.t('user.aboutUs'),
             path: 'user/aboutUs'
         }
@@ -35,11 +36,11 @@ export const User = () => {
                             key={e.path}
                             className='flex row ac jsb ph30 pv20 border-b press'>
                             <div className='flex row ac'>
-                                <img style={{ width: 20, height: 20 }} src={e.icon} alt='' />
+                                <SvgIcon name={e.icon} size={24} className='cB' />
                                 <span className='fz17 ml10'>{e.label}</span>
                             </div>
                             <div>
-                                <img style={{ width: 16, height: 16 }} src={images.com.right} alt='' />
+                                <SvgIcon name='right' size={15} className='cB' />
                             </div>
                         </div>
                     )

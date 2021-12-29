@@ -1,11 +1,14 @@
 import React from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { I18n, images, Toast, Base } from '@tangle-pay/common'
+import { I18n, Base } from '@tangle-pay/common'
 import { NavBar } from 'antd-mobile'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { LeftOutline } from 'antd-mobile-icons'
+import { SvgIcon, Toast } from '@/common'
 // import { ShareDialog } from './shareDialog'
 import QRCode from 'qrcode.react'
+import { default as scan_bg } from '@tangle-pay/assets/images/scan_bg.png'
+
 export const AssetsReceive = () => {
     const [curWallet] = useGetNodeWallet()
     // const dialogRef = useRef()
@@ -30,7 +33,7 @@ export const AssetsReceive = () => {
                     <div
                         className='flex c'
                         style={{
-                            backgroundImage: `url(${images.com.scan_bg})`,
+                            backgroundImage: `url(${scan_bg})`,
                             backgroundSize: '100% 100%',
                             backgroundRepeat: 'no-repeat',
                             width: 220,
@@ -46,11 +49,12 @@ export const AssetsReceive = () => {
                             style={{ borderRadius: 4, maxWidth: '100%', wordWrap: 'break-word' }}>
                             <div className='fz11 tc' style={{ lineHeight: '20px' }}>
                                 {curWallet.address}
-                                <img
-                                    className='ml10'
-                                    style={{ width: 12.8, height: 14.3, verticalAlign: 'middle' }}
-                                    src={images.com.copy}
-                                    alt=''
+                                <SvgIcon
+                                    style={{ display: 'inline-block', verticalAlign: 'middle' }}
+                                    wrapper='span'
+                                    name='copy'
+                                    size={16}
+                                    className='ml10 press cB'
                                 />
                             </div>
                         </div>

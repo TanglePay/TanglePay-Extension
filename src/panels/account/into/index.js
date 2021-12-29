@@ -1,11 +1,12 @@
 import React, { useRef } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
-import { Base, I18n, Nav, images, IotaSDK, Toast } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import { useAddWallet } from '@tangle-pay/store/common'
 import * as Yup from 'yup'
 import { useCreateCheck } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
+import { Nav, SvgIcon, Toast } from '@/common'
 import './index.less'
 const schema = Yup.object().shape({
     mnemonic: Yup.string().required(),
@@ -81,14 +82,9 @@ export const AccountInto = () => {
                                             !errors.mnemonic ? 'border-color-b' : 'border-color-r'
                                         }`}
                                         style={{
-                                            height: 100
+                                            height: 140
                                         }}>
-                                        <img
-                                            className='mb20'
-                                            style={{ width: 42, height: 49 }}
-                                            src={images.com.file}
-                                            alt=''
-                                        />
+                                        <SvgIcon size={50} name='file' className='mb20' />
                                         <div>{I18n.t('account.intoSelectFile')}</div>
                                     </div>
                                 )}
@@ -130,11 +126,11 @@ export const AccountInto = () => {
                                 onClick={() => {
                                     setFieldValue('agree', !values.agree)
                                 }}>
-                                <img
-                                    className='mr10'
-                                    style={{ widows: 15, height: 15, marginTop: 3 }}
-                                    src={values.agree ? images.com.checkbox_1 : images.com.checkbox_0}
-                                    alt=''
+                                <SvgIcon
+                                    size={15}
+                                    className={`mr10 ${values.agree ? 'cP' : 'cB'}`}
+                                    style={{ marginTop: 3 }}
+                                    name={values.agree ? 'checkbox_1' : 'checkbox_0'}
                                 />
                                 <div
                                     className={`fz14 tl ${!errors.agree ? 'cB' : 'cR'}`}

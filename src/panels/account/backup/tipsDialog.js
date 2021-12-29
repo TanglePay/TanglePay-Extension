@@ -1,6 +1,7 @@
 import React, { useState, useImperativeHandle } from 'react'
 import { Button, Mask } from 'antd-mobile'
-import { I18n, Base, images } from '@tangle-pay/common'
+import { I18n, Base } from '@tangle-pay/common'
+import { SvgIcon } from '@/common'
 export const TipsDialog = ({ dialogRef }) => {
     const [isShow, setShow] = useState(false)
     useImperativeHandle(
@@ -24,7 +25,7 @@ export const TipsDialog = ({ dialogRef }) => {
                 <div className='ph20 pt50 pb20 w100 radius10 bgS mt70'>
                     <div className='mb20 flex column ac pv30 ph50 bgW radius10'>
                         <div>
-                            <img style={{ width: 55, height: 55 }} src={images.com.no_screenshot} alt='' />
+                            <SvgIcon size={55} name='no_screenshot' className='cB' />
                         </div>
                         <div className='mt20'>
                             <div className='fz16 fw500 tc mb10'>{I18n.t('account.backupScreenshoptTitle')}</div>
