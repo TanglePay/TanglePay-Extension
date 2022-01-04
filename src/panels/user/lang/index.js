@@ -23,6 +23,13 @@ export const UserLang = () => {
                     className='p20 press border-b'>
                     <div className={`fz15 ${lang === 'zh' ? 'cP' : ''}`}>简体中文</div>
                 </div>
+                <div
+                    onClick={() => {
+                        setLang('de')
+                    }}
+                    className='p20 press border-b'>
+                    <div className={`fz15 ${lang === 'de' ? 'cP' : ''}`}>Deutsch</div>
+                </div>
             </div>
         </div>
     )
