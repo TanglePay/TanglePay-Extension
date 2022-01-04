@@ -22,11 +22,12 @@ export const AssetsSend = () => {
     const [currency] = useState('IOTA')
     const [curWallet] = useGetNodeWallet()
     const assets = assetsList.find((e) => e.name === currency) || {}
-    let available = parseFloat(assets.balance - statedAmount) || 0
-    const realBalance = assets.realBalance
-    if (available < 0) {
-        available = 0
+    const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
+    let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
+    if (Number(realBalance) < 0) {
+        realBalance = BigNumber(0)
     }
+    let available = Base.formatNum(realBalance.div(IotaSDK.IOTA_MI))
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
@@ -44,24 +45,26 @@ export const AssetsSend = () => {
                             return Toast.error(I18n.t('assets.passwordError'))
                         }
                         amount = parseFloat(amount) || 0
-                        const sendAmount = Number(BigNumber(amount).times(IotaSDK.IOTA_MI))
-                        let residue = Number(BigNumber(realBalance).minus(sendAmount)) || 0
+                        let sendAmount = Number(BigNumber(amount).times(IotaSDK.IOTA_MI))
+                        let residue = Number(realBalance.minus(sendAmount)) || 0
                         if (sendAmount < IotaSDK.IOTA_MI) {
                             return Toast.error(I18n.t('assets.sendBelow1Tips'))
                         }
                         if (residue < 0) {
                             return Toast.error(I18n.t('assets.balanceError'))
                         }
-                        if (residue < IotaSDK.IOTA_MI && residue != 0) {
+                        if (residue < Number(BigNumber(0.01).times(IotaSDK.IOTA_MI))) {
+                            sendAmount = Number(realBalance)
+                        } else if (residue < IotaSDK.IOTA_MI && residue != 0) {
                             return Toast.error(I18n.t('assets.residueBelow1Tips'))
                         }
                         Toast.showLoading()
                         try {
-                            await IotaSDK.send(curWallet, receiver, amount)
+                            await IotaSDK.send(curWallet, receiver, sendAmount)
                             Toast.hideLoading()
                             Toast.success(I18n.t('assets.sendSucc'))
                             Base.goBack()
-                            updateBalance((assets.balance - parseInt(amount)) * IotaSDK.IOTA_MI, curWallet.address)
+                            updateBalance(Number(bigStatedAmount.plus(residue)), curWallet.address)
                         } catch (error) {
                             console.log(error)
                             Toast.hideLoading()
@@ -99,7 +102,8 @@ export const AssetsSend = () => {
                                             onChange={handleChange('amount')}
                                             value={values.amount}
                                             onBlur={() => {
-                                                setFieldValue('amount', (parseFloat(values.amount) || 0).toString())
+                                                const str = Base.formatNum(values.amount, 2)
+                                                setFieldValue('amount', str)
                                             }}
                                         />
                                         <div className='fz14 cS'>
