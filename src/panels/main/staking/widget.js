@@ -33,12 +33,12 @@ const AmountCon = ({ amountList }) => {
                                     size='middle'
                                     style={{
                                         '--border-radius': '20px',
-                                        borderColor: '#d0d1d2',
+                                        borderColor: e.borderColor,
                                         backgroundColor: '#e2e4e4'
                                     }}>
                                     <div
                                         className='tc fz14 cB fw500'
-                                        style={{ minWidth: 70, opacity: e.btnDis ? 0.4 : 1 }}>
+                                        style={{ minWidth: 70, opacity: e.btnDis ? 0.5 : 1 }}>
                                         {e.btnStr}
                                     </div>
                                 </Button>
@@ -116,7 +116,7 @@ const UnParticipate = ({ statedTokens, unStakeTokens, handleStaking, uncomingTok
 // Commencing && staked
 const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount }) => {
     const handleStake = (tokens) => {
-        Base.push('staking/add', { tokens: JSON.stringify(tokens), amount: statedAmount, type: 4 })
+        Base.push('/staking/add', { tokens: JSON.stringify(tokens), amount: statedAmount, type: 4 })
     }
     const uList = uncomingTokens.filter((e) => !statedTokens.find((d) => d.eventId === e.eventId))
     return (
@@ -197,11 +197,11 @@ const Ended = ({ statedTokens, unStakeTokens }) => {
     )
 }
 export const StatusCon = () => {
-    const [{ filter }] = useStore('staking.config')
+    const [{ filter, rewards }] = useStore('staking.config')
     //status: 0-》Ended  1-》Upcoming ，2-》Commencing
     const [eventInfo, setEventInfo] = useGetParticipationEvents()
     let { status = 0, list = [], upcomingList = [], commencingList = [] } = eventInfo
-    const [statedTokens] = useStore('staking.statedTokens')
+    let [statedTokens] = useStore('staking.statedTokens')
     const [statedAmount] = useStore('staking.statedAmount')
     const [assetsList] = useStore('common.assetsList')
     const assets = assetsList.find((e) => e.name === 'IOTA') || {}
@@ -225,20 +225,28 @@ export const StatusCon = () => {
     }, [startTime, eventInfo])
     const unStakeTokens = []
     const uncomingTokens = upcomingList.map((e) => {
+        const token = e.payload.symbol
+        let unit = _get(rewards, `${token}.unit`) || token
         return {
-            token: e.payload.symbol,
+            token: unit,
             eventId: e.id,
             status: 'uncoming',
             limit: e.limit
         }
     })
+    statedTokens = statedTokens.map((e) => {
+        const token = e.token
+        let unit = _get(rewards, `${token}.unit`) || token
+        return { ...e, token: unit }
+    })
     list.forEach((e) => {
         const token = e.payload.symbol
-        const tokenInfo = statedTokens.find((e) => e.token === token)
+        const tokenInfo = statedTokens.find((d) => d.eventId === e.id)
         const commencingInfo = commencingList.find((a) => a.id === e.id)
         if (!tokenInfo && commencingInfo) {
+            let unit = _get(rewards, `${token}.unit`) || token
             unStakeTokens.push({
-                token,
+                token: unit,
                 eventId: e.id,
                 status: 'unstake',
                 limit: e.limit
@@ -254,10 +262,10 @@ export const StatusCon = () => {
         if (available < 1) {
             return Toast.error(I18n.t('staking.noAvailableTips'))
         }
-        Base.push('staking/add', { tokens: JSON.stringify(tokens), type })
+        Base.push('/staking/add', { tokens: JSON.stringify(tokens), type })
     }
     const handleUnstake = () => {
-        Base.push('staking/add', { tokens: JSON.stringify(statedTokens), type: 3 })
+        Base.push('/staking/add', { tokens: JSON.stringify(statedTokens), type: 3 })
     }
 
     let AirdropsItem = [Ended, Upcoming, UnParticipate, Staked][status]
@@ -266,7 +274,8 @@ export const StatusCon = () => {
         {
             token: 'IOTA',
             amount: available,
-            statusStr: I18n.t('staking.available')
+            statusStr: I18n.t('staking.available'),
+            borderColor: '#d0d1d2'
         }
     ]
     if (status === 3) {
@@ -280,12 +289,13 @@ export const StatusCon = () => {
             amount: statedAmount,
             statusStr: I18n.t('staking.staked'),
             btnStr: I18n.t('staking.unstake'),
-            onPress: handleUnstake
+            onPress: handleUnstake,
+            borderColor: '#e2e4e4'
         })
     }
 
     const handleHis = () => {
-        Base.push('staking/history')
+        Base.push('/staking/history')
     }
     return (
         <div className='radius10' style={{ backgroundColor: '#f5f5f5' }}>

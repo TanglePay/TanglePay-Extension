@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 
 export const CoinList = () => {
     const [isShowAssets] = useStore('common.showAssets')
+    const [statedAmount] = useStore('staking.statedAmount')
     const [assetsList] = useStore('common.assetsList')
     const curLegal = useGetLegal()
     const [isRequestAssets] = useStore('common.isRequestAssets')
@@ -28,7 +29,21 @@ export const CoinList = () => {
                             alt=''
                         />
                         <div className='border-b flex flex1 row ac jsb pb10'>
-                            <div className='fz17'>{e.name}</div>
+                            <div className='flex ac row'>
+                                <div className='fz17'>{e.name}</div>
+                                {statedAmount > 0 && (
+                                    <div
+                                        style={{
+                                            transform: 'scale(0.7)',
+                                            borderColor: '#BABABA',
+                                            padding: '1px 4px',
+                                            borderRadius: 4
+                                        }}
+                                        className='fz12 border ml10 cS'>
+                                        {I18n.t('staking.title')}
+                                    </div>
+                                )}
+                            </div>
                             {isShowAssets ? (
                                 <div>
                                     <div className='fz15 tr mb5'>
