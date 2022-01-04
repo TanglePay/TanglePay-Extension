@@ -6,6 +6,7 @@ import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
 import { useGetNodeWallet, useUpdateBalance } from '@tangle-pay/store/common'
 import { Nav, Toast } from '@/common'
+import BigNumber from 'bignumber.js'
 
 const schema = Yup.object().shape({
     // currency: Yup.string().required(),
@@ -14,12 +15,18 @@ const schema = Yup.object().shape({
     password: Yup.string().required()
 })
 export const AssetsSend = () => {
+    const [statedAmount] = useStore('staking.statedAmount')
     const updateBalance = useUpdateBalance()
     const [assetsList] = useStore('common.assetsList')
     const form = useRef()
     const [currency] = useState('IOTA')
     const [curWallet] = useGetNodeWallet()
     const assets = assetsList.find((e) => e.name === currency) || {}
+    let available = parseFloat(assets.balance - statedAmount) || 0
+    const realBalance = assets.realBalance
+    if (available < 0) {
+        available = 0
+    }
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
@@ -32,18 +39,20 @@ export const AssetsSend = () => {
                     validateOnMount={false}
                     validationSchema={schema}
                     onSubmit={async (values) => {
-                        const { password, amount, receiver } = values
+                        let { password, amount, receiver } = values
                         if (password !== curWallet.password) {
                             return Toast.error(I18n.t('assets.passwordError'))
                         }
-                        const residue = parseFloat(assets.balance) - parseFloat(amount)
-                        if (parseFloat(amount) < 1) {
+                        amount = parseFloat(amount) || 0
+                        const sendAmount = Number(BigNumber(amount).times(IotaSDK.IOTA_MI))
+                        let residue = Number(BigNumber(realBalance).minus(sendAmount)) || 0
+                        if (sendAmount < IotaSDK.IOTA_MI) {
                             return Toast.error(I18n.t('assets.sendBelow1Tips'))
                         }
                         if (residue < 0) {
                             return Toast.error(I18n.t('assets.balanceError'))
                         }
-                        if (residue < 1 && residue != 0) {
+                        if (residue < IotaSDK.IOTA_MI && residue != 0) {
                             return Toast.error(I18n.t('assets.residueBelow1Tips'))
                         }
                         Toast.showLoading()
@@ -94,7 +103,7 @@ export const AssetsSend = () => {
                                             }}
                                         />
                                         <div className='fz14 cS'>
-                                            {I18n.t('assets.balance')} {assets.balance} {assets.unit}
+                                            {I18n.t('assets.balance')} {Base.formatNum(available)} {assets.unit}
                                         </div>
                                     </div>
                                 </Form.Item>
