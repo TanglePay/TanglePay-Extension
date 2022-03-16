@@ -1,4 +1,4 @@
-//该文件由bin_createPanel脚本自动生成，请勿手动更改
+//Auto generated script via bin_createPanel. Don't edit it manually.
 import { Main } from './main'
 import { AccountLogin } from './account/login'
 import { AccountRegister } from './account/register'

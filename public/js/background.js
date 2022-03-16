@@ -5,9 +5,10 @@ var getBackgroundData = (key) => {
     return window[key] || null
 }
 window.tanglepayDialog = null
-//收到来自content-script的消息
+
+// Receiving message from content-script
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    sendResponse('我是TanglePay，我已收到你的消息：' + JSON.stringify(request))
+    // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     var params = {
         focused: true,
         height: 630,
