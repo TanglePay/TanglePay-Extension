@@ -15,7 +15,8 @@ module.exports = {
             config.devtool = false
             config.output = {
                 ...config.output,
-                filename: 'app.js'
+                filename: 'app.js',
+                chunkFilename: 'static/js/bundle_[name].js',
             }
             return config
         },
