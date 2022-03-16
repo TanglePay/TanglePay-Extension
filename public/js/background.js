@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         try {
             chrome.windows.remove(window.tanglepayDialog)
         } catch (error) {
-            console.log(error)
+            // console.log(error)
         }
     }
     create()
