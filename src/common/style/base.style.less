@@ -97,14 +97,14 @@
 .border-box {
     box-sizing: border-box;
 }
-// 粗体
+// bold
 .fw500 {
     font-weight: 500;
 }
 .fw600 {
     font-weight: 600;
 }
-// 字体大小
+// font-size
 .loopFont(@i) when (@i<=30) {
     .fz@{i} {
         @fz:@i - 2;
@@ -114,7 +114,7 @@
 }
 .loopFont(10);
 
-// 间距，输出 m-l-16,p-t-32等....
+// margin&padding，output m-l-16, p-t-32, etc
 @typeList1: m, p;
 @typeList2: margin, padding;
 @dirList1: t, r, b, l, v, h;
@@ -198,7 +198,7 @@
 .border-l {
     border-left: 1px solid #eee;
 }
-// 点击效果
+// press
 .press {
     cursor: pointer;
     // *{
@@ -215,7 +215,7 @@
     white-space: nowrap;
     display: block;
 }
-// 绝对定位居中
+// absolute center vertical/horizental
 .pa-c {
     position: absolute;
     left: 50%;
@@ -223,7 +223,7 @@
     transform: translate(-50%, -50%);
 }
 
-// 样式覆盖
+// overrides
 .adm-form {
     .adm-list-default {
         border: 0;
@@ -270,7 +270,7 @@
     }
 }
 
-// 隐藏滚动条
+// hide scrollbar
 ::-webkit-scrollbar {
     display: none;
 }

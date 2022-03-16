@@ -1,8 +1,8 @@
-// 通过postMessage调用content-script
+// Invoke content-script via PostMessage
 // function invokeContentScript(code) {
 //     window.postMessage({ cmd: 'invoke', code: code }, '*')
 // }
-// // 发送普通消息到content-script
+// POST message to content-script
 function openTanglePay(url) {
     window.postMessage({ cmd: 'openTanglePay', data: url }, '*')
 }
