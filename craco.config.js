@@ -8,7 +8,15 @@ module.exports = {
             '@': pathResolve('src'),
             '@tangle-pay/common': 'tanglepay/lib/browser/common',
             '@tangle-pay/store': 'tanglepay/lib/browser/store',
-            '@tangle-pay/store': 'tanglepay/lib/browser/assets'
+            '@tangle-pay/assets': 'tanglepay/lib/browser/assets'
+        },
+        configure: (config) => {
+            config.devtool = false
+            config.output = {
+                ...config.output,
+                filename: 'app.js'
+            }
+            return config
         }
     },
     plugins: [

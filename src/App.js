@@ -8,6 +8,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import { PasswordDialog } from '@/common'
 import { CacheSwitch, CacheRoute } from 'react-router-cache-route'
 import { Toast } from '@/common'
+import { DappDialog } from '@/common/components/DappDialog'
 import './App.less'
 
 const AnimatedSwitch = (props) => {
@@ -80,7 +81,7 @@ const App = () => {
         return null
     }
     return (
-        <div className='App'>
+        <div id='app' className='App'>
             <StoreContext.Provider
                 value={{
                     store,
@@ -99,6 +100,7 @@ const App = () => {
                     </AnimatedSwitch>
                 </HashRouter>
                 <PasswordDialog dialogRef={passwordDialog} />
+                <DappDialog />
             </StoreContext.Provider>
         </div>
     )

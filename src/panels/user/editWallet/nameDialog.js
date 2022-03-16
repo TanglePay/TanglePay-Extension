@@ -1,13 +1,14 @@
-import React, { useState, useImperativeHandle } from 'react'
+import React, { useState, useImperativeHandle, useEffect } from 'react'
 import { Button, Mask, Form, Input } from 'antd-mobile'
 import { I18n } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useEditWallet } from '@tangle-pay/store/common'
 import './nameDialog.less'
-const contentW = document.body.offsetWidth
+
 export const NameDialog = ({ dialogRef, data }) => {
     const editWallet = useEditWallet()
+    const [contentW, setContentW] = useState(375)
     const [isShow, setShow] = useState(false)
     useImperativeHandle(
         dialogRef,
@@ -24,6 +25,9 @@ export const NameDialog = ({ dialogRef, data }) => {
     const hide = () => {
         setShow(false)
     }
+    useEffect(() => {
+        setContentW(document.getElementById('app').offsetWidth)
+    }, [])
     return (
         <Mask opacity={0.3} onMaskClick={hide} visible={isShow}>
             <div style={{ width: contentW - 60 }} className='radius10 bgW p20 pa-c name-dialog'>

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useImperativeHandle } from 'react'
+import React, { useRef, useState, useEffect, useImperativeHandle } from 'react'
 import { Button, Mask, Form, Input } from 'antd-mobile'
 import { I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
@@ -7,9 +7,9 @@ import { useEditWallet } from '@tangle-pay/store/common'
 import { useSelectWallet } from '@tangle-pay/store/common'
 import { Toast } from './Toast'
 
-const contentW = document.body.offsetWidth
 export const PasswordDialog = ({ dialogRef }) => {
     const [isShow, setShow] = useState(false)
+    const [contentW, setContentW] = useState(375)
     const [curWallet, setCurWallet] = useState({})
     const callBackRef = useRef()
     const formRef = useRef()
@@ -40,6 +40,9 @@ export const PasswordDialog = ({ dialogRef }) => {
             selectWallet('')
         }
     }
+    useEffect(() => {
+        setContentW(document.getElementById('app').offsetWidth)
+    }, [])
     return (
         <Mask opacity={0.3} onMaskClick={() => hide()} visible={isShow}>
             <div style={{ width: contentW - 60 }} className='radius10 bgW p20 pa-c password-dialog'>
