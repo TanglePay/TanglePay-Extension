@@ -2,6 +2,7 @@ const CracoLessPlugin = require('craco-less')
 const RewireBabelLoader = require('craco-babel-loader')
 const path = require('path')
 const pathResolve = (pathUrl) => path.join(__dirname, pathUrl)
+const TerserPlugin = require('terser-webpack-plugin')
 module.exports = {
     webpack: {
         alias: {
@@ -17,7 +18,18 @@ module.exports = {
                 filename: 'app.js'
             }
             return config
-        }
+        },
+        plugins: [
+            new TerserPlugin({
+                terserOptions: {
+                    compress: {
+                        drop_console: true,
+                        drop_debugger: true,
+                        pure_funcs: ['console.log']
+                    }
+                }
+            })
+        ]
     },
     plugins: [
         { plugin: CracoLessPlugin },
