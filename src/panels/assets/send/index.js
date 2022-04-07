@@ -68,7 +68,8 @@ export const AssetsSend = () => {
                         } catch (error) {
                             console.log(error)
                             Toast.hideLoading()
-                            Toast.error(I18n.t('assets.sendError'))
+                            // Toast.error(I18n.t('assets.sendError'))
+                            Toast.error(error.toString())
                         }
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
