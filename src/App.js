@@ -60,7 +60,7 @@ const App = () => {
             }
         })
         // i18n init
-        const lang = I18n.language.includes('zh') ? 'zh' : 'en'
+        const lang = I18n.language || 'en'
         dispatch({ type: 'common.lang', data: lang })
     }
     const init = async () => {
