@@ -81,7 +81,6 @@ export const DappDialog = () => {
                     const res = await IotaSDK.sign(content, curWallet, residue)
                     messageId = res.messageId
                     Toast.hideLoading()
-                    closeWindow()
                 } catch (error) {
                     Toast.hideLoading()
                     Toast.error(error.toString())
