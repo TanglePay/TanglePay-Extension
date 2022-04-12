@@ -7,6 +7,7 @@ import { useStore } from '@tangle-pay/store'
 import { useGetNodeWallet, useUpdateBalance } from '@tangle-pay/store/common'
 import { Nav, Toast } from '@/common'
 import BigNumber from 'bignumber.js'
+// import Globalize from 'globalize'
 
 const schema = Yup.object().shape({
     // currency: Yup.string().required(),
@@ -15,6 +16,7 @@ const schema = Yup.object().shape({
     password: Yup.string().required()
 })
 export const AssetsSend = () => {
+    // const [lang] = useStore('common.lang')
     const [statedAmount] = useStore('staking.statedAmount')
     const updateBalance = useUpdateBalance()
     const [assetsList] = useStore('common.assetsList')
@@ -44,6 +46,7 @@ export const AssetsSend = () => {
                         if (password !== curWallet.password) {
                             return Toast.error(I18n.t('assets.passwordError'))
                         }
+                        // amount = Globalize(lang).numberParser(amount)
                         amount = parseFloat(amount) || 0
                         let sendAmount = Number(BigNumber(amount).times(IotaSDK.IOTA_MI))
                         let residue = Number(realBalance.minus(sendAmount)) || 0
