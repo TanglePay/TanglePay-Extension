@@ -3,10 +3,12 @@ import { PullToRefresh, Loading } from 'antd-mobile'
 import { Base, I18n } from '@tangle-pay/common'
 import { AssetsNav, SvgIcon } from '@/common'
 import { useStore } from '@tangle-pay/store'
-import { CoinList, ActivityList } from './list'
+import { CoinList, ActivityList, RewardsList } from './list'
 import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
+import { useGetEventsConfig } from '@tangle-pay/store/staking'
 
 export const Assets = () => {
+    useGetEventsConfig()
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
@@ -78,7 +80,16 @@ export const Assets = () => {
                             </div>
                         </div>
                     </div>
-                    <div>{curTab === 0 ? <CoinList /> : <ActivityList />}</div>
+                    <div>
+                        {curTab === 0 ? (
+                            <div>
+                                <CoinList />
+                                <RewardsList />
+                            </div>
+                        ) : (
+                            <ActivityList />
+                        )}
+                    </div>
                 </div>
             </PullToRefresh>
         </div>
