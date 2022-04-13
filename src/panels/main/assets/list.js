@@ -9,6 +9,7 @@ import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { useGetRewards } from '@tangle-pay/store/staking'
 import _get from 'lodash/get'
 
+const itemH = 70
 export const CoinList = () => {
     const [isShowAssets] = useStore('common.showAssets')
     const [statedAmount] = useStore('staking.statedAmount')
@@ -24,14 +25,15 @@ export const CoinList = () => {
                             Base.push('assets/send')
                         }}
                         key={e.name}
-                        className='flex row as mb10 press'>
+                        style={{ height: itemH }}
+                        className='flex row ac press'>
                         <img
-                            className='mr15'
+                            className='mr15 border'
                             style={{ width: 35, height: 35, borderRadius: 35 }}
                             src={Base.getIcon(e.name)}
                             alt=''
                         />
-                        <div className='border-b flex flex1 row ac jsb pb10'>
+                        <div style={{ height: itemH }} className='border-b flex flex1 row ac jsb'>
                             <div className='flex ac row'>
                                 <div className='fz17'>{e.name}</div>
                                 {statedAmount > 0 && (
@@ -49,7 +51,7 @@ export const CoinList = () => {
                             </div>
                             {isShowAssets ? (
                                 <div>
-                                    <div className='fz15 tr mb5'>
+                                    <div className='fz15 tr mb15'>
                                         {e.balance} {e.unit}
                                     </div>
                                     <div className='fz15 tr cS'>
@@ -58,7 +60,7 @@ export const CoinList = () => {
                                 </div>
                             ) : (
                                 <div>
-                                    <div className='fz15 tr mb5'>****</div>
+                                    <div className='fz15 tr mb15'>****</div>
                                     <div className='fz15 tr cS'>****</div>
                                 </div>
                             )}
@@ -122,13 +124,13 @@ export const RewardsList = () => {
         <>
             {list.map((e) => {
                 return (
-                    <div key={e.symbol} className='flex row ac mb10' style={{ opacity: 0.6 }}>
+                    <div key={e.symbol} className='flex row ac' style={{ opacity: 0.6, height: itemH }}>
                         <img
-                            className='mr15'
+                            className='mr15 border'
                             style={{ width: 35, height: 35, borderRadius: 35 }}
                             src={Base.getIcon(e.symbol)}
                         />
-                        <div className='flex flex1 row ac jsb pb10 border-b'>
+                        <div className='flex flex1 row ac jsb border-b' style={{ height: itemH }}>
                             <div className='fz17'>{e.unit}</div>
                             {isShowAssets ? (
                                 <div>
