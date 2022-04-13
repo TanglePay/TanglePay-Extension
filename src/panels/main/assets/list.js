@@ -15,7 +15,6 @@ export const CoinList = () => {
     const [statedAmount] = useStore('staking.statedAmount')
     const [assetsList] = useStore('common.assetsList')
     const curLegal = useGetLegal()
-    const [isRequestAssets] = useStore('common.isRequestAssets')
     return (
         <div>
             {assetsList.map((e) => {
@@ -68,12 +67,6 @@ export const CoinList = () => {
                     </div>
                 )
             })}
-            {!isRequestAssets && (
-                <div className='p30 flex c row'>
-                    <Loading color='gray' />
-                    <span className='flex cS fz16 pl10'>{I18n.t('assets.requestAssets')}</span>
-                </div>
-            )}
         </div>
     )
 }
@@ -83,10 +76,14 @@ export const RewardsList = () => {
     const [curWallet] = useGetNodeWallet()
     const stakedRewards = useGetRewards(curWallet.address)
     const [{ rewards }] = useStore('staking.config')
+    const [isRequestAssets] = useStore('common.isRequestAssets')
     useEffect(() => {
         const obj = {}
         for (const i in stakedRewards) {
             const item = stakedRewards[i]
+            if (item.address !== curWallet.address) {
+                return
+            }
             if (item.amount > 0) {
                 const symbol = item.symbol
                 obj[symbol] = obj[symbol] || {
@@ -116,51 +113,50 @@ export const RewardsList = () => {
             }
         }
         setList(Object.values(obj))
-    }, [JSON.stringify(stakedRewards), JSON.stringify(rewards)])
-    if (list.length <= 0) {
-        return null
-    }
+    }, [JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address])
     return (
         <>
-            {list.map((e) => {
-                return (
-                    <div key={e.symbol} className='flex row ac' style={{ opacity: 0.6, height: itemH }}>
-                        <img
-                            className='mr15 border'
-                            style={{ width: 35, height: 35, borderRadius: 35 }}
-                            src={Base.getIcon(e.symbol)}
-                        />
-                        <div className='flex flex1 row ac jsb border-b' style={{ height: itemH }}>
-                            <div className='fz17'>{e.unit}</div>
-                            {isShowAssets ? (
-                                <div>
-                                    <div className='fz15 tr'>{e.amountLabel}</div>
-                                </div>
-                            ) : (
-                                <div>
-                                    <div className='fz15 tr'>****</div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )
-            })}
+            {list.length <= 0
+                ? null
+                : list.map((e) => {
+                      return (
+                          <div key={e.symbol} className='flex row ac' style={{ opacity: 0.6, height: itemH }}>
+                              <img
+                                  className='mr15 border'
+                                  style={{ width: 35, height: 35, borderRadius: 35 }}
+                                  src={Base.getIcon(e.symbol)}
+                              />
+                              <div className='flex flex1 row ac jsb border-b' style={{ height: itemH }}>
+                                  <div className='fz17'>{e.unit}</div>
+                                  {isShowAssets ? (
+                                      <div>
+                                          <div className='fz15 tr'>{e.amountLabel}</div>
+                                      </div>
+                                  ) : (
+                                      <div>
+                                          <div className='fz15 tr'>****</div>
+                                      </div>
+                                  )}
+                              </div>
+                          </div>
+                      )
+                  })}
+            {!isRequestAssets && (
+                <div className='p30 flex c row'>
+                    <Loading color='gray' />
+                    <span className='flex cS fz16 pl10'>{I18n.t('assets.requestAssets')}</span>
+                </div>
+            )}
         </>
     )
 }
 export const ActivityList = ({ search }) => {
     const [list] = useStore('common.hisList')
-    const [height, setHeight] = useState(0)
     const [isShowAssets] = useStore('common.showAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
-    useEffect(() => {
-        const dom = document.getElementById('activity-id')
-        const height = document.body.offsetHeight - dom.offsetTop - 51
-        setHeight(height)
-    }, [])
     const showList = list.filter((e) => !search || e.address.toLocaleUpperCase().includes(search.toLocaleUpperCase()))
     return (
-        <div id='activity-id' style={{ height, overflowY: 'scroll' }}>
+        <div>
             {showList.map((e) => {
                 const isOutto = [1, 3].includes(e.type)
                 const isStake = [2, 3].includes(e.type)

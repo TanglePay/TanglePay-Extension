@@ -29,7 +29,7 @@
         "react-share": "^4.4.0",
         "react-svg": "^14.1.6",
         "react-transition-group": "^4.4.2",
-        "tanglepay": "^1.1.5",
+        "tanglepay": "^1.2.2",
         "web-vitals": "^1.0.1",
         "yup": "^0.32.11"
     },

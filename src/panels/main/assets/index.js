@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { PullToRefresh, Loading } from 'antd-mobile'
 import { Base, I18n } from '@tangle-pay/common'
 import { AssetsNav, SvgIcon } from '@/common'
@@ -9,6 +9,7 @@ import { useGetEventsConfig } from '@tangle-pay/store/staking'
 
 export const Assets = () => {
     useGetEventsConfig()
+    const [height, setHeight] = useState(0)
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
@@ -26,6 +27,11 @@ export const Assets = () => {
         }
         Base.push(path)
     }
+    useEffect(() => {
+        const dom = document.getElementById('content-id')
+        const height = document.body.offsetHeight - dom.offsetTop - 51
+        setHeight(height)
+    }, [])
     return (
         <div className='h100'>
             <AssetsNav />
@@ -80,7 +86,7 @@ export const Assets = () => {
                             </div>
                         </div>
                     </div>
-                    <div>
+                    <div id='content-id' style={{ height, overflowY: 'scroll' }}>
                         {curTab === 0 ? (
                             <div>
                                 <CoinList />
