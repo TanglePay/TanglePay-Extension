@@ -110,6 +110,7 @@ export const RewardsList = () => {
                     }
                 }
                 obj[symbol].amountLabel = `${Base.formatNum(total)}${preUnit} ${unit}`
+                obj[symbol].unit = unit
             }
         }
         setList(Object.values(obj))
@@ -122,9 +123,13 @@ export const RewardsList = () => {
             {list.map((e) => {
                 return (
                     <div key={e.symbol} className='flex row ac mb10' style={{ opacity: 0.6 }}>
-                        <img className='mr25 mb10' style={{ width: 45, height: 45 }} src={Base.getIcon(e.symbol)} />
+                        <img
+                            className='mr15'
+                            style={{ width: 35, height: 35, borderRadius: 35 }}
+                            src={Base.getIcon(e.symbol)}
+                        />
                         <div className='flex flex1 row ac jsb pb10 border-b'>
-                            <div className='fz17'>{e.symbol}</div>
+                            <div className='fz17'>{e.unit}</div>
                             {isShowAssets ? (
                                 <div>
                                     <div className='fz15 tr'>{e.amountLabel}</div>
