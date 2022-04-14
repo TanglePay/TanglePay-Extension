@@ -1,12 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { PullToRefresh, Loading } from 'antd-mobile'
 import { Base, I18n } from '@tangle-pay/common'
 import { AssetsNav, SvgIcon } from '@/common'
 import { useStore } from '@tangle-pay/store'
-import { CoinList, ActivityList } from './list'
+import { CoinList, ActivityList, RewardsList } from './list'
 import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
+import { useGetEventsConfig } from '@tangle-pay/store/staking'
 
 export const Assets = () => {
+    useGetEventsConfig()
+    const [height, setHeight] = useState(0)
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
@@ -24,6 +27,11 @@ export const Assets = () => {
         }
         Base.push(path)
     }
+    useEffect(() => {
+        const dom = document.getElementById('content-id')
+        const height = document.body.offsetHeight - dom.offsetTop - 51
+        setHeight(height)
+    }, [])
     return (
         <div className='h100'>
             <AssetsNav />
@@ -78,7 +86,16 @@ export const Assets = () => {
                             </div>
                         </div>
                     </div>
-                    <div>{curTab === 0 ? <CoinList /> : <ActivityList />}</div>
+                    <div id='content-id' style={{ height, overflowY: 'scroll' }}>
+                        {curTab === 0 ? (
+                            <div>
+                                <CoinList />
+                                <RewardsList />
+                            </div>
+                        ) : (
+                            <ActivityList />
+                        )}
+                    </div>
                 </div>
             </PullToRefresh>
         </div>

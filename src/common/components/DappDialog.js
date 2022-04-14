@@ -46,29 +46,35 @@ export const DappDialog = () => {
         let messageId = ''
         switch (type) {
             case 'send':
-                try {
+                {
                     let realBalance = BigNumber(assets.realBalance || 0)
                     const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
                     realBalance = realBalance.minus(bigStatedAmount)
                     let residue = Number(realBalance.minus(amount)) || 0
-                    if (amount < IotaSDK.IOTA_MI) {
-                        return Toast.error(I18n.t('assets.sendBelow1Tips'))
+                    try {
+                        if (amount < IotaSDK.IOTA_MI) {
+                            return Toast.error(I18n.t('assets.sendBelow1Tips'))
+                        }
+                        if (residue < 0) {
+                            return Toast.error(I18n.t('assets.balanceError'))
+                        }
+                        if (residue < IotaSDK.IOTA_MI && residue != 0) {
+                            return Toast.error(I18n.t('assets.residueBelow1Tips'))
+                        }
+                        Toast.showLoading()
+                        const res = await IotaSDK.send(curWallet, address, amount)
+                        messageId = res.messageId
+                        Toast.hideLoading()
+                        Toast.success(I18n.t('assets.sendSucc'))
+                        updateBalance(residue, curWallet.address)
+                    } catch (error) {
+                        Toast.hideLoading()
+                        Toast.error(
+                            `${error.toString()}---amount:${amount}---residue:${residue}---realBalance:${Number(
+                                realBalance
+                            )}---bigStatedAmount:${bigStatedAmount}`
+                        )
                     }
-                    if (residue < 0) {
-                        return Toast.error(I18n.t('assets.balanceError'))
-                    }
-                    if (residue < IotaSDK.IOTA_MI && residue != 0) {
-                        return Toast.error(I18n.t('assets.residueBelow1Tips'))
-                    }
-                    Toast.showLoading()
-                    const res = await IotaSDK.send(curWallet, address, amount)
-                    messageId = res.messageId
-                    Toast.hideLoading()
-                    Toast.success(I18n.t('assets.sendSucc'))
-                    updateBalance(residue, curWallet.address)
-                } catch (error) {
-                    Toast.hideLoading()
-                    Toast.error(error.toString())
                 }
                 break
             case 'sign':
@@ -81,7 +87,6 @@ export const DappDialog = () => {
                     const res = await IotaSDK.sign(content, curWallet, residue)
                     messageId = res.messageId
                     Toast.hideLoading()
-                    closeWindow()
                 } catch (error) {
                     Toast.hideLoading()
                     Toast.error(error.toString())
