@@ -154,14 +154,16 @@ export const ActivityList = ({ search }) => {
     const [list] = useStore('common.hisList')
     const [isShowAssets] = useStore('common.showAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
-    const showList = list.filter((e) => !search || e.address.toLocaleUpperCase().includes(search.toLocaleUpperCase()))
+    const showList = list.filter(
+        (e) => !search || (e.address || '').toLocaleUpperCase().includes(search.toLocaleUpperCase())
+    )
     return (
         <div>
-            {showList.map((e) => {
+            {showList.map((e, i) => {
                 const isOutto = [1, 3].includes(e.type)
                 const isStake = [2, 3].includes(e.type)
                 return (
-                    <div key={e.id} className='flex row as mb20'>
+                    <div key={e.id + i} className='flex row as mb20'>
                         <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
                         <div className='border-b flex flex1 row ac jsb pb15'>
                             <div>
@@ -171,7 +173,8 @@ export const ActivityList = ({ search }) => {
                                     </div>
                                 ) : (
                                     <div className='fz17 mb5'>
-                                        {isOutto ? 'To' : 'From'} : {e.address.replace(/(^.{4})(.+)(.{4}$)/, '$1...$3')}
+                                        {isOutto ? 'To' : 'From'} :{' '}
+                                        {(e.address || '').replace(/(^.{4})(.+)(.{4}$)/, '$1...$3')}
                                     </div>
                                 )}
 

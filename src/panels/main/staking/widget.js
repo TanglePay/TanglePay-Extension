@@ -52,15 +52,18 @@ const AmountCon = ({ amountList }) => {
 }
 
 // Upcoming
-const Upcoming = ({ startTime, uncomingTokens, handleStaking }) => {
+const Upcoming = ({ startTime, commenceTime, uncomingTokens, handleStaking }) => {
     const timeStr = dayjs(startTime * 1000)
         .utcOffset(60)
         .format('HH:mm CET, MMM Do YYYY')
+    const showPre = dayjs(commenceTime * 1000).isBefore(dayjs())
     return (
         <div className='p20 radius10' style={{ backgroundColor: '#ededed' }}>
-            <Button size='large' color='primary' block onClick={() => handleStaking(uncomingTokens, 1)}>
-                <div>{I18n.t('staking.preStake')}</div>
-            </Button>
+            {showPre && (
+                <Button size='large' color='primary' block onClick={() => handleStaking(uncomingTokens, 1)}>
+                    <div>{I18n.t('staking.preStake')}</div>
+                </Button>
+            )}
             <div>
                 <div className='pv15 fw600 fz14'>{I18n.t('staking.airdrops')}</div>
                 <div className='radius10 bgW p15'>
@@ -105,7 +108,7 @@ const UnParticipate = ({ statedTokens, unStakeTokens, handleStaking, uncomingTok
                         {uList.map((d, di) => {
                             return <StakingTokenItem key={di} className='mr10 mb10' coin={d.token} />
                         })}
-                        <div className='fz12 cS'>{I18n.t('staking.preStake')}</div>
+                        <div className='fz12 cS mb10'>{I18n.t('staking.preStake')}</div>
                     </div>
                 )}
             </div>
@@ -200,7 +203,7 @@ export const StatusCon = () => {
     const [{ filter, rewards }] = useStore('staking.config')
     //status: 0->Ended  1->Upcoming ，2->Commencing
     const [eventInfo, setEventInfo] = useGetParticipationEvents()
-    let { status = 0, list = [], upcomingList = [], commencingList = [] } = eventInfo
+    let { status = 0, list = [], upcomingList = [], commencingList = [], endedList = [] } = eventInfo
     let [statedTokens] = useStore('staking.statedTokens')
     const [statedAmount] = useStore('staking.statedAmount')
     const [assetsList] = useStore('common.assetsList')
@@ -210,6 +213,7 @@ export const StatusCon = () => {
     }
     list = list.filter((e) => !filter.includes(e.id))
     const startTime = upcomingList[upcomingList.length - 1]?.startTime
+    const commenceTime = upcomingList[upcomingList.length - 1]?.commenceTime
     useEffect(() => {
         let timeHandle = null
         if (eventInfo.status === 1) {
@@ -237,7 +241,7 @@ export const StatusCon = () => {
     statedTokens = statedTokens.map((e) => {
         const token = e.token
         let unit = _get(rewards, `${token}.unit`) || token
-        return { ...e, token: unit }
+        return { ...e, token: unit, status: endedList.find((a) => a.id === e.eventId) ? 'ended' : '' }
     })
     list.forEach((e) => {
         const token = e.payload.symbol
@@ -270,19 +274,21 @@ export const StatusCon = () => {
 
     let AirdropsItem = [Ended, Upcoming, UnParticipate, Staked][eventInfo.status || 0]
 
+    const unEndedStakeTokens = statedTokens.filter((e) => e.status !== 'ended')
     let amountList = [
         {
             token: 'IOTA',
             amount: available,
             statusStr: I18n.t('staking.available'),
             borderColor: '#d0d1d2',
-            btnDis: eventInfo.status == 0 // end
+            btnDis:
+                eventInfo.status == 0 || unEndedStakeTokens.length == 0 || dayjs(commenceTime * 1000).isAfter(dayjs()) // end
         }
     ]
     if (status === 3) {
         amountList[0].btnStr = I18n.t('staking.add')
         amountList[0].onPress = () => {
-            handleStaking(statedTokens, 2)
+            handleStaking(unEndedStakeTokens, 2)
         }
         amountList.push({
             token: 'IOTA',
@@ -313,6 +319,7 @@ export const StatusCon = () => {
                 unStakeTokens={unStakeTokens}
                 startTime={startTime}
                 statedAmount={statedAmount}
+                commenceTime={commenceTime}
             />
             <AmountCon amountList={amountList} />
         </div>
