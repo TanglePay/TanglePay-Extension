@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Button } from 'antd-mobile'
 import { SvgIcon, StakingTokenItem, Toast } from '@/common'
 import { I18n, Base } from '@tangle-pay/common'
@@ -355,6 +355,11 @@ export const RewardsList = () => {
             label: `${Base.formatNum(total)}${preUnit} ${unit}`
         }
     })
+    const ListEl = useMemo(() => {
+        return list.map((e, i) => {
+            return <StakingTokenItem key={i} className='mr10 mb10' coin={e.token} label={e.label} />
+        })
+    }, [JSON.stringify(list)])
     if (list.length <= 0) {
         return null
     }
@@ -362,9 +367,7 @@ export const RewardsList = () => {
         <div className='mt25'>
             <div className='cS fz16'>{I18n.t('staking.estimatedReceived')}</div>
             <div className='flex row pv10' style={{ flexWrap: 'wrap' }}>
-                {list.map((e, i) => {
-                    return <StakingTokenItem key={i} className='mr10 mb10' coin={e.token} label={e.label} />
-                })}
+                {ListEl}
             </div>
         </div>
     )
@@ -372,29 +375,32 @@ export const RewardsList = () => {
 
 export const AirdopsList = () => {
     const [{ airdrops }] = useStore('staking.config')
+    const ListEl = useMemo(() => {
+        return airdrops.map((e, i) => {
+            return (
+                <div
+                    className='press mb10 bgS flex row jsb ac p10'
+                    key={i}
+                    style={{ borderRadius: 8 }}
+                    onClick={() => {
+                        Base.push(e.link, { title: e.token })
+                    }}>
+                    <div className='flex row ac'>
+                        <img className='mr10' style={{ width: 24, height: 24 }} src={Base.getIcon(e.token)} />
+                        <div className='fz12'>{e.desc}</div>
+                    </div>
+                    <SvgIcon name='right' size={14} />
+                </div>
+            )
+        })
+    }, [JSON.stringify(airdrops)])
     if (airdrops.length === 0) {
         return null
     }
     return (
         <div className='mt15'>
             <div className='cS fz16 mb10'>{I18n.t('staking.airdropsList')}</div>
-            {airdrops.map((e, i) => {
-                return (
-                    <div
-                        className='press mb10 bgS flex row jsb ac p10'
-                        key={i}
-                        style={{ borderRadius: 8 }}
-                        onClick={() => {
-                            Base.push(e.link, { title: e.token })
-                        }}>
-                        <div className='flex row ac'>
-                            <img className='mr10' style={{ width: 24, height: 24 }} src={Base.getIcon(e.token)} />
-                            <div className='fz12'>{e.desc}</div>
-                        </div>
-                        <SvgIcon name='right' size={14} />
-                    </div>
-                )
-            })}
+            {ListEl}
         </div>
     )
 }

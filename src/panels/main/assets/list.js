@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Base, I18n } from '@tangle-pay/common'
 import { Loading } from 'antd-mobile'
 import { useStore } from '@tangle-pay/store'
@@ -6,12 +6,12 @@ import { useGetLegal } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common'
 import dayjs from 'dayjs'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
-import { useGetRewards } from '@tangle-pay/store/staking'
 import _get from 'lodash/get'
 
 const itemH = 70
 export const CoinList = () => {
     const [isShowAssets] = useStore('common.showAssets')
+    const [needRestake] = useStore('staking.needRestake')
     const [statedAmount] = useStore('staking.statedAmount')
     const [assetsList] = useStore('common.assetsList')
     const curLegal = useGetLegal()
@@ -35,7 +35,7 @@ export const CoinList = () => {
                         <div style={{ height: itemH }} className='border-b flex flex1 row ac jsb'>
                             <div className='flex ac row'>
                                 <div className='fz17'>{e.name}</div>
-                                {statedAmount > 0 && (
+                                {statedAmount > 0 && !needRestake && (
                                     <div
                                         style={{
                                             transform: 'scale(0.7)',
@@ -75,7 +75,6 @@ export const RewardsList = () => {
     const [stakedRewards] = useStore('staking.stakedRewards')
     const [list, setList] = useState([])
     const [curWallet] = useGetNodeWallet()
-    useGetRewards(curWallet)
     const [{ rewards }] = useStore('staking.config')
     const [isRequestAssets] = useStore('common.isRequestAssets')
     useEffect(() => {
@@ -115,33 +114,34 @@ export const RewardsList = () => {
         }
         setList(Object.values(obj))
     }, [JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address])
+    const ListEl = useMemo(() => {
+        return list.map((e) => {
+            return (
+                <div key={e.symbol} className='flex row ac' style={{ opacity: 0.6, height: itemH }}>
+                    <img
+                        className='mr15 border'
+                        style={{ width: 35, height: 35, borderRadius: 35 }}
+                        src={Base.getIcon(e.symbol)}
+                    />
+                    <div className='flex flex1 row ac jsb border-b' style={{ height: itemH }}>
+                        <div className='fz17'>{e.unit}</div>
+                        {isShowAssets ? (
+                            <div>
+                                <div className='fz15 tr'>{e.amountLabel}</div>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className='fz15 tr'>****</div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )
+        })
+    }, [JSON.stringify(list), isShowAssets])
     return (
         <>
-            {list.length <= 0
-                ? null
-                : list.map((e) => {
-                      return (
-                          <div key={e.symbol} className='flex row ac' style={{ opacity: 0.6, height: itemH }}>
-                              <img
-                                  className='mr15 border'
-                                  style={{ width: 35, height: 35, borderRadius: 35 }}
-                                  src={Base.getIcon(e.symbol)}
-                              />
-                              <div className='flex flex1 row ac jsb border-b' style={{ height: itemH }}>
-                                  <div className='fz17'>{e.unit}</div>
-                                  {isShowAssets ? (
-                                      <div>
-                                          <div className='fz15 tr'>{e.amountLabel}</div>
-                                      </div>
-                                  ) : (
-                                      <div>
-                                          <div className='fz15 tr'>****</div>
-                                      </div>
-                                  )}
-                              </div>
-                          </div>
-                      )
-                  })}
+            {list.length <= 0 ? null : ListEl}
             {!isRequestAssets && (
                 <div className='p30 flex c row'>
                     <Loading color='gray' />
@@ -158,46 +158,47 @@ export const ActivityList = ({ search }) => {
     const showList = list.filter(
         (e) => !search || (e.address || '').toLocaleUpperCase().includes(search.toLocaleUpperCase())
     )
-    return (
-        <div>
-            {showList.map((e, i) => {
-                const isOutto = [1, 3].includes(e.type)
-                const isStake = [2, 3].includes(e.type)
-                return (
-                    <div key={e.id + i} className='flex row as mb20'>
-                        <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
-                        <div className='border-b flex flex1 row ac jsb pb15'>
-                            <div>
-                                {isStake ? (
-                                    <div className='fz17 mb5'>
-                                        {I18n.t(isOutto ? 'staking.unstake' : 'staking.stake')}
-                                    </div>
-                                ) : (
-                                    <div className='fz17 mb5'>
-                                        {isOutto ? 'To' : 'From'} :{' '}
-                                        {(e.address || '').replace(/(^.{4})(.+)(.{4}$)/, '$1...$3')}
-                                    </div>
-                                )}
-
-                                <div className='fz15 cS'>{dayjs(e.timestamp * 1000).format('YYYY-MM-DD HH:mm')}</div>
-                            </div>
-                            {isShowAssets ? (
-                                <div>
-                                    <div className='fz15 tr mb5'>
-                                        {isOutto ? '-' : '+'} {e.num} {e.coin}
-                                    </div>
-                                    <div className='fz15 tr cS'>$ {e.assets}</div>
-                                </div>
+    const ListEl = useMemo(() => {
+        return showList.map((e, i) => {
+            const isOutto = [1, 3].includes(e.type)
+            const isStake = [2, 3].includes(e.type)
+            return (
+                <div key={e.id + i} className='flex row as mb20'>
+                    <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
+                    <div className='border-b flex flex1 row ac jsb pb15'>
+                        <div>
+                            {isStake ? (
+                                <div className='fz17 mb5'>{I18n.t(isOutto ? 'staking.unstake' : 'staking.stake')}</div>
                             ) : (
-                                <div>
-                                    <div className='fz15 tr mb5'>****</div>
-                                    <div className='fz15 tr cS'>****</div>
+                                <div className='fz17 mb5'>
+                                    {isOutto ? 'To' : 'From'} :{' '}
+                                    {(e.address || '').replace(/(^.{4})(.+)(.{4}$)/, '$1...$3')}
                                 </div>
                             )}
+
+                            <div className='fz15 cS'>{dayjs(e.timestamp * 1000).format('YYYY-MM-DD HH:mm')}</div>
                         </div>
+                        {isShowAssets ? (
+                            <div>
+                                <div className='fz15 tr mb5'>
+                                    {isOutto ? '-' : '+'} {e.num} {e.coin}
+                                </div>
+                                <div className='fz15 tr cS'>$ {e.assets}</div>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className='fz15 tr mb5'>****</div>
+                                <div className='fz15 tr cS'>****</div>
+                            </div>
+                        )}
                     </div>
-                )
-            })}
+                </div>
+            )
+        })
+    }, [JSON.stringify(showList), isShowAssets])
+    return (
+        <div>
+            {ListEl}
             {!isRequestHis && (
                 <div className='p30 flex c row'>
                     <Loading color='gray' />

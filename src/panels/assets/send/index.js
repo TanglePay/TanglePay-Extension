@@ -51,7 +51,9 @@ export const AssetsSend = () => {
                             return Toast.error(I18n.t('assets.sendBelow1Tips'))
                         }
                         if (residue < 0) {
-                            return Toast.error(I18n.t('assets.balanceError'))
+                            return Toast.error(
+                                I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
+                            )
                         }
                         if (residue < Number(BigNumber(0.01).times(IotaSDK.IOTA_MI))) {
                             sendAmount = Number(realBalance)
@@ -109,7 +111,11 @@ export const AssetsSend = () => {
                                             onChange={handleChange('amount')}
                                             value={values.amount}
                                             onBlur={() => {
-                                                const str = Base.formatNum(values.amount, 2)
+                                                const precision = Math.log10(IotaSDK.IOTA_MI)
+                                                let str = Base.formatNum(values.amount, precision)
+                                                if (parseFloat(str) < Math.pow(10, -precision)) {
+                                                    str = String(Math.pow(10, -precision))
+                                                }
                                                 setFieldValue('amount', str)
                                             }}
                                         />

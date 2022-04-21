@@ -56,7 +56,9 @@ export const DappDialog = () => {
                             return Toast.error(I18n.t('assets.sendBelow1Tips'))
                         }
                         if (residue < 0) {
-                            return Toast.error(I18n.t('assets.balanceError'))
+                            return Toast.error(
+                                I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
+                            )
                         }
                         if (residue < IotaSDK.IOTA_MI && residue != 0) {
                             return Toast.error(I18n.t('assets.residueBelow1Tips'))
@@ -81,7 +83,9 @@ export const DappDialog = () => {
                 try {
                     const residue = Number(assets.realBalance || 0)
                     if (residue < IotaSDK.IOTA_MI) {
-                        return Toast.error(I18n.t('assets.balanceError'))
+                        return Toast.error(
+                            I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
+                        )
                     }
                     Toast.showLoading()
                     const res = await IotaSDK.sign(content, curWallet, residue)
