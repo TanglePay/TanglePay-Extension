@@ -69,6 +69,8 @@ export const DappDialog = () => {
                         Toast.hideLoading()
                         Toast.success(I18n.t('assets.sendSucc'))
                         updateBalance(residue, curWallet.address)
+                        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+                        await sleep(2000)
                     } catch (error) {
                         Toast.hideLoading()
                         Toast.error(
