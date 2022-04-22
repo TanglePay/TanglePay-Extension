@@ -40,7 +40,7 @@ export const Toast = {
             ...config,
             icon: 'loading',
             content: '',
-            duration: 30000
+            duration: 300000
         })
     },
     hideLoading() {

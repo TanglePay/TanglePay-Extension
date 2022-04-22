@@ -8,7 +8,7 @@ import dayjs from 'dayjs'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import _get from 'lodash/get'
 
-const itemH = 70
+const itemH = 64
 export const CoinList = () => {
     const [isShowAssets] = useStore('common.showAssets')
     const [needRestake] = useStore('staking.needRestake')
@@ -117,7 +117,7 @@ export const RewardsList = () => {
     const ListEl = useMemo(() => {
         return list.map((e) => {
             return (
-                <div key={e.symbol} className='flex row ac' style={{ opacity: 0.6, height: itemH }}>
+                <div key={e.symbol} className='flex row ac' style={{ opacity: 0.4, height: itemH }}>
                     <img
                         className='mr15 border'
                         style={{ width: 35, height: 35, borderRadius: 35 }}
@@ -163,7 +163,7 @@ export const ActivityList = ({ search }) => {
             const isOutto = [1, 3].includes(e.type)
             const isStake = [2, 3].includes(e.type)
             return (
-                <div key={e.id + i} className='flex row as mb20'>
+                <div key={e.id + i} className='flex row as mv10'>
                     <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
                     <div className='border-b flex flex1 row ac jsb pb15'>
                         <div>
