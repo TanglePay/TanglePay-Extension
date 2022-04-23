@@ -23,7 +23,8 @@ export const Toast = {
         AntdToast.show({
             ...config,
             icon: 'fail',
-            content: text
+            content: text,
+            duration: 10000
         })
     },
     warning(text) {
@@ -40,7 +41,7 @@ export const Toast = {
             ...config,
             icon: 'loading',
             content: '',
-            duration: 30000
+            duration: 300000
         })
     },
     hideLoading() {

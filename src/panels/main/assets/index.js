@@ -42,51 +42,53 @@ export const Assets = () => {
                         refreshAssets(Math.random())
                     }
                 }}>
-                <div className='ph20'>
-                    <div className='pt20 mt5' style={{ background: '#1D70F7', borderRadius: 10, overflow: 'hidden' }}>
-                        <div className='flex ph20 row ac'>
-                            <div className='fz16 cW'>
-                                {I18n.t('assets.myAssets')}({curLegal.unit || ''})
+                <div>
+                    <div className='ph15'>
+                        <div className='mt5' style={{ background: '#1D70F7', borderRadius: 10, overflow: 'hidden' }}>
+                            <div className='flex ph15 row ac'>
+                                <div className='fz16 cW'>
+                                    {I18n.t('assets.myAssets')}({curLegal.unit || ''})
+                                </div>
+                                <SvgIcon
+                                    name={isShowAssets ? 'eye_1' : 'eye_0'}
+                                    size={24}
+                                    className='m15 press cW'
+                                    onClick={() => setShowAssets(!isShowAssets)}
+                                />
                             </div>
-                            <SvgIcon
-                                name={isShowAssets ? 'eye_1' : 'eye_0'}
-                                size={24}
-                                className='m15 press cW'
-                                onClick={() => setShowAssets(!isShowAssets)}
-                            />
-                        </div>
-                        <div className='ph20 mt20 mb15'>
-                            <div className='cW fz20'>{isShowAssets ? totalAssets.assets || '0.00' : '****'}</div>
-                        </div>
-                        <div className='flex row pv10' style={{ background: '#1F7EFC' }}>
-                            <div
-                                onClick={() => {
-                                    checkPush('assets/send')
-                                }}
-                                className='flex1 flex c pv5 press'
-                                style={{ borderRight: '1px solid #fff' }}>
-                                <div className='cW fz17'>{I18n.t('assets.send')}</div>
+                            <div className='ph15 mb15'>
+                                <div className='cW fz20'>{isShowAssets ? totalAssets.assets || '0.00' : '****'}</div>
                             </div>
-                            <div
-                                onClick={() => {
-                                    checkPush('assets/receive')
-                                }}
-                                className='flex1 flex c pv5 press'>
-                                <div className='cW fz17'>{I18n.t('assets.receive')}</div>
+                            <div className='flex row pv10' style={{ background: '#1F7EFC' }}>
+                                <div
+                                    onClick={() => {
+                                        checkPush('assets/send')
+                                    }}
+                                    className='flex1 flex c pv5 press'
+                                    style={{ borderRight: '1px solid #fff' }}>
+                                    <div className='cW fz17'>{I18n.t('assets.send')}</div>
+                                </div>
+                                <div
+                                    onClick={() => {
+                                        checkPush('assets/receive')
+                                    }}
+                                    className='flex1 flex c pv5 press'>
+                                    <div className='cW fz17'>{I18n.t('assets.receive')}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className='flex row jsb ac mt25 mb10'>
+                    <div className='ph15 flex row jsb ac mt10 border-b'>
                         <div className='flex row ac'>
-                            <div onClick={() => setTab(0)} className='flex c pv20 mr30 press'>
-                                <div className={`${curTab === 0 ? 'cP' : 'cS'} fz17`}>{I18n.t('assets.assets')}</div>
+                            <div onClick={() => setTab(0)} className='flex c pv15 mr30 press'>
+                                <div className={`${curTab === 0 ? 'cP' : 'cS'} fz15`}>{I18n.t('assets.assets')}</div>
                             </div>
-                            <div onClick={() => setTab(1)} className='press flex c pv20'>
-                                <div className={`${curTab === 1 ? 'cP' : 'cS'} fz17`}>{I18n.t('assets.activity')}</div>
+                            <div onClick={() => setTab(1)} className='press flex c pv15'>
+                                <div className={`${curTab === 1 ? 'cP' : 'cS'} fz15`}>{I18n.t('assets.activity')}</div>
                             </div>
                         </div>
                     </div>
-                    <div id='content-id' style={{ height, overflowY: 'scroll' }}>
+                    <div className='ph15' id='content-id' style={{ height, overflowY: 'scroll' }}>
                         {curTab === 0 ? (
                             <div>
                                 <CoinList />

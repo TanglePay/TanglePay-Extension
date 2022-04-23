@@ -101,7 +101,7 @@ const UnParticipate = ({ statedTokens, unStakeTokens, handleStaking, uncomingTok
                     {unStakeTokens.map((d, di) => {
                         return <StakingTokenItem key={di} className='mr10 mb10' coin={d.token} />
                     })}
-                    <div className='fz12 cS'>{I18n.t('staking.availableToStake')}</div>
+                    <div className='fz12 cS mb10'>{I18n.t('staking.availableToStake')}</div>
                 </div>
                 {uList.length > 0 && (
                     <div className='flex row ac mb10' style={{ flexWrap: 'wrap' }}>
@@ -275,6 +275,10 @@ export const StatusCon = () => {
     let AirdropsItem = [Ended, Upcoming, UnParticipate, Staked][eventInfo.status || 0]
 
     const unEndedStakeTokens = statedTokens.filter((e) => e.status !== 'ended')
+    if (unStakeTokens.length === 0 && eventInfo.status == 2 && status == 3) {
+        AirdropsItem = Staked
+    }
+
     let amountList = [
         {
             token: 'IOTA',

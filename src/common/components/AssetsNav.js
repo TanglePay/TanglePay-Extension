@@ -11,13 +11,13 @@ export const AssetsNav = () => {
     return (
         <NavBar
             backArrow={
-                <div className='flex row ac pl10'>
+                <div className='flex row ac pl5'>
                     <div
                         onClick={() => {
                             Base.push('/assets/wallets')
                         }}
-                        className='flex row ac ph10 pv5 press'
-                        style={{ background: '#1D70F7', borderRadius: 20 }}>
+                        className='flex row ac ph10 press'
+                        style={{ background: '#1D70F7', borderRadius: 20, height: '30px', lineHeight: '30px' }}>
                         <div className='ellipsis fz16 cW' style={{ maxWidth: 120 }}>
                             {curWallet.name || I18n.t('assets.addWallets')}
                         </div>
