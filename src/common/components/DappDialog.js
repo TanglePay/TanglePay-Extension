@@ -65,6 +65,9 @@ export const DappDialog = () => {
                         }
                         Toast.showLoading()
                         const res = await IotaSDK.send(curWallet, address, amount)
+                        if (!res) {
+                            return
+                        }
                         messageId = res.messageId
                         Toast.hideLoading()
                         Toast.success(I18n.t('assets.sendSucc'))

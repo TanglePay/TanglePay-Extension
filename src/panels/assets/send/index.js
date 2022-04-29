@@ -63,14 +63,13 @@ export const AssetsSend = () => {
                         Toast.showLoading()
                         try {
                             const res = await IotaSDK.send(curWallet, receiver, sendAmount)
-                            Toast.hideLoading()
                             if (res) {
+                                Toast.hideLoading()
                                 Toast.success(I18n.t('assets.sendSucc'))
                                 Base.goBack()
                                 updateBalance(Number(bigStatedAmount.plus(residue)), curWallet.address)
                             }
                         } catch (error) {
-                            console.log(error)
                             Toast.hideLoading()
                             // Toast.error(I18n.t('assets.sendError'))
                             Toast.error(
