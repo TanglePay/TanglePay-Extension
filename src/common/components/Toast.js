@@ -19,12 +19,12 @@ export const Toast = {
             content: text
         })
     },
-    error(text) {
+    error(text, params = {}) {
         AntdToast.show({
             ...config,
             icon: 'fail',
             content: text,
-            duration: 10000
+            ...params
         })
     },
     warning(text) {

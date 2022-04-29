@@ -76,7 +76,10 @@ export const DappDialog = () => {
                         Toast.error(
                             `${error.toString()}---amount:${amount}---residue:${residue}---realBalance:${Number(
                                 realBalance
-                            )}---bigStatedAmount:${bigStatedAmount}`
+                            )}---bigStatedAmount:${bigStatedAmount}`,
+                            {
+                                duration: 5000
+                            }
                         )
                     }
                 }
@@ -95,7 +98,9 @@ export const DappDialog = () => {
                     Toast.hideLoading()
                 } catch (error) {
                     Toast.hideLoading()
-                    Toast.error(error.toString())
+                    Toast.error(error.toString(), {
+                        duration: 5000
+                    })
                 }
                 break
             default:
