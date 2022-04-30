@@ -4,7 +4,7 @@ import { Nav, SvgIcon } from '@/common'
 import { default as logo } from '@tangle-pay/assets/images/logo.png'
 
 export const UserAboutUs = () => {
-    var version = '1.2.6'
+    var version = '1.3.0'
     const list = [
         {
             label: I18n.t('user.versionUpdate'),
