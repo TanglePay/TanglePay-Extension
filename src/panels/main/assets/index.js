@@ -3,7 +3,7 @@ import { PullToRefresh, Loading } from 'antd-mobile'
 import { Base, I18n } from '@tangle-pay/common'
 import { AssetsNav, SvgIcon } from '@/common'
 import { useStore } from '@tangle-pay/store'
-import { CoinList, ActivityList, RewardsList } from './list'
+import { CoinList, ActivityList, RewardsList, CollectiblesList } from './list'
 import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
 
@@ -79,12 +79,21 @@ export const Assets = () => {
                         </div>
                     </div>
                     <div className='ph15 flex row jsb ac mt10 border-b'>
-                        <div className='flex row ac'>
-                            <div onClick={() => setTab(0)} className='flex c pv15 mr30 press'>
-                                <div className={`${curTab === 0 ? 'cP' : 'cS'} fz15`}>{I18n.t('assets.assets')}</div>
+                        <div className='w100 flex row ac jsb'>
+                            <div className='flex row ac'>
+                                <div onClick={() => setTab(0)} className='flex c pv15 mr30 press'>
+                                    <div className={`${curTab === 0 ? 'cP' : 'cB'} fz15`}>
+                                        {I18n.t('assets.assets')}
+                                    </div>
+                                </div>
+                                <div onClick={() => setTab(1)} className='press flex c pv15'>
+                                    <div className={`${curTab === 1 ? 'cP' : 'cB'} fz15`}>
+                                        {I18n.t('nft.collectibles')}
+                                    </div>
+                                </div>
                             </div>
-                            <div onClick={() => setTab(1)} className='press flex c pv15'>
-                                <div className={`${curTab === 1 ? 'cP' : 'cS'} fz15`}>{I18n.t('assets.activity')}</div>
+                            <div onClick={() => setTab(2)} className='press flex c pv15'>
+                                <div className={`${curTab === 2 ? 'cP' : 'cB'} fz15`}>{I18n.t('assets.activity')}</div>
                             </div>
                         </div>
                     </div>
@@ -94,6 +103,8 @@ export const Assets = () => {
                                 <CoinList />
                                 <RewardsList />
                             </div>
+                        ) : curTab == 1 ? (
+                            <CollectiblesList />
                         ) : (
                             <ActivityList />
                         )}

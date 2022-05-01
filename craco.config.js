@@ -16,7 +16,7 @@ module.exports = {
             config.output = {
                 ...config.output,
                 filename: 'app.js',
-                chunkFilename: 'static/js/bundle_[name].js',
+                chunkFilename: 'static/js/bundle_[name].js'
             }
             return config
         },

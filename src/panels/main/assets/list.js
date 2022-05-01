@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Base, I18n } from '@tangle-pay/common'
-import { Loading } from 'antd-mobile'
+import { Loading, ImageViewer } from 'antd-mobile'
 import { useStore } from '@tangle-pay/store'
 import { useGetLegal } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common'
 import dayjs from 'dayjs'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import _get from 'lodash/get'
+import { useGetNftList } from '@tangle-pay/store/nft'
 
 const itemH = 64
 export const CoinList = () => {
@@ -117,13 +118,13 @@ export const RewardsList = () => {
     const ListEl = useMemo(() => {
         return list.map((e) => {
             return (
-                <div key={e.symbol} className='flex row ac' style={{ opacity: 0.4, height: itemH }}>
+                <div key={e.symbol} className='flex row ac' style={{ height: itemH }}>
                     <img
                         className='mr15 border'
-                        style={{ width: 35, height: 35, borderRadius: 35 }}
+                        style={{ width: 35, height: 35, borderRadius: 35, opacity: 0.4 }}
                         src={Base.getIcon(e.symbol)}
                     />
-                    <div className='flex flex1 row ac jsb border-b' style={{ height: itemH }}>
+                    <div className='flex flex1 row ac jsb border-b' style={{ height: itemH, color: 'rgba(0,0,0,0.4)' }}>
                         <div className='fz17'>{e.unit}</div>
                         {isShowAssets ? (
                             <div>
@@ -207,4 +208,86 @@ export const ActivityList = ({ search }) => {
             )}
         </div>
     )
+}
+
+const imgW = (375 - 20 * 2 - 16 * 2) / 3
+const CollectiblesItem = ({ logo, name, link, list }) => {
+    const [isOpen, setOpen] = useState(false)
+    const images = list.map((e) => {
+        return e.media
+    })
+    return (
+        <div>
+            <div
+                className='press flex row ac'
+                onClick={() => {
+                    setOpen(!isOpen)
+                }}
+                style={{ height: 64 }}>
+                <SvgIcon size={14} name='up' style={!isOpen && { transform: 'rotate(180deg)' }} />
+                <img
+                    style={{ width: 32, height: 32, borderRadius: 4 }}
+                    className='mr10 ml15'
+                    src={Base.getIcon(logo)}
+                />
+                <div>{name}</div>
+                <div className='bgS ml10 ph5' style={{ paddingTop: 3, paddingBottom: 3, borderRadius: 4 }}>
+                    <div className='fz12'>{list.length}</div>
+                </div>
+            </div>
+            {isOpen &&
+                (list.length > 0 ? (
+                    <div className='flex row ac border-b' style={{ flexWrap: 'wrap' }}>
+                        {list.map((e, i) => {
+                            return (
+                                <div
+                                    className='press'
+                                    key={`${e.uid}_${i}`}
+                                    onClick={() => {
+                                        ImageViewer.Multi.show({
+                                            images,
+                                            defaultIndex: i
+                                        })
+                                    }}>
+                                    <img
+                                        className='mb15'
+                                        style={{
+                                            borderRadius: 8,
+                                            width: imgW,
+                                            height: imgW,
+                                            marginLeft: parseInt(i % 3) == 1 ? 16 : 0,
+                                            marginRight: parseInt(i % 3) == 1 ? 16 : 0
+                                        }}
+                                        src={e.thumbnailImage || e.media}
+                                    />
+                                </div>
+                            )
+                        })}
+                    </div>
+                ) : (
+                    <div className='flex c pb25 pt10 border-b'>
+                        <div className='fz15 cS'>
+                            {I18n.t('nft.zeroTips').replace('{name}', name)}{' '}
+                            <span
+                                className='cP'
+                                onClick={() => {
+                                    Base.push(link)
+                                }}>
+                                {I18n.t('nft.goBuy')}
+                            </span>
+                        </div>
+                    </div>
+                ))}
+        </div>
+    )
+}
+export const CollectiblesList = () => {
+    useGetNftList()
+    const [list] = useStore('nft.list')
+    const ListEl = useMemo(() => {
+        return list.map((e) => {
+            return <CollectiblesItem key={e.space} {...e} />
+        })
+    }, [JSON.stringify(list)])
+    return <div>{ListEl}</div>
 }
