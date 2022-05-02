@@ -269,7 +269,7 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                         <div className='fz15 cS'>
                             {I18n.t('nft.zeroTips').replace('{name}', name)}{' '}
                             <span
-                                className='cP'
+                                className='cP press'
                                 onClick={() => {
                                     Base.push(link)
                                 }}>

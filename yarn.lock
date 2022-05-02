@@ -11738,10 +11738,10 @@ table@^6.0.9:
     string-width "^4.2.3"
     strip-ansi "^6.0.1"
 
-tanglepay@^1.3.9:
-  version "1.3.9"
-  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-1.3.9.tgz#257ccdf2c234ad2467ddc157a31c45f7a527a50b"
-  integrity sha512-im5w8BzDN3g6uOkhAJlJBqywmpEcv2GDe2DED8hPLLLTEo5XtVxAdgcUW4V2W/b1bC87XuQY/9j7pHOh5ISK0g==
+tanglepay@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-1.4.0.tgz#94ddba050df4e2336263b7d63e81e0b553704e69"
+  integrity sha512-kYvT1HKIZDH8tx7rKjJ4xtbTVY0pRufFycNiUj2rcRXHglj7AK0p6G10pPvGQcFlsMDlt2V57LllAe/JTHITnw==
 
 tapable@^1.0.0, tapable@^1.1.3:
   version "1.1.3"
