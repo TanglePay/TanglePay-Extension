@@ -29,8 +29,8 @@
         "react-share": "^4.4.0",
         "react-svg": "^14.1.6",
         "react-transition-group": "^4.4.2",
-        "soonaverse": "^0.1.13",
-        "tanglepay": "^1.3.7",
+        "soonaverse": "^0.1.14",
+        "tanglepay": "^1.3.8",
         "web-vitals": "^1.0.1",
         "yup": "^0.32.11"
     },

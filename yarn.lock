@@ -11257,10 +11257,10 @@ sockjs@^0.3.21:
     uuid "^8.3.2"
     websocket-driver "^0.7.4"
 
-soonaverse@^0.1.13:
-  version "0.1.13"
-  resolved "https://registry.npmjs.org/soonaverse/-/soonaverse-0.1.13.tgz#437ab4ca8ec102c7e787bb125e61ea2b4d97338f"
-  integrity sha512-z1DSyIHxMfL7dyTg8jPPArio4Ouu52HvCQS+L1ta583Tw0PLZW7xKRKNbd52corTw4xvhteX/ufMcdSqh5M5Bw==
+soonaverse@^0.1.14:
+  version "0.1.14"
+  resolved "https://registry.npmjs.org/soonaverse/-/soonaverse-0.1.14.tgz#cffb3bd0f372e8e1ad56a9cbf04bfa5da166ae81"
+  integrity sha512-n/en+HtnTppZtb220/lo/hLqE97DHF1RJ3jF9W+DRVO1RnBMplaau2KBPDAMsKPB5rL2WI9LCOESi0KZP36jNg==
   dependencies:
     firebase "^9.6.11"
     rxjs "6.5.4"
@@ -11738,10 +11738,10 @@ table@^6.0.9:
     string-width "^4.2.3"
     strip-ansi "^6.0.1"
 
-tanglepay@^1.3.7:
-  version "1.3.7"
-  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-1.3.7.tgz#d9d437380d61eaabaa7c5bea3e43ebad62886720"
-  integrity sha512-znrXqqj3zh+0kb5RVwpziMeAbRhqwENV3+EDUflTrWwZwVljXtlTwonT83NVN0bnQqGAg6dv6Yswj9orUVFHxw==
+tanglepay@^1.3.8:
+  version "1.3.8"
+  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-1.3.8.tgz#a83e7681a951f88c4862b054a9cad9fdf0527167"
+  integrity sha512-Jxj9lB/XSSchCQuE4JWN/N7nKAPBMAi2XCWL7PFvDFn5sUz3ICJMkHt4ab8Df23uMYo9OFKNrBBWoJKX5frUNA==
 
 tapable@^1.0.0, tapable@^1.1.3:
   version "1.1.3"
