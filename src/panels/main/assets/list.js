@@ -269,7 +269,7 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                         <div className='fz15 cS'>
                             {I18n.t('nft.zeroTips').replace('{name}', name)}{' '}
                             <span
-                                className='cP'
+                                className='cP press'
                                 onClick={() => {
                                     Base.push(link)
                                 }}>
@@ -282,6 +282,7 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
     )
 }
 export const CollectiblesList = () => {
+    const [isRequestNft] = useStore('nft.isRequestNft')
     useGetNftList()
     const [list] = useStore('nft.list')
     const ListEl = useMemo(() => {
@@ -289,5 +290,15 @@ export const CollectiblesList = () => {
             return <CollectiblesItem key={e.space} {...e} />
         })
     }, [JSON.stringify(list)])
-    return <div>{ListEl}</div>
+    return (
+        <div>
+            {ListEl}
+            {!isRequestNft && (
+                <div className='p30 flex c row'>
+                    <Loading color='gray' />
+                    <span className='flex cS fz16 pl10'>{I18n.t('assets.requestAssets')}</span>
+                </div>
+            )}
+        </div>
+    )
 }
