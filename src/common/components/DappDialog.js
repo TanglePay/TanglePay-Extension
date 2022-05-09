@@ -5,7 +5,7 @@ import { useGetNodeWallet, useChangeNode, useUpdateBalance } from '@tangle-pay/s
 import { useStore } from '@tangle-pay/store'
 import BigNumber from 'bignumber.js'
 import { Toast } from './Toast'
-import { Loading } from 'antd-mobile'
+import Bridge from '@/common/bridge'
 
 export const DappDialog = () => {
     const [isShow, setShow] = useState(false)
@@ -37,6 +37,18 @@ export const DappDialog = () => {
         const bg = window.chrome?.extension?.getBackgroundPage()
         if (bg && bg.tanglepayDialog) {
             window.chrome.windows.remove(bg.tanglepayDialog)
+        }
+    }
+    const onHandleCancel = async ({ type }) => {
+        switch (type) {
+            case 'iota_accounts':
+                Bridge.sendErrorMessage('iota_accounts', {
+                    msg: 'cancel'
+                })
+                break
+
+            default:
+                break
         }
     }
     const onExecute = async ({ address, return_url, content, type, amount }) => {
@@ -106,6 +118,16 @@ export const DappDialog = () => {
                     })
                 }
                 break
+            case 'iota_accounts':
+                try {
+                    const res = await IotaSDK.getValidAddresses(curWallet)
+                    Bridge.sendMessage('iota_accounts', res?.addressList || [])
+                } catch (error) {
+                    Bridge.sendErrorMessage('iota_accounts', {
+                        msg: error.toString()
+                    })
+                }
+                break
             default:
                 break
         }
@@ -156,10 +178,10 @@ export const DappDialog = () => {
                         {
                             value = parseFloat(value) || 0
                             if (!value) {
-                                Toast.error('Required: value')
+                                return Toast.error('Required: value')
                             }
                             if (!address) {
-                                Toast.error('Required: address')
+                                return Toast.error('Required: address')
                             }
                             let str = I18n.t('apps.send')
                             let fromStr = I18n.t('apps.sendFrom')
@@ -183,12 +205,33 @@ export const DappDialog = () => {
                             show()
                         }
                         break
-                    case 'dapp':
-                        break
                     case 'sign':
                         {
                             if (!content) {
-                                Toast.error('Required: content')
+                                return Toast.error('Required: content')
+                            }
+                            let str = I18n.t('apps.sign')
+                                .trim()
+                                .replace('#merchant#', merchant ? '\n' + merchant : '')
+                                .replace('#content#', content)
+                            const texts = [
+                                {
+                                    text: str.replace(/\n/g, '<br/>')
+                                }
+                            ]
+                            setDappData({
+                                texts,
+                                return_url,
+                                type,
+                                content
+                            })
+                            show()
+                        }
+                        break
+                    case 'iota_accounts':
+                        {
+                            if (!content) {
+                                return Toast.error('Required: content')
                             }
                             let str = I18n.t('apps.sign')
                                 .trim()
@@ -218,10 +261,11 @@ export const DappDialog = () => {
         handleUrl(deepLink, curWallet.password)
     }, [JSON.stringify(curWallet), deepLink])
     useEffect(() => {
-        const params = Base.handlerParams(window.location.href)
+        const params = Base.handlerParams(window.location.search)
+        // const params = Base.handlerParams(
+        //     `?url=tanglepay%3A%2F%2Fiota_accounts%3Fcontent%3D%E6%B5%8B%E8%AF%95%E7%AD%BE%E5%90%8D%26network%3Dmainnet%26fromAddress%3Diota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5`
+        // )
         const url = params.url
-        // const url =
-        //     'tanglepay://send/atoi1qppxzslkz7le675wum03udualamx9e2mu5jz9y72ffsraranc7347vhsj2d?value=1&unit=Mi&merchant=TanglePay&item_desc=Cool NFT&return_url=https%3A%2F%2Ftanglepay.com&network=devnet'
         if (checkDeepLink(url)) {
             setInit(false)
             show()
@@ -268,6 +312,7 @@ export const DappDialog = () => {
                             <Button
                                 className='flex1 bgS'
                                 onClick={() => {
+                                    onHandleCancel(dappData)
                                     hide()
                                     closeWindow()
                                 }}

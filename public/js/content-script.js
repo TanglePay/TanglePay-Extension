@@ -15,24 +15,54 @@ function injectCustomJs(jsPath) {
     document.body.appendChild(temp)
 }
 
-// Get background message
+// get message from background
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    const cmd = (request?.cmd || '').replace(/.+##/, '')
+    sendToInject({
+        cmd,
+        request
+    })
+    sendResponse({ success: 'ok' })
 })
 
-function sendMessageToBackground(message) {
+// send message to background
+function sendToBackground(cmd, message) {
     var left = window.document.body.offsetWidth - 400
-    chrome.runtime.sendMessage({ greeting: message, left: left }, function (response) {
-    })
+    chrome.runtime.sendMessage(
+        { cmd: `contentToBackground##${cmd}`, greeting: message, left: left },
+        function (response) {
+            switch (response?.cmd) {
+                case 'getTanglePayInfo':
+                case 'iota_request':
+                    {
+                        sendToInject({ ...response })
+                    }
+                    break
+                default:
+                    break
+            }
+        }
+    )
 }
 
+// get message from inject
 window.addEventListener(
     'message',
     function (e) {
-        switch (e.data.cmd) {
+        const cmd = (e?.data?.cmd || '').replace('injectToContent##', '')
+        switch (cmd) {
             case 'openTanglePay':
-                sendMessageToBackground(e.data.data)
+            case 'getTanglePayInfo':
+            case 'iota_request':
+                sendToBackground(cmd, e.data.data)
                 break
         }
     },
     false
 )
+
+// send message to inject
+var sendToInject = function (params) {
+    params.cmd = `contentToInject##${params.cmd}`
+    window.postMessage(params, '*')
+}

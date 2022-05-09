@@ -4,10 +4,11 @@ import { Assets } from './assets'
 import { User } from './user'
 import { Staking } from './staking'
 import { Apps } from './apps'
-import { I18n, IotaSDK } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common'
+import Bridge from '@/common/bridge'
 export const Main = () => {
     const [curKey, setActive] = useStore('common.curMainActive')
     const [curWallet] = useGetNodeWallet()
@@ -37,6 +38,9 @@ export const Main = () => {
         setTimeout(() => {
             setOpacity(1)
         }, 500)
+
+        // tangleSDK
+        Bridge.connect(window.location.search)
     }, [])
     return (
         <div style={{ opacity }} className='main flex column page'>
