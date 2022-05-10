@@ -5,13 +5,23 @@ var getBackgroundData = (key) => {
     return window[key] || null
 }
 window.tanglepayDialog = null
+window.tanglepayDialogKeep = false
 window.tanglepayCallBack = {}
 
+// remove a dialog
+chrome.windows.onRemoved.addListener((id) => {
+    if (window.tanglepayDialog === id) {
+        window.tanglepayDialog = null
+        window.tanglepayDialogKeep = false
+    }
+})
+
 // create a dialog
-var createDialog = function (params) {
+var createDialog = function (params, isKeepPopup) {
     function create() {
         chrome.windows.create(params, (w) => {
             window.tanglepayDialog = w.id
+            window.tanglepayDialogKeep = isKeepPopup
         })
     }
     if (window.tanglepayDialog) {
@@ -35,7 +45,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         width: 375
     }
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
-    var cmd = (request?.cmd || '').replace('contentToBackground##', '')
+    const cmd = (request?.cmd || '').replace('contentToBackground##', '')
+    const origin = request?.origin
+    const isKeepPopup = request?.isKeepPopup ? 1 : 0
     window.tanglepayCallBack[cmd] = sendResponse
     switch (cmd) {
         case 'tanglePayDeepLink': {
@@ -53,25 +65,30 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 })
             }
             break
-        case 'iota_request':
-            {
-                const { method } = request.greeting
-                ///// deeplink->sign
-                if (method === 'iota_accounts') {
-                    const [address, content] = request.greeting.params
-                    const url = `tanglepay://iota_accounts?content=${content}&network=mainnet&fromAddress=${address}`
-                    params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-                } else {
-                    params.url =
-                        chrome.extension.getURL('index.html') +
-                        `?cmd=iota_request&method=${method}&params=${encodeURIComponent(
-                            JSON.stringify(request.greeting.params)
-                        )}`
-                }
-                createDialog(params)
-                return true
+        case 'iota_request': {
+            const { method } = request.greeting
+            if (method === 'iota_sign') {
+                const [content] = request.greeting.params
+                const url = `tanglepay://iota_sign?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&network=mainnet`
+                params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+            } else {
+                params.url =
+                    chrome.extension.getURL('index.html') +
+                    `?isKeepPopup=${isKeepPopup}&cmd=iota_request&origin=${encodeURIComponent(
+                        origin
+                    )}&method=${method}&params=${encodeURIComponent(JSON.stringify(request.greeting.params))}`
             }
-            break
+            if (window.tanglepayDialog && window.tanglepayDialogKeep) {
+                const views = chrome.extension.getViews()
+                const curView = views.find((e) => e.Bridge)
+                if (curView) {
+                    curView.Bridge.connect(params.url)
+                }
+            } else {
+                createDialog(params, isKeepPopup == 1)
+            }
+            return true
+        }
         default:
             sendResponse({ success: 'ok' })
             break

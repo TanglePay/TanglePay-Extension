@@ -3,7 +3,6 @@ const RewireBabelLoader = require('craco-babel-loader')
 const path = require('path')
 const pathResolve = (pathUrl) => path.join(__dirname, pathUrl)
 const TerserPlugin = require('terser-webpack-plugin')
-console.log(process.env.NODE_ENV)
 module.exports = {
     webpack: {
         alias: {
@@ -25,7 +24,7 @@ module.exports = {
         //     new TerserPlugin({
         //         terserOptions: {
         //             compress: {
-        //                 drop_console: process.env.NODE_ENV === 'production',
+        //                 drop_console: true,
         //                 drop_debugger: true,
         //                 pure_funcs: ['console.log']
         //             }

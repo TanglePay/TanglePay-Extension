@@ -26,10 +26,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 })
 
 // send message to background
-function sendToBackground(cmd, message) {
+function sendToBackground({ cmd, data, origin, isKeepPopup }) {
     var left = window.document.body.offsetWidth - 400
     chrome.runtime.sendMessage(
-        { cmd: `contentToBackground##${cmd}`, greeting: message, left: left },
+        { cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin, isKeepPopup },
         function (response) {
             switch (response?.cmd) {
                 case 'getTanglePayInfo':
@@ -51,10 +51,10 @@ window.addEventListener(
     function (e) {
         const cmd = (e?.data?.cmd || '').replace('injectToContent##', '')
         switch (cmd) {
-            case 'openTanglePay':
+            case 'tanglePayDeepLink':
             case 'getTanglePayInfo':
             case 'iota_request':
-                sendToBackground(cmd, e.data.data)
+                sendToBackground({ ...e.data, cmd })
                 break
         }
     },

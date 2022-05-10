@@ -39,9 +39,16 @@ export const Main = () => {
             setOpacity(1)
         }, 500)
 
-        // tangleSDK
-        Bridge.connect(window.location.search)
+        // window.Bridge = Bridge
+        // Bridge.connect(window.location.search)
     }, [])
+    // tangleSDK
+    useEffect(() => {
+        window.Bridge = Bridge
+        if (curWallet.password) {
+            Bridge.connect(window.location.search)
+        }
+    }, [curWallet.password])
     return (
         <div style={{ opacity }} className='main flex column page'>
             <div style={{ display: curKey === 'assets' ? 'block' : 'none' }} className='flex1'>

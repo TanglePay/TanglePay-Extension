@@ -22,6 +22,8 @@ window.addEventListener(
 // send message to content-script
 function sendToContentScript(params) {
     params.cmd = `injectToContent##${params.cmd}`
+    params.origin = window.location.origin
+    // {cmd,origin,data,isKeepPopup}
     window.postMessage(params, '*')
 }
 
@@ -29,13 +31,13 @@ function sendToContentScript(params) {
 document.body.addEventListener('click', (e) => {
     var a = e.target && e.target.closest ? e.target.closest('a') : null
     if (a && a.href && /tanglepay\:\/\//.test(a.href)) {
-        sendToContentScript({ cmd: 'openTanglePay', data: a.href })
+        sendToContentScript({ cmd: 'tanglePayDeepLink', data: a.href })
     }
 })
 
 window.addEventListener('load', function () {
     window['TanglePay-Extension'] = {
-        async request({ method, params }) {
+        async request({ method, isKeepPopup, params }) {
             return new Promise((resolve, reject) => {
                 window[`iota_request_${method}`] = function (res, code) {
                     if (code === 200) {
@@ -46,7 +48,8 @@ window.addEventListener('load', function () {
                 }
                 sendToContentScript({
                     cmd: 'iota_request',
-                    data: { method, params }
+                    data: { method, params },
+                    isKeepPopup
                 })
             })
         }

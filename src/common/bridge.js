@@ -3,46 +3,88 @@ import BigNumber from 'bignumber.js'
 import { Toast } from './components/Toast'
 export default {
     async connect(url) {
-        // url = `?cmd=iota_request&method=iota_getBalance&params=%5B%22iota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5%22%2C%22iota1qry9wkw0ezjsms6rvfp24fq8arpd2hu0udaz5mh7ncsjte5z9lhz7w3nxvu%22%5D`
         const query = Base.handlerParams(url) || {}
-        let { cmd, method, params } = query
+        let { cmd, method, params, origin, isKeepPopup } = query
         switch (cmd) {
             case 'iota_request':
-                await IotaSDK.init(1)
-                this[method] && this[method](JSON.parse(params))
+                this.isKeepPopup = isKeepPopup == 1
+                if (!IotaSDK.client) {
+                    return this.sendErrorMessage(method, {
+                        msg: '钱包初始化失败',
+                        status: 1
+                    })
+                }
+                try {
+                    params = JSON.parse(params)
+                } catch (error) {
+                    params = {}
+                }
+                this[method] && this[method](decodeURIComponent(origin), params)
                 break
             default:
                 break
         }
     },
-    async iota_getBalance(addressList) {
-        if (!IotaSDK.client) {
-            return 0
+    async getCurWallet() {
+        const bg = window.chrome?.extension?.getBackgroundPage()
+        let walletsList = []
+        if (bg) {
+            walletsList = await bg.getBackgroundData('common.walletsList')
         }
+        const list = await IotaSDK.getWalletList(walletsList)
+        const curWallet = (list || []).find((e) => e.isSelected)
+        return curWallet
+    },
+    async iota_connect() {
+        const curWallet = await this.getCurWallet()
+        if (curWallet.address) {
+            this.sendMessage('iota_connect', {
+                address: curWallet.address
+            })
+        }
+    },
+    async iota_getBalance(origin, { assetsList, addressList }) {
         Toast.showLoading()
         try {
-            const res = await Promise.all(addressList.map((e) => IotaSDK.client.address(e)))
+            // iota
+            assetsList = assetsList || []
             let amount = BigNumber(0)
-            res.forEach((e) => {
-                amount = amount.plus(e.balance)
-            })
-            amount = Number(amount)
-            let eventConfig = await fetch(`${API_URL}/events.json?v=${new Date().getTime()}`).then((res) => res.json())
-            eventConfig = eventConfig?.rewards || {}
-            console.log(eventConfig)
-            const othersRes = await IotaSDK.getAddressListRewards(addressList)
-            const othersDic = {}
-            for (const i in othersRes) {
-                const { symbol, amount } = othersRes[i]
-                const { ratio, unit } = eventConfig[symbol]
-                othersDic[symbol] = othersDic[symbol] || {
-                    amount: 0,
-                    symbol,
-                    icon: `http://api.iotaichi.com/icon/${unit}.png`
-                }
-                othersDic[symbol].amount += amount * ratio
+            if (assetsList.includes('iota')) {
+                const res = await Promise.all(addressList.map((e) => IotaSDK.client.address(e)))
+                res.forEach((e) => {
+                    amount = amount.plus(e.balance)
+                })
             }
-            const collectibles = await IotaSDK.getNfts(addressList)
+            amount = Number(amount)
+
+            // soonaverse
+            let collectibles = []
+            if (assetsList.includes('soonaverse')) {
+                collectibles = await IotaSDK.getNfts(addressList)
+            }
+
+            // stake
+            let othersDic = {}
+            if (assetsList.includes('smr') || assetsList.includes('asmb')) {
+                let eventConfig = await fetch(`${API_URL}/events.json?v=${new Date().getTime()}`).then((res) =>
+                    res.json()
+                )
+                eventConfig = eventConfig?.rewards || {}
+                const othersRes = await IotaSDK.getAddressListRewards(addressList)
+                for (const i in othersRes) {
+                    const { symbol, amount } = othersRes[i]
+                    const { ratio, unit } = eventConfig[symbol]
+                    if (assetsList.includes(unit.toLocaleLowerCase())) {
+                        othersDic[symbol] = othersDic[symbol] || {
+                            amount: 0,
+                            symbol,
+                            icon: `http://api.iotaichi.com/icon/${unit}.png`
+                        }
+                        othersDic[symbol].amount += amount * ratio
+                    }
+                }
+            }
+
             Toast.hideLoading()
             this.sendMessage('iota_getBalance', {
                 amount,
@@ -50,8 +92,38 @@ export default {
                 others: Object.values(othersDic)
             })
         } catch (error) {
+            Toast.hideLoading()
             this.sendErrorMessage('iota_getBalance', {
                 msg: error.toString()
+            })
+        }
+    },
+    async iota_accounts(origin) {
+        Toast.showLoading()
+        try {
+            const curWallet = await this.getCurWallet()
+            let addressList = []
+            if (curWallet.address) {
+                const res = await IotaSDK.getValidAddresses(curWallet)
+                addressList = res?.addressList || []
+                if (addressList.length === 0) {
+                    addressList = [curWallet.address]
+                }
+            }
+            if (addressList.length > 0) {
+                this.sendMessage('iota_accounts', addressList)
+            } else {
+                this.sendErrorMessage('iota_accounts', {
+                    msg: '钱包未授权',
+                    status: 2
+                })
+            }
+            Toast.hideLoading()
+        } catch (error) {
+            Toast.hideLoading()
+            this.sendErrorMessage('iota_accounts', {
+                msg: error.toString(),
+                status: 3
             })
         }
     },
@@ -67,6 +139,9 @@ export default {
                 }
             })
         }
+        if (!this.isKeepPopup) {
+            this.closeWindow()
+        }
     },
     sendErrorMessage(method, response) {
         const bg = window.chrome?.extension?.getBackgroundPage()
@@ -79,6 +154,13 @@ export default {
                     response
                 }
             })
+        }
+        this.closeWindow()
+    },
+    closeWindow() {
+        const bg = window.chrome?.extension?.getBackgroundPage()
+        if (bg && bg.tanglepayDialog) {
+            window.chrome.windows.remove(bg.tanglepayDialog)
         }
     }
 }

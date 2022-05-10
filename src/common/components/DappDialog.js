@@ -41,8 +41,8 @@ export const DappDialog = () => {
     }
     const onHandleCancel = async ({ type }) => {
         switch (type) {
-            case 'iota_accounts':
-                Bridge.sendErrorMessage('iota_accounts', {
+            case 'iota_sign':
+                Bridge.sendErrorMessage('iota_sign', {
                     msg: 'cancel'
                 })
                 break
@@ -51,7 +51,7 @@ export const DappDialog = () => {
                 break
         }
     }
-    const onExecute = async ({ address, return_url, content, type, amount }) => {
+    const onExecute = async ({ address, return_url, content, type, amount, origin, isKeepPopup }) => {
         if (password !== curWallet.password) {
             return Toast.error(I18n.t('assets.passwordError'))
         }
@@ -118,13 +118,14 @@ export const DappDialog = () => {
                     })
                 }
                 break
-            case 'iota_accounts':
-                try {
-                    const res = await IotaSDK.getValidAddresses(curWallet)
-                    Bridge.sendMessage('iota_accounts', res?.addressList || [])
-                } catch (error) {
-                    Bridge.sendErrorMessage('iota_accounts', {
-                        msg: error.toString()
+            case 'iota_sign':
+                const res = await IotaSDK.iota_sign(curWallet, content, origin)
+                Bridge.isKeepPopup = isKeepPopup
+                if (res) {
+                    Bridge.sendMessage('iota_sign', res)
+                } else {
+                    Bridge.sendErrorMessage('iota_sign', {
+                        msg: 'fail'
                     })
                 }
                 break
@@ -137,7 +138,9 @@ export const DappDialog = () => {
             Base.push(url, { blank: true })
         }
         hide()
-        closeWindow()
+        if (!isKeepPopup) {
+            closeWindow()
+        }
     }
     const checkDeepLink = (url) => {
         return /^tanglepay:\/\//.test(url)
@@ -151,7 +154,17 @@ export const DappDialog = () => {
         for (const i in res) {
             res[i] = (res[i] || '').replace(/#\/.+/, '')
         }
-        let { network, value, unit, return_url, item_desc = '', merchant = '', content = '' } = res
+        let {
+            network,
+            value,
+            unit,
+            return_url,
+            item_desc = '',
+            merchant = '',
+            content = '',
+            origin = '',
+            isKeepPopup
+        } = res
         unit = unit || 'i'
         const toNetId = IotaSDK.nodes.find((e) => e.apiPath === network)?.id
         if (toNetId && parseInt(toNetId) !== parseInt(curNodeId)) {
@@ -205,7 +218,7 @@ export const DappDialog = () => {
                             show()
                         }
                         break
-                    case 'sign':
+                    case 'sign': //  deeplink sign
                         {
                             if (!content) {
                                 return Toast.error('Required: content')
@@ -228,14 +241,14 @@ export const DappDialog = () => {
                             show()
                         }
                         break
-                    case 'iota_accounts':
+                    case 'iota_sign': // sdk sign
                         {
                             if (!content) {
                                 return Toast.error('Required: content')
                             }
                             let str = I18n.t('apps.sign')
                                 .trim()
-                                .replace('#merchant#', merchant ? '\n' + merchant : '')
+                                .replace('#merchant#', origin ? '\n' + origin : '')
                                 .replace('#content#', content)
                             const texts = [
                                 {
@@ -246,7 +259,9 @@ export const DappDialog = () => {
                                 texts,
                                 return_url,
                                 type,
-                                content
+                                content,
+                                origin,
+                                isKeepPopup: isKeepPopup == 1
                             })
                             show()
                         }
@@ -263,7 +278,7 @@ export const DappDialog = () => {
     useEffect(() => {
         const params = Base.handlerParams(window.location.search)
         // const params = Base.handlerParams(
-        //     `?url=tanglepay%3A%2F%2Fiota_accounts%3Fcontent%3D%E6%B5%8B%E8%AF%95%E7%AD%BE%E5%90%8D%26network%3Dmainnet%26fromAddress%3Diota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5`
+        //     `?url=tanglepay%3A%2F%2Fiota_sign%3Fcontent%3D%E6%B5%8B%E8%AF%95%E7%AD%BE%E5%90%8D%26network%3Dmainnet%26fromAddress%3Diota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5`
         // )
         const url = params.url
         if (checkDeepLink(url)) {
