@@ -26,6 +26,7 @@ var createDialog = function (params, isKeepPopup) {
     }
     if (window.tanglepayDialog) {
         try {
+            window.tanglepayDialogKeep = false
             chrome.windows.remove(window.tanglepayDialog)
         } catch (error) {
             // console.log(error)
@@ -70,19 +71,21 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             // get cache data
             const cacheAddress = getBackgroundData('cur_wallet_address')
             const connectAddress = requestParams?.connect_address
-            if (connectAddress && cacheAddress === connectAddress) {
-                const cacheRes = getBackgroundData(`${method}_${connectAddress}`)
-                if (cacheRes) {
-                    sendToContentScript({
-                        cmd: 'iota_request',
-                        code: 200,
-                        data: {
-                            method,
-                            response: cacheRes
-                        }
-                    })
-                    return true
+            const cacheRes = getBackgroundData(`${method}_${cacheAddress}`)
+            if (connectAddress && cacheRes) {
+                sendToContentScript({
+                    cmd: 'iota_request',
+                    code: 200,
+                    data: {
+                        method,
+                        response: cacheRes
+                    }
+                })
+                if (!isKeepPopup && window.tanglepayDialog) {
+                    window.tanglepayDialogKeep = false
+                    chrome.windows.remove(window.tanglepayDialog)
                 }
+                return true
             }
             if (method === 'iota_sign' || method === 'iota_connect') {
                 const content = requestParams?.[0] || ''
