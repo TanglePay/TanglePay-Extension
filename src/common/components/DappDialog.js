@@ -42,7 +42,8 @@ export const DappDialog = () => {
     const onHandleCancel = async ({ type }) => {
         switch (type) {
             case 'iota_sign':
-                Bridge.sendErrorMessage('iota_sign', {
+            case 'iota_connect':
+                Bridge.sendErrorMessage(type, {
                     msg: 'cancel'
                 })
                 break
@@ -52,7 +53,7 @@ export const DappDialog = () => {
         }
     }
     const onExecute = async ({ address, return_url, content, type, amount, origin, isKeepPopup }) => {
-        if (password !== curWallet.password) {
+        if (password !== curWallet.password && type !== 'iota_connect') {
             return Toast.error(I18n.t('assets.passwordError'))
         }
         let messageId = ''
@@ -118,15 +119,22 @@ export const DappDialog = () => {
                     })
                 }
                 break
-            case 'iota_sign':
-                const res = await IotaSDK.iota_sign(curWallet, content, origin)
+            case 'iota_connect': {
                 Bridge.isKeepPopup = isKeepPopup
-                if (res) {
-                    Bridge.sendMessage('iota_sign', res)
-                } else {
-                    Bridge.sendErrorMessage('iota_sign', {
-                        msg: 'fail'
-                    })
+                await Bridge.iota_connect()
+                break
+            }
+            case 'iota_sign':
+                {
+                    const res = await IotaSDK.iota_sign(curWallet, content, origin)
+                    Bridge.isKeepPopup = isKeepPopup
+                    if (res) {
+                        Bridge.sendMessage('iota_sign', res)
+                    } else {
+                        Bridge.sendErrorMessage('iota_sign', {
+                            msg: 'fail'
+                        })
+                    }
                 }
                 break
             default:
@@ -241,6 +249,27 @@ export const DappDialog = () => {
                             show()
                         }
                         break
+                    case 'iota_connect': // sdk connect
+                        {
+                            let str = I18n.t('apps.connect')
+                                .trim()
+                                .replace('#origin#', origin || '')
+                                .replace('#address#', curWallet.address)
+                            const texts = [
+                                {
+                                    text: str.replace(/\n/g, '<br/>')
+                                }
+                            ]
+                            setDappData({
+                                texts,
+                                return_url,
+                                type,
+                                origin,
+                                isKeepPopup: isKeepPopup == 1
+                            })
+                            show()
+                        }
+                        break
                     case 'iota_sign': // sdk sign
                         {
                             if (!content) {
@@ -277,9 +306,6 @@ export const DappDialog = () => {
     }, [JSON.stringify(curWallet), deepLink])
     useEffect(() => {
         const params = Base.handlerParams(window.location.search)
-        // const params = Base.handlerParams(
-        //     `?url=tanglepay%3A%2F%2Fiota_sign%3Fcontent%3D%E6%B5%8B%E8%AF%95%E7%AD%BE%E5%90%8D%26network%3Dmainnet%26fromAddress%3Diota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5`
-        // )
         const url = params.url
         if (checkDeepLink(url)) {
             setInit(false)
@@ -310,9 +336,15 @@ export const DappDialog = () => {
                                 })}
                             </span>
                         </div>
-                        <Form.Item>
-                            <Input type='password' onChange={setPassword} placeholder={I18n.t('assets.passwordTips')} />
-                        </Form.Item>
+                        {dappData.type !== 'iota_connect' && (
+                            <Form.Item>
+                                <Input
+                                    type='password'
+                                    onChange={setPassword}
+                                    placeholder={I18n.t('assets.passwordTips')}
+                                />
+                            </Form.Item>
+                        )}
                         <div className='flex row jsb ac mt25'>
                             <Button
                                 onClick={() => {

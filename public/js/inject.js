@@ -39,8 +39,18 @@ window.addEventListener('load', function () {
     window['TanglePay-Extension'] = {
         async request({ method, isKeepPopup, params }) {
             return new Promise((resolve, reject) => {
+                const address = window.localStorage.getItem('tanglepay_connect_address') || ''
+                if (address) {
+                    params = params || {}
+                    params.connect_address = address
+                }
                 window[`iota_request_${method}`] = function (res, code) {
                     if (code === 200) {
+                        // cache iota address
+                        if (method === 'iota_connect') {
+                            window.localStorage.setItem('tanglepay_connect_address', res.address || '')
+                        }
+
                         resolve(res)
                     } else {
                         reject(res)

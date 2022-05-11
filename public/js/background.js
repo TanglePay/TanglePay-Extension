@@ -66,10 +66,27 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             }
             break
         case 'iota_request': {
-            const { method } = request.greeting
-            if (method === 'iota_sign') {
-                const [content] = request.greeting.params
-                const url = `tanglepay://iota_sign?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&network=mainnet`
+            const { method, params: requestParams } = request.greeting
+            // get cache data
+            const cacheAddress = getBackgroundData('cur_wallet_address')
+            const connectAddress = requestParams?.connect_address
+            if (connectAddress && cacheAddress === connectAddress) {
+                const cacheRes = getBackgroundData(`${method}_${connectAddress}`)
+                if (cacheRes) {
+                    sendToContentScript({
+                        cmd: 'iota_request',
+                        code: 200,
+                        data: {
+                            method,
+                            response: cacheRes
+                        }
+                    })
+                    return true
+                }
+            }
+            if (method === 'iota_sign' || method === 'iota_connect') {
+                const content = requestParams?.[0] || ''
+                const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&network=mainnet`
                 params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
             } else {
                 params.url =

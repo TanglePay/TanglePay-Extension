@@ -33,14 +33,14 @@ export const Main = () => {
     ]
     useEffect(() => {
         IotaSDK.setMqtt(curWallet.address)
+
+        // cache curAddress
+        Bridge.cacheBgData('cur_wallet_address', curWallet.address || '')
     }, [curWallet.address])
     useEffect(() => {
         setTimeout(() => {
             setOpacity(1)
         }, 500)
-
-        // window.Bridge = Bridge
-        // Bridge.connect(window.location.search)
     }, [])
     // tangleSDK
     useEffect(() => {

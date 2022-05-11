@@ -10,7 +10,7 @@ export default {
                 this.isKeepPopup = isKeepPopup == 1
                 if (!IotaSDK.client) {
                     return this.sendErrorMessage(method, {
-                        msg: '钱包初始化失败',
+                        msg: 'Wallet initialization failed',
                         status: 1
                     })
                 }
@@ -38,6 +38,7 @@ export default {
     async iota_connect() {
         const curWallet = await this.getCurWallet()
         if (curWallet.address) {
+            await this.cacheBgAddressData('iota_connect', { address: curWallet.address })
             this.sendMessage('iota_connect', {
                 address: curWallet.address
             })
@@ -85,12 +86,15 @@ export default {
                 }
             }
 
-            Toast.hideLoading()
-            this.sendMessage('iota_getBalance', {
+            const assetsData = {
                 amount,
                 collectibles,
                 others: Object.values(othersDic)
-            })
+            }
+            await this.cacheBgAddressData('iota_getBalance', assetsData)
+
+            Toast.hideLoading()
+            this.sendMessage('iota_getBalance', assetsData)
         } catch (error) {
             Toast.hideLoading()
             this.sendErrorMessage('iota_getBalance', {
@@ -111,10 +115,11 @@ export default {
                 }
             }
             if (addressList.length > 0) {
+                await this.cacheBgAddressData('iota_accounts', addressList)
                 this.sendMessage('iota_accounts', addressList)
             } else {
                 this.sendErrorMessage('iota_accounts', {
-                    msg: '钱包未授权',
+                    msg: 'Wallet not authorized',
                     status: 2
                 })
             }
@@ -126,6 +131,16 @@ export default {
                 status: 3
             })
         }
+    },
+    cacheBgData(key, cacheData) {
+        const bg = window.chrome?.extension?.getBackgroundPage()
+        if (bg) {
+            bg.setBackgroundData(key, cacheData)
+        }
+    },
+    async cacheBgAddressData(key, cacheData) {
+        const curWallet = await this.getCurWallet()
+        this.cacheBgData(`${key}_${curWallet.address}`, cacheData)
     },
     sendMessage(method, response) {
         const bg = window.chrome?.extension?.getBackgroundPage()
