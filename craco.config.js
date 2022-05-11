@@ -19,18 +19,18 @@ module.exports = {
                 chunkFilename: 'static/js/bundle_[name].js'
             }
             return config
-        }
-        // plugins: [
-        //     new TerserPlugin({
-        //         terserOptions: {
-        //             compress: {
-        //                 drop_console: true,
-        //                 drop_debugger: true,
-        //                 pure_funcs: ['console.log']
-        //             }
-        //         }
-        //     })
-        // ]
+        },
+        plugins: [
+            new TerserPlugin({
+                terserOptions: {
+                    compress: {
+                        drop_console: true,
+                        drop_debugger: true,
+                        pure_funcs: ['console.log']
+                    }
+                }
+            })
+        ]
     },
     plugins: [
         { plugin: CracoLessPlugin },

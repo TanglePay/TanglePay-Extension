@@ -354,7 +354,7 @@ export const DappDialog = () => {
                                 style={{ '--border-radius': '30px' }}
                                 color='primary'
                                 size='small'>
-                                {I18n.t('apps.execute')}
+                                {I18n.t(dappData.type !== 'iota_connect' ? 'apps.execute' : 'apps.ConnectBtn')}
                             </Button>
                             <Button
                                 className='flex1 bgS'

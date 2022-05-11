@@ -101,6 +101,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 if (curView) {
                     curView.Bridge.connect(params.url)
                 }
+                chrome.windows.update(window.tanglepayDialog, {
+                    focused: true
+                })
             } else {
                 createDialog(params, isKeepPopup == 1)
             }
