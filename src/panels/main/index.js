@@ -49,6 +49,13 @@ export const Main = () => {
             Bridge.connect(window.location.search)
         }
     }, [curWallet.password])
+    useEffect(() => {
+        if (curWallet.password && curWallet.address) {
+            Bridge.sendEvt('accountsChanged', {
+                address: curWallet.address
+            })
+        }
+    }, [curWallet.password, curWallet.address])
     return (
         <div style={{ opacity }} className='main flex column page'>
             <div style={{ display: curKey === 'assets' ? 'block' : 'none' }} className='flex1'>

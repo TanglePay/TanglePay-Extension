@@ -108,7 +108,16 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                     focused: true
                 })
             } else {
-                createDialog(params, isKeepPopup == 1)
+                const popupList = chrome.extension.getViews({ type: 'popup' })
+                if (popupList?.length > 0 && popupList[0].Bridge) {
+                    if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
+                        popupList[0].location.href = params.url
+                    } else {
+                        popupList[0].Bridge.connect(params.url)
+                    }
+                } else {
+                    createDialog(params, isKeepPopup == 1)
+                }
             }
             return true
         }
@@ -120,7 +129,19 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 // send message to content-script
 function sendToContentScript(message) {
-    const callBack = window.tanglepayCallBack[message.cmd]
-    callBack && callBack(message)
-    window.tanglepayCallBack[message.cmd] = null
+    // connect
+    if (message.cmd === 'iota_event') {
+        window.eventsTabIdList = window.eventsTabIdList || []
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach((e) => {
+                const port = window.eventsTabIdList[e.id] || chrome.tabs.connect(e.id, { name: 'tanglepay_connect' })
+                port.postMessage(message)
+            })
+        })
+    } else {
+        // message
+        const callBack = window.tanglepayCallBack[message.cmd]
+        callBack && callBack(message)
+        window.tanglepayCallBack[message.cmd] = null
+    }
 }

@@ -15,16 +15,6 @@ function injectCustomJs(jsPath) {
     document.body.appendChild(temp)
 }
 
-// get message from background
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    const cmd = (request?.cmd || '').replace(/.+##/, '')
-    sendToInject({
-        cmd,
-        request
-    })
-    sendResponse({ success: 'ok' })
-})
-
 // send message to background
 function sendToBackground({ cmd, data, origin, isKeepPopup }) {
     var left = window.document.body.offsetWidth - 400
@@ -66,3 +56,10 @@ var sendToInject = function (params) {
     params.cmd = `contentToInject##${params.cmd}`
     window.postMessage(params, '*')
 }
+
+// get connect from background
+chrome.runtime.onConnect.addListener((e) => {
+    if (e.name === 'tanglepay_connect') {
+        e.onMessage.addListener(sendToInject)
+    }
+})

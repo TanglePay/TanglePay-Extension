@@ -132,6 +132,22 @@ export default {
             })
         }
     },
+    sendToContentScript(cmd, method, response) {
+        const bg = window.chrome?.extension?.getBackgroundPage()
+        if (bg) {
+            bg.sendToContentScript({
+                cmd,
+                code: 200,
+                data: {
+                    method,
+                    response
+                }
+            })
+        }
+    },
+    sendEvt(event, response) {
+        this.sendToContentScript('iota_event', event, response)
+    },
     cacheBgData(key, cacheData) {
         const bg = window.chrome?.extension?.getBackgroundPage()
         if (bg) {
@@ -143,17 +159,7 @@ export default {
         this.cacheBgData(`${key}_${curWallet.address}`, cacheData)
     },
     sendMessage(method, response) {
-        const bg = window.chrome?.extension?.getBackgroundPage()
-        if (bg) {
-            bg.sendToContentScript({
-                cmd: 'iota_request',
-                code: 200,
-                data: {
-                    method,
-                    response
-                }
-            })
-        }
+        this.sendToContentScript('iota_request', method, response)
         if (!this.isKeepPopup) {
             this.closeWindow()
         }
