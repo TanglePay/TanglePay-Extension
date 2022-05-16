@@ -35,12 +35,29 @@ export default {
         const curWallet = (list || []).find((e) => e.isSelected)
         return curWallet
     },
-    async iota_connect() {
+    async iota_connect(origin, expires, isKeepPopup) {
+        this.isKeepPopup = isKeepPopup
         const curWallet = await this.getCurWallet()
         if (curWallet.address) {
-            await this.cacheBgAddressData('iota_connect', { address: curWallet.address })
+            const key = `${origin}_iota_connect_${curWallet.address}`
+            this.cacheBgData(key, {
+                address: curWallet.address,
+                expires: new Date().getTime() + parseInt(expires || 0)
+            })
             this.sendMessage('iota_connect', {
                 address: curWallet.address
+            })
+        }
+    },
+    async iota_sign(origin, expires, content, isKeepPopup) {
+        this.isKeepPopup = isKeepPopup
+        const curWallet = await this.getCurWallet()
+        const res = await IotaSDK.iota_sign(curWallet, content)
+        if (res) {
+            this.sendMessage('iota_sign', res)
+        } else {
+            this.sendErrorMessage('iota_sign', {
+                msg: 'fail'
             })
         }
     },
@@ -91,7 +108,9 @@ export default {
                 collectibles,
                 others: Object.values(othersDic)
             }
-            await this.cacheBgAddressData('iota_getBalance', assetsData)
+            const curWallet = await this.getCurWallet()
+            const key = `${origin}_iota_getBalance_${curWallet?.address}`
+            this.cacheBgData(key, assetsData)
 
             Toast.hideLoading()
             this.sendMessage('iota_getBalance', assetsData)
@@ -115,7 +134,9 @@ export default {
                 }
             }
             if (addressList.length > 0) {
-                await this.cacheBgAddressData('iota_accounts', addressList)
+                const key = `${origin}_iota_accounts_${curWallet?.address}`
+                this.cacheBgData(key, addressList)
+
                 this.sendMessage('iota_accounts', addressList)
             } else {
                 this.sendErrorMessage('iota_accounts', {
@@ -153,10 +174,6 @@ export default {
         if (bg) {
             bg.setBackgroundData(key, cacheData)
         }
-    },
-    async cacheBgAddressData(key, cacheData) {
-        const curWallet = await this.getCurWallet()
-        this.cacheBgData(`${key}_${curWallet.address}`, cacheData)
     },
     sendMessage(method, response) {
         this.sendToContentScript('iota_request', method, response)

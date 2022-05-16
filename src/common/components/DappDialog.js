@@ -52,7 +52,7 @@ export const DappDialog = () => {
                 break
         }
     }
-    const onExecute = async ({ address, return_url, content, type, amount, origin, isKeepPopup }) => {
+    const onExecute = async ({ address, return_url, content, type, amount, origin, isKeepPopup, expires }) => {
         if (password !== curWallet.password && type !== 'iota_connect') {
             return Toast.error(I18n.t('assets.passwordError'))
         }
@@ -119,22 +119,14 @@ export const DappDialog = () => {
                     })
                 }
                 break
-            case 'iota_connect': {
-                Bridge.isKeepPopup = isKeepPopup
-                await Bridge.iota_connect()
+            case 'iota_connect':
+                {
+                    await Bridge.iota_connect(origin, expires, isKeepPopup)
+                }
                 break
-            }
             case 'iota_sign':
                 {
-                    const res = await IotaSDK.iota_sign(curWallet, content, origin)
-                    Bridge.isKeepPopup = isKeepPopup
-                    if (res) {
-                        Bridge.sendMessage('iota_sign', res)
-                    } else {
-                        Bridge.sendErrorMessage('iota_sign', {
-                            msg: 'fail'
-                        })
-                    }
+                    await Bridge.iota_sign(origin, expires, content, isKeepPopup)
                 }
                 break
             default:
@@ -171,7 +163,8 @@ export const DappDialog = () => {
             merchant = '',
             content = '',
             origin = '',
-            isKeepPopup
+            isKeepPopup,
+            expires
         } = res
         unit = unit || 'i'
         const toNetId = IotaSDK.nodes.find((e) => e.apiPath === network)?.id

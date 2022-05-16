@@ -68,11 +68,22 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             break
         case 'iota_request': {
             const { method, params: requestParams } = request.greeting
+            let { content, expires } = requestParams || {}
+            content = content || ''
+            expires = expires || 1000 * 3600 * 24
             // get cache data
             const cacheAddress = getBackgroundData('cur_wallet_address')
-            const connectAddress = requestParams?.connect_address
-            const cacheRes = getBackgroundData(`${method}_${cacheAddress}`)
-            if (connectAddress && cacheRes) {
+            const cacheKey = `${origin}_${method}_${cacheAddress}`
+            let cacheRes = getBackgroundData(cacheKey)
+            const connectCacheKey = `${origin}_iota_connect_${cacheAddress}`
+            const connectCacheRes = getBackgroundData(connectCacheKey)
+            if (
+                cacheRes &&
+                connectCacheRes &&
+                connectCacheRes?.expires &&
+                connectCacheRes?.expires > new Date().getTime()
+            ) {
+                delete cacheRes.expires
                 sendToContentScript({
                     cmd: 'iota_request',
                     code: 200,
@@ -81,6 +92,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                         response: cacheRes
                     }
                 })
+                if (method === 'iota_connect') {
+                    setBackgroundData(connectCacheKey, {
+                        ...connectCacheRes,
+                        expires: expires + new Date().getTime()
+                    })
+                }
                 if (!isKeepPopup && window.tanglepayDialog) {
                     window.tanglepayDialogKeep = false
                     chrome.windows.remove(window.tanglepayDialog)
@@ -88,8 +105,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 return true
             }
             if (method === 'iota_sign' || method === 'iota_connect') {
-                const content = requestParams?.[0] || ''
-                const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&network=mainnet`
+                const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&network=mainnet&expires=${expires}`
                 params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
             } else {
                 params.url =
