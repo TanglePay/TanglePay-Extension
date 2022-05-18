@@ -258,7 +258,8 @@ export const DappDialog = () => {
                                 return_url,
                                 type,
                                 origin,
-                                isKeepPopup: isKeepPopup == 1
+                                isKeepPopup: isKeepPopup == 1,
+                                expires
                             })
                             show()
                         }
@@ -283,7 +284,8 @@ export const DappDialog = () => {
                                 type,
                                 content,
                                 origin,
-                                isKeepPopup: isKeepPopup == 1
+                                isKeepPopup: isKeepPopup == 1,
+                                expires
                             })
                             show()
                         }
