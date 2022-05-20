@@ -4,10 +4,11 @@ import { Assets } from './assets'
 import { User } from './user'
 import { Staking } from './staking'
 import { Apps } from './apps'
-import { I18n, IotaSDK } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common'
+import Bridge from '@/common/bridge'
 export const Main = () => {
     const [curKey, setActive] = useStore('common.curMainActive')
     const [curWallet] = useGetNodeWallet()
@@ -32,12 +33,29 @@ export const Main = () => {
     ]
     useEffect(() => {
         IotaSDK.setMqtt(curWallet.address)
+
+        // cache curAddress
+        Bridge.cacheBgData('cur_wallet_address', curWallet.address || '')
     }, [curWallet.address])
     useEffect(() => {
         setTimeout(() => {
             setOpacity(1)
         }, 500)
     }, [])
+    // tangleSDK
+    useEffect(() => {
+        window.Bridge = Bridge
+        if (curWallet.password) {
+            Bridge.connect(window.location.search)
+        }
+    }, [curWallet.password])
+    useEffect(() => {
+        if (curWallet.password && curWallet.address) {
+            Bridge.sendEvt('accountsChanged', {
+                address: curWallet.address
+            })
+        }
+    }, [curWallet.password, curWallet.address])
     return (
         <div style={{ opacity }} className='main flex column page'>
             <div style={{ display: curKey === 'assets' ? 'block' : 'none' }} className='flex1'>

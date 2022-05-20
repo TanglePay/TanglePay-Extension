@@ -30,7 +30,7 @@
         "react-svg": "^14.1.6",
         "react-transition-group": "^4.4.2",
         "soonaverse": "^0.1.14",
-        "tanglepay": "^1.4.0",
+        "tanglepay": "^1.4.4",
         "web-vitals": "^1.0.1",
         "yup": "^0.32.11"
     },
