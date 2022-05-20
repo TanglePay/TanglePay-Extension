@@ -15,24 +15,51 @@ function injectCustomJs(jsPath) {
     document.body.appendChild(temp)
 }
 
-// Get background message
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-})
-
-function sendMessageToBackground(message) {
+// send message to background
+function sendToBackground({ cmd, data, origin, isKeepPopup }) {
     var left = window.document.body.offsetWidth - 400
-    chrome.runtime.sendMessage({ greeting: message, left: left }, function (response) {
-    })
+    chrome.runtime.sendMessage(
+        { cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin, isKeepPopup },
+        function (response) {
+            switch (response?.cmd) {
+                case 'getTanglePayInfo':
+                case 'iota_request':
+                    {
+                        sendToInject({ ...response })
+                    }
+                    break
+                default:
+                    break
+            }
+        }
+    )
 }
 
+// get message from inject
 window.addEventListener(
     'message',
     function (e) {
-        switch (e.data.cmd) {
-            case 'openTanglePay':
-                sendMessageToBackground(e.data.data)
+        const cmd = (e?.data?.cmd || '').replace('injectToContent##', '')
+        switch (cmd) {
+            case 'tanglePayDeepLink':
+            case 'getTanglePayInfo':
+            case 'iota_request':
+                sendToBackground({ ...e.data, cmd })
                 break
         }
     },
     false
 )
+
+// send message to inject
+var sendToInject = function (params) {
+    params.cmd = `contentToInject##${params.cmd}`
+    window.postMessage(params, '*')
+}
+
+// get connect from background
+chrome.runtime.onConnect.addListener((e) => {
+    if (e.name === 'tanglepay_connect') {
+        e.onMessage.addListener(sendToInject)
+    }
+})
