@@ -10,10 +10,7 @@ import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common'
 import Bridge from '@/common/bridge'
 export const Main = () => {
-    const [curKey, setActive] = useStore('common.curMainActive')
-    const [curWallet] = useGetNodeWallet()
-    const [opacity, setOpacity] = useState(0)
-    const routes = [
+    const initRoutes = [
         {
             key: 'assets',
             title: I18n.t('assets.assets')
@@ -31,12 +28,24 @@ export const Main = () => {
             title: I18n.t('user.me')
         }
     ]
+    const [curKey, setActive] = useStore('common.curMainActive')
+    const [curWallet] = useGetNodeWallet()
+    const [opacity, setOpacity] = useState(0)
+    const [routes, setRoutes] = useState([...initRoutes])
     useEffect(() => {
         IotaSDK.setMqtt(curWallet.address)
 
         // cache curAddress
         Bridge.cacheBgData('cur_wallet_address', curWallet.address || '')
     }, [curWallet.address])
+    useEffect(() => {
+        const type = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.type
+        if (type === 1) {
+            setRoutes([...initRoutes])
+        } else {
+            setRoutes([...initRoutes.filter((e) => !['staking', 'apps'].includes(e.key))])
+        }
+    }, [curWallet.nodeId])
     useEffect(() => {
         setTimeout(() => {
             setOpacity(1)

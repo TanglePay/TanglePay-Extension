@@ -11,13 +11,13 @@ export const UserSetting = () => {
             label: I18n.t('user.language'),
             path: '/user/lang',
             size: 24
-        },
-        {
-            icon: 'network',
-            label: I18n.t('user.network'),
-            path: '/user/network',
-            size: 20
         }
+        // {
+        //     icon: 'network',
+        //     label: I18n.t('user.network'),
+        //     path: '/user/network',
+        //     size: 20
+        // }
     ]
     return (
         <div className='page'>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Base, I18n } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { AddDialog } from './addDialog'
 import { useSelectWallet, useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, NoData, SvgIcon, Toast } from '@/common'
@@ -32,19 +32,25 @@ export const AssetsWallets = () => {
                                                 return
                                             }
                                             setActive(e.id)
-                                            Toast.showLoading()
+                                            // Toast.showLoading()
                                             setTimeout(() => {
                                                 selectWallet(e.id)
                                             }, 20)
                                             Base.goBack()
-                                            setTimeout(() => {
-                                                Toast.hideLoading()
-                                            }, 100)
+                                            // setTimeout(() => {
+                                            //     Toast.hideLoading()
+                                            // }, 100)
                                         }}
                                         key={e.id}
                                         className={`press radius10 ph20 pv15 mt20`}
                                         style={isActive ? { background: '#1D70F7' } : { border: '1px solid #000' }}>
-                                        <div className={`fz17 ${isActive && 'cW'}`}>{e.name}</div>
+                                        <div className='flex row ac jsb'>
+                                            <div className={`fz17 ${isActive && 'cW'}`}>{e.name}</div>
+                                            <div className={`fz17 ${isActive && 'cW'}`}>
+                                                {IotaSDK.nodes.find((d) => d.id === e.nodeId)?.name}
+                                            </div>
+                                        </div>
+
                                         <div className='mt20 row ae flex'>
                                             <div className={`fz15 ${isActive && 'cW'}`}>
                                                 {Base.handleAddress(e.address)}

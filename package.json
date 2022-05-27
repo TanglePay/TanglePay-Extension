@@ -12,7 +12,10 @@
         "antd-mobile": "5.0.0-beta.18",
         "antd-mobile-icons": "^0.2.2",
         "bignumber.js": "^9.0.1",
+        "bip39": "^3.0.4",
         "crypto-js": "^4.1.1",
+        "ethereumjs-util": "^7.1.4",
+        "ethereumjs-wallet": "^1.0.2",
         "formik": "^2.2.9",
         "i18next": "^21.3.2",
         "i18next-browser-languagedetector": "^6.1.2",
@@ -32,6 +35,7 @@
         "soonaverse": "^0.1.14",
         "tanglepay": "^1.4.4",
         "web-vitals": "^1.0.1",
+        "web3": "^1.7.3",
         "yup": "^0.32.11"
     },
     "scripts": {

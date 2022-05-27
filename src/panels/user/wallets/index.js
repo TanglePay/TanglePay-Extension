@@ -1,6 +1,6 @@
 import React from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Base, I18n } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
 
@@ -21,8 +21,11 @@ export const UserWallets = () => {
                                 Base.push('/user/editWallet', { id: e.id })
                             }}
                             key={e.id}>
-                            <div>
-                                <div className='fz17'>{e.name}</div>
+                            <div className='flex1'>
+                                <div className='flex row ac jsb mr20'>
+                                    <div className='fz17'>{e.name}</div>
+                                    <div className='fz17'>{IotaSDK.nodes.find((d) => d.id === e.nodeId)?.name}</div>
+                                </div>
                                 <div className='mt20 flex row ae'>
                                     <div className='fz15'>{Base.handleAddress(e.address)}</div>
                                     <CopyToClipboard
