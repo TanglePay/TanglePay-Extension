@@ -2,10 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { Base, I18n } from '@tangle-pay/common'
 import { Loading, ImageViewer } from 'antd-mobile'
 import { useStore } from '@tangle-pay/store'
-import { useGetLegal } from '@tangle-pay/store/common'
+import { useGetLegal, useGetNodeWallet } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common'
 import dayjs from 'dayjs'
-import { useGetNodeWallet } from '@tangle-pay/store/common'
 import _get from 'lodash/get'
 import { useGetNftList } from '@tangle-pay/store/nft'
 
@@ -22,7 +21,7 @@ export const CoinList = () => {
                 return (
                     <div
                         onClick={() => {
-                            Base.push('assets/send')
+                            Base.push('assets/send', { currency: e.name })
                         }}
                         key={e.name}
                         style={{ height: itemH }}
@@ -152,6 +151,7 @@ export const RewardsList = () => {
         </>
     )
 }
+
 export const ActivityList = ({ search }) => {
     const [list] = useStore('common.hisList')
     const [isShowAssets] = useStore('common.showAssets')

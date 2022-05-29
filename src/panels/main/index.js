@@ -39,12 +39,8 @@ export const Main = () => {
         Bridge.cacheBgData('cur_wallet_address', curWallet.address || '')
     }, [curWallet.address])
     useEffect(() => {
-        const type = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.type
-        if (type === 1) {
-            setRoutes([...initRoutes])
-        } else {
-            setRoutes([...initRoutes.filter((e) => !['staking', 'apps'].includes(e.key))])
-        }
+        const filterMenuList = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.filterMenuList || []
+        setRoutes([...initRoutes.filter((e) => !filterMenuList.includes(e.key))])
     }, [curWallet.nodeId])
     useEffect(() => {
         setTimeout(() => {

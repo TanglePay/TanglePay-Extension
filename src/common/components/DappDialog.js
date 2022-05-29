@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Mask, Form, Input } from 'antd-mobile'
 import { I18n, IotaSDK, Base } from '@tangle-pay/common'
-import { useGetNodeWallet, useChangeNode, useUpdateBalance } from '@tangle-pay/store/common'
+import { useGetNodeWallet, useChangeNode } from '@tangle-pay/store/common'
 import { useStore } from '@tangle-pay/store'
 import BigNumber from 'bignumber.js'
 import { Toast } from './Toast'
@@ -18,7 +18,6 @@ export const DappDialog = () => {
     const [deepLink, setDeepLink] = useState('')
     const selectTimeHandler = useRef()
     const [curWallet] = useGetNodeWallet()
-    const updateBalance = useUpdateBalance()
     const [assetsList] = useStore('common.assetsList')
     const assets = assetsList.find((e) => e.name === 'IOTA') || {}
     const [statedAmount] = useStore('staking.statedAmount')
@@ -84,7 +83,6 @@ export const DappDialog = () => {
                         messageId = res.messageId
                         Toast.hideLoading()
                         Toast.success(I18n.t('assets.sendSucc'))
-                        updateBalance(residue, curWallet.address)
                         const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
                         await sleep(2000)
                     } catch (error) {
