@@ -21,8 +21,8 @@ export const DappDialog = () => {
     const [assetsList] = useStore('common.assetsList')
     const assets = assetsList.find((e) => e.name === 'IOTA') || {}
     const [statedAmount] = useStore('staking.statedAmount')
-    const [curNodeId, , dispatch] = useStore('common.curNodeId')
-    const changeNode = useChangeNode(dispatch)
+    const [curNodeId] = useStore('common.curNodeId')
+    const changeNode = useChangeNode()
     const show = () => {
         requestAnimationFrame(() => {
             setShow(true)

@@ -8,8 +8,7 @@ import { useStore } from '@tangle-pay/store'
 export const AddDialog = ({ dialogRef }) => {
     const [isShow, setShow] = useState(false)
     const [isShowNode, setShowNode] = useState(true)
-    const [, , dispatch] = useStore('common.curNodeId')
-    const changeNode = useChangeNode(dispatch)
+    const changeNode = useChangeNode()
     useImperativeHandle(
         dialogRef,
         () => {

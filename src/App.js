@@ -28,34 +28,35 @@ const AnimatedSwitch = (props) => {
 
 const App = () => {
     const [store, dispatch] = useStoreReducer()
-    const changeNode = useChangeNode(dispatch)
+    const changeNode = useChangeNode()
     const [sceneList, setSceneList] = useState([])
     const passwordDialog = useRef()
     const getLocalInfo = async () => {
-        const list = [
-            'common.curNodeId',
-            'common.showAssets',
-            'common.price',
-            'common.activityData',
-            'common.walletsList'
-        ]
+        const list = ['common.showAssets', 'common.activityData', 'common.walletsList']
         const res = await Promise.all(list.map((e) => Base.getLocalData(e)))
         list.forEach((e, i) => {
             switch (e) {
-                case 'common.curNodeId':
-                    changeNode(res[i] || 1)
-                    break
                 case 'common.walletsList':
-                    // in the case of extension, respect background data first
-                    const bg = window.chrome?.extension?.getBackgroundPage()
-                    let list = res[i]
-                    if (bg) {
-                        list = bg.getBackgroundData(e) || res[i]
-                    }
-                    dispatch({ type: e, data: list })
+                    IotaSDK.getWalletList().then((list) => {
+                        dispatch({ type: e, data: list })
+                    })
                     break
                 default:
                     dispatch({ type: e, data: res[i] })
+                    break
+            }
+        })
+        // changeNode after get walletsList
+        const list2 = ['common.curNodeId']
+        const res2 = await Promise.all(list2.map((e) => Base.getLocalData(e)))
+        console.log(res2)
+        list2.forEach((e, i) => {
+            switch (e) {
+                case 'common.curNodeId':
+                    changeNode(res2[i] || 1)
+                    break
+                default:
+                    dispatch({ type: e, data: res2[i] })
                     break
             }
         })

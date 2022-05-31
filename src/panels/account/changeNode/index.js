@@ -5,8 +5,7 @@ import { useStore } from '@tangle-pay/store'
 import { default as logo_nobg } from '@tangle-pay/assets/images/logo_nobg.png'
 
 export const AccountChangeNode = () => {
-    const [, , dispatch] = useStore('common.curNodeId')
-    const changeNode = useChangeNode(dispatch)
+    const changeNode = useChangeNode()
     return (
         <div className='page flex column'>
             <div className='flex jsb column flex1 pt40'>

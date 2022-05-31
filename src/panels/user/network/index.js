@@ -5,8 +5,8 @@ import { useStore } from '@tangle-pay/store'
 import { Nav } from '@/common'
 
 export const UserNetwork = () => {
-    const [curNodeId, , dispatch] = useStore('common.curNodeId')
-    const setCurNodeId = useChangeNode(dispatch)
+    const [curNodeId] = useStore('common.curNodeId')
+    const setCurNodeId = useChangeNode()
     console.log(curNodeId)
     return (
         <div className='page'>

@@ -37,7 +37,7 @@ export const Main = () => {
 
         // cache curAddress
         Bridge.cacheBgData('cur_wallet_address', curWallet.address || '')
-    }, [curWallet.address])
+    }, [curWallet.address + curWallet.nodeId])
     useEffect(() => {
         const filterMenuList = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.filterMenuList || []
         setRoutes([...initRoutes.filter((e) => !filterMenuList.includes(e.key))])
@@ -60,7 +60,7 @@ export const Main = () => {
                 address: curWallet.address
             })
         }
-    }, [curWallet.password, curWallet.address])
+    }, [curWallet.password + curWallet.address + curWallet.nodeId])
     return (
         <div style={{ opacity }} className='main flex column page'>
             <div style={{ display: curKey === 'assets' ? 'block' : 'none' }} className='flex1'>

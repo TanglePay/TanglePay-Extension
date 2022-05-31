@@ -113,7 +113,7 @@ export const RewardsList = () => {
             }
         }
         setList(Object.values(obj))
-    }, [JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address])
+    }, [JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address + curWallet.nodeId])
     const ListEl = useMemo(() => {
         return list.map((e) => {
             return (

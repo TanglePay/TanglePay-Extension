@@ -4,16 +4,18 @@ import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { AssetsNav, SvgIcon } from '@/common'
 import { useStore } from '@tangle-pay/store'
 import { CoinList, ActivityList, RewardsList, CollectiblesList } from './list'
-import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
+import { useGetNodeWallet, useGetAssetsList, useGetLegal, useChangeNode } from '@tangle-pay/store/common'
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
 
 const initAsssetsTab = ['stake', 'soonaverse', 'contract']
 export const Assets = () => {
     useGetEventsConfig()
+
     const [assetsTab, setAssetsTab] = useState([])
     const [height, setHeight] = useState(0)
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
+    const changeNode = useChangeNode()
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
     const [, refreshAssets] = useStore('common.forceRequest')
     const [curWallet] = useGetNodeWallet()
@@ -41,6 +43,24 @@ export const Assets = () => {
     return (
         <div className='h100'>
             <AssetsNav />
+            <div
+                onClick={() => {
+                    changeNode(1)
+                }}>
+                切换1
+            </div>
+            <div
+                onClick={() => {
+                    changeNode(3)
+                }}>
+                切换3
+            </div>
+            <div
+                onClick={() => {
+                    changeNode(4)
+                }}>
+                切换4
+            </div>
             <PullToRefresh
                 renderText={() => <Loading />}
                 onRefresh={() => {
@@ -85,7 +105,7 @@ export const Assets = () => {
                         </div>
                     </div>
                     <div className='ph15 flex row jsb ac mt10 border-b'>
-                        <div className='w100 flex row ac jsb'>
+                        <div className={`w100 flex row ac ${assetsTab.includes('soonaverse') ? 'jsb' : ''}`}>
                             <div className='flex row ac'>
                                 <div onClick={() => setTab(0)} className='flex c pv15 mr30 press'>
                                     <div className={`${curTab === 0 ? 'cP' : 'cB'} fz15`}>
