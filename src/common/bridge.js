@@ -26,12 +26,7 @@ export default {
         }
     },
     async getCurWallet() {
-        const bg = window.chrome?.extension?.getBackgroundPage()
-        let walletsList = []
-        if (bg) {
-            walletsList = await bg.getBackgroundData('common.walletsList')
-        }
-        const list = await IotaSDK.getWalletList(walletsList)
+        const list = await IotaSDK.getWalletList()
         const curWallet = (list || []).find((e) => e.isSelected)
         return curWallet
     },
@@ -71,6 +66,14 @@ export default {
                 const res = await Promise.all(addressList.map((e) => IotaSDK.client.address(e)))
                 res.forEach((e) => {
                     amount = amount.plus(e.balance)
+                })
+            } else if (assetsList.includes('evm')) {
+                if (!this.client || !this?.client?.eth) {
+                    throw 'network error.'
+                }
+                const res = await Promise.all(addressList.map((e) => this.client.eth.getBalance(e)))
+                res.forEach((e) => {
+                    amount = amount.plus(e)
                 })
             }
             amount = Number(amount)
@@ -126,11 +129,15 @@ export default {
         try {
             const curWallet = await this.getCurWallet()
             let addressList = []
-            if (curWallet.address) {
-                const res = await IotaSDK.getValidAddresses(curWallet)
-                addressList = res?.addressList || []
-                if (addressList.length === 0) {
-                    addressList = [curWallet.address]
+            if (IotaSDK.isWeb3Node) {
+                addressList = [curWallet.address]
+            } else {
+                if (curWallet.address) {
+                    const res = await IotaSDK.getValidAddresses(curWallet)
+                    addressList = res?.addressList || []
+                    if (addressList.length === 0) {
+                        addressList = [curWallet.address]
+                    }
                 }
             }
             if (addressList.length > 0) {

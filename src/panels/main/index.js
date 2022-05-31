@@ -36,7 +36,7 @@ export const Main = () => {
         IotaSDK.setMqtt(curWallet.address)
 
         // cache curAddress
-        Bridge.cacheBgData('cur_wallet_address', curWallet.address || '')
+        Bridge.cacheBgData('cur_wallet_address', `${curWallet.address || ''}_${curWallet.nodeId || ''}`)
     }, [curWallet.address + curWallet.nodeId])
     useEffect(() => {
         const filterMenuList = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.filterMenuList || []

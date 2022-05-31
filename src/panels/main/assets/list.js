@@ -81,9 +81,6 @@ export const RewardsList = () => {
         const obj = {}
         for (const i in stakedRewards) {
             const item = stakedRewards[i]
-            if (item.address !== curWallet.address) {
-                return
-            }
             if (item.amount > 0) {
                 const symbol = item.symbol
                 obj[symbol] = obj[symbol] || {
@@ -164,7 +161,12 @@ export const ActivityList = ({ search }) => {
             const isOutto = [1, 3].includes(e.type)
             const isStake = [2, 3].includes(e.type)
             return (
-                <div key={e.id + i} className='flex row as mv10'>
+                <div
+                    key={e.id + i}
+                    className={`flex row as mv10 ${e.viewUrl ? 'press' : ''}`}
+                    onClick={() => {
+                        e.viewUrl && Base.push(e.viewUrl)
+                    }}>
                     <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
                     <div className='border-b flex flex1 row ac jsb pb15'>
                         <div>

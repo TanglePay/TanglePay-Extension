@@ -4,7 +4,7 @@ import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { AssetsNav, SvgIcon } from '@/common'
 import { useStore } from '@tangle-pay/store'
 import { CoinList, ActivityList, RewardsList, CollectiblesList } from './list'
-import { useGetNodeWallet, useGetAssetsList, useGetLegal, useChangeNode } from '@tangle-pay/store/common'
+import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
 
 const initAsssetsTab = ['stake', 'soonaverse', 'contract']
@@ -15,7 +15,6 @@ export const Assets = () => {
     const [height, setHeight] = useState(0)
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
-    const changeNode = useChangeNode()
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
     const [, refreshAssets] = useStore('common.forceRequest')
     const [curWallet] = useGetNodeWallet()
@@ -42,25 +41,7 @@ export const Assets = () => {
     }, [curWallet.nodeId])
     return (
         <div className='h100'>
-            <AssetsNav />
-            <div
-                onClick={() => {
-                    changeNode(1)
-                }}>
-                切换1
-            </div>
-            <div
-                onClick={() => {
-                    changeNode(3)
-                }}>
-                切换3
-            </div>
-            <div
-                onClick={() => {
-                    changeNode(4)
-                }}>
-                切换4
-            </div>
+            <AssetsNav hasChangeNode />
             <PullToRefresh
                 renderText={() => <Loading />}
                 onRefresh={() => {
