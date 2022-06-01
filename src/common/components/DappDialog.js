@@ -164,14 +164,17 @@ export const DappDialog = () => {
             isKeepPopup,
             expires
         } = res
-        const toNetId = IotaSDK.nodes.find((e) => e.network === network)?.id
+        let toNetId
+        if (network) {
+            toNetId = IotaSDK.nodes.find((e) => e.network === network)?.id
+        }
         if (toNetId && parseInt(toNetId) !== parseInt(curNodeId)) {
             await changeNode(toNetId)
             return
         } else if (!curWallet.address) {
             selectTimeHandler.current = setTimeout(() => {
                 hide()
-                Base.push('/assets/wallets', { nodeId: toNetId })
+                Base.push('/assets/wallets', { nodeId: toNetId || '' })
             }, 500)
         } else {
             if (!password) {
@@ -316,10 +319,8 @@ export const DappDialog = () => {
         handleUrl(deepLink, curWallet.password)
     }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
-        // const params = Base.handlerParams(window.location.search)
-        // const url = params.url
-        const url =
-            'tanglepay://send/0x9A2c058A5020FAC6e316f11A0f1075DC930ac720?value=0.001&unit=ether&merchant=TanglePay&item_desc=Cool NFT&return_url=https%3A%2F%2Ftanglepay.com&network=matic'
+        const params = Base.handlerParams(window.location.search)
+        const url = params.url
         if (checkDeepLink(url)) {
             setInit(false)
             show()

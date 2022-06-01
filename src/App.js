@@ -32,7 +32,7 @@ const App = () => {
     const [sceneList, setSceneList] = useState([])
     const passwordDialog = useRef()
     const getLocalInfo = async () => {
-        const list = ['common.showAssets', 'common.activityData', 'common.walletsList']
+        const list = ['common.curNodeId', 'common.showAssets', 'common.activityData', 'common.walletsList']
         const res = await Promise.all(list.map((e) => Base.getLocalData(e)))
         list.forEach((e, i) => {
             switch (e) {
@@ -46,27 +46,21 @@ const App = () => {
                     break
             }
         })
-        // changeNode after get walletsList
-        const list2 = ['common.curNodeId']
-        const res2 = await Promise.all(list2.map((e) => Base.getLocalData(e)))
-        console.log(res2)
-        list2.forEach((e, i) => {
-            switch (e) {
-                case 'common.curNodeId':
-                    changeNode(res2[i] || 1)
-                    break
-                default:
-                    dispatch({ type: e, data: res2[i] })
-                    break
-            }
-        })
         // i18n init
         const lang = I18n.language || 'en'
         dispatch({ type: 'common.lang', data: lang })
     }
+    const initChangeNode = async () => {
+        // changeNode after get walletsList
+        const res = await Base.getLocalData('common.curNodeId')
+        dispatch({ type: 'common.curNodeId', data: res })
+        changeNode(res || 1)
+    }
     const init = async () => {
         Trace.login()
+        await IotaSDK.getNodes()
         await getLocalInfo()
+        await initChangeNode()
         setSceneList(panelsList)
     }
     useEffect(() => {

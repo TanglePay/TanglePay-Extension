@@ -57,7 +57,8 @@ export const Main = () => {
     useEffect(() => {
         if (curWallet.password && curWallet.address) {
             Bridge.sendEvt('accountsChanged', {
-                address: curWallet.address
+                address: curWallet.address,
+                nodeId: curWallet.nodeId
             })
         }
     }, [curWallet.password + curWallet.address + curWallet.nodeId])
