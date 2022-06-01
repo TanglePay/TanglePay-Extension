@@ -32,7 +32,10 @@ export const PrivateKey = () => {
                     </div>
                     <div>
                         <div className='fz14'>
-                            {I18n.t(keyStr ? 'account.copyKeyTips' : 'account.showKeyInputPassword')}
+                            {I18n.t(keyStr ? 'account.copyKeyTips' : 'account.showKeyInputPassword').replace(
+                                '{name}',
+                                name
+                            )}
                         </div>
                         {!keyStr ? (
                             <Input
