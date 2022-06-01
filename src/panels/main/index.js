@@ -41,7 +41,7 @@ export const Main = () => {
     useEffect(() => {
         const filterMenuList = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.filterMenuList || []
         setRoutes([...initRoutes.filter((e) => !filterMenuList.includes(e.key))])
-    }, [curWallet.nodeId])
+    }, [curWallet.nodeId, JSON.stringify(initRoutes)])
     useEffect(() => {
         setTimeout(() => {
             setOpacity(1)
