@@ -64,17 +64,19 @@ export const AssetsNav = ({ hasChangeNode }) => {
                     </div>
                 }
                 right={
-                    <div>
-                        <SvgIcon
-                            onClick={() => {
-                                setOpenMore(!isOpenMore)
-                            }}
-                            className='press'
-                            name='more'
-                            color='black'
-                            size='26'
-                        />
-                    </div>
+                    isWeb3 && hasChangeNode ? (
+                        <div>
+                            <SvgIcon
+                                onClick={() => {
+                                    setOpenMore(!isOpenMore)
+                                }}
+                                className='press'
+                                name='more'
+                                color='black'
+                                size='26'
+                            />
+                        </div>
+                    ) : null
                 }
             />
             {isOpenChange && (

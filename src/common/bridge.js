@@ -118,9 +118,9 @@ export default {
                 eventConfig = eventConfig?.rewards || {}
                 const othersRes = await IotaSDK.getAddressListRewards(addressList)
                 for (const i in othersRes) {
-                    const { symbol, amount } = othersRes[i]
+                    const { symbol, amount, minimumReached } = othersRes[i]
                     const { ratio, unit } = eventConfig[symbol]
-                    if (assetsList.includes(unit.toLocaleLowerCase())) {
+                    if (minimumReached && assetsList.includes(unit.toLocaleLowerCase())) {
                         othersDic[symbol] = othersDic[symbol] || {
                             amount: 0,
                             symbol,

@@ -81,7 +81,7 @@ export const RewardsList = () => {
         const obj = {}
         for (const i in stakedRewards) {
             const item = stakedRewards[i]
-            if (item.amount > 0) {
+            if (item.amount > 0 && item.minimumReached) {
                 const symbol = item.symbol
                 obj[symbol] = obj[symbol] || {
                     ...item,

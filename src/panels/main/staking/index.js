@@ -17,7 +17,6 @@ export const Staking = () => {
             <AssetsNav />
             <div className='ph20' style={{ height, overflowY: 'scroll' }}>
                 <StatusCon />
-                <RewardsList />
                 <AirdopsList />
             </div>
             {!isRequestStakeHis && (
