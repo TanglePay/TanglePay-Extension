@@ -93,14 +93,16 @@ export const DappDialog = () => {
                         await sleep(2000)
                     } catch (error) {
                         Toast.hideLoading()
-                        Toast.error(
-                            `${error.toString()}---amount:${amount}---residue:${residue}---realBalance:${Number(
-                                realBalance
-                            )}---bigStatedAmount:${bigStatedAmount}`,
-                            {
-                                duration: 5000
-                            }
-                        )
+                        setTimeout(() => {
+                            Toast.error(
+                                `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
+                                    realBalance
+                                )}---bigStatedAmount:${bigStatedAmount}`,
+                                {
+                                    duration: 5000
+                                }
+                            )
+                        }, 500)
                     }
                 }
                 break
@@ -169,7 +171,7 @@ export const DappDialog = () => {
         } else if (!curWallet.address) {
             selectTimeHandler.current = setTimeout(() => {
                 hide()
-                Base.push('/assets/wallets')
+                Base.push('/assets/wallets', { nodeId: toNetId })
             }, 500)
         } else {
             if (!password) {
@@ -197,9 +199,9 @@ export const DappDialog = () => {
                             let sendAmount = 0
                             if (IotaSDK.checkWeb3Node(toNetId)) {
                                 unit = unit || 'wei'
-                                if (this.client?.utils) {
-                                    sendAmount = this.client.utils.toWei(String(value), unit)
-                                    showValue = this.client.utils.fromWei(String(sendAmount), 'ether')
+                                if (IotaSDK.client?.utils) {
+                                    sendAmount = IotaSDK.client.utils.toWei(String(value), unit)
+                                    showValue = IotaSDK.client.utils.fromWei(String(sendAmount), 'ether')
                                     showUnit = IotaSDK.curNode?.token
                                 } else {
                                     showValue = value
@@ -312,10 +314,12 @@ export const DappDialog = () => {
     }
     useEffect(() => {
         handleUrl(deepLink, curWallet.password)
-    }, [JSON.stringify(curWallet), deepLink])
+    }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
-        const params = Base.handlerParams(window.location.search)
-        const url = params.url
+        // const params = Base.handlerParams(window.location.search)
+        // const url = params.url
+        const url =
+            'tanglepay://send/0x9A2c058A5020FAC6e316f11A0f1075DC930ac720?value=0.001&unit=ether&merchant=TanglePay&item_desc=Cool NFT&return_url=https%3A%2F%2Ftanglepay.com&network=matic'
         if (checkDeepLink(url)) {
             setInit(false)
             show()

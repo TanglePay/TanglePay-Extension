@@ -4,13 +4,19 @@ import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { AddDialog } from './addDialog'
 import { useSelectWallet, useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, NoData, SvgIcon, Toast } from '@/common'
+import { useLocation } from 'react-router-dom'
 
 const contentH = document.body.offsetHeight
 export const AssetsWallets = () => {
     const dialogRef = useRef()
     const selectWallet = useSelectWallet()
-    const [, walletsList] = useGetNodeWallet()
+    let [, walletsList] = useGetNodeWallet()
     const [curActive, setActive] = useState('')
+    let params = useLocation()
+    params = Base.handlerParams(params?.search) || {}
+    if (params?.nodeId) {
+        walletsList = walletsList.filter((e) => e.nodeId == params.nodeId)
+    }
     useEffect(() => {
         const id = (walletsList.find((e) => e.isSelected) || {}).id
         setActive(id || '')
@@ -90,7 +96,7 @@ export const AssetsWallets = () => {
                     <div className='fz17'>+　{I18n.t('assets.addWallets')}</div>
                 </div>
             </div>
-            <AddDialog dialogRef={dialogRef} />
+            <AddDialog dialogRef={dialogRef} nodeId={params?.nodeId} />
         </div>
     )
 }

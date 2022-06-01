@@ -5,7 +5,7 @@ import { useChangeNode } from '@tangle-pay/store/common'
 import { I18n, Base, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 
-export const AddDialog = ({ dialogRef }) => {
+export const AddDialog = ({ dialogRef, nodeId }) => {
     const [isShow, setShow] = useState(false)
     const [isShowNode, setShowNode] = useState(true)
     const changeNode = useChangeNode()
@@ -19,7 +19,12 @@ export const AddDialog = ({ dialogRef }) => {
         []
     )
     const show = () => {
-        setShowNode(true)
+        if (nodeId) {
+            setShowNode(false)
+            changeNode(parseInt(nodeId))
+        } else {
+            setShowNode(true)
+        }
         setShow(true)
     }
     const hide = () => {
