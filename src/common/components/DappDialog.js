@@ -69,11 +69,13 @@ export const DappDialog = () => {
                             if (amount < decimal) {
                                 return Toast.error(I18n.t('assets.sendBelow1Tips'))
                             }
-                            if (residue < 0) {
-                                return Toast.error(
-                                    I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
-                                )
-                            }
+                        }
+                        if (residue < 0) {
+                            return Toast.error(
+                                I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
+                            )
+                        }
+                        if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
                             if (residue < decimal && residue != 0) {
                                 return Toast.error(I18n.t('assets.residueBelow1Tips'))
                             }

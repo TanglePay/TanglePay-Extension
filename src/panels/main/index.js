@@ -28,10 +28,14 @@ export const Main = () => {
             title: I18n.t('user.me')
         }
     ]
+    const [lang] = useStore('common.lang')
     const [curKey, setActive] = useStore('common.curMainActive')
     const [curWallet] = useGetNodeWallet()
     const [opacity, setOpacity] = useState(0)
     const [routes, setRoutes] = useState([...initRoutes])
+    useEffect(() => {
+        IotaSDK.changeNodesLang(lang)
+    }, [lang])
     useEffect(() => {
         IotaSDK.setMqtt(curWallet.address)
 
@@ -65,7 +69,7 @@ export const Main = () => {
     return (
         <div style={{ opacity }} className='main flex column page'>
             <div style={{ display: curKey === 'assets' ? 'block' : 'none' }} className='flex1'>
-                <Assets />
+                <Assets tabKey={curKey} />
             </div>
             {curKey === 'apps' && (
                 <div className='flex1'>

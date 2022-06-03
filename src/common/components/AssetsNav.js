@@ -3,8 +3,6 @@ import { NavBar, Mask } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useGetNodeWallet, useChangeNode } from '@tangle-pay/store/common'
 import { SvgIcon } from '../assets'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Toast } from './Toast'
 
 export const AssetsNav = ({ hasChangeNode }) => {
     const [curWallet] = useGetNodeWallet()
@@ -25,8 +23,8 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                 Base.push('/assets/wallets')
                             }}
                             className='flex row ac ph10 press'
-                            style={{ background: '#1D70F7', borderRadius: 20, height: '28px', lineHeight: '28px' }}>
-                            <div className='ellipsis fz14 fw500 cW' style={{ maxWidth: 120 }}>
+                            style={{ background: '#1D70F7', borderRadius: 20, height: '30px', lineHeight: '30px' }}>
+                            <div className='ellipsis fz16 fw500 cW' style={{ maxWidth: 120 }}>
                                 {curWallet.name || I18n.t('assets.addWallets')}
                             </div>
                             {curWallet.address && (
@@ -46,14 +44,16 @@ export const AssetsNav = ({ hasChangeNode }) => {
                             <div
                                 onClick={() => setOpenChange(!isOpenChange)}
                                 className='ml10 border ph10 flex row ac press'
-                                style={{ borderRadius: 20, height: '28px', lineHeight: '28px' }}>
+                                style={{ borderRadius: 20, height: '30px', lineHeight: '30px' }}>
                                 <div
                                     style={{ width: 10, height: 10, borderRadius: '50%', background: '#5BB3AE' }}></div>
                                 <div className='fz14 fw500 mh10'>{curNode?.name}</div>
                                 <SvgIcon
                                     style={{
-                                        marginBottom: isOpenChange ? -2 : 2,
-                                        transform: isOpenChange ? 'rotate(180deg)' : ''
+                                        // marginBottom: isOpenChange ? -2 : 2,
+                                        // transform: isOpenChange ? 'rotate(180deg)' : ''
+                                        marginBottom: -2,
+                                        transform: 'rotate(180deg)'
                                     }}
                                     name='up'
                                     color='black'
@@ -64,19 +64,17 @@ export const AssetsNav = ({ hasChangeNode }) => {
                     </div>
                 }
                 right={
-                    isWeb3 && hasChangeNode ? (
-                        <div>
-                            <SvgIcon
-                                onClick={() => {
-                                    setOpenMore(!isOpenMore)
-                                }}
-                                className='press'
-                                name='more'
-                                color='black'
-                                size='26'
-                            />
-                        </div>
-                    ) : null
+                    <div>
+                        <SvgIcon
+                            onClick={() => {
+                                setOpenMore(!isOpenMore)
+                            }}
+                            className='press'
+                            name='more'
+                            color='black'
+                            size='26'
+                        />
+                    </div>
                 }
             />
             {isOpenChange && (
@@ -133,7 +131,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                         }}>
                         <div
                             onClick={() => {
-                                Base.push(curNode.explorer)
+                                Base.push(`${curNode.explorer}/address/${curWallet.address}`)
                             }}
                             className='flex ac ph15 press'
                             style={{ height: 44, minWidth: 260 }}>

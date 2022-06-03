@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { Base, I18n } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Loading, ImageViewer } from 'antd-mobile'
 import { useStore } from '@tangle-pay/store'
 import { useGetLegal, useGetNodeWallet } from '@tangle-pay/store/common'
@@ -13,8 +13,18 @@ export const CoinList = () => {
     const [isShowAssets] = useStore('common.showAssets')
     const [needRestake] = useStore('staking.needRestake')
     const [statedAmount] = useStore('staking.statedAmount')
-    const [assetsList] = useStore('common.assetsList')
+    let [assetsList] = useStore('common.assetsList')
     const curLegal = useGetLegal()
+    const contractList = IotaSDK.curNode?.contractList || []
+    assetsList = assetsList.filter((e) => {
+        const { name } = e
+        if (!e.contract) {
+            return true
+        }
+        const contract = contractList.find((e) => e.token === name)?.contract
+        return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
+    })
+    console.log(assetsList)
     return (
         <div>
             {assetsList.map((e) => {

@@ -8,9 +8,9 @@ import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/sto
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
 
 const initAsssetsTab = ['stake', 'soonaverse', 'contract']
-export const Assets = () => {
+export const Assets = ({ tabKey }) => {
     useGetEventsConfig()
-
+    const [lang] = useStore('common.lang')
     const [assetsTab, setAssetsTab] = useState([])
     const [height, setHeight] = useState(0)
     const [isRequestAssets] = useStore('common.isRequestAssets')
@@ -32,9 +32,11 @@ export const Assets = () => {
     }
     useEffect(() => {
         const dom = document.getElementById('content-id')
-        const height = document.body.offsetHeight - dom.offsetTop - 51
-        setHeight(height)
-    }, [])
+        if (dom.offsetTop && tabKey === 'assets') {
+            const height = document.body.offsetHeight - dom.offsetTop - 51
+            setHeight(height)
+        }
+    }, [lang, tabKey])
     useEffect(() => {
         const filterAssetsList = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.filterAssetsList || []
         setAssetsTab([...initAsssetsTab.filter((e) => !filterAssetsList.includes(e))])

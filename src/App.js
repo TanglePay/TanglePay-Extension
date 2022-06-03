@@ -54,7 +54,7 @@ const App = () => {
         // changeNode after get walletsList
         const res = await Base.getLocalData('common.curNodeId')
         dispatch({ type: 'common.curNodeId', data: res })
-        changeNode(res || 1)
+        await changeNode(res || 1)
     }
     const init = async () => {
         Trace.login()
@@ -90,7 +90,7 @@ const App = () => {
                             return <RouteCom path={key} exact key={key} render={() => <item.component key={key} />} />
                         })}
                         <CacheRoute exact path='/'>
-                            <Redirect to={store.common.walletsList.length > 0 ? '/main' : '/account/login'} />
+                            <Redirect to={store.common.walletsList.length > 0 ? '/main' : '/account/changeNode'} />
                         </CacheRoute>
                     </AnimatedSwitch>
                 </HashRouter>

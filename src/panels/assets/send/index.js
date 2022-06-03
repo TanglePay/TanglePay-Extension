@@ -55,11 +55,13 @@ export const AssetsSend = () => {
                             if (sendAmount < decimal) {
                                 return Toast.error(I18n.t('assets.sendBelow1Tips'))
                             }
-                            if (residue < 0) {
-                                return Toast.error(
-                                    I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
-                                )
-                            }
+                        }
+                        if (residue < 0) {
+                            return Toast.error(
+                                I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
+                            )
+                        }
+                        if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
                             if (residue < Number(BigNumber(0.01).times(decimal))) {
                                 sendAmount = Number(realBalance)
                             } else if (residue < decimal && residue != 0) {
