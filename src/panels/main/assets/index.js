@@ -88,7 +88,7 @@ export const Assets = ({ tabKey }) => {
                         </div>
                     </div>
                     <div className='ph15 flex row jsb ac mt10 border-b'>
-                        <div className={`w100 flex row ac ${assetsTab.includes('soonaverse') ? 'jsb' : ''}`}>
+                        <div className='w100 flex row ac jsb'>
                             <div className='flex row ac'>
                                 <div onClick={() => setTab(0)} className='flex c pv15 mr30 press'>
                                     <div className={`${curTab === 0 ? 'cP' : 'cB'} fz15`}>

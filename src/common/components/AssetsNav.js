@@ -16,15 +16,16 @@ export const AssetsNav = ({ hasChangeNode }) => {
     return (
         <>
             <NavBar
+                className='assets-nav'
                 backArrow={
-                    <div className='flex row ac pl5'>
+                    <div className='flex row ac'>
                         <div
                             onClick={() => {
                                 Base.push('/assets/wallets')
                             }}
-                            className='flex row ac ph10 press'
+                            className='wallet-name-con flex row ac ph10 press'
                             style={{ background: '#1D70F7', borderRadius: 20, height: '30px', lineHeight: '30px' }}>
-                            <div className='ellipsis fz16 fw500 cW' style={{ maxWidth: 120 }}>
+                            <div className='wallet-name ellipsis fz16 fw500 cW'>
                                 {curWallet.name || I18n.t('assets.addWallets')}
                             </div>
                             {curWallet.address && (
@@ -34,20 +35,22 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                 //     className='cW fz14 ml5'>
                                 //     <span>{Base.handleAddress(curWallet.address)}</span>
                                 // </CopyToClipboard>
-                                <div className='cW fz14 ml5'>
-                                    <span>{Base.handleAddress(curWallet.address)}</span>
-                                </div>
+                                <div className='cW fz14 ml5'>{Base.handleAddress(curWallet.address)}</div>
                             )}
-                            <SvgIcon className='ml10' name='right' color='white' size='11' />
+                            <SvgIcon
+                                style={{ marginBottom: 2 }}
+                                className='ml10'
+                                name='right'
+                                color='white'
+                                size='11'
+                            />
                         </div>
                         {isWeb3 && hasChangeNode && (
                             <div
                                 onClick={() => setOpenChange(!isOpenChange)}
-                                className='ml10 border ph10 flex row ac press'
+                                className='network-con ml10 border ph10 flex row ac press'
                                 style={{ borderRadius: 20, height: '30px', lineHeight: '30px' }}>
-                                <div
-                                    style={{ width: 10, height: 10, borderRadius: '50%', background: '#5BB3AE' }}></div>
-                                <div className='fz14 fw500 mh10'>{curNode?.name}</div>
+                                <div className='ellipsis fz14 fw500 mr10'>{curNode?.name}</div>
                                 <SvgIcon
                                     style={{
                                         // marginBottom: isOpenChange ? -2 : 2,
@@ -64,7 +67,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                     </div>
                 }
                 right={
-                    <div>
+                    <div className='flex ac je'>
                         <SvgIcon
                             onClick={() => {
                                 setOpenMore(!isOpenMore)

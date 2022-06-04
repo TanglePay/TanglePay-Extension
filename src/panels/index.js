@@ -21,7 +21,12 @@ import { AccountChangeNode } from './account/changeNode'
 import { StakingAdd } from './staking/add'
 import { StakingHistory } from './staking/history'
 import { PrivateKey } from './user/privateKey'
+import { AccountIntoPrivateKey } from './account/into/privateKey'
 export const panelsList = [
+    {
+        path: 'account/into/privateKey',
+        component: AccountIntoPrivateKey
+    },
     {
         path: 'user/privateKey',
         component: PrivateKey

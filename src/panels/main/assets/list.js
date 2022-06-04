@@ -44,7 +44,7 @@ export const CoinList = () => {
                         <div style={{ height: itemH }} className='border-b flex flex1 row ac jsb'>
                             <div className='flex ac row'>
                                 <div className='fz17'>{e.name}</div>
-                                {statedAmount > 0 && !needRestake && (
+                                {!IotaSDK.isWeb3Node && statedAmount > 0 && !needRestake && (
                                     <div
                                         style={{
                                             transform: 'scale(0.7)',
@@ -60,7 +60,7 @@ export const CoinList = () => {
                             {isShowAssets ? (
                                 <div>
                                     <div className='fz15 tr mb15'>
-                                        {e.balance} {e.unit}
+                                        {e.balance} {e.unit || e.name}
                                     </div>
                                     <div className='fz15 tr cS'>
                                         {curLegal.unit} {e.assets}

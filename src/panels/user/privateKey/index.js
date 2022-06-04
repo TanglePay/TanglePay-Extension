@@ -73,7 +73,7 @@ export const PrivateKey = () => {
                                 onClick={() => {
                                     try {
                                         const privateKeyStr = IotaSDK.getPrivateKey(curEdit.seed, password)
-                                        setKeyStr(privateKeyStr)
+                                        setKeyStr(privateKeyStr.replace(/^0x/, ''))
                                     } catch (error) {
                                         return Toast.error(I18n.t('assets.passwordError'))
                                     }

@@ -56,12 +56,12 @@ export const UserEditWallet = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className='flex row ac mt10'>
+                        {/* <div className='flex row ac mt10'>
                             <div
                                 className='radius10'
                                 style={{ width: 10, height: 10, backgroundColor: '#4E9B45' }}></div>
                             <div className='fz15 ml5'>{IotaSDK.nodes.find((e) => e.id == curEdit.nodeId)?.name}</div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 <div
@@ -74,7 +74,7 @@ export const UserEditWallet = () => {
                     <div className='fz15'>{I18n.t('user.resetPassword')}</div>
                     <SvgIcon name='right' size={15} className='cB' />
                 </div>
-                {curEdit.nodeId == 3 && (
+                {IotaSDK.nodes.find((d) => d.id === curEdit.nodeId)?.type == 2 && (
                     <div
                         onClick={() => {
                             Base.push('/user/privateKey', {

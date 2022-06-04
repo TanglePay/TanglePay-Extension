@@ -8,6 +8,8 @@ import { useStore } from '@tangle-pay/store'
 export const AddDialog = ({ dialogRef, nodeId }) => {
     const [isShow, setShow] = useState(false)
     const [isShowNode, setShowNode] = useState(true)
+    const [curNodeId] = useStore('common.curNodeId')
+    const curNode = IotaSDK.nodes.find((e) => e.id == curNodeId) || {}
     const changeNode = useChangeNode()
     useImperativeHandle(
         dialogRef,
@@ -75,15 +77,27 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 className='pv30 flex c press'>
                                 <div className='fz18'>{I18n.t('account.intoTitle1')}</div>
                             </div>
-                            <div
-                                onClick={() => {
-                                    hide()
-                                    Toast.show(I18n.t('account.unopen'))
-                                    // Base.push('/account/into', { type: 2 });
-                                }}
-                                className='pv30 flex c border-t press'>
-                                <div className='fz18'>{I18n.t('account.intoTitle2')}</div>
-                            </div>
+                            {curNode?.type == 1 && (
+                                <div
+                                    onClick={() => {
+                                        hide()
+                                        Toast.show(I18n.t('account.unopen'))
+                                        // Base.push('/account/into', { type: 2 });
+                                    }}
+                                    className='pv30 flex c border-t press'>
+                                    <div className='fz18'>{I18n.t('account.intoTitle2')}</div>
+                                </div>
+                            )}
+                            {curNode?.type == 2 && (
+                                <div
+                                    onClick={() => {
+                                        hide()
+                                        Base.push('/account/into/privateKey')
+                                    }}
+                                    className='pv30 flex c border-t press'>
+                                    <div className='fz18'>私钥导入</div>
+                                </div>
+                            )}
                         </div>
                     </>
                 )}
