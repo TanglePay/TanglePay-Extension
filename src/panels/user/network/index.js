@@ -7,7 +7,6 @@ import { Nav } from '@/common'
 export const UserNetwork = () => {
     const [curNodeId] = useStore('common.curNodeId')
     const setCurNodeId = useChangeNode()
-    console.log(curNodeId)
     return (
         <div className='page'>
             <Nav title={I18n.t('user.network')} />

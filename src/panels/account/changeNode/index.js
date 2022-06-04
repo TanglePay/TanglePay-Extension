@@ -9,7 +9,7 @@ export const AccountChangeNode = () => {
         <div className='page flex column'>
             <div className='flex jsb column flex1 pt30'>
                 <div className='ph25'>
-                    <img className='mb20' style={{ width: 144, height: 150 }} src={logo_nobg} />
+                    <img className='mb15' style={{ width: 129.6, height: 135 }} src={logo_nobg} />
                     <div>
                         <div className='fz30 fw500 mb10'>{I18n.t('account.dearFam')}</div>
                         <div

@@ -71,7 +71,6 @@ export const ShareDialog = ({ dialogRef }) => {
     const hide = () => {
         setShow(false)
     }
-    console.log(address, '----')
     return (
         <Mask className='m0' opacity={0.3} onMaskClick={hide} visible={isShow}>
             <div className='p30 w100 radius10 bgS'>

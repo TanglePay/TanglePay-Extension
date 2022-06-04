@@ -82,7 +82,7 @@ export const AssetsSend = () => {
                         } catch (error) {
                             Toast.hideLoading()
                             // Toast.error(I18n.t('assets.sendError'))
-                            console.log(error, '=====')
+                            console.log(error)
                             Toast.error(
                                 `${error.toString()}---input:${
                                     values.amount

@@ -24,7 +24,6 @@ export const CoinList = () => {
         const contract = contractList.find((e) => e.token === name)?.contract
         return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
     })
-    console.log(assetsList)
     return (
         <div>
             {assetsList.map((e) => {
