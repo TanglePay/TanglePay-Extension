@@ -22,7 +22,7 @@ export const AccountIntoPrivateKey = () => {
     const addWallet = useAddWallet()
     return (
         <div className='page into-page'>
-            <Nav title='私钥导入' />
+            <Nav title={I18n.t('account.privateKeyImport')} />
             <div className='page-content pb30'>
                 <Formik
                     innerRef={form}
@@ -54,7 +54,7 @@ export const AccountIntoPrivateKey = () => {
                             <Form>
                                 <div>
                                     <div>
-                                        <div className='fz14 pb10 tc cS'>请填入私钥</div>
+                                        <div className='fz14 pb10 tc cS'>{I18n.t('account.inputPrivateKey')}</div>
                                     </div>
                                     <div
                                         className={`border radius10 mt10 flex c column ${

@@ -1,8 +1,11 @@
 import React, { useState, useImperativeHandle } from 'react'
 import { Mask } from 'antd-mobile'
-import { I18n, Base } from '@tangle-pay/common'
+import { I18n, Base, IotaSDK } from '@tangle-pay/common'
 import { Toast } from '@/common'
+import { useStore } from '@tangle-pay/store'
 export const IntoDialog = ({ dialogRef }) => {
+    const [curNodeId] = useStore('common.curNodeId')
+    const curNode = IotaSDK.nodes.find((e) => e.id == curNodeId) || {}
     const [isShow, setShow] = useState(false)
     useImperativeHandle(
         dialogRef,
@@ -31,15 +34,27 @@ export const IntoDialog = ({ dialogRef }) => {
                         }}>
                         <div className='fz17'>{I18n.t('account.intoTitle1')}</div>
                     </div>
-                    <div
-                        className='pv30 flex c press border-t'
-                        onClick={() => {
-                            hide()
-                            Toast.show(I18n.t('account.unopen'))
-                            // Base.push('/account/into', { type: 2 });
-                        }}>
-                        <div className='fz17'>{I18n.t('account.intoTitle2')}</div>
-                    </div>
+                    {curNode?.type == 1 && (
+                        <div
+                            className='pv30 flex c press border-t'
+                            onClick={() => {
+                                hide()
+                                Toast.show(I18n.t('account.unopen'))
+                                // Base.push('/account/into', { type: 2 });
+                            }}>
+                            <div className='fz17'>{I18n.t('account.intoTitle2')}</div>
+                        </div>
+                    )}
+                    {curNode?.type == 2 && (
+                        <div
+                            className='pv30 flex c press border-t'
+                            onClick={() => {
+                                hide()
+                                Base.push('/account/into/privateKey')
+                            }}>
+                            <div className='fz17'>{I18n.t('account.privateKeyImport')}</div>
+                        </div>
+                    )}
                 </div>
             </div>
         </Mask>

@@ -95,7 +95,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                         Base.push('/account/into/privateKey')
                                     }}
                                     className='pv30 flex c border-t press'>
-                                    <div className='fz18'>私钥导入</div>
+                                    <div className='fz18'>{I18n.t('account.privateKeyImport')}</div>
                                 </div>
                             )}
                         </div>
