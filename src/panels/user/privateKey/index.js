@@ -32,10 +32,7 @@ export const PrivateKey = () => {
                     </div>
                     <div>
                         <div className='fz14'>
-                            {I18n.t(keyStr ? 'account.copyKeyTips' : 'account.showKeyInputPassword').replace(
-                                '{name}',
-                                name
-                            )}
+                            {I18n.t(keyStr ? 'account.copyKeyTips' : 'assets.passwordTips').replace('{name}', name)}
                         </div>
                         {!keyStr ? (
                             <Input
@@ -61,14 +58,14 @@ export const PrivateKey = () => {
                     </div>
                     {!keyStr ? (
                         <div className='flex row jsb ac'>
-                            <Button
+                            {/* <Button
                                 className='flex1 mr10 radius10'
                                 style={{ height: 44 }}
                                 block
                                 color='primary'
                                 fill='outline'>
                                 {I18n.t('apps.cancel')}
-                            </Button>
+                            </Button> */}
                             <Button
                                 onClick={() => {
                                     try {
@@ -78,7 +75,7 @@ export const PrivateKey = () => {
                                         return Toast.error(I18n.t('assets.passwordError'))
                                     }
                                 }}
-                                className='flex1 ml10 radius10'
+                                className='flex1 radius10'
                                 style={{ height: 44 }}
                                 disabled={!password}
                                 color='primary'

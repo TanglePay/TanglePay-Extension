@@ -35,7 +35,9 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                 //     className='cW fz14 ml5'>
                                 //     <span>{Base.handleAddress(curWallet.address)}</span>
                                 // </CopyToClipboard>
-                                <div className='cW fz14 ml5'>{Base.handleAddress(curWallet.address)}</div>
+                                <div style={{ marginBottom: -1 }} className='cW fz14 ml5'>
+                                    {Base.handleAddress(curWallet.address)}
+                                </div>
                             )}
                             <SvgIcon
                                 style={{ marginBottom: 2 }}
