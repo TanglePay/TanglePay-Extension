@@ -90,7 +90,11 @@ export const DappDialog = () => {
                         }
                         messageId = res.messageId
                         Toast.hideLoading()
-                        Toast.success(I18n.t('assets.sendSucc'))
+                        Toast.success(
+                            I18n.t(
+                                IotaSDK.checkWeb3Node(curWallet.nodeId) ? 'assets.sendSucc' : 'assets.sendSuccRestake'
+                            )
+                        )
                         const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
                         await sleep(2000)
                     } catch (error) {

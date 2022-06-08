@@ -76,7 +76,13 @@ export const AssetsSend = () => {
                             })
                             if (res) {
                                 Toast.hideLoading()
-                                Toast.success(I18n.t('assets.sendSucc'))
+                                Toast.success(
+                                    I18n.t(
+                                        IotaSDK.checkWeb3Node(curWallet.nodeId)
+                                            ? 'assets.sendSucc'
+                                            : 'assets.sendSuccRestake'
+                                    )
+                                )
                                 Base.goBack()
                             }
                         } catch (error) {
