@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Mask, Form, Input } from 'antd-mobile'
 import { I18n, IotaSDK, Base } from '@tangle-pay/common'
-import { useGetNodeWallet, useChangeNode, useUpdateBalance } from '@tangle-pay/store/common'
+import { useGetNodeWallet, useChangeNode } from '@tangle-pay/store/common'
 import { useStore } from '@tangle-pay/store'
 import BigNumber from 'bignumber.js'
 import { Toast } from './Toast'
@@ -18,12 +18,10 @@ export const DappDialog = () => {
     const [deepLink, setDeepLink] = useState('')
     const selectTimeHandler = useRef()
     const [curWallet] = useGetNodeWallet()
-    const updateBalance = useUpdateBalance()
     const [assetsList] = useStore('common.assetsList')
-    const assets = assetsList.find((e) => e.name === 'IOTA') || {}
     const [statedAmount] = useStore('staking.statedAmount')
-    const [curNodeId, , dispatch] = useStore('common.curNodeId')
-    const changeNode = useChangeNode(dispatch)
+    const [curNodeId] = useStore('common.curNodeId')
+    const changeNode = useChangeNode()
     const show = () => {
         requestAnimationFrame(() => {
             setShow(true)
@@ -60,57 +58,63 @@ export const DappDialog = () => {
         switch (type) {
             case 'send':
                 {
+                    const assets = assetsList.find((e) => e.name === IotaSDK.curNode?.token) || {}
                     let realBalance = BigNumber(assets.realBalance || 0)
                     const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
                     realBalance = realBalance.minus(bigStatedAmount)
                     let residue = Number(realBalance.minus(amount)) || 0
+                    const decimal = Math.pow(10, assets.decimal)
                     try {
-                        if (amount < IotaSDK.IOTA_MI) {
-                            return Toast.error(I18n.t('assets.sendBelow1Tips'))
+                        if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+                            if (amount < decimal) {
+                                return Toast.error(I18n.t('assets.sendBelow1Tips'))
+                            }
                         }
                         if (residue < 0) {
                             return Toast.error(
                                 I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
                             )
                         }
-                        if (residue < IotaSDK.IOTA_MI && residue != 0) {
-                            return Toast.error(I18n.t('assets.residueBelow1Tips'))
+                        if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+                            if (residue < decimal && residue != 0) {
+                                return Toast.error(I18n.t('assets.residueBelow1Tips'))
+                            }
                         }
                         Toast.showLoading()
-                        const res = await IotaSDK.send(curWallet, address, amount)
+                        const res = await IotaSDK.send(curWallet, address, amount, {
+                            contract: assets?.contract,
+                            token: assets?.name
+                        })
                         if (!res) {
                             return
                         }
                         messageId = res.messageId
                         Toast.hideLoading()
-                        Toast.success(I18n.t('assets.sendSucc'))
-                        updateBalance(residue, curWallet.address)
+                        Toast.success(
+                            I18n.t(
+                                IotaSDK.checkWeb3Node(curWallet.nodeId) ? 'assets.sendSucc' : 'assets.sendSuccRestake'
+                            )
+                        )
                         const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
                         await sleep(2000)
                     } catch (error) {
                         Toast.hideLoading()
-                        Toast.error(
-                            `${error.toString()}---amount:${amount}---residue:${residue}---realBalance:${Number(
-                                realBalance
-                            )}---bigStatedAmount:${bigStatedAmount}`,
-                            {
-                                duration: 5000
-                            }
-                        )
+                        setTimeout(() => {
+                            Toast.error(
+                                `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
+                                    realBalance
+                                )}---bigStatedAmount:${bigStatedAmount}`,
+                                {
+                                    duration: 5000
+                                }
+                            )
+                        }, 500)
                     }
                 }
                 break
             case 'sign':
                 try {
-                    const residue = Number(assets.realBalance || 0)
-                    if (residue < IotaSDK.IOTA_MI) {
-                        return Toast.error(
-                            I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
-                        )
-                    }
-                    Toast.showLoading()
-                    const res = await IotaSDK.sign(content, curWallet, residue)
-                    messageId = res.messageId
+                    messageId = await IotaSDK.iota_sign(curWallet, content)
                     Toast.hideLoading()
                 } catch (error) {
                     Toast.hideLoading()
@@ -166,15 +170,17 @@ export const DappDialog = () => {
             isKeepPopup,
             expires
         } = res
-        unit = unit || 'i'
-        const toNetId = IotaSDK.nodes.find((e) => e.apiPath === network)?.id
+        let toNetId
+        if (network) {
+            toNetId = IotaSDK.nodes.find((e) => e.network === network)?.id
+        }
         if (toNetId && parseInt(toNetId) !== parseInt(curNodeId)) {
             await changeNode(toNetId)
             return
         } else if (!curWallet.address) {
             selectTimeHandler.current = setTimeout(() => {
                 hide()
-                Base.push('/assets/wallets')
+                Base.push('/assets/wallets', { nodeId: toNetId || '' })
             }, 500)
         } else {
             if (!password) {
@@ -197,6 +203,27 @@ export const DappDialog = () => {
                             if (!address) {
                                 return Toast.error('Required: address')
                             }
+                            let showValue = ''
+                            let showUnit = ''
+                            let sendAmount = 0
+                            if (IotaSDK.checkWeb3Node(toNetId)) {
+                                unit = unit || 'wei'
+                                if (IotaSDK.client?.utils) {
+                                    sendAmount = IotaSDK.client.utils.toWei(String(value), unit)
+                                    showValue = IotaSDK.client.utils.fromWei(String(sendAmount), 'ether')
+                                    showUnit = IotaSDK.curNode?.token
+                                } else {
+                                    showValue = value
+                                    showUnit = unit
+                                    sendAmount = value
+                                }
+                            } else {
+                                unit = unit || 'i'
+                                showValue = IotaSDK.convertUnits(value, unit, 'Mi')
+                                sendAmount = IotaSDK.convertUnits(value, unit, 'i')
+                                showUnit = 'MIOTA'
+                            }
+
                             let str = I18n.t('apps.send')
                             let fromStr = I18n.t('apps.sendFrom')
                             let forStr = I18n.t('apps.sendFor')
@@ -204,16 +231,14 @@ export const DappDialog = () => {
                             str = str.replace('#item_desc#', item_desc ? forStr + item_desc : '')
                             str = str.trim().replace('#address#', address)
                             str = str
-                                .replace(
-                                    '#amount#',
-                                    '<span class="fw600">' + IotaSDK.convertUnits(value, unit, 'Mi') + '</span>'
-                                )
+                                .replace('#amount#', '<span class="fw600">' + showValue + '</span>')
+                                .replace('#unit#', showUnit)
                                 .replace(/\n/g, '<br/>')
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
                                 type,
-                                amount: IotaSDK.convertUnits(value, unit, 'i'),
+                                amount: sendAmount,
                                 address
                             })
                             show()
@@ -298,7 +323,7 @@ export const DappDialog = () => {
     }
     useEffect(() => {
         handleUrl(deepLink, curWallet.password)
-    }, [JSON.stringify(curWallet), deepLink])
+    }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
         const params = Base.handlerParams(window.location.search)
         const url = params.url

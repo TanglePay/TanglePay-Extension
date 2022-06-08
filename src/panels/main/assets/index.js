@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { PullToRefresh, Loading } from 'antd-mobile'
-import { Base, I18n } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { AssetsNav, SvgIcon } from '@/common'
 import { useStore } from '@tangle-pay/store'
 import { CoinList, ActivityList, RewardsList, CollectiblesList } from './list'
 import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
 
-export const Assets = () => {
+const initAsssetsTab = ['stake', 'soonaverse', 'contract']
+export const Assets = ({ tabKey }) => {
     useGetEventsConfig()
+    const [lang] = useStore('common.lang')
+    const [assetsTab, setAssetsTab] = useState([])
     const [height, setHeight] = useState(0)
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
@@ -29,12 +32,18 @@ export const Assets = () => {
     }
     useEffect(() => {
         const dom = document.getElementById('content-id')
-        const height = document.body.offsetHeight - dom.offsetTop - 51
-        setHeight(height)
-    }, [])
+        if (dom.offsetTop && tabKey === 'assets') {
+            const height = document.body.offsetHeight - dom.offsetTop - 51
+            setHeight(height)
+        }
+    }, [lang, tabKey])
+    useEffect(() => {
+        const filterAssetsList = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.filterAssetsList || []
+        setAssetsTab([...initAsssetsTab.filter((e) => !filterAssetsList.includes(e))])
+    }, [curWallet.nodeId])
     return (
         <div className='h100'>
-            <AssetsNav />
+            <AssetsNav hasChangeNode />
             <PullToRefresh
                 renderText={() => <Loading />}
                 onRefresh={() => {
@@ -86,11 +95,13 @@ export const Assets = () => {
                                         {I18n.t('assets.assets')}
                                     </div>
                                 </div>
-                                <div onClick={() => setTab(1)} className='press flex c pv15'>
-                                    <div className={`${curTab === 1 ? 'cP' : 'cB'} fz15`}>
-                                        {I18n.t('nft.collectibles')}
+                                {assetsTab.includes('soonaverse') && (
+                                    <div onClick={() => setTab(1)} className='press flex c pv15'>
+                                        <div className={`${curTab === 1 ? 'cP' : 'cB'} fz15`}>
+                                            {I18n.t('nft.collectibles')}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                             <div onClick={() => setTab(2)} className='press flex c pv15'>
                                 <div className={`${curTab === 2 ? 'cP' : 'cB'} fz15`}>{I18n.t('assets.activity')}</div>
@@ -101,7 +112,7 @@ export const Assets = () => {
                         {curTab === 0 ? (
                             <div>
                                 <CoinList />
-                                <RewardsList />
+                                {assetsTab.includes('stake') && <RewardsList />}
                             </div>
                         ) : curTab == 1 ? (
                             <CollectiblesList />

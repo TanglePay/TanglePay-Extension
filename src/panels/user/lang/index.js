@@ -21,7 +21,7 @@ export const UserLang = () => {
                         setLang('zh')
                     }}
                     className='p20 press border-b'>
-                    <div className={`fz15 ${lang === 'zh' ? 'cP' : ''}`}>简体中文</div>
+                    <div className={`fz15 ${lang === 'zh' ? 'cP' : ''}`}>繁體中文</div>
                 </div>
                 <div
                     onClick={() => {

@@ -105,7 +105,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 return true
             }
             if (method === 'iota_sign' || method === 'iota_connect') {
-                const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&network=mainnet&expires=${expires}`
+                const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&expires=${expires}`
                 params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
             } else {
                 params.url =

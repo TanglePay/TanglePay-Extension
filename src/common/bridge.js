@@ -26,12 +26,7 @@ export default {
         }
     },
     async getCurWallet() {
-        const bg = window.chrome?.extension?.getBackgroundPage()
-        let walletsList = []
-        if (bg) {
-            walletsList = await bg.getBackgroundData('common.walletsList')
-        }
-        const list = await IotaSDK.getWalletList(walletsList)
+        const list = await IotaSDK.getWalletList()
         const curWallet = (list || []).find((e) => e.isSelected)
         return curWallet
     },
@@ -39,13 +34,15 @@ export default {
         this.isKeepPopup = isKeepPopup
         const curWallet = await this.getCurWallet()
         if (curWallet.address) {
-            const key = `${origin}_iota_connect_${curWallet.address}`
+            const key = `${origin}_iota_connect_${curWallet.address}_${curWallet.nodeId}`
             this.cacheBgData(key, {
                 address: curWallet.address,
+                nodeId: curWallet.nodeId,
                 expires: new Date().getTime() + parseInt(expires || 0)
             })
             this.sendMessage('iota_connect', {
-                address: curWallet.address
+                address: curWallet.address,
+                nodeId: curWallet.nodeId
             })
         }
     },
@@ -61,13 +58,44 @@ export default {
             })
         }
     },
+    async evm_getBalance(origin, { assetsList, addressList }) {
+        Toast.showLoading()
+        try {
+            // iota
+            assetsList = assetsList || []
+            let amount = BigNumber(0)
+            if (assetsList.includes('evm') && IotaSDK.isWeb3Node) {
+                if (!IotaSDK.client || !IotaSDK?.client?.eth) {
+                    throw 'network error.'
+                }
+                const res = await Promise.all(addressList.map((e) => IotaSDK.client.eth.getBalance(e)))
+                res.forEach((e) => {
+                    amount = amount.plus(e)
+                })
+            }
+            amount = Number(amount)
+            const assetsData = {
+                amount
+            }
+            const curWallet = await this.getCurWallet()
+            const key = `${origin}_evm_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
+            this.cacheBgData(key, assetsData)
+            Toast.hideLoading()
+            this.sendMessage('evm_getBalance', assetsData)
+        } catch (error) {
+            Toast.hideLoading()
+            this.sendErrorMessage('evm_getBalance', {
+                msg: error.toString()
+            })
+        }
+    },
     async iota_getBalance(origin, { assetsList, addressList }) {
         Toast.showLoading()
         try {
             // iota
             assetsList = assetsList || []
             let amount = BigNumber(0)
-            if (assetsList.includes('iota')) {
+            if (assetsList.includes('iota') && !IotaSDK.isWeb3Node) {
                 const res = await Promise.all(addressList.map((e) => IotaSDK.client.address(e)))
                 res.forEach((e) => {
                     amount = amount.plus(e.balance)
@@ -90,9 +118,9 @@ export default {
                 eventConfig = eventConfig?.rewards || {}
                 const othersRes = await IotaSDK.getAddressListRewards(addressList)
                 for (const i in othersRes) {
-                    const { symbol, amount } = othersRes[i]
+                    const { symbol, amount, minimumReached } = othersRes[i]
                     const { ratio, unit } = eventConfig[symbol]
-                    if (assetsList.includes(unit.toLocaleLowerCase())) {
+                    if (minimumReached && assetsList.includes(unit.toLocaleLowerCase())) {
                         othersDic[symbol] = othersDic[symbol] || {
                             amount: 0,
                             symbol,
@@ -109,7 +137,7 @@ export default {
                 others: Object.values(othersDic)
             }
             const curWallet = await this.getCurWallet()
-            const key = `${origin}_iota_getBalance_${curWallet?.address}`
+            const key = `${origin}_iota_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
             this.cacheBgData(key, assetsData)
 
             Toast.hideLoading()
@@ -126,15 +154,19 @@ export default {
         try {
             const curWallet = await this.getCurWallet()
             let addressList = []
-            if (curWallet.address) {
-                const res = await IotaSDK.getValidAddresses(curWallet)
-                addressList = res?.addressList || []
-                if (addressList.length === 0) {
-                    addressList = [curWallet.address]
+            if (IotaSDK.isWeb3Node) {
+                addressList = [curWallet.address]
+            } else {
+                if (curWallet.address) {
+                    const res = await IotaSDK.getValidAddresses(curWallet)
+                    addressList = res?.addressList || []
+                    if (addressList.length === 0) {
+                        addressList = [curWallet.address]
+                    }
                 }
             }
             if (addressList.length > 0) {
-                const key = `${origin}_iota_accounts_${curWallet?.address}`
+                const key = `${origin}_iota_accounts_${curWallet?.address}_${curWallet?.nodeId}`
                 this.cacheBgData(key, addressList)
 
                 this.sendMessage('iota_accounts', addressList)

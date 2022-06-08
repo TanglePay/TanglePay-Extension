@@ -28,31 +28,18 @@ const AnimatedSwitch = (props) => {
 
 const App = () => {
     const [store, dispatch] = useStoreReducer()
-    const changeNode = useChangeNode(dispatch)
+    const changeNode = useChangeNode()
     const [sceneList, setSceneList] = useState([])
     const passwordDialog = useRef()
     const getLocalInfo = async () => {
-        const list = [
-            'common.curNodeId',
-            'common.showAssets',
-            'common.price',
-            'common.activityData',
-            'common.walletsList'
-        ]
+        const list = ['common.curNodeId', 'common.showAssets', 'common.activityData', 'common.walletsList']
         const res = await Promise.all(list.map((e) => Base.getLocalData(e)))
         list.forEach((e, i) => {
             switch (e) {
-                case 'common.curNodeId':
-                    changeNode(res[i] || 1)
-                    break
                 case 'common.walletsList':
-                    // in the case of extension, respect background data first
-                    const bg = window.chrome?.extension?.getBackgroundPage()
-                    let list = res[i]
-                    if (bg) {
-                        list = bg.getBackgroundData(e) || res[i]
-                    }
-                    dispatch({ type: e, data: list })
+                    IotaSDK.getWalletList().then((list) => {
+                        dispatch({ type: e, data: list })
+                    })
                     break
                 default:
                     dispatch({ type: e, data: res[i] })
@@ -63,9 +50,17 @@ const App = () => {
         const lang = I18n.language || 'en'
         dispatch({ type: 'common.lang', data: lang })
     }
+    const initChangeNode = async () => {
+        // changeNode after get walletsList
+        const res = await Base.getLocalData('common.curNodeId')
+        dispatch({ type: 'common.curNodeId', data: res })
+        await changeNode(res || 1)
+    }
     const init = async () => {
         Trace.login()
+        await IotaSDK.getNodes()
         await getLocalInfo()
+        await initChangeNode()
         setSceneList(panelsList)
     }
     useEffect(() => {
@@ -95,7 +90,7 @@ const App = () => {
                             return <RouteCom path={key} exact key={key} render={() => <item.component key={key} />} />
                         })}
                         <CacheRoute exact path='/'>
-                            <Redirect to={store.common.walletsList.length > 0 ? '/main' : '/account/login'} />
+                            <Redirect to={store.common.walletsList.length > 0 ? '/main' : '/account/changeNode'} />
                         </CacheRoute>
                     </AnimatedSwitch>
                 </HashRouter>
