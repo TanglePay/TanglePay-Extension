@@ -52,14 +52,14 @@ export const UserAboutUs = () => {
                                     Base.push(e.url, { blank: true })
                                 }
                             }}
-                            className={`flex row ac jsb ph20 pv20 press ${i === 0 ? 'border-t' : ''}`}
+                            className={`flex row ac jsb ph15 pv20 press ${i === 0 ? 'border-t' : ''}`}
                             style={{
                                 borderBottomColor: e.bottom ? '#f5f5f5' : '#f5f5f5',
                                 borderBottomWidth: e.bottom || 1,
                                 borderBottomStyle: 'solid'
                             }}>
                             <div className='flex row ac'>
-                                <div className='fz17 ml10'>{e.label}</div>
+                                <div className='fz17'>{e.label}</div>
                             </div>
                             <div className='flex row ac'>
                                 {e.value && <div className='fz17 cS mr10'>{e.value}</div>}

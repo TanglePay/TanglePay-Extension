@@ -69,17 +69,19 @@ export const AssetsNav = ({ hasChangeNode }) => {
                     </div>
                 }
                 right={
-                    <div className='flex ac je'>
-                        <SvgIcon
-                            onClick={() => {
-                                setOpenMore(!isOpenMore)
-                            }}
-                            className='press'
-                            name='more'
-                            color='black'
-                            size='26'
-                        />
-                    </div>
+                    curWallet.address && (
+                        <div className='flex ac je'>
+                            <SvgIcon
+                                onClick={() => {
+                                    setOpenMore(!isOpenMore)
+                                }}
+                                className='press'
+                                name='more'
+                                color='black'
+                                size='26'
+                            />
+                        </div>
+                    )
                 }
             />
             {isOpenChange && (

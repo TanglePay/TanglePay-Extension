@@ -19,14 +19,14 @@ export const PrivateKey = () => {
         <div>
             <Nav title={name} />
             <div>
-                <div className='p20 border-b'>
+                <div className='pv20 ph15 border-b'>
                     <div className='border radius10 p10'>
-                        <div className='fz13 cS' style={{ lineHeight: '20px' }}>
+                        <div className='fz13 cS' style={{ lineHeight: '20px', wordBreak: 'break-all' }}>
                             {curEdit.address}
                         </div>
                     </div>
                 </div>
-                <div className='ph20'>
+                <div className='ph15'>
                     <div className='flex c pv20'>
                         <div className='fz18'>{I18n.t('account.showKey')}</div>
                     </div>

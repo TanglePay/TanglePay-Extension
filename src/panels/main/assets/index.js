@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { PullToRefresh, Loading } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
-import { AssetsNav, SvgIcon } from '@/common'
+import { AssetsNav, SvgIcon, Toast } from '@/common'
 import { useStore } from '@tangle-pay/store'
 import { CoinList, ActivityList, RewardsList, CollectiblesList } from './list'
 import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
@@ -91,20 +91,22 @@ export const Assets = ({ tabKey }) => {
                         <div className='w100 flex row ac jsb'>
                             <div className='flex row ac'>
                                 <div onClick={() => setTab(0)} className='flex c pv15 mr30 press'>
-                                    <div className={`${curTab === 0 ? 'cP' : 'cB'} fz15`}>
+                                    <div className={`${curTab === 0 ? 'cP fw600' : 'cB'} fz15`}>
                                         {I18n.t('assets.assets')}
                                     </div>
                                 </div>
                                 {assetsTab.includes('soonaverse') && (
                                     <div onClick={() => setTab(1)} className='press flex c pv15'>
-                                        <div className={`${curTab === 1 ? 'cP' : 'cB'} fz15`}>
+                                        <div className={`${curTab === 1 ? 'cP fw600' : 'cB'} fz15`}>
                                             {I18n.t('nft.collectibles')}
                                         </div>
                                     </div>
                                 )}
                             </div>
                             <div onClick={() => setTab(2)} className='press flex c pv15'>
-                                <div className={`${curTab === 2 ? 'cP' : 'cB'} fz15`}>{I18n.t('assets.activity')}</div>
+                                <div className={`${curTab === 2 ? 'cP fw600' : 'cB'} fz15`}>
+                                    {I18n.t('assets.activity')}
+                                </div>
                             </div>
                         </div>
                     </div>

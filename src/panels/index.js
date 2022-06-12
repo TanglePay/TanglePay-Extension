@@ -22,7 +22,17 @@ import { StakingAdd } from './staking/add'
 import { StakingHistory } from './staking/history'
 import { PrivateKey } from './user/privateKey'
 import { AccountIntoPrivateKey } from './account/into/privateKey'
+import { Staking } from './main/staking'
+import { RemoveWallet } from './user/editWallet/removeWallet'
 export const panelsList = [
+    {
+        path: 'user/removeWallet',
+        component: RemoveWallet
+    },
+    {
+        path: 'stake/index',
+        component: Staking
+    },
     {
         path: 'account/into/privateKey',
         component: AccountIntoPrivateKey

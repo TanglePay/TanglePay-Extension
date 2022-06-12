@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { TabBar } from 'antd-mobile'
 import { Assets } from './assets'
 import { User } from './user'
-import { Staking } from './staking'
+import { Discover } from './discover'
 import { Apps } from './apps'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
@@ -21,7 +21,7 @@ export const Main = () => {
         },
         {
             key: 'staking',
-            title: I18n.t('staking.title')
+            title: I18n.t('discover.title')
         },
         {
             key: 'me',
@@ -82,7 +82,7 @@ export const Main = () => {
                 </div>
             )}
             <div style={{ display: curKey === 'staking' ? 'block' : 'none' }} className='flex1'>
-                <Staking />
+                <Discover />
             </div>
             <TabBar className='border-t' activeKey={curKey} onChange={setActive}>
                 {routes.map((item) => (
