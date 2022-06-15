@@ -8,9 +8,17 @@ export const UserAboutUs = () => {
     const list = [
         {
             label: I18n.t('user.versionUpdate'),
-            bottom: 10,
             value: version,
             url: 'https://chrome.google.com/webstore/detail/tanglepay-iota-wallet/hbneiaclpaaglopiogfdhgccebncnjmc?hl=en-US'
+        },
+        {
+            label: I18n.t('account.term'),
+            url: 'https://tanglepay.com/terms.html'
+        },
+        {
+            label: I18n.t('account.policy'),
+            url: 'https://tanglepay.com/policy.html',
+            bottom: 10
         },
         {
             label: I18n.t('user.website'),
@@ -27,12 +35,16 @@ export const UserAboutUs = () => {
         {
             label: I18n.t('user.groupEmail'),
             url: 'mailto:support@tanglepay.com'
+        },
+        {
+            label: I18n.t('user.groupEmail'),
+            url: 'mailto:support@tanglepay.com'
         }
     ]
     return (
         <div className='page'>
             <Nav title={I18n.t('user.aboutUs')} />
-            <div>
+            <div style={{ overflowY: 'scroll', height: 600 - 64 }}>
                 <div className='flex c column pv30'>
                     <img style={{ width: 65, height: 65 }} src={logo} alt='' />
                     <div className='fz16 mt10'>TanglePay</div>
