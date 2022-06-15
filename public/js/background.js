@@ -37,13 +37,14 @@ var createDialog = function (params, isKeepPopup) {
 
 // get message from content-script
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
     var params = {
         focused: true,
-        height: 630,
+        height: isMac ? 630 : 636,
         left: request.left,
         top: 80,
         type: 'popup',
-        width: 375
+        width: isMac ? 375 : 390
     }
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     const cmd = (request?.cmd || '').replace('contentToBackground##', '')
