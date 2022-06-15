@@ -147,7 +147,7 @@ export const DappDialog = () => {
         }
     }
     const checkDeepLink = (url) => {
-        return /^tanglepay:\/\//.test(url)
+        return /^tanglepay:\/\/.+/.test(url)
     }
     const handleUrl = async (url, password) => {
         if (!url) return

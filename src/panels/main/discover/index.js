@@ -26,7 +26,8 @@ export const Discover = () => {
                 <CopyToClipboard
                     text={curWallet.address}
                     onCopy={() => {
-                        const url = 'http://larashop.aicode.org.cn/simplex/index.html?crypto=MIOTA'
+                        const url = 'https://tanglepay.com/simplex.html?crypto=MIOTA'
+                        // const url = 'https://tanglepay.com/simplex-staging.html?crypto=MIOTA'
                         if (curWallet.address) {
                             Toast.success(I18n.t('discover.addressCopy'))
                             setTimeout(() => {
