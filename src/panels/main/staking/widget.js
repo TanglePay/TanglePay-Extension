@@ -227,22 +227,26 @@ export const StatusCon = () => {
             timeHandle && clearInterval(timeHandle)
         }
     }, [startTime, eventInfo])
-    const unStakeTokens = []
-    const uncomingTokens = upcomingList.map((e) => {
-        const token = e.payload.symbol
-        let unit = _get(rewards, `${token}.unit`) || token
-        return {
-            token: unit,
-            eventId: e.id,
-            status: 'uncoming',
-            limit: e.limit
-        }
-    })
-    statedTokens = statedTokens.map((e) => {
-        const token = e.token
-        let unit = _get(rewards, `${token}.unit`) || token
-        return { ...e, token: unit, status: endedList.find((a) => a.id === e.eventId) ? 'ended' : '' }
-    })
+    let unStakeTokens = []
+    const uncomingTokens = upcomingList
+        .map((e) => {
+            const token = e.payload.symbol
+            let unit = _get(rewards, `${token}.unit`) || token
+            return {
+                token: unit,
+                eventId: e.id,
+                status: 'uncoming',
+                limit: e.limit
+            }
+        })
+        .filter((e) => !!e.token)
+    statedTokens = statedTokens
+        .map((e) => {
+            const token = e.token
+            let unit = _get(rewards, `${token}.unit`) || token
+            return { ...e, token: unit, status: endedList.find((a) => a.id === e.eventId) ? 'ended' : '' }
+        })
+        .filter((e) => !!e.token)
     list.forEach((e) => {
         const token = e.payload.symbol
         const tokenInfo = statedTokens.find((d) => d.eventId === e.id)
@@ -257,6 +261,7 @@ export const StatusCon = () => {
             })
         }
     })
+    unStakeTokens = unStakeTokens.filter((e) => !!e.token)
     let available = parseFloat(assets.balance - statedAmount) || 0
     if (available < 0) {
         available = 0
