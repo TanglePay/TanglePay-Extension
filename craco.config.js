@@ -20,17 +20,17 @@ module.exports = {
             }
             return config
         },
-        // plugins: [
-        //     new TerserPlugin({
-        //         terserOptions: {
-        //             compress: {
-        //                 drop_console: true,
-        //                 drop_debugger: true,
-        //                 pure_funcs: ['console.log']
-        //             }
-        //         }
-        //     })
-        // ]
+        plugins: [
+            new TerserPlugin({
+                terserOptions: {
+                    compress: {
+                        drop_console: true,
+                        drop_debugger: true,
+                        pure_funcs: ['console.log']
+                    }
+                }
+            })
+        ]
     },
     plugins: [
         { plugin: CracoLessPlugin },
