@@ -44,7 +44,7 @@ export const UserAboutUs = () => {
     return (
         <div className='page'>
             <Nav title={I18n.t('user.aboutUs')} />
-            <div style={{ overflowY: 'scroll', height: 600 - 64 }}>
+            <div style={{ overflowY: 'scroll', height: 600 - 48 }}>
                 <div className='flex c column pv30'>
                     <img style={{ width: 65, height: 65 }} src={logo} alt='' />
                     <div className='fz16 mt10'>TanglePay</div>
