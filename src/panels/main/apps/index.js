@@ -81,8 +81,8 @@ export const Apps = () => {
     return (
         <div className='h100'>
             <AssetsNav />
-            <div className='ph20'>
-                <Form.Item>
+            <div className='ph15'>
+                <Form.Item style={{ paddingLeft: 0 }}>
                     <Input id='input' value={searchStr} onChange={setSearch} placeholder='Search Dapp' />
                 </Form.Item>
                 <div className='flex row ac pt20 jsb' style={{ flexWrap: 'wrap' }}>
@@ -106,7 +106,7 @@ export const Apps = () => {
                                         onClick={() => {
                                             setCurTab(e.label)
                                         }}>
-                                        <span className={`fz12 mr10 ${!cur ? 'cS' : 'fw600'}`}>{e.label}</span>
+                                        <span className={`fz15 mr10 ${!cur ? 'cB' : 'cP fw600'}`}>{e.label}</span>
                                     </div>
                                 )
                             })}

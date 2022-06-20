@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { TabBar } from 'antd-mobile'
 import { Assets } from './assets'
 import { User } from './user'
-import { Staking } from './staking'
+import { Discover } from './discover'
 import { Apps } from './apps'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
@@ -10,10 +10,7 @@ import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common'
 import Bridge from '@/common/bridge'
 export const Main = () => {
-    const [curKey, setActive] = useStore('common.curMainActive')
-    const [curWallet] = useGetNodeWallet()
-    const [opacity, setOpacity] = useState(0)
-    const routes = [
+    const initRoutes = [
         {
             key: 'assets',
             title: I18n.t('assets.assets')
@@ -24,19 +21,31 @@ export const Main = () => {
         },
         {
             key: 'staking',
-            title: I18n.t('staking.title')
+            title: I18n.t('discover.title')
         },
         {
             key: 'me',
             title: I18n.t('user.me')
         }
     ]
+    const [lang] = useStore('common.lang')
+    const [curKey, setActive] = useStore('common.curMainActive')
+    const [curWallet] = useGetNodeWallet()
+    const [opacity, setOpacity] = useState(0)
+    const [routes, setRoutes] = useState([...initRoutes])
+    useEffect(() => {
+        IotaSDK.changeNodesLang(lang)
+    }, [lang])
     useEffect(() => {
         IotaSDK.setMqtt(curWallet.address)
 
         // cache curAddress
-        Bridge.cacheBgData('cur_wallet_address', curWallet.address || '')
-    }, [curWallet.address])
+        Bridge.cacheBgData('cur_wallet_address', `${curWallet.address || ''}_${curWallet.nodeId || ''}`)
+    }, [curWallet.address + curWallet.nodeId])
+    useEffect(() => {
+        const filterMenuList = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.filterMenuList || []
+        setRoutes([...initRoutes.filter((e) => !filterMenuList.includes(e.key))])
+    }, [curWallet.nodeId, JSON.stringify(initRoutes)])
     useEffect(() => {
         setTimeout(() => {
             setOpacity(1)
@@ -52,14 +61,15 @@ export const Main = () => {
     useEffect(() => {
         if (curWallet.password && curWallet.address) {
             Bridge.sendEvt('accountsChanged', {
-                address: curWallet.address
+                address: curWallet.address,
+                nodeId: curWallet.nodeId
             })
         }
-    }, [curWallet.password, curWallet.address])
+    }, [curWallet.password + curWallet.address + curWallet.nodeId])
     return (
         <div style={{ opacity }} className='main flex column page'>
             <div style={{ display: curKey === 'assets' ? 'block' : 'none' }} className='flex1'>
-                <Assets />
+                <Assets tabKey={curKey} />
             </div>
             {curKey === 'apps' && (
                 <div className='flex1'>
@@ -72,7 +82,7 @@ export const Main = () => {
                 </div>
             )}
             <div style={{ display: curKey === 'staking' ? 'block' : 'none' }} className='flex1'>
-                <Staking />
+                <Discover />
             </div>
             <TabBar className='border-t' activeKey={curKey} onChange={setActive}>
                 {routes.map((item) => (

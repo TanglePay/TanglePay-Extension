@@ -37,13 +37,14 @@ var createDialog = function (params, isKeepPopup) {
 
 // get message from content-script
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
     var params = {
         focused: true,
-        height: 630,
+        height: isMac ? 630 : 636,
         left: request.left,
         top: 80,
         type: 'popup',
-        width: 375
+        width: isMac ? 375 : 390
     }
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     const cmd = (request?.cmd || '').replace('contentToBackground##', '')
@@ -105,7 +106,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 return true
             }
             if (method === 'iota_sign' || method === 'iota_connect') {
-                const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&network=mainnet&expires=${expires}`
+                const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&expires=${expires}`
                 params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
             } else {
                 params.url =

@@ -227,22 +227,26 @@ export const StatusCon = () => {
             timeHandle && clearInterval(timeHandle)
         }
     }, [startTime, eventInfo])
-    const unStakeTokens = []
-    const uncomingTokens = upcomingList.map((e) => {
-        const token = e.payload.symbol
-        let unit = _get(rewards, `${token}.unit`) || token
-        return {
-            token: unit,
-            eventId: e.id,
-            status: 'uncoming',
-            limit: e.limit
-        }
-    })
-    statedTokens = statedTokens.map((e) => {
-        const token = e.token
-        let unit = _get(rewards, `${token}.unit`) || token
-        return { ...e, token: unit, status: endedList.find((a) => a.id === e.eventId) ? 'ended' : '' }
-    })
+    let unStakeTokens = []
+    const uncomingTokens = upcomingList
+        .map((e) => {
+            const token = e.payload.symbol
+            let unit = _get(rewards, `${token}.unit`) || token
+            return {
+                token: unit,
+                eventId: e.id,
+                status: 'uncoming',
+                limit: e.limit
+            }
+        })
+        .filter((e) => !!e.token)
+    statedTokens = statedTokens
+        .map((e) => {
+            const token = e.token
+            let unit = _get(rewards, `${token}.unit`) || token
+            return { ...e, token: unit, status: endedList.find((a) => a.id === e.eventId) ? 'ended' : '' }
+        })
+        .filter((e) => !!e.token)
     list.forEach((e) => {
         const token = e.payload.symbol
         const tokenInfo = statedTokens.find((d) => d.eventId === e.id)
@@ -257,6 +261,7 @@ export const StatusCon = () => {
             })
         }
     })
+    unStakeTokens = unStakeTokens.filter((e) => !!e.token)
     let available = parseFloat(assets.balance - statedAmount) || 0
     if (available < 0) {
         available = 0
@@ -309,56 +314,61 @@ export const StatusCon = () => {
         Base.push('/staking/history')
     }
     return (
-        <div className='radius10' style={{ backgroundColor: '#f5f5f5' }}>
-            <div className='flex row je'>
-                <div className='flex row ac p15'>
-                    <div className='fz14 mr10'>{I18n.t('staking.his')}</div>
-                    <SvgIcon onClick={handleHis} name='history' className='press' size={20} />
+        <>
+            <div className='radius10' style={{ backgroundColor: '#f5f5f5' }}>
+                <div className='flex row je'>
+                    <div className='flex row ac p15'>
+                        <div className='fz14 mr10'>{I18n.t('staking.his')}</div>
+                        <SvgIcon onClick={handleHis} name='history' className='press' size={20} />
+                    </div>
                 </div>
+                <AirdropsItem
+                    uncomingTokens={uncomingTokens}
+                    statedTokens={statedTokens}
+                    handleStaking={handleStaking}
+                    unStakeTokens={unStakeTokens}
+                    startTime={startTime}
+                    statedAmount={statedAmount}
+                    commenceTime={commenceTime}
+                />
+                <AmountCon amountList={amountList} />
             </div>
-            <AirdropsItem
-                uncomingTokens={uncomingTokens}
-                statedTokens={statedTokens}
-                handleStaking={handleStaking}
-                unStakeTokens={unStakeTokens}
-                startTime={startTime}
-                statedAmount={statedAmount}
-                commenceTime={commenceTime}
-            />
-            <AmountCon amountList={amountList} />
-        </div>
+            <RewardsList endedList={endedList} />
+        </>
     )
 }
 
-export const RewardsList = () => {
+export const RewardsList = ({ endedList }) => {
     const [curWallet] = useGetNodeWallet()
     const [statedTokens] = useStore('staking.statedTokens')
     const stakedRewards = useGetRewards(curWallet)
     const [{ rewards }] = useStore('staking.config')
-    const list = statedTokens.map((e) => {
-        const { token, eventId } = e
-        const ratio = _get(rewards, `${token}.ratio`) || 0
-        let unit = _get(rewards, `${token}.unit`) || token
-        let total = _get(stakedRewards, `${eventId}.amount`) * ratio || 0
-        // 1 = 1000m = 1000000u
-        let preUnit = ''
-        if (total > 0) {
-            if (total <= Math.pow(10, -5)) {
-                total = Math.pow(10, 6) * total
-                preUnit = 'μ'
-            } else if (total <= Math.pow(10, -2)) {
-                total = Math.pow(10, 3) * total
-                preUnit = 'm'
-            } else if (total >= Math.pow(10, 4)) {
-                total = Math.pow(10, -3) * total
-                preUnit = 'k'
+    const list = statedTokens
+        .filter((d) => !endedList.find((e) => e.id === d.eventId))
+        .map((e) => {
+            const { token, eventId } = e
+            const ratio = _get(rewards, `${token}.ratio`) || 0
+            let unit = _get(rewards, `${token}.unit`) || token
+            let total = _get(stakedRewards, `${eventId}.amount`) * ratio || 0
+            // 1 = 1000m = 1000000u
+            let preUnit = ''
+            if (total > 0) {
+                if (total <= Math.pow(10, -5)) {
+                    total = Math.pow(10, 6) * total
+                    preUnit = 'μ'
+                } else if (total <= Math.pow(10, -2)) {
+                    total = Math.pow(10, 3) * total
+                    preUnit = 'm'
+                } else if (total >= Math.pow(10, 4)) {
+                    total = Math.pow(10, -3) * total
+                    preUnit = 'k'
+                }
             }
-        }
-        return {
-            token,
-            label: `${Base.formatNum(total)}${preUnit} ${unit}`
-        }
-    })
+            return {
+                token,
+                label: `${Base.formatNum(total)}${preUnit} ${unit}`
+            }
+        })
     const ListEl = useMemo(() => {
         return list.map((e, i) => {
             return <StakingTokenItem key={i} className='mr10 mb10' coin={e.token} label={e.label} />

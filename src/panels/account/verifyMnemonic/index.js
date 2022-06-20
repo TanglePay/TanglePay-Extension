@@ -8,7 +8,6 @@ import './index.less'
 const VerifyItem = ({ setNext, index, word, err, isTop, isLast }) => {
     const [error, setError] = useState(false)
     const handleVerify = (curWord) => {
-        console.log(curWord, index, '===============================')
         if (word === curWord) {
             isLast ? Base.push('/account/verifySucc') : setNext()
         }

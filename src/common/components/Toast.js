@@ -1,4 +1,5 @@
 import { Toast as AntdToast } from 'antd-mobile'
+import { CloseOutline } from 'antd-mobile-icons'
 const config = {
     maskStyle: { backgroundColor: 'transparent' },
     maskClickable: false,
@@ -22,7 +23,12 @@ export const Toast = {
     error(text, params = {}) {
         AntdToast.show({
             ...config,
-            icon: 'fail',
+            icon: (
+                <CloseOutline
+                    onClick={() => {
+                        this.hide()
+                    }}></CloseOutline>
+            ),
             content: text,
             ...params
         })

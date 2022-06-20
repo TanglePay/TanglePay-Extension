@@ -34,7 +34,7 @@ export const User = () => {
                                 Base.push(e.path)
                             }}
                             key={e.path}
-                            className='flex row ac jsb ph30 pv20 border-b press'>
+                            className='flex row ac jsb ph15 pv20 border-b press'>
                             <div className='flex row ac'>
                                 <SvgIcon name={e.icon} size={24} className='cB' />
                                 <span className='fz17 ml10'>{e.label}</span>

@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react'
-import { AssetsNav } from '@/common'
+import { Nav } from '@/common'
 import { Loading } from 'antd-mobile'
 import { StatusCon, AirdopsList, RewardsList } from './widget'
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
 import { useStore } from '@tangle-pay/store'
+import { I18n } from '@tangle-pay/common'
 export const Staking = () => {
     const [height, setHeight] = useState(0)
     useGetEventsConfig()
     const [isRequestStakeHis] = useStore('common.isRequestStakeHis')
     useEffect(() => {
-        const height = document.body.offsetHeight - 64 - 51
+        const height = document.body.offsetHeight - 64
         setHeight(height)
     }, [])
     return (
         <div className='h100'>
-            <AssetsNav />
-            <div className='ph20' style={{ height, overflowY: 'scroll' }}>
+            <Nav title={I18n.t('staking.title')} />
+            <div className='ph15' style={{ height, overflowY: 'scroll' }}>
                 <StatusCon />
-                <RewardsList />
                 <AirdopsList />
             </div>
             {!isRequestStakeHis && (

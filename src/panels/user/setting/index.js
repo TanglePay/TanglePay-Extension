@@ -11,13 +11,13 @@ export const UserSetting = () => {
             label: I18n.t('user.language'),
             path: '/user/lang',
             size: 24
-        },
-        {
-            icon: 'network',
-            label: I18n.t('user.network'),
-            path: '/user/network',
-            size: 20
         }
+        // {
+        //     icon: 'network',
+        //     label: I18n.t('user.network'),
+        //     path: '/user/network',
+        //     size: 20
+        // }
     ]
     return (
         <div className='page'>
@@ -31,7 +31,7 @@ export const UserSetting = () => {
                                     Base.push(e.path)
                                 }}
                                 key={e.path}
-                                className='press flex row ac jsb ph30 pv20 border-b'>
+                                className='press flex row ac jsb ph15 pv20 border-b'>
                                 <div className='flex row ac'>
                                     <SvgIcon name={e.icon} size={e.size} className='cB' />
                                     <div className='fz17 ml10'>{e.label}</div>
