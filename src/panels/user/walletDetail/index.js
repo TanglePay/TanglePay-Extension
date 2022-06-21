@@ -1,26 +1,20 @@
-import React from 'react'
-import { AssetsNav, Nav, SvgIcon } from '@/common'
+import React, { useEffect } from 'react'
+import { AssetsNav, Nav, SvgIcon, Toast } from '@/common'
 import { Button } from 'antd-mobile'
+import { Base } from '@tangle-pay/common'
 import numeral from 'numeral'
+import { useStore } from '@tangle-pay/store'
+import { useGetWalletInfo } from '@tangle-pay/store/common'
+const XLSX = require('xlsx')
 
-const list = [
-    {
-        address: 'iota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5',
-        outputs: '100',
-        balance: 30010
-    },
-    {
-        address: 'iota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5',
-        outputs: '100',
-        balance: 30010
-    },
-    {
-        address: 'iota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5',
-        outputs: '100',
-        balance: 30010
-    }
-]
 export const WalletDetail = () => {
+    const [list, totalInfo, loading] = useGetWalletInfo()
+    useEffect(() => {
+        loading ? Toast.showLoading() : Toast.hideLoading()
+        return () => {
+            Toast.hideLoading()
+        }
+    }, [loading])
     return (
         <div>
             <AssetsNav />
@@ -29,6 +23,27 @@ export const WalletDetail = () => {
                 <div className='flex ac jsb' style={{ height: 60 }}>
                     <div className='fz16'>该seed下的地址</div>
                     <Button
+                        onClick={() => {
+                            const sheet = []
+                            list.forEach((e, i) => {
+                                sheet.push({
+                                    address: e.address,
+                                    nums: e.outputIds.length,
+                                    balance: numeral(e.balanceMIOTA).format('0,0.0000')
+                                })
+                            })
+                            const workBook = {
+                                SheetNames: ['Sheet1'],
+                                Sheets: {
+                                    Sheet1: XLSX.utils.json_to_sheet(sheet)
+                                },
+                                Props: {}
+                            }
+                            XLSX.writeFile(workBook, `wallet.xlsx`, {
+                                type: 'file',
+                                bookType: 'xlsx'
+                            })
+                        }}
                         size='small'
                         className='flex ac line-h0'
                         style={{
@@ -39,39 +54,46 @@ export const WalletDetail = () => {
                         <SvgIcon className='ml5' name='excel' color='white' size='14' />
                     </Button>
                 </div>
-                <div className='pt8'>
-                    <div style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
-                        <div className='flex1'>地址</div>
-                        <div className='flex1 tr'>Output数</div>
-                        <div className='flex1 tr'>金额 MIOTA</div>
-                    </div>
-                    {list.map((e, i) => {
-                        return (
-                            <div key={i} style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
-                                <div className='flex1'>
-                                    {(e.address || '').replace(/(^.{8})(.+)(.{4}$)/, '$1...$3')}
+                {list.slice(0, 3).length > 0 ? (
+                    <div className='pt8'>
+                        <div style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
+                            <div className='flex1'>地址</div>
+                            <div className='flex1 tr'>Output数</div>
+                            <div className='flex1 tr'>金额 MIOTA</div>
+                        </div>
+                        {list.map((e, i) => {
+                            return (
+                                <div key={i} style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
+                                    <div className='flex1'>
+                                        {(e.address || '').replace(/(^.{8})(.+)(.{4}$)/, '$1...$3')}
+                                    </div>
+                                    <div className='flex1 tr'>{e.outputIds.length}</div>
+                                    <div className='flex1 tr'>{numeral(e.balanceMIOTA).format('0,0.0000')}</div>
                                 </div>
-                                <div className='flex1 tr'>{e.outputs}</div>
-                                <div className='flex1 tr'>{numeral(e.balance).format('0,0.0000')}</div>
+                            )
+                        })}
+                        {list.length > 3 ? (
+                            <div style={{ height: 26 }} className='flex c fz14'>
+                                ......
                             </div>
-                        )
-                    })}
-                    <div style={{ height: 26 }} className='flex c fz14'>
-                        ......
+                        ) : null}
+                        <div style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
+                            <div className='flex1'>总额</div>
+                            <div className='flex1 tr'>{totalInfo?.outputIds?.length || 0}</div>
+                            <div className='flex1 tr'>{numeral(totalInfo?.balanceMIOTA || 0).format('0,0.0000')}</div>
+                        </div>
                     </div>
-                    <div style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
-                        <div className='flex1'>总额</div>
-                        <div className='flex1 tr'>{numeral(1000).format('0,0')}</div>
-                        <div className='flex1 tr'>{numeral(10000).format('0,0.0000')}</div>
-                    </div>
-                </div>
-                <Button className='mt24 mb16' block color='primary'>
-                    归集
+                ) : null}
+                <Button
+                    onClick={() => {
+                        Base.push('/user/WalletCollection')
+                    }}
+                    className='mt24 mb16'
+                    block
+                    color='primary'>
+                    output 归集
                 </Button>
-                <div className='fz14 cS'>
-                    说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：
-                    说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：说明：
-                </div>
+                <div className='fz14 cS'>说明：</div>
             </div>
         </div>
     )

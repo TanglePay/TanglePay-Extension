@@ -68,6 +68,14 @@ export const UserEditWallet = () => {
                 </div>
                 <div
                     onClick={() => {
+                        Base.push('/user/walletDetail')
+                    }}
+                    className='press p20 flex row jsb ac border-b'>
+                    <div className='fz15'>钱包详情</div>
+                    <SvgIcon name='right' size={15} className='cB' />
+                </div>
+                <div
+                    onClick={() => {
                         Base.push('/user/walletPassword', {
                             ...curEdit
                         })
