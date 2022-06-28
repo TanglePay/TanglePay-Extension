@@ -1,19 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
-import { useLocation } from 'react-router-dom'
 import { NameDialog } from './nameDialog'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
 
 export const UserEditWallet = () => {
-    let params = useLocation()
+    // let params = useLocation()
     const [contentW, setContentW] = useState(375)
     // const [isOpenRemove, setOpenRemove] = useState(false)
-    params = Base.handlerParams(params.search)
-    const id = params.id
-    const [, walletsList] = useGetNodeWallet()
-    const curEdit = walletsList.find((e) => e.id === id) || {}
+    const [curEdit] = useGetNodeWallet()
     const name = curEdit.name || ''
     const dialogRef = useRef()
     // const removeWallet = useRemoveWallet()
@@ -99,7 +95,7 @@ export const UserEditWallet = () => {
                 <div
                     onClick={() => {
                         // setOpenRemove(true)
-                        Base.push('/user/removeWallet', { id })
+                        Base.push('/user/removeWallet', { id: curEdit.id })
                     }}
                     className='press p20 flex row jsb ac border-b'>
                     <div className='fz15'>{I18n.t('account.removeTitle')}</div>

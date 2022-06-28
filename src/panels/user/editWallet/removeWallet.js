@@ -37,7 +37,9 @@ export const RemoveWallet = () => {
                         onClick={() => {
                             removeWallet(id)
                             Base.goBack()
-                            Base.goBack()
+                            setTimeout(() => {
+                                Base.replace('/assets/wallets')
+                            }, 0)
                         }}
                         className='flex1 radius10'
                         style={{ height: 44, background: '#D53554', borderColor: '#D53554' }}
