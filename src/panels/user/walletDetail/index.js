@@ -4,10 +4,11 @@ import { Button } from 'antd-mobile'
 import { Base } from '@tangle-pay/common'
 import numeral from 'numeral'
 import { useStore } from '@tangle-pay/store'
-import { useGetWalletInfo } from '@tangle-pay/store/common'
+import { useGetWalletInfo, useGetNodeWallet } from '@tangle-pay/store/common'
 const XLSX = require('xlsx')
 
 export const WalletDetail = () => {
+    const [curWallet] = useGetNodeWallet()
     const [list, totalInfo, loading] = useGetWalletInfo()
     useEffect(() => {
         loading ? Toast.showLoading() : Toast.hideLoading()
@@ -18,7 +19,7 @@ export const WalletDetail = () => {
     return (
         <div>
             <AssetsNav />
-            <Nav title='My Wallet 2' />
+            <Nav title={curWallet.name} />
             <div className='view-content ph16'>
                 <div className='flex ac jsb' style={{ height: 60 }}>
                     <div className='fz16'>该seed下的地址</div>
@@ -84,15 +85,18 @@ export const WalletDetail = () => {
                         </div>
                     </div>
                 ) : null}
-                <Button
-                    onClick={() => {
-                        Base.push('/user/WalletCollection')
-                    }}
-                    className='mt24 mb16'
-                    block
-                    color='primary'>
-                    output 归集
-                </Button>
+                <div className='mt24'></div>
+                {totalInfo?.outputIds?.length >= 10 ? (
+                    <Button
+                        onClick={() => {
+                            Base.push('/user/WalletCollection')
+                        }}
+                        className='mb16'
+                        block
+                        color='primary'>
+                        output 归集
+                    </Button>
+                ) : null}
                 <div className='fz14 cS'>说明：</div>
             </div>
         </div>

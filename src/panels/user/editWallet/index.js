@@ -16,6 +16,7 @@ export const UserEditWallet = () => {
     useEffect(() => {
         setContentW(document.getElementById('app').offsetWidth)
     }, [])
+    const curNode = IotaSDK.nodes.find((d) => d.id === curEdit.nodeId)
     return (
         <div>
             <Nav title={I18n.t('user.manage')} />
@@ -62,14 +63,16 @@ export const UserEditWallet = () => {
                         </div> */}
                     </div>
                 </div>
-                <div
-                    onClick={() => {
-                        Base.push('/user/walletDetail')
-                    }}
-                    className='press p20 flex row jsb ac border-b'>
-                    <div className='fz15'>钱包详情</div>
-                    <SvgIcon name='right' size={15} className='cB' />
-                </div>
+                {curNode?.type != 2 ? (
+                    <div
+                        onClick={() => {
+                            Base.push('/user/walletDetail')
+                        }}
+                        className='press p20 flex row jsb ac border-b'>
+                        <div className='fz15'>钱包详情</div>
+                        <SvgIcon name='right' size={15} className='cB' />
+                    </div>
+                ) : null}
                 <div
                     onClick={() => {
                         Base.push('/user/walletPassword', {
@@ -80,7 +83,7 @@ export const UserEditWallet = () => {
                     <div className='fz15'>{I18n.t('user.resetPassword')}</div>
                     <SvgIcon name='right' size={15} className='cB' />
                 </div>
-                {IotaSDK.nodes.find((d) => d.id === curEdit.nodeId)?.type == 2 && (
+                {curNode?.type == 2 && (
                     <div
                         onClick={() => {
                             Base.push('/user/privateKey', {
