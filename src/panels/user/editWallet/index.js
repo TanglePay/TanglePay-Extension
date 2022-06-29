@@ -69,7 +69,7 @@ export const UserEditWallet = () => {
                             Base.push('/user/walletDetail')
                         }}
                         className='press p20 flex row jsb ac border-b'>
-                        <div className='fz15'>钱包详情</div>
+                        <div className='fz15'>{I18n.t('account.walletDetail')}</div>
                         <SvgIcon name='right' size={15} className='cB' />
                     </div>
                 ) : null}

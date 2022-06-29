@@ -17,7 +17,7 @@ export const Discover = () => {
             })
     }, [])
     return (
-        <div className='h100' style={{ backgroundColor: '#F2F2F2' }}>
+        <div className='h100' style={{ backgroundColor: '#f2f4f6' }}>
             <NavBar backArrow={null}>{I18n.t('discover.title')} </NavBar>
             <>
                 <div

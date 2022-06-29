@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { AssetsNav, Nav, SvgIcon, Toast } from '@/common'
 import { Button, Input, Mask } from 'antd-mobile'
 import { Base, I18n } from '@tangle-pay/common'
@@ -16,21 +16,35 @@ export const WalletCollection = () => {
     let handeNum = list?.length || 0
     const totalNum = totalInfo?.outputIds?.length || 0
     handeNum = handeNum <= totalNum ? handeNum : totalNum
+    const handleStop = async () => {
+        stop()
+        setShow(false)
+        Toast.showLoading()
+        await getInfo()
+        Toast.hideLoading()
+        Base.goBack()
+    }
+    useEffect(() => {
+        if (handeNum >= totalNum) {
+            handleStop()
+        }
+    }, [handeNum, totalNum])
     return (
         <>
             <div>
-                <AssetsNav />
-                <Nav title='My Wallet 2' />
-                <div className='view-content'>
+                <Nav title={curWallet.name} />
+                <div className='page-content'>
                     <div className='border-b p16'>
                         <div className='border fz12 cS p8' style={{ borderRadius: 8, wordBreak: 'break-all' }}>
-                            iota1qzrhx0ey6w4a9x0xg3zxagq2ufrw45qv8nlv24tkpxeetk864a4rkewh7e5
+                            {curWallet.address}
                         </div>
                     </div>
                     <div className='ph16 pv24'>
-                        <div className='fz16'>output 归集</div>
+                        <div className='flex c pb20'>
+                            <div className='fz18'>{I18n.t('account.outputCollect')}</div>
+                        </div>
                         <div className='flex ac mt10'>
-                            <div className='fz14 cS mr24'>待处理 output 条数</div>
+                            <div className='fz14 cS mr24'>{I18n.t('account.pendingNum')}</div>
                             <div className='fz16 cP fw600'>{totalNum}</div>
                         </div>
                         <div className='fz14 mt24'>{I18n.t('assets.passwordTips')}</div>
@@ -46,7 +60,7 @@ export const WalletCollection = () => {
                             className='mt40 mb16'
                             block
                             color='primary'>
-                            output 归集
+                            {I18n.t('account.outputCollect')}
                         </Button>
                     </div>
                 </div>
@@ -65,10 +79,10 @@ export const WalletCollection = () => {
                             width: clientWidth - 16
                         }}>
                         <div className='border-b ph16 pv15'>
-                            <div className='fz16 fw600'>output 归集</div>
+                            <div className='fz16 fw600'>{I18n.t('account.outputCollect')}</div>
                         </div>
                         <div className='p16 flex ac jsb'>
-                            <div className='fz16 cS'>已处理的条数</div>
+                            <div className='fz16 cS'>{I18n.t('account.processedNum')}</div>
                             <div className='flex ac'>
                                 {handeNum < totalNum ? (
                                     <SvgIcon
@@ -88,17 +102,8 @@ export const WalletCollection = () => {
                             </div>
                         </div>
                         <div className='p15'>
-                            <Button
-                                block
-                                onClick={async () => {
-                                    stop()
-                                    setShow(false)
-                                    Toast.showLoading()
-                                    await getInfo()
-                                    Toast.hideLoading()
-                                }}
-                                color='primary'>
-                                终止
+                            <Button block onClick={handleStop} color='primary'>
+                                {I18n.t('account.collectTermination')}
                             </Button>
                         </div>
                     </div>

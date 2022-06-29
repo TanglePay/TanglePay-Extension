@@ -59,7 +59,7 @@ export const AssetsWallets = () => {
                                         </div>
 
                                         <div className='mt20 row ae flex'>
-                                            <div className={`fz15 ${isActive && 'cW'}`}>
+                                            <div style={{ minWidth: '70px' }} className={`fz15 ${isActive && 'cW'}`}>
                                                 {Base.handleAddress(e.address)}
                                             </div>
                                             <CopyToClipboard

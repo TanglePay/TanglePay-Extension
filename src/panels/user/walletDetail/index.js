@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { AssetsNav, Nav, SvgIcon, Toast } from '@/common'
 import { Button } from 'antd-mobile'
-import { Base } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import numeral from 'numeral'
 import { useStore } from '@tangle-pay/store'
 import { useGetWalletInfo, useGetNodeWallet } from '@tangle-pay/store/common'
@@ -18,11 +18,11 @@ export const WalletDetail = () => {
     }, [loading])
     return (
         <div>
-            <AssetsNav />
-            <Nav title={curWallet.name} />
-            <div className='view-content ph16'>
+            {/* <AssetsNav /> */}
+            <Nav title={I18n.t('account.walletDetail')} />
+            <div className='page-content ph16'>
                 <div className='flex ac jsb' style={{ height: 60 }}>
-                    <div className='fz16'>该seed下的地址</div>
+                    <div className='fz16'>{I18n.t('account.seedAddresses')}</div>
                     <Button
                         onClick={() => {
                             const sheet = []
@@ -51,16 +51,16 @@ export const WalletDetail = () => {
                             '--border-radius': '24px'
                         }}
                         color='primary'>
-                        <span>导出Excel</span>
+                        <span>{I18n.t('account.exportExcel')}</span>
                         <SvgIcon className='ml5' name='excel' color='white' size='14' />
                     </Button>
                 </div>
                 {list.slice(0, 3).length > 0 ? (
                     <div className='pt8'>
                         <div style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
-                            <div className='flex1'>地址</div>
-                            <div className='flex1 tr'>Output数</div>
-                            <div className='flex1 tr'>金额 MIOTA</div>
+                            <div className='flex1'>{I18n.t('account.address')}</div>
+                            <div className='flex1 tr'>{I18n.t('account.outputNum')}</div>
+                            <div className='flex1 tr'>{I18n.t('account.iotaNum')}</div>
                         </div>
                         {list.map((e, i) => {
                             return (
@@ -79,25 +79,25 @@ export const WalletDetail = () => {
                             </div>
                         ) : null}
                         <div style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
-                            <div className='flex1'>总额</div>
+                            <div className='flex1'>{I18n.t('account.totalNum')}</div>
                             <div className='flex1 tr'>{totalInfo?.outputIds?.length || 0}</div>
                             <div className='flex1 tr'>{numeral(totalInfo?.balanceMIOTA || 0).format('0,0.0000')}</div>
                         </div>
                     </div>
                 ) : null}
                 <div className='mt24'></div>
-                {totalInfo?.outputIds?.length >= 10 ? (
-                    <Button
-                        onClick={() => {
-                            Base.push('/user/WalletCollection')
-                        }}
-                        className='mb16'
-                        block
-                        color='primary'>
-                        output 归集
-                    </Button>
-                ) : null}
-                <div className='fz14 cS'>说明：</div>
+                {/* {totalInfo?.outputIds?.length >= 3 ? ( */}
+                <Button
+                    onClick={() => {
+                        Base.push('/user/WalletCollection')
+                    }}
+                    className='mb16'
+                    block
+                    color='primary'>
+                    {I18n.t('account.outputCollect')}
+                </Button>
+                {/* ) : null} */}
+                <div className='fz14 cS'>{I18n.t('account.collectTips')}</div>
             </div>
         </div>
     )
