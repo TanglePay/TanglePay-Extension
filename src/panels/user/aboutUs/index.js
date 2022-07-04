@@ -35,10 +35,6 @@ export const UserAboutUs = () => {
         {
             label: I18n.t('user.groupEmail'),
             url: 'mailto:support@tanglepay.com'
-        },
-        {
-            label: I18n.t('user.groupEmail'),
-            url: 'mailto:support@tanglepay.com'
         }
     ]
     return (
