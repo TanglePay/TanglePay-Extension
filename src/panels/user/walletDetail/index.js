@@ -12,6 +12,12 @@ export const WalletDetail = () => {
     const [list, totalInfo, loading] = useGetWalletInfo()
     useEffect(() => {
         loading ? Toast.showLoading() : Toast.hideLoading()
+        if (!loading && Base.globalTemData.toastStr) {
+            setTimeout(() => {
+                Toast.show(Base.globalTemData.toastStr)
+                Base.globalTemData.toastStr = ''
+            }, 500)
+        }
         return () => {
             Toast.hideLoading()
         }

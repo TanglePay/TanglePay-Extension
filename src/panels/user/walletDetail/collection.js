@@ -16,13 +16,12 @@ export const WalletCollection = () => {
     let handeNum = list?.length || 0
     const totalNum = totalInfo?.outputIds?.length || 0
     handeNum = handeNum <= totalNum ? handeNum : totalNum
-    const handleStop = async () => {
+    const handleStop = () => {
+        Base.globalTemData.toastStr = I18n.t('account.collectSuccTips')
         stop()
         setShow(false)
-        Toast.showLoading()
-        await getInfo()
-        Toast.hideLoading()
         Base.goBack()
+        getInfo()
     }
     useEffect(() => {
         if (handeNum >= totalNum) {
