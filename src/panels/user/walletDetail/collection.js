@@ -24,9 +24,9 @@ export const WalletCollection = () => {
         getInfo()
     }
     useEffect(() => {
-        if (handeNum >= totalNum) {
-            handleStop()
-        }
+        if (handeNum >= totalNum && handeNum > 0) {
+			handleStop();
+		}
     }, [handeNum, totalNum])
     return (
         <>
