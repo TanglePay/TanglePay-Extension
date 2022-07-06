@@ -12,25 +12,27 @@ module.exports = {
             '@tangle-pay/assets': 'tanglepay/lib/browser/assets'
         },
         configure: (config) => {
-            config.devtool = false
-            config.output = {
-                ...config.output,
-                filename: 'app.js',
-                chunkFilename: 'static/js/bundle_[name].js'
+            if (process.env.NODE_ENV === 'production') {
+                config.devtool = false
+                config.output = {
+                    ...config.output,
+                    filename: 'app.js',
+                    chunkFilename: 'static/js/bundle_[name].js'
+                }
+                config.plugins.push(
+                    new TerserPlugin({
+                        terserOptions: {
+                            compress: {
+                                drop_console: true,
+                                drop_debugger: true,
+                                pure_funcs: ['console.log']
+                            }
+                        }
+                    })
+                )
             }
             return config
-        },
-        // plugins: [
-        //     new TerserPlugin({
-        //         terserOptions: {
-        //             compress: {
-        //                 drop_console: true,
-        //                 drop_debugger: true,
-        //                 pure_funcs: ['console.log']
-        //             }
-        //         }
-        //     })
-        // ]
+        }
     },
     plugins: [
         { plugin: CracoLessPlugin },

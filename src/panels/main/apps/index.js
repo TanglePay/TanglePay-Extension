@@ -80,7 +80,7 @@ export const Apps = () => {
     }, [JSON.stringify(list), JSON.stringify(keywords)])
     return (
         <div className='h100'>
-            <AssetsNav />
+            {/* <AssetsNav /> */}
             <div className='ph15'>
                 <Form.Item style={{ paddingLeft: 0 }}>
                     <Input id='input' value={searchStr} onChange={setSearch} placeholder='Search Dapp' />

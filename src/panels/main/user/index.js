@@ -3,14 +3,17 @@ import { Base, I18n } from '@tangle-pay/common'
 import { NavBar } from 'antd-mobile'
 import { useStore } from '@tangle-pay/store'
 import { SvgIcon } from '@/common'
+import { useGetNodeWallet } from '@tangle-pay/store/common'
 
 export const User = () => {
+    const [curWallet] = useGetNodeWallet()
     useStore('common.lang')
     const list = [
         {
             icon: 'wallet',
             label: I18n.t('user.manageWallets'),
-            path: 'user/wallets'
+            // path: 'user/wallets'
+            path: 'user/editWallet'
         },
         {
             icon: 'set',
@@ -31,7 +34,11 @@ export const User = () => {
                     return (
                         <div
                             onClick={() => {
-                                Base.push(e.path)
+                                if (e.path === 'user/editWallet' && !curWallet.address) {
+                                    Base.push('assets/wallets')
+                                } else {
+                                    Base.push(e.path)
+                                }
                             }}
                             key={e.path}
                             className='flex row ac jsb ph15 pv20 border-b press'>
