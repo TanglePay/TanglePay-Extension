@@ -25,7 +25,7 @@ export const AssetsWallets = () => {
         <div className='page mask-content-je'>
             <Nav title={I18n.t('assets.myWallets')} />
             <div>
-                <div style={{ overflowY: 'scroll', height: contentH - 64 - 60 }} className='ph20'>
+                <div style={{ overflowY: 'scroll', height: contentH - 48 - 60 }} className='ph20'>
                     {walletsList.length > 0 ? (
                         <div className='mb20'>
                             {walletsList.map((e) => {
@@ -59,7 +59,7 @@ export const AssetsWallets = () => {
                                         </div>
 
                                         <div className='mt20 row ae flex'>
-                                            <div className={`fz15 ${isActive && 'cW'}`}>
+                                            <div style={{ minWidth: '70px' }} className={`fz15 ${isActive && 'cW'}`}>
                                                 {Base.handleAddress(e.address)}
                                             </div>
                                             <CopyToClipboard

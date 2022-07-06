@@ -10,7 +10,7 @@ export const Staking = () => {
     useGetEventsConfig()
     const [isRequestStakeHis] = useStore('common.isRequestStakeHis')
     useEffect(() => {
-        const height = document.body.offsetHeight - 64
+        const height = document.body.offsetHeight - 48
         setHeight(height)
     }, [])
     return (

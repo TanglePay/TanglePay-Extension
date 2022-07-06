@@ -1,4 +1,4 @@
-@nav-height: 64px;
+@nav-height: 48px;
 .c {
     align-items: center;
     justify-content: center;
@@ -71,7 +71,7 @@
     color: #fff;
 }
 .cS {
-    color: #777;
+    color: #6c737c;
 }
 .cP {
     color: var(--adm-color-primary);
@@ -96,6 +96,9 @@
 }
 .border-box {
     box-sizing: border-box;
+}
+.line-h0 {
+    line-height: 0;
 }
 // bold
 .fw500 {
@@ -164,6 +167,7 @@
     .loop(@i + @gap, @gap, @total);
 }
 .loop(0, 5, 80);
+.loop(0, 8, 32);
 
 .dapp-dialog {
     opacity: 1 !important;
@@ -181,6 +185,10 @@
 .page-content {
     overflow-y: scroll;
     height: calc(100vh - @nav-height);
+}
+.view-content {
+    overflow-y: scroll;
+    height: calc(100vh - @nav-height - @nav-height);
 }
 
 .border {
@@ -224,6 +232,11 @@
 }
 
 // overrides
+.adm-button-small {
+    font-size: 12px;
+    padding: 6px 8px;
+}
+
 .adm-form {
     .adm-list-default {
         border: 0;
@@ -249,6 +262,9 @@
 }
 .adm-button {
     --border-radius: 10px;
+}
+.adm-button-block {
+    height: 44px;
 }
 .adm-button-large {
     padding: 10px 22px;
@@ -277,6 +293,7 @@
 .assets-nav {
     padding: 0 5px 0 15px;
     justify-content: space-between;
+    background: #f2f4f6;
     .adm-nav-bar-left {
         width: 330px;
         .wallet-name-con {

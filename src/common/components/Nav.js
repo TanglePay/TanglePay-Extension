@@ -6,7 +6,12 @@ export const Nav = ({ title, onLeft, backArrow }) => {
         onLeft = Base.goBack.bind(Base)
     }
     return (
-        <NavBar backArrow={backArrow} onBack={onLeft}>
+        <NavBar
+            style={{
+                '--border-bottom': '1px solid #eee'
+            }}
+            backArrow={backArrow}
+            onBack={onLeft}>
             {title}
         </NavBar>
     )

@@ -1,4 +1,4 @@
-import { Base, IotaSDK, API_URL } from '@tangle-pay/common'
+import { Base, IotaSDK, API_URL, Trace } from '@tangle-pay/common'
 import BigNumber from 'bignumber.js'
 import { Toast } from './components/Toast'
 export default {
@@ -44,6 +44,8 @@ export default {
                 address: curWallet.address,
                 nodeId: curWallet.nodeId
             })
+
+            Trace.dappConnect(origin.replace(/.+\/\//, ''), curWallet.address, curWallet.nodeId, IotaSDK.curNode.token)
         }
     },
     async iota_sign(origin, expires, content, isKeepPopup) {

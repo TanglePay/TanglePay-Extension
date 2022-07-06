@@ -9,7 +9,6 @@ import { Toast } from '@/common'
 export const Discover = () => {
     const [curWallet] = useGetNodeWallet()
     const [switchConfig, setSwichConfig] = useState({})
-    console.log(switchConfig, '-----')
     useEffect(() => {
         fetch(`${API_URL}/switchConfig.json?v=${new Date().getTime()}`)
             .then((res) => res.json())
@@ -18,7 +17,7 @@ export const Discover = () => {
             })
     }, [])
     return (
-        <div className='h100' style={{ backgroundColor: '#F2F2F2' }}>
+        <div className='h100' style={{ backgroundColor: '#f2f4f6' }}>
             <NavBar backArrow={null}>{I18n.t('discover.title')} </NavBar>
             <>
                 <div

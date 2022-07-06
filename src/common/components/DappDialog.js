@@ -23,9 +23,9 @@ export const DappDialog = () => {
     const [curNodeId] = useStore('common.curNodeId')
     const changeNode = useChangeNode()
     const show = () => {
-        requestAnimationFrame(() => {
-            setShow(true)
-        })
+        // requestAnimationFrame(() => {
+        setShow(true)
+        // })
     }
     const hide = () => {
         setShow(false)
