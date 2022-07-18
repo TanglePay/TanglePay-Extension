@@ -225,7 +225,7 @@ const imgW = (375 - 20 * 2 - 16 * 2) / 3
 const CollectiblesItem = ({ logo, name, link, list }) => {
     const [isOpen, setOpen] = useState(false)
     const images = list.map((e) => {
-        return e.media
+        return e.imageType === 'mp4' ? e.thumbnailImage : e.media
     })
     return (
         <div>
