@@ -169,6 +169,7 @@ export const ActivityList = ({ search }) => {
         return showList.map((e, i) => {
             const isOutto = [1, 3].includes(e.type)
             const isStake = [2, 3].includes(e.type)
+            const isSign = e.type == 4
             return (
                 <div
                     key={e.id + i}
@@ -179,7 +180,9 @@ export const ActivityList = ({ search }) => {
                     <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
                     <div className='border-b flex flex1 row ac jsb pb15'>
                         <div>
-                            {isStake ? (
+                            {isSign ? (
+                                <div className='fz17 mb5'>TanglePay.Sign</div>
+                            ) : isStake ? (
                                 <div className='fz17 mb5'>{I18n.t(isOutto ? 'staking.unstake' : 'staking.stake')}</div>
                             ) : (
                                 <div className='fz17 mb5'>
@@ -225,7 +228,7 @@ const imgW = (375 - 20 * 2 - 16 * 2) / 3
 const CollectiblesItem = ({ logo, name, link, list }) => {
     const [isOpen, setOpen] = useState(false)
     const images = list.map((e) => {
-        return e.media
+        return e.imageType === 'mp4' ? e.thumbnailImage : e.media
     })
     return (
         <div>
