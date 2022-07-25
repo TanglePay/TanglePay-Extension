@@ -117,10 +117,11 @@ const UnParticipate = ({ statedTokens, unStakeTokens, handleStaking, uncomingTok
 }
 
 // Commencing && staked
-const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount }) => {
+const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, endedList }) => {
     const handleStake = (tokens) => {
         Base.push('/staking/add', { tokens: JSON.stringify(tokens), amount: statedAmount, type: 4 })
     }
+    const stakingTokenList = statedTokens.filter((e) => !endedList.find((d) => d.id === e.eventId))
     const uList = uncomingTokens.filter((e) => !statedTokens.find((d) => d.eventId === e.eventId))
     return (
         <div className='p20 pb10 radius10' style={{ backgroundColor: '#ededed' }}>
@@ -129,7 +130,7 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount }) =
                 <div className='pv15 fw600 fz14'>{I18n.t('staking.airdrops')}</div>
                 <div className='flex row ae jsb mb10' style={{ flexWrap: 'wrap' }}>
                     <div className='flex flex1 row ac' style={{ flexWrap: 'wrap' }}>
-                        {statedTokens.map((d, di) => {
+                        {stakingTokenList.map((d, di) => {
                             return <StakingTokenItem className='mr10 mb10' key={di} coin={d.token} />
                         })}
                         <div className='fz12 cS mb10'>{I18n.t('staking.title')}</div>
@@ -330,6 +331,7 @@ export const StatusCon = () => {
                     startTime={startTime}
                     statedAmount={statedAmount}
                     commenceTime={commenceTime}
+                    endedList={endedList}
                 />
                 <AmountCon amountList={amountList} />
             </div>
@@ -343,30 +345,34 @@ export const RewardsList = ({ endedList }) => {
     const [statedTokens] = useStore('staking.statedTokens')
     const stakedRewards = useGetRewards(curWallet)
     const [{ rewards }] = useStore('staking.config')
-    const list = statedTokens
+    const list = []
+    statedTokens
         .filter((d) => !endedList.find((e) => e.id === d.eventId))
-        .map((e) => {
+        .forEach((e) => {
             const { token, eventId } = e
             const ratio = _get(rewards, `${token}.ratio`) || 0
             let unit = _get(rewards, `${token}.unit`) || token
-            let total = _get(stakedRewards, `${eventId}.amount`) * ratio || 0
-            // 1 = 1000m = 1000000u
-            let preUnit = ''
-            if (total > 0) {
-                if (total <= Math.pow(10, -5)) {
-                    total = Math.pow(10, 6) * total
-                    preUnit = 'μ'
-                } else if (total <= Math.pow(10, -2)) {
-                    total = Math.pow(10, 3) * total
-                    preUnit = 'm'
-                } else if (total >= Math.pow(10, 4)) {
-                    total = Math.pow(10, -3) * total
-                    preUnit = 'k'
+            const stakedRewardItem = stakedRewards[eventId] || {}
+            if (stakedRewardItem.amount > 0) {
+                let total = _get(stakedRewards, `${eventId}.amount`) * ratio || 0
+                // 1 = 1000m = 1000000u
+                let preUnit = ''
+                if (total > 0) {
+                    if (total <= Math.pow(10, -5)) {
+                        total = Math.pow(10, 6) * total
+                        preUnit = 'μ'
+                    } else if (total <= Math.pow(10, -2)) {
+                        total = Math.pow(10, 3) * total
+                        preUnit = 'm'
+                    } else if (total >= Math.pow(10, 4)) {
+                        total = Math.pow(10, -3) * total
+                        preUnit = 'k'
+                    }
                 }
-            }
-            return {
-                token,
-                label: `${Base.formatNum(total)}${preUnit} ${unit}`
+                list.push({
+                    token,
+                    label: `${Base.formatNum(total)}${preUnit} ${unit}`
+                })
             }
         })
     const ListEl = useMemo(() => {
