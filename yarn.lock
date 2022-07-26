@@ -1795,7 +1795,7 @@
     "@iota/util.js" "^1.8.6"
     big-integer "^1.6.51"
 
-"@iota/iota.js@^1.8.1", "@iota/iota.js@^1.8.6":
+"@iota/iota.js@^1.8.6":
   version "1.8.6"
   resolved "https://registry.npmjs.org/@iota/iota.js/-/iota.js-1.8.6.tgz#ab28513afa825e4e115a3b1fb572cd40e494816f"
   integrity sha512-KkUgYS+bde2v5ThjQsVWOECdRH1ym0atUod6TPk9YR05xNpVFq/kt4N/QBKqYv0ysLCL/EjR6mVZCrc5mE6CHA==
@@ -13134,10 +13134,10 @@ table@^6.0.9:
     string-width "^4.2.3"
     strip-ansi "^6.0.1"
 
-tanglepay@^1.5.5:
-  version "1.5.5"
-  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-1.5.5.tgz#e20cfe38ca062c71fff045e97c1e3dfc8c3ee292"
-  integrity sha512-aJuvhf7GdK4zlQHExYzdavFLZXkrn3gCM4r6Ukr5Vl1a/XtMq5E9N7Ar/Q3k22G52uIE/zP6vMxuhjmdDz1pnw==
+tanglepay@^1.5.6:
+  version "1.5.6"
+  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-1.5.6.tgz#16ccd9145966e333871b4f66ba635fa72aa225ea"
+  integrity sha512-7VkVfb7UVP/X/Dw0eZ7W1SOM1CZ2dKgPzGiGialf9hhZM/rZ9zjDmBBfTadx+ydh+sw4X4W48ohV1cjcDuwG+g==
 
 tapable@^1.0.0, tapable@^1.1.3:
   version "1.1.3"
