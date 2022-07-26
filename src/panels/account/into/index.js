@@ -19,6 +19,7 @@ export const AccountInto = () => {
     let params = useLocation()
     params = Base.handlerParams(params.search)
     const type = parseInt(params.type)
+    const from = params.from
     const form = useRef()
     useCreateCheck((name) => {
         form.current.setFieldValue('name', name)
@@ -53,7 +54,13 @@ export const AccountInto = () => {
                             addWallet({
                                 ...res
                             })
-                            Base.replace('/main')
+                            if (from === 'smr') {
+                                Base.replace('/assets/claimReward/claimSMR', {
+                                    id: res.id
+                                })
+                            } else {
+                                Base.replace('/main')
+                            }
                         }
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
