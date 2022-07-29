@@ -48,12 +48,32 @@ export const ClaimSMR = () => {
                         if (!Base.checkPassword(password)) {
                             return Toast.error(I18n.t('account.intoPasswordTips'))
                         }
-                        const seed = curEdit.seed
-                        const res = await IotaSDK.importSMRBySeed(seed, password)
-                        addWallet({
-                            ...res
-                        })
-                        Base.replace('/assets/claimReward/claimResult', { id })
+                        const res = await IotaSDK.claimSMR({ ...curEdit, password })
+                        console.log(res, '-------------------------')
+                        // const seed = curEdit.seed
+                        // const res = await IotaSDK.importSMRBySeed(seed, password)
+                        // addWallet({
+                        //     ...res
+                        // })
+                        // IotaSDK.claimSMR(curEdit, res.address)
+
+                        // const sendRes = await IotaSDK.send(curEdit.address, res.address, sendAmount, {
+                        //     contract: assets?.contract,
+                        //     token: assets?.name
+                        // })
+                        // if (res) {
+                        //     Toast.hideLoading()
+                        //     Toast.success(
+                        //         I18n.t(
+                        //             IotaSDK.checkWeb3Node(curWallet.nodeId)
+                        //                 ? 'assets.sendSucc'
+                        //                 : 'assets.sendSuccRestake'
+                        //         )
+                        //     )
+                        //     Base.goBack()
+                        // }
+
+                        // Base.replace('/assets/claimReward/claimResult', { id })
                     }}>
                     {({ handleChange, handleSubmit, values, errors }) => (
                         <div className='ph16'>
