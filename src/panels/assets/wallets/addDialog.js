@@ -34,13 +34,13 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
     }
     return (
         <Mask className='m0' opacity={0.3} onMaskClick={hide} visible={isShow}>
-            <div className='ph20 pb50 w100 radius10 bgS'>
-                <div className='flex c pv15'>
-                    <div className='fz16 fw600'>{I18n.t('assets.addWallets')}</div>
+            <div className='ph16 pb16 w100 radius10 bgS'>
+                <div className='flex c pt24 pv16'>
+                    <div className='fz18 fw600'>{I18n.t('assets.addWallets')}</div>
                 </div>
                 {isShowNode ? (
                     <>
-                        <div className='fz16 cS mt20 mb10'>{I18n.t('account.selectNode')}</div>
+                        <div className='fz16 cS mb16'>{I18n.t('account.selectNode')}</div>
                         <div className='bgW radius10'>
                             {IotaSDK.nodes.map((e, i) => {
                                 return (
@@ -50,6 +50,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                             await changeNode(e.id)
                                             setShowNode(false)
                                         }}
+                                        style={{ height: 72 }}
                                         className={`pv24 pl24 flex ac press ${i !== 0 ? 'border-t' : ''}`}>
                                         <div className='fz18'>{e.name}</div>
                                     </div>
@@ -65,6 +66,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                     hide()
                                     Base.push('/account/register')
                                 }}
+                                style={{ height: 72 }}
                                 className='pv24 flex c press'>
                                 <div className='fz18'>{I18n.t('account.createTitle')}</div>
                             </div>
@@ -79,13 +81,14 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 </div>
                             )}
                         </div>
-                        <div className='fz16 cS mt20 mb10'>{I18n.t('account.intoBtn')}</div>
+                        <div className='fz16 cS mv16'>{I18n.t('account.intoBtn')}</div>
                         <div className='bgW radius10'>
                             <div
                                 onClick={() => {
                                     hide()
                                     Base.push('/account/into', { type: 1 })
                                 }}
+                                style={{ height: 72 }}
                                 className='pv24 flex c press'>
                                 <div className='fz18'>{I18n.t('account.intoTitle1')}</div>
                             </div>
@@ -106,6 +109,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                         hide()
                                         Base.push('/account/into/privateKey')
                                     }}
+                                    style={{ height: 72 }}
                                     className='pv24 flex c border-t press'>
                                     <div className='fz18'>{I18n.t('account.privateKeyImport')}</div>
                                 </div>

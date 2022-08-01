@@ -21,24 +21,25 @@ export const ClaimResult = () => {
         <div>
             <Nav title={name} />
             <div className='p16'>
-                <div className='fz16 fw600 pb16'>Shimmer Staking Rewards Claimed</div>
-                <div className='fz16 pb16'>
+                <div className='fz18 fw600 pb16'>Shimmer Staking Rewards Claimed</div>
+                <div className='fz18 pb16 fw600'>
                     SMR数量：<span className='cP'>32983</span>
                 </div>
-                <div className='fz16 pb16'>
+                <div className='fz18 pb16'>
                     新创建的Shimmer钱包助记词与初始密码与您的IOTA钱包{' '}
                     <span className='fw600'>
                         {name} {Base.handleAddress(curEdit.address)}
                     </span>
                     一致
                 </div>
-                <div className='fz16 mb20'>为了您的资产安全，建议您修改钱包密码或者将资产转移到全新的Shimmer钱包</div>
-                <div className='flex row ac jsb pt80'>
+                <div className='fz18 mb16'>为了您的资产安全，建议您修改钱包密码或者将资产转移到全新的Shimmer钱包</div>
+                <div className='flex row ac jsb' style={{ marginTop: 100 }}>
                     <Button
                         onClick={() => {
                             Base.replace('/main')
                         }}
                         className='flex1 radius8'
+                        style={{ height: 48 }}
                         color='primary'
                         block>
                         I Understand

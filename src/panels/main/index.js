@@ -89,7 +89,7 @@ export const Main = () => {
                     <TabBar.Item
                         key={item.key}
                         icon={(e) => {
-                            return <SvgIcon key={item.key} name={item.key} size={item.key === 'staking' ? 22 : 18} />
+                            return <SvgIcon key={item.key} name={item.key} size={item.key === 'staking' ? 23 : 19} />
                         }}
                         title={item.title}
                     />

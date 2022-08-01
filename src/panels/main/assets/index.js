@@ -6,6 +6,7 @@ import { useStore } from '@tangle-pay/store'
 import { CoinList, ActivityList, RewardsList, CollectiblesList } from './list'
 import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
+import './index.less'
 
 const initAsssetsTab = ['stake', 'soonaverse', 'contract']
 export const Assets = ({ tabKey }) => {
@@ -33,7 +34,7 @@ export const Assets = ({ tabKey }) => {
     useEffect(() => {
         const dom = document.getElementById('content-id')
         if (dom.offsetTop && tabKey === 'assets') {
-            const height = document.body.offsetHeight - dom.offsetTop - 51
+            const height = document.body.offsetHeight - dom.offsetTop - 61
             setHeight(height)
         }
     }, [lang, tabKey])
@@ -43,7 +44,7 @@ export const Assets = ({ tabKey }) => {
         setAssetsTab([...initAsssetsTab.filter((e) => !filterAssetsList.includes(e))])
     }, [curWallet.nodeId])
     return (
-        <div className='h100'>
+        <div className='h100 assets-page'>
             <AssetsNav hasChangeNode />
             <PullToRefresh
                 renderText={() => <Loading />}
@@ -53,65 +54,63 @@ export const Assets = ({ tabKey }) => {
                     }
                 }}>
                 <div>
-                    <div className='ph15'>
+                    <div className='ph16'>
                         <div className='mt5' style={{ background: '#1D70F7', borderRadius: 10, overflow: 'hidden' }}>
-                            <div className='flex ph15 row ac'>
+                            <div className='flex ph16 pt16 pb10 row ac'>
                                 <div className='fz16 cW'>
                                     {I18n.t('assets.myAssets')}({curLegal.unit || ''})
                                 </div>
                                 <SvgIcon
                                     name={isShowAssets ? 'eye_1' : 'eye_0'}
                                     size={24}
-                                    className='m15 press cW'
+                                    className='ml10 press cW'
                                     onClick={() => setShowAssets(!isShowAssets)}
                                 />
                             </div>
-                            <div className='ph15 mb15'>
+                            <div className='ph16 mb15'>
                                 <div className='cW fz20'>{isShowAssets ? totalAssets.assets || '0.00' : '****'}</div>
                             </div>
-                            <div className='flex row pv10' style={{ background: '#1F7EFC' }}>
+                            <div className='flex row pv10' style={{ background: 'rgba(255, 255, 255, 0.08)' }}>
                                 <div
                                     onClick={() => {
                                         checkPush('assets/send')
                                     }}
                                     className='flex1 flex c pv5 press'
                                     style={{ borderRight: '1px solid #fff' }}>
-                                    <div className='cW fz17'>{I18n.t('assets.send')}</div>
+                                    <div className='cW fz18'>{I18n.t('assets.send')}</div>
                                 </div>
                                 <div
                                     onClick={() => {
                                         checkPush('assets/receive')
                                     }}
                                     className='flex1 flex c pv5 press'>
-                                    <div className='cW fz17'>{I18n.t('assets.receive')}</div>
+                                    <div className='cW fz18'>{I18n.t('assets.receive')}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className='ph15 flex row jsb ac mt10 border-b'>
+                    <div className='ph16 flex row jsb ac mt8 border-b'>
                         <div className='w100 flex row ac jsb'>
                             <div className='flex row ac'>
-                                <div onClick={() => setTab(0)} className='flex c pv15 mr30 press'>
-                                    <div className={`${curTab === 0 ? 'cP fw600' : 'cB'} fz15`}>
+                                <div onClick={() => setTab(0)} className='flex c mr30 press' style={{ height: 60 }}>
+                                    <div className={`${curTab === 0 ? 'cP' : 'cB'} fz16`}>
                                         {I18n.t('assets.assets')}
                                     </div>
                                 </div>
                                 {assetsTab.includes('soonaverse') && (
-                                    <div onClick={() => setTab(1)} className='press flex c pv15'>
-                                        <div className={`${curTab === 1 ? 'cP fw600' : 'cB'} fz15`}>
+                                    <div onClick={() => setTab(1)} className='press flex c' style={{ height: 60 }}>
+                                        <div className={`${curTab === 1 ? 'cP' : 'cB'} fz16`}>
                                             {I18n.t('nft.collectibles')}
                                         </div>
                                     </div>
                                 )}
                             </div>
-                            <div onClick={() => setTab(2)} className='press flex c pv15'>
-                                <div className={`${curTab === 2 ? 'cP fw600' : 'cB'} fz15`}>
-                                    {I18n.t('assets.activity')}
-                                </div>
+                            <div onClick={() => setTab(2)} className='press flex c' style={{ height: 60 }}>
+                                <div className={`${curTab === 2 ? 'cP' : 'cB'} fz16`}>{I18n.t('assets.activity')}</div>
                             </div>
                         </div>
                     </div>
-                    <div className='ph15' id='content-id' style={{ height, overflowY: 'scroll' }}>
+                    <div className='ph16' id='content-id' style={{ height, overflowY: 'scroll' }}>
                         {curTab === 0 ? (
                             <div>
                                 <CoinList />

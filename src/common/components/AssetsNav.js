@@ -24,8 +24,8 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                 Base.push('/assets/wallets')
                             }}
                             className='wallet-name-con flex row ac ph10 press'
-                            style={{ background: '#1D70F7', borderRadius: 20, height: '30px', lineHeight: '30px' }}>
-                            <div className='wallet-name ellipsis fz16 fw500 cW'>
+                            style={{ background: '#1D70F7', borderRadius: 24, height: '32px', lineHeight: '32px' }}>
+                            <div className='wallet-name ellipsis fz16 fw600 cW'>
                                 {curWallet.name || I18n.t('assets.addWallets')}
                             </div>
                             {curWallet.address && (
@@ -35,7 +35,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                 //     className='cW fz14 ml5'>
                                 //     <span>{Base.handleAddress(curWallet.address)}</span>
                                 // </CopyToClipboard>
-                                <div style={{ marginBottom: -1 }} className='cW fz14 ml5'>
+                                <div style={{ marginBottom: -1 }} className='cW fz14 ml5 fw300'>
                                     {Base.handleAddress(curWallet.address)}
                                 </div>
                             )}
@@ -44,14 +44,14 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                 className='ml10'
                                 name='right'
                                 color='white'
-                                size='11'
+                                size='12'
                             />
                         </div>
                         {isWeb3 && hasChangeNode && (
                             <div
                                 onClick={() => setOpenChange(!isOpenChange)}
                                 className='network-con ml10 border ph10 flex row ac press'
-                                style={{ borderRadius: 20, height: '30px', lineHeight: '30px' }}>
+                                style={{ borderRadius: 24, height: '32px', lineHeight: '32px' }}>
                                 <div className='ellipsis fz14 fw500 mr10'>{curNode?.name}</div>
                                 <SvgIcon
                                     style={{
@@ -78,7 +78,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                 className='press'
                                 name='more'
                                 color='black'
-                                size='26'
+                                size='30'
                             />
                         </div>
                     )
