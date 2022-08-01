@@ -44,19 +44,21 @@ export const AccountRegister = () => {
                         Base.push('/account/backup')
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='ph50 pt30'>
+                        <div className='ph16 pt8'>
                             <Form>
                                 <Form.Item className={`mt5 pl0 ${errors.name && 'form-error'}`}>
-                                    <div className='fz14 mb10'>{I18n.t('account.intoName')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('account.intoName')}</div>
                                     <Input
+                                        className='pv4'
                                         placeholder={I18n.t('account.intoNameTips')}
                                         onChange={handleChange('name')}
                                         value={values.name}
                                     />
                                 </Form.Item>
-                                <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz14 mb10'>{I18n.t('account.passwordOptional')}</div>
+                                <Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
+                                    <div className='fz18 mb10'>{I18n.t('account.passwordOptional')}</div>
                                     <Input
+                                        className='pv4'
                                         type='password'
                                         placeholder={I18n.t('account.intoPasswordTips')}
                                         onChange={handleChange('password')}
@@ -67,6 +69,7 @@ export const AccountRegister = () => {
                                 <Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
                                     <Input
                                         type='password'
+                                        className='pv4'
                                         placeholder={I18n.t('account.intoRePasswordTips')}
                                         onChange={handleChange('rePassword')}
                                         value={values.rePassword}
@@ -84,7 +87,7 @@ export const AccountRegister = () => {
                                         name={values.agree ? 'checkbox_1' : 'checkbox_0'}
                                     />
                                     <div
-                                        className={`fz14 tl ${!errors.agree ? 'cB' : 'cR'}`}
+                                        className={`fz16 tl ${!errors.agree ? 'cB' : 'cR'}`}
                                         style={{ lineHeight: '22px' }}>
                                         {I18n.t('account.intoAgree')
                                             .split('##')

@@ -14,14 +14,14 @@ dayjs.extend(utc)
 
 const AmountCon = ({ amountList }) => {
     return (
-        <div className='p20'>
-            <div className='fz14 fw600'>{I18n.t('staking.amount')}</div>
+        <div className='ph16 pb24'>
+            <div className='fz16 fw600'>{I18n.t('staking.amount')}</div>
             {amountList.map((e, i) => {
                 return (
-                    <div key={i} className='flex row jsb ac mt15'>
+                    <div key={i} className='flex row jsb ac mt12'>
                         <div className='flex row ac'>
                             <StakingTokenItem coin={e.token} label={`${Base.formatNum(e.amount)}Mi`} />
-                            <div className='fz12 ml5 cS'>{e.statusStr}</div>
+                            <div className='fz16 ml5 cS'>{e.statusStr}</div>
                         </div>
                         {!!e.onPress && (
                             <div>
@@ -37,7 +37,7 @@ const AmountCon = ({ amountList }) => {
                                         backgroundColor: '#e2e4e4'
                                     }}>
                                     <div
-                                        className='tc fz14 cB fw500'
+                                        className='tc fz16 cB fw500'
                                         style={{ minWidth: 70, opacity: e.btnDis ? 0.5 : 1 }}>
                                         {e.btnStr}
                                     </div>
@@ -58,18 +58,18 @@ const Upcoming = ({ startTime, commenceTime, uncomingTokens, handleStaking }) =>
         .format('HH:mm CET, MMM Do YYYY')
     const showPre = dayjs(commenceTime * 1000).isBefore(dayjs())
     return (
-        <div className='p20 radius10' style={{ backgroundColor: '#ededed' }}>
+        <div className='p16 radius10 bgS'>
             {showPre && (
                 <Button size='large' color='primary' block onClick={() => handleStaking(uncomingTokens, 1)}>
                     <div>{I18n.t('staking.preStake')}</div>
                 </Button>
             )}
             <div>
-                <div className='pv15 fw600 fz14'>{I18n.t('staking.airdrops')}</div>
+                <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='radius10 bgW p15'>
                     <div className='flex c row'>
                         <SvgIcon name='time' size={14} className='cS' />
-                        <div className='fz12 fw500 ml5 cS'>{I18n.t('staking.startAt')}</div>
+                        <div className='fz16 fw500 ml5 cS'>{I18n.t('staking.startAt')}</div>
                     </div>
                     <div className='mt10'>
                         <div className='fz23 fw500'>{timeStr}</div>
@@ -91,24 +91,24 @@ const Upcoming = ({ startTime, commenceTime, uncomingTokens, handleStaking }) =>
 const UnParticipate = ({ statedTokens, unStakeTokens, handleStaking, uncomingTokens }) => {
     const uList = uncomingTokens.filter((e) => !statedTokens.find((d) => d.eventId === e.eventId))
     return (
-        <div className='p20 pb10 radius10' style={{ backgroundColor: '#ededed' }}>
+        <div className='ph16 radius10 bgS'>
             <Button size='large' color='primary' block onClick={() => handleStaking([...unStakeTokens, ...uList], 1)}>
                 <div>{I18n.t('staking.stake')}</div>
             </Button>
             <div>
-                <div className='pv15 fw600 fz14'>{I18n.t('staking.airdrops')}</div>
+                <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='flex row ac mb10' style={{ flexWrap: 'wrap' }}>
                     {unStakeTokens.map((d, di) => {
                         return <StakingTokenItem key={di} className='mr10 mb10' coin={d.token} />
                     })}
-                    <div className='fz12 cS mb10'>{I18n.t('staking.availableToStake')}</div>
+                    <div className='fz16 cS mb10'>{I18n.t('staking.availableToStake')}</div>
                 </div>
                 {uList.length > 0 && (
                     <div className='flex row ac mb10' style={{ flexWrap: 'wrap' }}>
                         {uList.map((d, di) => {
                             return <StakingTokenItem key={di} className='mr10 mb10' coin={d.token} />
                         })}
-                        <div className='fz12 cS mb10'>{I18n.t('staking.preStake')}</div>
+                        <div className='fz16 cS mb10'>{I18n.t('staking.preStake')}</div>
                     </div>
                 )}
             </div>
@@ -124,16 +124,16 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
     const stakingTokenList = statedTokens.filter((e) => !endedList.find((d) => d.id === e.eventId))
     const uList = uncomingTokens.filter((e) => !statedTokens.find((d) => d.eventId === e.eventId))
     return (
-        <div className='p20 pb10 radius10' style={{ backgroundColor: '#ededed' }}>
+        <div className='ph16 pb10 radius10 bgS'>
             <div className='fw600 fz24 tc'>{I18n.t('staking.title')}</div>
             <div>
-                <div className='pv15 fw600 fz14'>{I18n.t('staking.airdrops')}</div>
+                <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='flex row ae jsb mb10' style={{ flexWrap: 'wrap' }}>
                     <div className='flex flex1 row ac' style={{ flexWrap: 'wrap' }}>
                         {stakingTokenList.map((d, di) => {
                             return <StakingTokenItem className='mr10 mb10' key={di} coin={d.token} />
                         })}
-                        <div className='fz12 cS mb10'>{I18n.t('staking.title')}</div>
+                        <div className='fz16 cS mb10'>{I18n.t('staking.title')}</div>
                     </div>
                 </div>
                 {unStakeTokens.length > 0 && (
@@ -142,7 +142,7 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
                             {unStakeTokens.map((d, di) => {
                                 return <StakingTokenItem className='mr10 mb10' key={di} coin={d.token} />
                             })}
-                            <div className='fz12 cS mb10'>{I18n.t('staking.available')}</div>
+                            <div className='fz16 cS mb10'>{I18n.t('staking.available')}</div>
                         </div>
                         <div className='mb5 ml20'>
                             <Button
@@ -150,7 +150,7 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
                                 color='primary'
                                 size='middle'
                                 onClick={() => handleStake(unStakeTokens)}>
-                                <div className='tc fz14 fw500' style={{ minWidth: 90 }}>
+                                <div className='tc fz16 fw500' style={{ minWidth: 90 }}>
                                     {I18n.t('staking.stake')}
                                 </div>
                             </Button>
@@ -163,7 +163,7 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
                             {uList.map((d, di) => {
                                 return <StakingTokenItem key={di} className='mr10 mb10' coin={d.token} />
                             })}
-                            <div className='fz12 cS mb10'>{I18n.t('staking.soon')}</div>
+                            <div className='fz16 cS mb10'>{I18n.t('staking.soon')}</div>
                         </div>
                         <div className='mb5 ml20'>
                             <Button
@@ -171,7 +171,7 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
                                 onClick={() => handleStake(uList)}
                                 color='primary'
                                 size='middle'>
-                                <div className='tc fz14 fw500' style={{ minWidth: 70 }}>
+                                <div className='tc fz16 fw500' style={{ minWidth: 70 }}>
                                     {I18n.t('staking.preStake')}
                                 </div>
                             </Button>
@@ -185,10 +185,10 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
 // Ended
 const Ended = ({ statedTokens, unStakeTokens }) => {
     return (
-        <div className='p20 pb10 radius10' style={{ backgroundColor: '#ededed' }}>
+        <div className='p16 pb10 radius10 bgS'>
             <div className='fw600 fz24 tc'>{` `}</div>
             <div>
-                <div className='pv15 fw600 fz14'>{I18n.t('staking.airdrops')}</div>
+                <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='flex row ac jsb mb10'>
                     <div className='flex row ac' style={{ flexWrap: 'wrap' }}>
                         {[...statedTokens, ...unStakeTokens].map((d, di) => {
@@ -316,10 +316,10 @@ export const StatusCon = () => {
     }
     return (
         <>
-            <div className='radius10' style={{ backgroundColor: '#f5f5f5' }}>
+            <div className='radius10 bgS mb24'>
                 <div className='flex row je'>
                     <div className='flex row ac p15'>
-                        <div className='fz14 mr10'>{I18n.t('staking.his')}</div>
+                        <div className='fz16 mr10'>{I18n.t('staking.his')}</div>
                         <SvgIcon onClick={handleHis} name='history' className='press' size={20} />
                     </div>
                 </div>
@@ -384,9 +384,9 @@ export const RewardsList = ({ endedList }) => {
         return null
     }
     return (
-        <div className='mt25'>
-            <div className='cS fz16'>{I18n.t('staking.estimatedReceived')}</div>
-            <div className='flex row pv10' style={{ flexWrap: 'wrap' }}>
+        <div className='mt24'>
+            <div className='fz18 cS'>{I18n.t('staking.estimatedReceived')}</div>
+            <div className='flex row pt10' style={{ flexWrap: 'wrap' }}>
                 {ListEl}
             </div>
         </div>
@@ -407,7 +407,7 @@ export const AirdopsList = () => {
                     }}>
                     <div className='flex row ac'>
                         <img className='mr10' style={{ width: 24, height: 24 }} src={Base.getIcon(e.token)} />
-                        <div className='fz12'>{e.desc}</div>
+                        <div className='fz16'>{e.desc}</div>
                     </div>
                     <SvgIcon name='right' size={14} />
                 </div>
@@ -418,8 +418,8 @@ export const AirdopsList = () => {
         return null
     }
     return (
-        <div className='mt15'>
-            <div className='cS fz16 mb10'>{I18n.t('staking.airdropsList')}</div>
+        <div className='mt12'>
+            <div className='fz18 mb10 cS'>{I18n.t('staking.airdropsList')}</div>
             {ListEl}
         </div>
     )

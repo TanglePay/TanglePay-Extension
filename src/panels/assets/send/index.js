@@ -102,32 +102,32 @@ export const AssetsSend = () => {
                         }
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='ph50 pt30'>
+                        <div className='p16'>
                             <Form>
                                 <Form.Item className='pl0'>
                                     <div className='flex row ac jsb'>
-                                        <div className='fz16'>{I18n.t('assets.currency')}</div>
+                                        <div className='fz18'>{I18n.t('assets.currency')}</div>
                                         <div className='flex row ac'>
-                                            <div className='fz14 cS'>{currency}</div>
+                                            <div className='fz16 cS'>{currency}</div>
                                         </div>
                                     </div>
                                 </Form.Item>
                                 <Form.Item className={`mt5 pl0 ${errors.receiver && 'form-error'}`}>
-                                    <div className='fz16 mb10'>{I18n.t('assets.receiver')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('assets.receiver')}</div>
                                     <TextArea
                                         autoSize={{ minRows: 1, maxRows: 2 }}
-                                        className='fz14 pl0 pb0'
+                                        className='fz16 pl0 pb0'
                                         placeholder={I18n.t('assets.receiverTips')}
                                         onChange={handleChange('receiver')}
                                         value={values.receiver}
                                     />
                                 </Form.Item>
                                 <Form.Item className={`mt5 pl0 ${errors.amount && 'form-error'}`}>
-                                    <div className='fz16 mb10'>{I18n.t('assets.amount')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('assets.amount')}</div>
                                     <div className='flex ac jsb'>
                                         <Input
                                             type='number'
-                                            className='pl0 flex1'
+                                            className='pl0 flex1 pv4'
                                             placeholder={I18n.t('assets.amountTips')}
                                             onChange={handleChange('amount')}
                                             value={values.amount}
@@ -143,16 +143,16 @@ export const AssetsSend = () => {
                                                 setFieldValue('amount', str)
                                             }}
                                         />
-                                        <div className='fz14 cS'>
+                                        <div className='fz16 cS'>
                                             {I18n.t('assets.balance')} {Base.formatNum(available)} {assets.unit}
                                         </div>
                                     </div>
                                 </Form.Item>
                                 <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz16 mb10'>{I18n.t('assets.password')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
                                     <Input
                                         type='password'
-                                        className='pl0'
+                                        className='pl0 pv4'
                                         placeholder={I18n.t('assets.passwordTips')}
                                         onChange={handleChange('password')}
                                         value={values.password}

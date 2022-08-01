@@ -17,19 +17,20 @@ export const Discover = () => {
             })
     }, [])
     return (
-        <div className='h100' style={{ backgroundColor: '#f2f4f6' }}>
+        <div className='h100'>
             <NavBar backArrow={null}>{I18n.t('discover.title')} </NavBar>
             <>
                 <div
                     onClick={() => {
                         Base.push('/stake/index')
                     }}
-                    className='bgW press flex ac row jsb p15 mb10'>
+                    style={{ height: 58 }}
+                    className='bgW press flex ac row jsb p16 border-t border-b'>
                     <div className='flex ac'>
-                        <SvgIcon style={{ marginBottom: -2 }} className='mr15' name='stake' color='#FCB11D' size='18' />
+                        <SvgIcon style={{ marginBottom: -2 }} className='mr16' name='stake' color='#3671EE' size='22' />
                         <div className='fz16 fw500'>{I18n.t('staking.title')}</div>
                     </div>
-                    <SvgIcon style={{ marginBottom: -2 }} name='right' color='#CCCCCC' size='11' />
+                    <SvgIcon style={{ marginBottom: -2 }} name='right' color='#333' size='13' />
                 </div>
                 {switchConfig.buyIota == 1 ? (
                     <CopyToClipboard
@@ -46,18 +47,18 @@ export const Discover = () => {
                                 Base.push(url)
                             }
                         }}>
-                        <div className='bgW press flex ac row jsb p15 mb10'>
+                        <div style={{ height: 58 }} className='bgW press flex ac row jsb p16 border-b'>
                             <div className='flex ac'>
                                 <SvgIcon
                                     style={{ marginBottom: -2 }}
-                                    className='mr15'
+                                    className='mr16'
                                     name='buy'
-                                    color='#4E9B45'
-                                    size='18'
+                                    color='#3671EE'
+                                    size='20'
                                 />
                                 <div className='fz16 fw500'>{I18n.t('discover.buyIota')}</div>
                             </div>
-                            <SvgIcon style={{ marginBottom: -2 }} name='right' color='#CCCCCC' size='11' />
+                            <SvgIcon style={{ marginBottom: -2 }} name='right' color='#333' size='13' />
                         </div>
                     </CopyToClipboard>
                 ) : null}

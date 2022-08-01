@@ -28,7 +28,7 @@ export const WalletDetail = () => {
             <Nav title={I18n.t('account.walletDetail')} />
             <div className='page-content ph16'>
                 <div className='flex ac jsb' style={{ height: 60 }}>
-                    <div className='fz16'>{I18n.t('account.seedAddresses')}</div>
+                    <div className='fz18'>{I18n.t('account.seedAddresses')}</div>
                     <Button
                         onClick={() => {
                             const sheet = []
@@ -63,14 +63,14 @@ export const WalletDetail = () => {
                 </div>
                 {list.slice(0, 3).length > 0 ? (
                     <div className='pt8'>
-                        <div style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
+                        <div style={{ height: 26 }} className='flex ac jsb mb8 fz16'>
                             <div className='flex1'>{I18n.t('account.address')}</div>
                             <div className='flex1 tr'>{I18n.t('account.outputNum')}</div>
                             <div className='flex1 tr'>{I18n.t('account.iotaNum')}</div>
                         </div>
                         {list.map((e, i) => {
                             return (
-                                <div key={i} style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
+                                <div key={i} style={{ height: 26 }} className='flex ac jsb mb8 fz16'>
                                     <div className='flex1'>
                                         {(e.address || '').replace(/(^.{8})(.+)(.{4}$)/, '$1...$3')}
                                     </div>
@@ -80,11 +80,11 @@ export const WalletDetail = () => {
                             )
                         })}
                         {list.length > 3 ? (
-                            <div style={{ height: 26 }} className='flex c fz14'>
+                            <div style={{ height: 26 }} className='flex c fz16'>
                                 ......
                             </div>
                         ) : null}
-                        <div style={{ height: 26 }} className='flex ac jsb mb8 fz14'>
+                        <div style={{ height: 26 }} className='flex ac jsb mb8 fz16'>
                             <div className='flex1'>{I18n.t('account.totalNum')}</div>
                             <div className='flex1 tr'>{totalInfo?.outputIds?.length || 0}</div>
                             <div className='flex1 tr'>{numeral(totalInfo?.balanceMIOTA || 0).format('0,0.0000')}</div>
@@ -97,13 +97,16 @@ export const WalletDetail = () => {
                     onClick={() => {
                         Base.push('/user/WalletCollection')
                     }}
+                    style={{ height: 48 }}
                     className='mb16'
                     block
                     color='primary'>
                     {I18n.t('account.outputCollect')}
                 </Button>
                 {/* ) : null} */}
-                <div className='fz14 cS'>{I18n.t('account.collectTips')}</div>
+                <div className='fz16 cS' style={{ lineHeight: '18px' }}>
+                    {I18n.t('account.collectTips')}
+                </div>
             </div>
         </div>
     )

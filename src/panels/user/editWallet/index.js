@@ -21,13 +21,13 @@ export const UserEditWallet = () => {
         <div>
             <Nav title={I18n.t('user.manage')} />
             <div>
-                <div className='flex row ac p20 border-b border-box'>
-                    <div className='flex c mr15 bgP' style={{ width: 40, height: 40, borderRadius: 40 }}>
-                        <div className='cW fz15'>{name[0] || ''}</div>
+                <div className='flex row ac ph16 pv20 border-b border-box'>
+                    <div className='flex c mr16 bgP' style={{ width: 40, height: 40, borderRadius: 40 }}>
+                        <div className='cW fz18'>{name[0] || ''}</div>
                     </div>
                     <div className='flex1'>
                         <div className='flex ac row mb10'>
-                            <div className='fz15 mr10'>{name}</div>
+                            <div className='fz16 mr10 cB'>{name}</div>
                             <SvgIcon
                                 className='cB press'
                                 onClick={() => {
@@ -39,7 +39,7 @@ export const UserEditWallet = () => {
                         </div>
                         <div className='flex ac row'>
                             <div style={{ width: contentW - 100 }}>
-                                <div className='fz15 cS' style={{ wordWrap: 'break-word', lineHeight: '20px' }}>
+                                <div className='fz14 cS' style={{ wordWrap: 'break-word', lineHeight: '20px' }}>
                                     {curEdit.address}
                                     <CopyToClipboard
                                         text={curEdit.address}
@@ -59,7 +59,7 @@ export const UserEditWallet = () => {
                             <div
                                 className='radius10'
                                 style={{ width: 10, height: 10, backgroundColor: '#4E9B45' }}></div>
-                            <div className='fz15 ml5'>{IotaSDK.nodes.find((e) => e.id == curEdit.nodeId)?.name}</div>
+                            <div className='fz16 ml5'>{IotaSDK.nodes.find((e) => e.id == curEdit.nodeId)?.name}</div>
                         </div> */}
                     </div>
                 </div>
@@ -68,8 +68,8 @@ export const UserEditWallet = () => {
                         onClick={() => {
                             Base.push('/user/walletDetail')
                         }}
-                        className='press p20 flex row jsb ac border-b'>
-                        <div className='fz15'>{I18n.t('account.walletDetail')}</div>
+                        className='press ph16 pv20 flex row jsb ac border-b'>
+                        <div className='fz16'>{I18n.t('account.walletDetail')}</div>
                         <SvgIcon name='right' size={15} className='cB' />
                     </div>
                 ) : null}
@@ -79,8 +79,8 @@ export const UserEditWallet = () => {
                             ...curEdit
                         })
                     }}
-                    className='press p20 flex row jsb ac border-b'>
-                    <div className='fz15'>{I18n.t('user.resetPassword')}</div>
+                    className='press ph16 pv20 flex row jsb ac border-b'>
+                    <div className='fz16'>{I18n.t('user.resetPassword')}</div>
                     <SvgIcon name='right' size={15} className='cB' />
                 </div>
                 {curNode?.type == 2 && (
@@ -90,8 +90,8 @@ export const UserEditWallet = () => {
                                 ...curEdit
                             })
                         }}
-                        className='press p20 flex row jsb ac border-b'>
-                        <div className='fz15'>{I18n.t('account.exportKey')}</div>
+                        className='press ph16 pv20 flex row jsb ac border-b'>
+                        <div className='fz16'>{I18n.t('account.exportKey')}</div>
                         <SvgIcon name='right' size={15} className='cB' />
                     </div>
                 )}
@@ -100,8 +100,8 @@ export const UserEditWallet = () => {
                         // setOpenRemove(true)
                         Base.push('/user/removeWallet', { id: curEdit.id })
                     }}
-                    className='press p20 flex row jsb ac border-b'>
-                    <div className='fz15'>{I18n.t('account.removeTitle')}</div>
+                    className='press ph16 pv20 flex row jsb ac border-b'>
+                    <div className='fz16'>{I18n.t('account.removeTitle')}</div>
                     <SvgIcon name='right' size={15} className='cB' />
                 </div>
             </div>

@@ -25,28 +25,28 @@ export const WalletCollection = () => {
     }
     useEffect(() => {
         if (handeNum >= totalNum && handeNum > 0) {
-			handleStop();
-		}
+            handleStop()
+        }
     }, [handeNum, totalNum])
     return (
         <>
             <div>
                 <Nav title={curWallet.name} />
                 <div className='page-content'>
-                    <div className='border-b p16'>
-                        <div className='border fz12 cS p8' style={{ borderRadius: 8, wordBreak: 'break-all' }}>
+                    <div className='p16'>
+                        <div className='border fz16 cS p8' style={{ borderRadius: 8, wordBreak: 'break-all' }}>
                             {curWallet.address}
                         </div>
                     </div>
-                    <div className='ph16 pv24'>
-                        <div className='flex c pb20'>
+                    <div className='ph16 pt16'>
+                        <div className='flex ac pb10'>
                             <div className='fz18'>{I18n.t('account.outputCollect')}</div>
                         </div>
                         <div className='flex ac mt10'>
-                            <div className='fz14 cS mr24'>{I18n.t('account.pendingNum')}</div>
-                            <div className='fz16 cP fw600'>{totalNum}</div>
+                            <div className='fz16 cS mr24'>{I18n.t('account.pendingNum')}</div>
+                            <div className='fz18 cP fw600'>{totalNum}</div>
                         </div>
-                        <div className='fz14 mt24'>{I18n.t('assets.passwordTips')}</div>
+                        <div className='fz16 mt24'>{I18n.t('assets.passwordTips')}</div>
                         <Input type='password' value={password} onChange={setPassword} className='border-b pv10' />
                         <Button
                             onClick={() => {
@@ -56,8 +56,10 @@ export const WalletCollection = () => {
                                 start(curWallet, setList)
                                 setShow(true)
                             }}
+                            disabled={!password}
                             className='mt40 mb16'
                             block
+                            style={{ height: 48 }}
                             color='primary'>
                             {I18n.t('account.outputCollect')}
                         </Button>
@@ -77,11 +79,11 @@ export const WalletCollection = () => {
                             marginRight: 8,
                             width: clientWidth - 16
                         }}>
-                        <div className='border-b ph16 pv15'>
-                            <div className='fz16 fw600'>{I18n.t('account.outputCollect')}</div>
+                        <div className='border-b ph16 pv12'>
+                            <div className='fz18 fw600'>{I18n.t('account.outputCollect')}</div>
                         </div>
                         <div className='p16 flex ac jsb'>
-                            <div className='fz16 cS'>{I18n.t('account.processedNum')}</div>
+                            <div className='fz18 cS'>{I18n.t('account.processedNum')}</div>
                             <div className='flex ac'>
                                 {handeNum < totalNum ? (
                                     <SvgIcon
@@ -95,13 +97,13 @@ export const WalletCollection = () => {
                                         name='loading'
                                     />
                                 ) : null}
-                                <div className='cP fw600 fz16'>
+                                <div className='cP fw600 fz18'>
                                     {handeNum} / {totalNum}
                                 </div>
                             </div>
                         </div>
                         <div className='p15'>
-                            <Button block onClick={handleStop} color='primary'>
+                            <Button block onClick={handleStop} color='primary' style={{ height: 48 }}>
                                 {I18n.t('account.collectTermination')}
                             </Button>
                         </div>

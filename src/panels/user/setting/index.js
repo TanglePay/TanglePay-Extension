@@ -31,10 +31,10 @@ export const UserSetting = () => {
                                     Base.push(e.path)
                                 }}
                                 key={e.path}
-                                className='press flex row ac jsb ph15 pv20 border-b'>
+                                className='press flex row ac jsb ph16 pv16 border-b'>
                                 <div className='flex row ac'>
                                     <SvgIcon name={e.icon} size={e.size} className='cB' />
-                                    <div className='fz17 ml10'>{e.label}</div>
+                                    <div className='fz18 ml16'>{e.label}</div>
                                 </div>
                                 <div>
                                     <SvgIcon name='right' size={15} className='cB' />

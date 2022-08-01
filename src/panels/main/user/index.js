@@ -43,8 +43,8 @@ export const User = () => {
                             key={e.path}
                             className='flex row ac jsb ph15 pv20 border-b press'>
                             <div className='flex row ac'>
-                                <SvgIcon name={e.icon} size={24} className='cB' />
-                                <span className='fz17 ml10'>{e.label}</span>
+                                <SvgIcon name={e.icon} size={23} className='cP' />
+                                <span className='fz18 ml16'>{e.label}</span>
                             </div>
                             <div>
                                 <SvgIcon name='right' size={15} className='cB' />

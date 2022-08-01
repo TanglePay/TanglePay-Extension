@@ -94,7 +94,7 @@ export const StakingAdd = () => {
                         }
                     }}>
                     {({ handleChange, handleSubmit, values, errors }) => (
-                        <div className='ph50 pt10'>
+                        <div className='ph16 pv24'>
                             <Form>
                                 <div className='fz16 mb10'>{I18n.t('assets.password')}</div>
                                 <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>

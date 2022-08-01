@@ -43,11 +43,12 @@ export const UserWalletPassword = () => {
                         Base.goBack()
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='p20'>
+                        <div className='ph16 pv32'>
                             <Form>
-                                <Form.Item className={`mt5 pl0 ${errors.old && 'form-error'}`}>
-                                    <div className='fz14 mb10'>{I18n.t('user.old')}</div>
+                                <Form.Item className={`mt8 pl0 ${errors.old && 'form-error'}`}>
+                                    <div className='fz16 mb10'>{I18n.t('user.old')}</div>
                                     <Input
+                                        className='pv4'
                                         type='password'
                                         placeholder={I18n.t('user.oldTips')}
                                         onChange={handleChange('old')}
@@ -55,9 +56,10 @@ export const UserWalletPassword = () => {
                                         maxLength={20}
                                     />
                                 </Form.Item>
-                                <Form.Item className={`mt5 pl0 ${errors.newPassword && 'form-error'}`}>
-                                    <div className='fz14 mb10'>{I18n.t('user.new')}</div>
+                                <Form.Item className={`mt32 pl0 ${errors.newPassword && 'form-error'}`}>
+                                    <div className='fz16 mb16'>{I18n.t('user.new')}</div>
                                     <Input
+                                        className='pv4'
                                         type='password'
                                         placeholder={I18n.t('user.newTips')}
                                         onChange={handleChange('newPassword')}
@@ -67,6 +69,7 @@ export const UserWalletPassword = () => {
                                 </Form.Item>
                                 <Form.Item className={`mt5 pl0 ${errors.rePassword && 'form-error'}`}>
                                     <Input
+                                        className='pv4'
                                         type='password'
                                         placeholder={I18n.t('user.repeatPassword')}
                                         onChange={handleChange('rePassword')}

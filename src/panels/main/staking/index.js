@@ -10,13 +10,13 @@ export const Staking = () => {
     useGetEventsConfig()
     const [isRequestStakeHis] = useStore('common.isRequestStakeHis')
     useEffect(() => {
-        const height = document.body.offsetHeight - 48
+        const height = document.body.offsetHeight - 56
         setHeight(height)
     }, [])
     return (
         <div className='h100'>
             <Nav title={I18n.t('staking.title')} />
-            <div className='ph15' style={{ height, overflowY: 'scroll' }}>
+            <div className='ph15 pt15' style={{ height, overflowY: 'scroll' }}>
                 <StatusCon />
                 <AirdopsList />
             </div>
