@@ -27,7 +27,7 @@ export const UserEditWallet = () => {
                     </div>
                     <div className='flex1'>
                         <div className='flex ac row mb10'>
-                            <div className='fz16 mr10 cB'>{name}</div>
+                            <div className='fz16 mr10 cB fw600'>{name}</div>
                             <SvgIcon
                                 className='cB press'
                                 onClick={() => {
@@ -39,7 +39,7 @@ export const UserEditWallet = () => {
                         </div>
                         <div className='flex ac row'>
                             <div style={{ width: contentW - 100 }}>
-                                <div className='fz14 cS' style={{ wordWrap: 'break-word', lineHeight: '20px' }}>
+                                <div className='fz16 cS' style={{ wordWrap: 'break-word', lineHeight: '20px' }}>
                                     {curEdit.address}
                                     <CopyToClipboard
                                         text={curEdit.address}

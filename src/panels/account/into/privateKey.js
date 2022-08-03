@@ -50,7 +50,7 @@ export const AccountIntoPrivateKey = () => {
                         Base.replace('/main')
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='ph20 flex column jsb'>
+                        <div className='ph16 flex column jsb'>
                             <Form>
                                 <div>
                                     <div>
