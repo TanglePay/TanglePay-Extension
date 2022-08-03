@@ -30,7 +30,7 @@ export const NameDialog = ({ dialogRef, data }) => {
     }, [])
     return (
         <Mask opacity={0.3} onMaskClick={hide} visible={isShow}>
-            <div style={{ width: contentW - 60 }} className='radius10 bgW p20 pa-c name-dialog'>
+            <div style={{ width: contentW - 32 }} className='radius10 bgW p16 pa-c name-dialog'>
                 <Formik
                     initialValues={{
                         name: data.name
@@ -45,7 +45,7 @@ export const NameDialog = ({ dialogRef, data }) => {
                     }}>
                     {({ handleChange, handleSubmit, values, errors }) => (
                         <Form>
-                            <div className='mt10 fz20'>{I18n.t('account.intoName')}</div>
+                            <div className='mb10 fz18 fw600'>{I18n.t('account.intoName')}</div>
                             <Form.Item className={`pl0 ${errors.name && 'form-error'}`}>
                                 <Input
                                     className='name-input'
@@ -54,7 +54,7 @@ export const NameDialog = ({ dialogRef, data }) => {
                                     value={values.name}
                                 />
                             </Form.Item>
-                            <div className='mt30'>
+                            <div className='mt24'>
                                 <Button color='primary' size='large' block onClick={handleSubmit}>
                                     {I18n.t('assets.confirm')}
                                 </Button>

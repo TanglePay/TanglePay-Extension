@@ -27,7 +27,7 @@ export const AccountInto = () => {
     const addWallet = useAddWallet()
     return (
         <div className='page into-page'>
-            <Nav title={I18n.t(type === 1 ? 'account.intoTitle1' : 'account.intoTitle2')} />
+            <Nav title={I18n.t('account.intoBtn')} />
             <div className='page-content pb30'>
                 <Formik
                     innerRef={form}

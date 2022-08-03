@@ -39,7 +39,6 @@ export const ClaimResult = () => {
                             Base.replace('/main')
                         }}
                         className='flex1 radius8'
-                        style={{ height: 48 }}
                         color='primary'
                         block>
                         I Understand

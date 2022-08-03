@@ -97,12 +97,7 @@ export const ClaimSMR = () => {
                                 </Form.Item>
                             </Form>
                             <div className='flex row ac jsb' style={{ marginTop: 100 }}>
-                                <Button
-                                    onClick={handleSubmit}
-                                    disabled={!values.password}
-                                    style={{ height: 48 }}
-                                    color='primary'
-                                    block>
+                                <Button onClick={handleSubmit} disabled={!values.password} color='primary' block>
                                     Claim
                                 </Button>
                             </div>
@@ -125,7 +120,6 @@ export const ClaimSMR = () => {
                             onClick={() => {
                                 setShow(false)
                             }}
-                            style={{ height: 48 }}
                             color='primary'
                             block>
                             I Understand

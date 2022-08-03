@@ -13,8 +13,8 @@ const Item = ({ id, icon, desc, developer, url }) => {
             </div>
             <div className='border-b'>
                 <div className='fz18 fw600 mb5'>{id}</div>
-                <div className='fz16 cS'>{desc}</div>
-                <div className='fz16 cS mt5'>{developer}</div>
+                {desc ? <div className='fz16 cS ellipsis-2 mb5'>{desc}</div> : null}
+                {developer ? <div className='fz16 cS mb5'>{developer}</div> : null}
             </div>
         </div>
     )

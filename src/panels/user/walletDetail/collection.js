@@ -5,10 +5,10 @@ import { Base, I18n } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { useCollect, useGetWalletInfo, useGetNodeWallet } from '@tangle-pay/store/common'
 
-const clientWidth = document.body.clientWidth
 export const WalletCollection = () => {
     const [, totalInfo, loading, getInfo] = useGetWalletInfo()
     const [curWallet] = useGetNodeWallet()
+    const [contentW, setContentW] = useState(375)
     const [password, setPassword] = useState('')
     const [isShow, setShow] = useState(false)
     const [list, setList] = useState([])
@@ -28,6 +28,9 @@ export const WalletCollection = () => {
             handleStop()
         }
     }, [handeNum, totalNum])
+    useEffect(() => {
+        setContentW(document.getElementById('app').offsetWidth)
+    }, [])
     return (
         <>
             <div>
@@ -59,7 +62,6 @@ export const WalletCollection = () => {
                             disabled={!password}
                             className='mt40 mb16'
                             block
-                            style={{ height: 48 }}
                             color='primary'>
                             {I18n.t('account.outputCollect')}
                         </Button>
@@ -75,9 +77,9 @@ export const WalletCollection = () => {
                         className='bgW'
                         style={{
                             borderRadius: 16,
-                            marginLeft: 8,
-                            marginRight: 8,
-                            width: clientWidth - 16
+                            marginLeft: 16,
+                            marginRight: 16,
+                            width: contentW - 32
                         }}>
                         <div className='border-b ph16 pv12'>
                             <div className='fz18 fw600'>{I18n.t('account.outputCollect')}</div>

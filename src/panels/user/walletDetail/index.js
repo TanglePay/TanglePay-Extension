@@ -97,7 +97,6 @@ export const WalletDetail = () => {
                     onClick={() => {
                         Base.push('/user/WalletCollection')
                     }}
-                    style={{ height: 48 }}
                     className='mb16'
                     block
                     color='primary'>

@@ -19,7 +19,7 @@ export const PrivateKey = () => {
         <div>
             <Nav title={name} />
             <div>
-                <div className='pv16 ph15 border-b'>
+                <div className='p16'>
                     <div className='border radius10 p8'>
                         <div className='fz16' style={{ lineHeight: '18px', wordBreak: 'break-all' }}>
                             {curEdit.address}
@@ -27,11 +27,11 @@ export const PrivateKey = () => {
                     </div>
                 </div>
                 <div className='ph16'>
-                    <div className='flex c pv24'>
+                    <div className='flex c pt8 pb24'>
                         <div className='fz18 fw600'>{I18n.t('account.showKey')}</div>
                     </div>
                     <div>
-                        <div className='fz14'>
+                        <div className='fz16'>
                             {I18n.t(keyStr ? 'account.copyKeyTips' : 'assets.passwordTips').replace('{name}', name)}
                         </div>
                         {!keyStr ? (
@@ -39,7 +39,7 @@ export const PrivateKey = () => {
                                 type='password'
                                 value={password}
                                 onChange={setPassword}
-                                className='border-b mt15 pv10 mb8'
+                                className='border-b mt15 mb8'
                             />
                         ) : (
                             <CopyToClipboard text={keyStr} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
