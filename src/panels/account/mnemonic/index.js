@@ -18,7 +18,7 @@ export const AccountMnemonic = () => {
     return (
         <div className='page'>
             <Nav title={I18n.t('account.mnemonicTitle')} />
-            <div className='page-content ph50 pb30'>
+            <div className='page-content ph16 pb30 pt16' style={{ overflow: 'scroll' }}>
                 <div className='mb10'>
                     <div className='cS fz14'>{I18n.t('account.mnemonicSubTitle')}</div>
                 </div>

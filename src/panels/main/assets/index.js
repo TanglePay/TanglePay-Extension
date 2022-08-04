@@ -76,7 +76,7 @@ export const Assets = ({ tabKey }) => {
                                         checkPush('assets/send')
                                     }}
                                     className='flex1 flex c pv5 press'
-                                    style={{ borderRight: '1px solid #fff' }}>
+                                    style={{ borderRight: '1px solid #3671ee' }}>
                                     <div className='cW fz18'>{I18n.t('assets.send')}</div>
                                 </div>
                                 <div

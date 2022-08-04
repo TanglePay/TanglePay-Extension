@@ -7,13 +7,24 @@ export const AccountLogin = () => {
     const dialogRef = useRef()
     return (
         <div className='page mask-content-je flex ac je'>
-            <div className='mb40 ph60 w100 mt80'>
-                <div className='fz26 fw500 mb20 tc'>{I18n.t('account.title')}</div>
+            <div className='mb40 ph24 w100 mt80'>
+                <div className='fw600 mb32 tc' style={{ fontSize: 32 }}>
+                    {I18n.t('account.title')
+                        .split('##')
+                        .filter((e) => !!e)
+                        .map((e, i) => {
+                            return (
+                                <span key={i} className={`${i == 0 ? 'cP' : ''}`}>
+                                    {e}
+                                </span>
+                            )
+                        })}
+                </div>
                 <div
-                    className='fz15 tc'
+                    className='fz16 tc'
                     style={{
                         color: '#333',
-                        lineHeight: '24px'
+                        lineHeight: '18px'
                     }}
                     dangerouslySetInnerHTML={{ __html: I18n.t('account.subTitle').replace(/\n/g, '<br/>') }}></div>
                 <div className='mt70 pt60 pb70'>

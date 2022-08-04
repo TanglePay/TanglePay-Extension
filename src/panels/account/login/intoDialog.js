@@ -24,10 +24,12 @@ export const IntoDialog = ({ dialogRef }) => {
     }
     return (
         <Mask className='m0' opacity={0.3} onMaskClick={hide} visible={isShow}>
-            <div className='p30 w100 radius10 bgS'>
-                <div className='mv20 bgW radius10'>
+            <div className='p24 w100 bgS' style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+                <div className='fz18 fw600 tc'>{I18n.t('account.intoBtn')}</div>
+                <div className='mt24 bgW radius10'>
                     <div
-                        className='pv30 flex c press'
+                        className='pl24 flex ac press'
+                        style={{ height: 70 }}
                         onClick={() => {
                             hide()
                             Base.push('/account/into', { type: 1 })
@@ -36,7 +38,8 @@ export const IntoDialog = ({ dialogRef }) => {
                     </div>
                     {curNode?.type == 1 && (
                         <div
-                            className='pv30 flex c press border-t'
+                            className='pl24 flex ac press border-t'
+                            style={{ height: 70 }}
                             onClick={() => {
                                 hide()
                                 Toast.show(I18n.t('account.unopen'))
@@ -47,7 +50,8 @@ export const IntoDialog = ({ dialogRef }) => {
                     )}
                     {curNode?.type == 2 && (
                         <div
-                            className='pv30 flex c press border-t'
+                            className='pl24 flex ac press border-t'
+                            style={{ height: 70 }}
                             onClick={() => {
                                 hide()
                                 Base.push('/account/into/privateKey')
