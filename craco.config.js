@@ -19,17 +19,17 @@ module.exports = {
                     filename: 'app.js',
                     chunkFilename: 'static/js/bundle_[name].js'
                 }
-                config.plugins.push(
-                    new TerserPlugin({
-                        terserOptions: {
-                            compress: {
-                                drop_console: true,
-                                drop_debugger: true,
-                                pure_funcs: ['console.log']
-                            }
-                        }
-                    })
-                )
+                // config.plugins.push(
+                //     new TerserPlugin({
+                //         terserOptions: {
+                //             compress: {
+                //                 drop_console: true,
+                //                 drop_debugger: true,
+                //                 pure_funcs: ['console.log']
+                //             }
+                //         }
+                //     })
+                // )
             }
             return config
         }

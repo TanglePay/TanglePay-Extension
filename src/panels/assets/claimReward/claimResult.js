@@ -1,19 +1,15 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { useLocation } from 'react-router-dom'
-import { Form, Input, Button } from 'antd-mobile'
-import { useRemoveWallet, useGetNodeWallet } from '@tangle-pay/store/common'
+import { Button } from 'antd-mobile'
+import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Base, I18n } from '@tangle-pay/common'
-import { Nav, Toast } from '@/common'
-import { Formik } from 'formik'
-import * as Yup from 'yup'
+import { Nav } from '@/common'
 
-const schema = Yup.object().shape({
-    password: Yup.string().required()
-})
 export const ClaimResult = () => {
     let params = useLocation()
     params = Base.handlerParams(params.search)
     const id = params.id
+    const amount = params.amount
     const [_, walletsList] = useGetNodeWallet()
     const curEdit = walletsList.find((e) => e.id === id) || {}
     const name = curEdit.name || ''
@@ -23,7 +19,7 @@ export const ClaimResult = () => {
             <div className='p16'>
                 <div className='fz18 fw600 pb16'>Shimmer Staking Rewards Claimed</div>
                 <div className='fz18 pb16 fw600'>
-                    SMR数量：<span className='cP'>32983</span>
+                    SMR数量：<span className='cP'>{amount}</span>
                 </div>
                 <div className='fz18 pb16'>
                     新创建的Shimmer钱包助记词与初始密码与您的IOTA钱包{' '}

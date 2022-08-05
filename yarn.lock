@@ -1788,6 +1788,7 @@
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
 "@iota/crypto.js-next@npm:@iota/crypto.js@next", "@iota/crypto.js@^1.9.0-stardust.6":
+  name "@iota/crypto.js-next"
   version "1.9.0-stardust.6"
   resolved "https://registry.npmjs.org/@iota/crypto.js/-/crypto.js-1.9.0-stardust.6.tgz#a17c277e97b72352fb83d02c67a9e38220e14dd9"
   integrity sha512-jbruSRXlEKW2dgfPFG7e42ODBp4dVu2/CAh/oZrzMjehPdyF2tgAeN1woOqOAmVONWoGVV9GViZti3nShhGF1g==
@@ -1804,6 +1805,7 @@
     big-integer "^1.6.51"
 
 "@iota/iota.js-next@npm:@iota/iota.js@next", "@iota/iota.js@^1.9.0-stardust.22":
+  name "@iota/iota.js-next"
   version "1.9.0-stardust.22"
   resolved "https://registry.npmjs.org/@iota/iota.js/-/iota.js-1.9.0-stardust.22.tgz#cb8897d33429dc11c177541fb7e0169d1da2785b"
   integrity sha512-20hKTqKZ8Gvpe7sQG4k8lEwxbe60/amCCeX/rMuvIb5RAuv4yikl9WFcgRXd9UTQr8D7Pj0rxpMMLZPGa+MGew==
@@ -13191,10 +13193,10 @@ table@^6.0.9:
     string-width "^4.2.3"
     strip-ansi "^6.0.1"
 
-tanglepay@^1.5.6:
-  version "1.5.6"
-  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-1.5.6.tgz#16ccd9145966e333871b4f66ba635fa72aa225ea"
-  integrity sha512-7VkVfb7UVP/X/Dw0eZ7W1SOM1CZ2dKgPzGiGialf9hhZM/rZ9zjDmBBfTadx+ydh+sw4X4W48ohV1cjcDuwG+g==
+tanglepay@^1.5.7:
+  version "1.5.7"
+  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-1.5.7.tgz#f5ecbc72fcf4aaf6916d12b3a399f94918c95c64"
+  integrity sha512-DoE28Nbe07jzfoIwLxh25Gd+05kgKImuKzocqFjNifYzJsGLnP7CtTS4BBTYXDYWgB8TxlhwYDlDBy8wh+oScA==
 
 tapable@^1.0.0, tapable@^1.1.3:
   version "1.1.3"
