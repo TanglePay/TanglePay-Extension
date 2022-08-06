@@ -51,7 +51,8 @@ export const DappDialog = () => {
         }
     }
     const onExecute = async ({ address, return_url, content, type, amount, origin, isKeepPopup, expires }) => {
-        if (password !== curWallet.password && type !== 'iota_connect' && type !== 'iota_changeAccount') {
+        const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
+        if (password !== curWallet.password && !noPassword.includes(type)) {
             return Toast.error(I18n.t('assets.passwordError'))
         }
         let messageId = ''
@@ -130,6 +131,11 @@ export const DappDialog = () => {
                     Toast.error(error.toString(), {
                         duration: 5000
                     })
+                }
+                break
+            case 'iota_getPublicKey':
+                {
+                    await Bridge.iota_getPublicKey(origin, expires, isKeepPopup)
                 }
                 break
             case 'iota_changeAccount':
@@ -287,6 +293,17 @@ export const DappDialog = () => {
                                 content
                             })
                             show()
+                        }
+                        break
+                    case 'iota_getPublicKey':
+                        {
+                            Toast.showLoading()
+                            // setDappData({
+                            //     texts: [{ text: 'get public key' }],
+                            //     type
+                            // })
+                            // show()
+                            onExecute({ type })
                         }
                         break
                     case 'iota_changeAccount': {

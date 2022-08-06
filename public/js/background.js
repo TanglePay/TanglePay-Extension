@@ -106,6 +106,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 return true
             }
             switch (method) {
+                case 'iota_getPublicKey':
+                    {
+                        const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}`
+                        params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                    }
+                    break
                 case 'iota_sendTransaction':
                     {
                         const { to, value, unit = 'Mi', network = '', merchant = '', item_desc = '' } = requestParams

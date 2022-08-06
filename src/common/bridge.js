@@ -60,6 +60,19 @@ export default {
             })
         }
     },
+    async iota_getPublicKey(origin, expires, isKeepPopup) {
+        this.isKeepPopup = isKeepPopup
+        try {
+            const curWallet = await this.getCurWallet()
+            const baseSeed = IotaSDK.getSeed(curWallet.seed, curWallet.password)
+            const addressKeyPair = IotaSDK.getPair(baseSeed)
+            this.sendMessage('iota_getPublicKey', IotaSDK.bytesToHex(addressKeyPair.publicKey))
+        } catch (error) {
+            this.sendErrorMessage('iota_getPublicKey', {
+                msg: error.toString()
+            })
+        }
+    },
     async eth_getBalance(origin, { assetsList, addressList }) {
         Toast.showLoading()
         try {
