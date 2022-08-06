@@ -9,7 +9,7 @@ export const AccountVerifySucc = () => {
     const addWallet = useAddWallet()
     const [registerInfo, seRegisterInfo] = useStore('common.registerInfo')
     return (
-        <div className='page'>
+        <div className='page' style={{ overflow: 'scroll' }}>
             <div>
                 <div className='p40'>
                     <div

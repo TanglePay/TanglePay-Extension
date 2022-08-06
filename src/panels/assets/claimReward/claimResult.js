@@ -17,18 +17,26 @@ export const ClaimResult = () => {
         <div>
             <Nav title={name} />
             <div className='p16'>
-                <div className='fz18 fw600 pb16'>Shimmer Staking Rewards Claimed</div>
+                <div className='fz18 fw600 pb16'>{I18n.t('shimmer.smrClaimStakingReward')}</div>
                 <div className='fz18 pb16 fw600'>
-                    SMR数量：<span className='cP'>{amount}</span>
+                    {I18n.t('shimmer.smrAmount')}
+                    <span className='cP'>{amount}</span>
                 </div>
                 <div className='fz18 pb16'>
-                    新创建的Shimmer钱包助记词与初始密码与您的IOTA钱包{' '}
-                    <span className='fw600'>
-                        {name} {Base.handleAddress(curEdit.address)}
-                    </span>
-                    一致
+                    {I18n.t('shimmer.createTips')
+                        .replace('{name}', name)
+                        .replace('{address}', Base.handleAddress(curEdit.address))
+                        .split('##')
+                        .filter((e) => !!e)
+                        .map((e, i) => {
+                            return (
+                                <span className={i === 1 ? 'fw600' : ''} key={i}>
+                                    {e}
+                                </span>
+                            )
+                        })}
                 </div>
-                <div className='fz18 mb16'>为了您的资产安全，建议您修改钱包密码或者将资产转移到全新的Shimmer钱包</div>
+                <div className='fz18 mb16'>{I18n.t('shimmer.createSuccTips')}</div>
                 <div className='flex row ac jsb' style={{ marginTop: 100 }}>
                     <Button
                         onClick={() => {
@@ -37,7 +45,7 @@ export const ClaimResult = () => {
                         className='flex1 radius8'
                         color='primary'
                         block>
-                        I Understand
+                        {I18n.t('shimmer.understand')}
                     </Button>
                 </div>
             </div>

@@ -82,48 +82,31 @@ export const DappDialog = () => {
                     }
                     Toast.showLoading()
                     try {
-                        try {
-                            const res = await IotaSDK.send(curWallet, address, amount, {
-                                contract: assets?.contract,
-                                token: assets?.name
-                            })
-                            if (!res) {
-                                return
-                            }
-                            messageId = res.messageId
-
-                            if (type === 'iota_sendTransaction') {
-                                Bridge.sendMessage(type, res)
-                            }
-
-                            Toast.hideLoading()
-                            Toast.success(
-                                I18n.t(
-                                    IotaSDK.checkWeb3Node(curWallet.nodeId)
-                                        ? 'assets.sendSucc'
-                                        : 'assets.sendSuccRestake'
-                                )
-                            )
-                            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-                            await sleep(2000)
-                        } catch (error) {
-                            if (type === 'iota_sendTransaction') {
-                                Bridge.sendErrorMessage(type, error)
-                            }
-
-                            Toast.hideLoading()
-                            // Toast.error(I18n.t('assets.sendError'))
-                            console.log(error)
-                            Toast.error(
-                                `${error.toString()}---input:${amount}---amount:${amount}---residue:${residue}---realBalance:${Number(
-                                    realBalance
-                                )}---bigStatedAmount:${bigStatedAmount}`,
-                                {
-                                    duration: 5000
-                                }
-                            )
+                        const res = await IotaSDK.send(curWallet, address, amount, {
+                            contract: assets?.contract,
+                            token: assets?.name
+                        })
+                        if (!res) {
+                            return
                         }
+                        messageId = res.messageId
+
+                        if (type === 'iota_sendTransaction') {
+                            Bridge.sendMessage(type, res)
+                        }
+
+                        Toast.hideLoading()
+                        Toast.success(
+                            I18n.t(
+                                IotaSDK.checkWeb3Node(curWallet.nodeId) ? 'assets.sendSucc' : 'assets.sendSuccRestake'
+                            )
+                        )
+                        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+                        await sleep(2000)
                     } catch (error) {
+                        if (type === 'iota_sendTransaction') {
+                            Bridge.sendErrorMessage(type, error)
+                        }
                         Toast.hideLoading()
                         setTimeout(() => {
                             Toast.error(

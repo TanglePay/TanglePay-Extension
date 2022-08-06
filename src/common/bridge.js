@@ -60,7 +60,7 @@ export default {
             })
         }
     },
-    async evm_getBalance(origin, { assetsList, addressList }) {
+    async eth_getBalance(origin, { assetsList, addressList }) {
         Toast.showLoading()
         try {
             // iota
@@ -80,13 +80,13 @@ export default {
                 amount
             }
             const curWallet = await this.getCurWallet()
-            const key = `${origin}_evm_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
+            const key = `${origin}_eth_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
             this.cacheBgData(key, assetsData)
             Toast.hideLoading()
-            this.sendMessage('evm_getBalance', assetsData)
+            this.sendMessage('eth_getBalance', assetsData)
         } catch (error) {
             Toast.hideLoading()
-            this.sendErrorMessage('evm_getBalance', {
+            this.sendErrorMessage('eth_getBalance', {
                 msg: error.toString()
             })
         }

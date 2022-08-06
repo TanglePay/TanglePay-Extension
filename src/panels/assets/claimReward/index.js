@@ -19,7 +19,16 @@ export const ClaimReward = () => {
             <div>
                 <div style={{ overflowY: 'scroll', height: contentH - 48 - 60 }} className='ph20'>
                     <div className='fz17 pt16'>
-                        Choose a Wallet to <span className='cP'>Claim SMR Staking Rewards</span>
+                        {I18n.t('shimmer.chooseAWallet')
+                            .split('##')
+                            .filter((e) => !!e)
+                            .map((e, i) => {
+                                return (
+                                    <span key={i} className={i == 1 ? 'fw600' : ''}>
+                                        {e}
+                                    </span>
+                                )
+                            })}
                     </div>
                     {walletsList.length > 0 ? (
                         <div className='mb16'>
@@ -48,30 +57,26 @@ export const ClaimReward = () => {
                         </div>
                     )}
                     <div className='fz17'>
-                        如果你要Claim收益的IOTA钱包不在列表内，请先在Tanglepay中{' '}
-                        <span
-                            className='press cP'
-                            onClick={async () => {
-                                await changeNode(IotaSDK.IOTA_NODE_ID)
-                                Base.push('/account/into', { type: 1, from: 'smr' })
-                            }}>
-                            导入IOTA钱包
-                        </span>
+                        {I18n.t('shimmer.importTips')
+                            .split('##')
+                            .filter((e) => !!e)
+                            .map((e, i) => {
+                                return (
+                                    <span
+                                        key={i}
+                                        className={i == 1 ? 'cP press' : ''}
+                                        onClick={async () => {
+                                            if (i == 1) {
+                                                await changeNode(IotaSDK.IOTA_NODE_ID)
+                                                Base.push('/account/into', { type: 1, from: 'smr' })
+                                            }
+                                        }}>
+                                        {e}
+                                    </span>
+                                )
+                            })}
                     </div>
                 </div>
-                {/* <div className='border-t press flex c p16' style={{ height: 60 }}>
-                    <div className='fz17'>
-                        如果你要Claim收益的IOTA钱包不在列表内，请先在Tanglepay中{' '}
-                        <span
-                            className='press cP fw600'
-                            onClick={async () => {
-                                await changeNode(IotaSDK.IOTA_NODE_ID)
-                                Base.push('/account/into', { type: 1, from: 'smr' })
-                            }}>
-                            导入IOTA钱包
-                        </span>
-                    </div>
-                </div> */}
             </div>
         </div>
     )

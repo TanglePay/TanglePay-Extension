@@ -38,7 +38,7 @@ export const ClaimSMR = () => {
                     </div>
                 </div>
                 <div className='flex c pt8 pb16'>
-                    <div className='fz18 fw600'>Claim Shimmer Staking Rewards</div>
+                    <div className='fz18 fw600'>{I18n.t('shimmer.claimStakingRewards')}</div>
                 </div>
                 <Formik
                     innerRef={form}
@@ -82,7 +82,7 @@ export const ClaimSMR = () => {
                             </Form>
                             <div className='flex row ac jsb' style={{ marginTop: 100 }}>
                                 <Button onClick={handleSubmit} disabled={!values.password} color='primary' block>
-                                    Claim
+                                    {I18n.t('shimmer.claim')}
                                 </Button>
                             </div>
                         </div>
@@ -91,13 +91,20 @@ export const ClaimSMR = () => {
             </div>
             <Mask opacity={0.3} onMaskClick={() => setShow(false)} visible={isShow}>
                 <div style={{ width: contentW - 60 }} className='radius10 bgW pa-c'>
-                    <div className='pv12 ph16 fz18 fw600 border-b'>Claiming Failed </div>
+                    <div className='pv12 ph16 fz18 fw600 border-b'>{I18n.t('shimmer.claimingFailed')}</div>
                     <div className='p16 fz16'>
-                        您的IOTA钱包{' '}
-                        <span className='fw600'>
-                            {curEdit.name} {Base.handleAddress(curEdit.address)}
-                        </span>{' '}
-                        中没有可以Claim的Shimmer Staking Rewards
+                        {I18n.t('shimmer.claimingFailedTips')
+                            .replace('{name}', curEdit.name)
+                            .replace('{address}', Base.handleAddress(curEdit.address))
+                            .split('##')
+                            .filter((e) => !!e)
+                            .map((e, i) => {
+                                return (
+                                    <span className={i === 1 ? 'fw600' : ''} key={i}>
+                                        {e}
+                                    </span>
+                                )
+                            })}
                     </div>
                     <div className='ph16 pb16'>
                         <Button
@@ -106,7 +113,7 @@ export const ClaimSMR = () => {
                             }}
                             color='primary'
                             block>
-                            I Understand
+                            {I18n.t('shimmer.understand')}
                         </Button>
                     </div>
                 </div>
