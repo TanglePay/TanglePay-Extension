@@ -114,8 +114,16 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                     break
                 case 'iota_sendTransaction':
                     {
-                        const { to, value, unit = 'Mi', network = '', merchant = '', item_desc = '' } = requestParams
-                        const url = `tanglepay://iota_sendTransaction/${to}?isKeepPopup=${isKeepPopup}&origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}`
+                        const {
+                            to,
+                            value,
+                            unit = 'Mi',
+                            network = '',
+                            merchant = '',
+                            item_desc = '',
+                            data = ''
+                        } = requestParams
+                        const url = `tanglepay://iota_sendTransaction/${to}?isKeepPopup=${isKeepPopup}&origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&taggedData=${data}`
                         params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                     }
                     break

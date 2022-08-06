@@ -50,7 +50,17 @@ export const DappDialog = () => {
                 break
         }
     }
-    const onExecute = async ({ address, return_url, content, type, amount, origin, isKeepPopup, expires }) => {
+    const onExecute = async ({
+        address,
+        return_url,
+        content,
+        type,
+        amount,
+        origin,
+        isKeepPopup,
+        expires,
+        taggedData
+    }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (password !== curWallet.password && !noPassword.includes(type)) {
             return Toast.error(I18n.t('assets.passwordError'))
@@ -85,7 +95,8 @@ export const DappDialog = () => {
                     try {
                         const res = await IotaSDK.send(curWallet, address, amount, {
                             contract: assets?.contract,
-                            token: assets?.name
+                            token: assets?.name,
+                            taggedData
                         })
                         if (!res) {
                             return
@@ -194,7 +205,8 @@ export const DappDialog = () => {
             content = '',
             origin = '',
             isKeepPopup,
-            expires
+            expires,
+            taggedData = ''
         } = res
         let toNetId
         if (network) {
@@ -267,7 +279,8 @@ export const DappDialog = () => {
                                 return_url,
                                 type,
                                 amount: sendAmount,
-                                address
+                                address,
+                                taggedData
                             })
                             show()
                         }
