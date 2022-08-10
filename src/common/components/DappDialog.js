@@ -41,6 +41,7 @@ export const DappDialog = () => {
         switch (type) {
             case 'iota_sign':
             case 'iota_connect':
+            case 'iota_sendTransaction':
                 Bridge.sendErrorMessage(type, {
                     msg: 'cancel'
                 })

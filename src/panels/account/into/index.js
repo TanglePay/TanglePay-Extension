@@ -27,7 +27,7 @@ export const AccountInto = () => {
     const addWallet = useAddWallet()
     return (
         <div className='page into-page'>
-            <Nav title={I18n.t('account.intoBtn')} />
+            <Nav title={I18n.t(type === 1 ? 'account.intoTitle1' : 'account.intoTitle2')} />
             <div className='page-content pb30'>
                 <Formik
                     innerRef={form}
@@ -69,18 +69,15 @@ export const AccountInto = () => {
                                 {type === 1 ? (
                                     <div>
                                         <div>
-                                            <div className='fz26 fw600 mb8'>
-                                                {I18n.t(type === 1 ? 'account.intoTitle1' : 'account.intoTitle2')}
-                                            </div>
-                                            <div className='fz14 fb16 cS'>{I18n.t('account.mnemonicTips')}</div>
+                                            <div className='fz16 cS'>{I18n.t('account.mnemonicTips')}</div>
                                         </div>
                                         <div
-                                            className={`border-b mt10 flex c column ${
+                                            className={`border radius10 mt10 flex c column ${
                                                 !errors.mnemonic ? 'border-color-b' : 'border-color-r'
                                             }`}>
                                             <TextArea
-                                                rows={3}
-                                                className='pv5'
+                                                rows={4}
+                                                className='p10'
                                                 onChange={handleChange('mnemonic')}
                                                 value={values.mnemonic}
                                             />

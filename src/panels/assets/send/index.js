@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
@@ -8,6 +8,7 @@ import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, Toast } from '@/common'
 import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
+// import { SendFailDialog } from '@/common/components/sendFailDialog'
 
 const schema = Yup.object().shape({
     // currency: Yup.string().required(),
@@ -16,6 +17,8 @@ const schema = Yup.object().shape({
     password: Yup.string().required()
 })
 export const AssetsSend = () => {
+    // const sendFailDialog = useRef()
+    // const timeHandler = useRef()
     const [statedAmount] = useStore('staking.statedAmount')
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
@@ -31,6 +34,11 @@ export const AssetsSend = () => {
         realBalance = BigNumber(0)
     }
     let available = Base.formatNum(realBalance.div(Math.pow(10, assets.decimal)))
+    // useEffect(() => {
+    //     return () => {
+    //         clearTimeout(timeHandler.current)
+    //     }
+    // }, [])
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
@@ -70,6 +78,11 @@ export const AssetsSend = () => {
                         }
                         Toast.showLoading()
                         try {
+                            // if (curWallet.nodeId === IotaSDK.SMR_NODE_ID) {
+                            //     setTimeout(() => {
+                            //         sendFailDialog.current.show()
+                            //     }, 15000)
+                            // }
                             const res = await IotaSDK.send(curWallet, receiver, sendAmount, {
                                 contract: assets?.contract,
                                 token: assets?.name
@@ -171,6 +184,7 @@ export const AssetsSend = () => {
                     )}
                 </Formik>
             </div>
+            {/* <SendFailDialog dialogRef={sendFailDialog} /> */}
         </div>
     )
 }

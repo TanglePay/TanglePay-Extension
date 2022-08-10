@@ -84,13 +84,17 @@ export const Apps = () => {
             {/* <AssetsNav /> */}
             <div className='pt24'>
                 <div style={{ height: 36, padding: 6 }} className='mh16 flex row ac bgS radius10'>
-                    <SvgIcon name='search' color='#ccc' size='20' />
+                    <SvgIcon name='search' color='#6C737C' size='20' />
                     <Input
                         className='ml4 fw400 fz16'
                         id='input'
                         value={searchStr}
                         onChange={setSearch}
                         placeholder='Search Dapp'
+                        style={{
+                            '--placeholder-color': '#6C737C',
+                            '--font-size': '16px'
+                        }}
                     />
                 </div>
                 <div className='ph16 flex row ac pt16 jsb' style={{ flexWrap: 'wrap' }}>
@@ -107,7 +111,7 @@ export const Apps = () => {
                 </div>
                 <div>
                     <div>
-                        <div className='ph16 flex ac row pt8 pb12 border-b'>
+                        <div className='ph16 flex ac row pt8 pb4 border-b'>
                             {tabs.map((e) => {
                                 const cur = curTab === e.label
                                 return (

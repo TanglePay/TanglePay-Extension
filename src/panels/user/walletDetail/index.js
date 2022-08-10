@@ -57,8 +57,8 @@ export const WalletDetail = () => {
                             '--border-radius': '24px'
                         }}
                         color='primary'>
-                        <span>{I18n.t('account.exportExcel')}</span>
-                        <SvgIcon className='ml5' name='excel' color='white' size='14' />
+                        <span className='fw600 fz14'>{I18n.t('account.exportExcel')}</span>
+                        <SvgIcon className='ml4' name='excel' color='white' size='14' />
                     </Button>
                 </div>
                 {list.slice(0, 3).length > 0 ? (

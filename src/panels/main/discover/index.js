@@ -56,7 +56,7 @@ export const Discover = () => {
                                     color='#3671EE'
                                     size='20'
                                 />
-                                <div className='fz16 fw500'>{I18n.t('discover.buyIota')}</div>
+                                <div className='fz16'>{I18n.t('discover.buyIota')}</div>
                             </div>
                             <SvgIcon style={{ marginBottom: -2 }} name='right' color='#333' size='13' />
                         </div>

@@ -131,8 +131,8 @@ export const AssetsNav = ({ hasChangeNode }) => {
                     <div
                         className='pa bgW'
                         style={{
-                            top: 58,
-                            right: 15,
+                            top: 56,
+                            right: 16,
                             boxShadow: '-10px 24px 48px rgba(0, 0, 0, 0.24)',
                             borderRadius: 8
                         }}>
@@ -141,9 +141,9 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                 Base.push(`${curNode.explorer}/address/${curWallet.address}`)
                             }}
                             className='flex ac ph15 press'
-                            style={{ height: 44, minWidth: 260 }}>
+                            style={{ height: 48, minWidth: 260 }}>
                             <SvgIcon name='view' style={{ marginTop: 3 }} color='black' size='18' />
-                            <div className='ml10 fz14 fw500'>{I18n.t('account.viewInExplorer')}</div>
+                            <div className='ml10 fz16 fw600'>{I18n.t('account.viewInExplorer')}</div>
                         </div>
                     </div>
                 </Mask>

@@ -94,7 +94,7 @@ export const AssetsWallets = () => {
                     onClick={() => {
                         dialogRef.current.show()
                     }}>
-                    <div className='fz18 cP fw600'>
+                    <div className='fz18 cP fw600 mb8'>
                         <span className='fz20 mr10'>+</span>
                         {I18n.t('assets.addWallets')}
                     </div>

@@ -7,7 +7,7 @@ export const AccountLogin = () => {
     const dialogRef = useRef()
     return (
         <div className='page mask-content-je flex ac je'>
-            <div className='mb40 ph24 w100 mt80'>
+            <div className='ph24 w100 h100' style={{ paddingTop: 160 }}>
                 <div className='fw600 mb32 tc' style={{ fontSize: 32 }}>
                     {I18n.t('account.title')
                         .split('##')
@@ -27,7 +27,7 @@ export const AccountLogin = () => {
                         lineHeight: '18px'
                     }}
                     dangerouslySetInnerHTML={{ __html: I18n.t('account.subTitle').replace(/\n/g, '<br/>') }}></div>
-                <div className='mt70 pt60 pb70'>
+                <div className='mt70 pt65'>
                     <Button
                         color='primary'
                         size='large'

@@ -22,7 +22,7 @@ export const AccountIntoPrivateKey = () => {
     const addWallet = useAddWallet()
     return (
         <div className='page into-page'>
-            <Nav title={I18n.t('account.intoBtn')} />
+            <Nav title={I18n.t('account.privateKeyImport')} />
             <div className='page-content pb30'>
                 <Formik
                     innerRef={form}
@@ -54,16 +54,15 @@ export const AccountIntoPrivateKey = () => {
                             <Form>
                                 <div>
                                     <div>
-                                        <div className='fz26 fw600 mb8'>{I18n.t('account.privateKeyImport')}</div>
-                                        <div className='fz14 fb16 cS'>{I18n.t('account.inputPrivateKey')}</div>
+                                        <div className='fz16 cS'>{I18n.t('account.inputPrivateKey')}</div>
                                     </div>
                                     <div
-                                        className={`border-b mt10 flex c column ${
+                                        className={`border radius10 mt10 flex c column ${
                                             !errors.privateKey ? 'border-color-b' : 'border-color-r'
                                         }`}>
                                         <TextArea
-                                            rows={2}
-                                            className='pt5 pb10'
+                                            rows={4}
+                                            className='p10'
                                             onChange={handleChange('privateKey')}
                                             value={values.privateKey}
                                         />

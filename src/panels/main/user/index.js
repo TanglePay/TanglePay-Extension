@@ -1,8 +1,7 @@
 import React from 'react'
 import { Base, I18n } from '@tangle-pay/common'
-import { NavBar } from 'antd-mobile'
 import { useStore } from '@tangle-pay/store'
-import { SvgIcon } from '@/common'
+import { SvgIcon, Nav } from '@/common'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 
 export const User = () => {
@@ -28,7 +27,7 @@ export const User = () => {
     ]
     return (
         <div className='user-page'>
-            <NavBar backArrow={false}>{I18n.t('user.me')}</NavBar>
+            <Nav backArrow={false} title={I18n.t('user.me')}></Nav>
             <div>
                 {list.map((e) => {
                     return (
@@ -41,7 +40,7 @@ export const User = () => {
                                 }
                             }}
                             key={e.path}
-                            className='flex row ac jsb ph15 pv20 border-b press'>
+                            className='flex row ac jsb ph16 pv20 border-b press'>
                             <div className='flex row ac'>
                                 <SvgIcon name={e.icon} size={23} className='cP' />
                                 <span className='fz18 ml16'>{e.label}</span>

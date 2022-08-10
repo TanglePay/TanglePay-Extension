@@ -23,7 +23,7 @@ export const AccountChangeNode = () => {
                             })}
                     </div>
                     <div
-                        className='fz14'
+                        className='fz16'
                         style={{ lineHeight: '19px' }}
                         dangerouslySetInnerHTML={{
                             __html: I18n.t('account.betaReady').replace(/\n/g, '<br/>')
@@ -32,7 +32,7 @@ export const AccountChangeNode = () => {
                 <div
                     className='p20'
                     style={{ backgroundColor: '#1F7EFC', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-                    <div className='fz14 cW'>{I18n.t('account.changeTips')}</div>
+                    <div className='fz16 cW'>{I18n.t('account.changeTips')}</div>
                     <div className='mt20 bgW' style={{ borderRadius: 16, maxHeight: 240, overflow: 'scroll' }}>
                         {IotaSDK.nodes.map((e, i) => {
                             return (
@@ -44,7 +44,7 @@ export const AccountChangeNode = () => {
                                         await changeNode(e.id)
                                         Base.push('/account/login')
                                     }}>
-                                    <div className='fz15 fw500'>{e.name}</div>
+                                    <div className='fz18 fw500'>{e.name}</div>
                                 </div>
                             )
                         })}
