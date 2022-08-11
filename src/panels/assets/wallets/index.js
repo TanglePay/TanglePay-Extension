@@ -49,7 +49,7 @@ export const AssetsWallets = () => {
                                             // }, 100)
                                         }}
                                         key={e.id}
-                                        className={`press radius10 p16 mt16`}
+                                        className={`press radius10 ph16 pv12 mt16`}
                                         style={isActive ? { background: '#1D70F7' } : { border: '1px solid #000' }}>
                                         <div className='flex row ac jsb'>
                                             <div className={`fz18 fw600 ${isActive && 'cW'}`}>{e.name}</div>
@@ -59,7 +59,7 @@ export const AssetsWallets = () => {
                                         </div>
 
                                         <div className='mt5 row ac flex'>
-                                            <div style={{ minWidth: '70px' }} className={`fz15 ${isActive && 'cW'}`}>
+                                            <div style={{ minWidth: '85px' }} className={`fz16 ${isActive && 'cW'}`}>
                                                 {Base.handleAddress(e.address)}
                                             </div>
                                             <CopyToClipboard
@@ -69,7 +69,7 @@ export const AssetsWallets = () => {
                                                 }}>
                                                 <SvgIcon
                                                     name='copy'
-                                                    size={20}
+                                                    size={16}
                                                     className={`press ${isActive ? 'cW' : 'cB'}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
