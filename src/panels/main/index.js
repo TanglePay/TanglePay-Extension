@@ -92,11 +92,12 @@ export const Main = () => {
                 {routes.map((item) => (
                     <TabBar.Item
                         key={item.key}
+                        style={{ paddingBottom: 14 }}
                         icon={(e) => {
                             return <SvgIcon key={item.key} name={item.key} size={item.size} />
                         }}
                         title={
-                            <div className={'fz14 mt5'} style={{ transform: 'scale(0.9)' }}>
+                            <div className={'fz14 mt8'} style={{ transform: 'scale(0.9)' }}>
                                 {item.title}
                             </div>
                         }

@@ -25,12 +25,12 @@ export const Discover = () => {
                         Base.push('/stake/index')
                     }}
                     style={{ height: 58 }}
-                    className='bgW press flex ac row jsb p16 border-t border-b'>
+                    className='bgW press flex ac row jsb ph16 border-t border-b'>
                     <div className='flex ac'>
                         <SvgIcon style={{ marginBottom: -2 }} className='mr16' name='stake' color='#3671EE' size='22' />
-                        <div className='fz16 fw500'>{I18n.t('staking.title')}</div>
+                        <div className='fz18'>{I18n.t('staking.title')}</div>
                     </div>
-                    <SvgIcon style={{ marginBottom: -2 }} name='right' color='#333' size='13' />
+                    <SvgIcon style={{ marginBottom: -2 }} name='right' color='#333' size='15' />
                 </div>
                 {switchConfig.buyIota == 1 ? (
                     <CopyToClipboard
@@ -47,7 +47,7 @@ export const Discover = () => {
                                 Base.push(url)
                             }
                         }}>
-                        <div style={{ height: 58 }} className='bgW press flex ac row jsb p16 border-b'>
+                        <div style={{ height: 58 }} className='bgW press flex ac row jsb ph16 border-b'>
                             <div className='flex ac'>
                                 <SvgIcon
                                     style={{ marginBottom: -2 }}
@@ -56,9 +56,9 @@ export const Discover = () => {
                                     color='#3671EE'
                                     size='20'
                                 />
-                                <div className='fz16'>{I18n.t('discover.buyIota')}</div>
+                                <div className='fz18'>{I18n.t('discover.buyIota')}</div>
                             </div>
-                            <SvgIcon style={{ marginBottom: -2 }} name='right' color='#333' size='13' />
+                            <SvgIcon style={{ marginBottom: -2 }} name='right' color='#333' size='15' />
                         </div>
                     </CopyToClipboard>
                 ) : null}
