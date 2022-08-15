@@ -175,9 +175,17 @@ export const AssetsSend = () => {
                                     />
                                 </Form.Item>
                                 <div className='pb30' style={{ marginTop: 100 }}>
-                                    <Button color='primary' size='large' block onClick={handleSubmit}>
+                                    <Button
+                                        disabled={curWallet.nodeId === IotaSDK.SMR_NODE_ID}
+                                        color='primary'
+                                        size='large'
+                                        block
+                                        onClick={handleSubmit}>
                                         {I18n.t('assets.confirm')}
                                     </Button>
+                                    {curWallet.nodeId === IotaSDK.SMR_NODE_ID ? (
+                                        <div className='fz12 cS mt12'>{I18n.t('shimmer.sendTips')}</div>
+                                    ) : null}
                                 </div>
                             </Form>
                         </div>
