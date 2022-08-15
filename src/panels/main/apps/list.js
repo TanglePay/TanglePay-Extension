@@ -4,17 +4,17 @@ import { Base } from '@tangle-pay/common'
 const Item = ({ id, icon, desc, developer, url }) => {
     return (
         <div
-            className='press flex row ac mb20'
+            className='press flex row ac pt8'
             onClick={() => {
                 Base.push(url, { title: id })
             }}>
             <div className='flex c p10 radius10 border mr10'>
                 <img style={{ width: 60, height: 60 }} src={Base.getIcon(icon)} />
             </div>
-            <div>
-                <div className='fz18 mb5'>{id}</div>
-                <div className='fz12'>{desc}</div>
-                <div className='fz12 cS mt5'>{developer}</div>
+            <div className='border-b'>
+                <div className='fz18 fw600 mb5'>{id}</div>
+                {desc ? <div className='fz16 cS ellipsis-2 mb5'>{desc}</div> : null}
+                {developer ? <div className='fz16 cS mb5'>{developer}</div> : null}
             </div>
         </div>
     )

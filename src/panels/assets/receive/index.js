@@ -42,7 +42,7 @@ export const AssetsReceive = () => {
                         {curWallet.address && <QRCode value={curWallet.address} size={200} />}
                     </div>
                 </div>
-                <div className='pv20 ph50 w100 flex ac column border-box mb10'>
+                <div className='pv20 ph20 w100 flex ac column border-box mb10'>
                     <CopyToClipboard text={curWallet.address} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
                         <div
                             className='ph10 pv5 bgS'

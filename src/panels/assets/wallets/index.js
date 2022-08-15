@@ -25,7 +25,7 @@ export const AssetsWallets = () => {
         <div className='page mask-content-je'>
             <Nav title={I18n.t('assets.myWallets')} />
             <div>
-                <div style={{ overflowY: 'scroll', height: contentH - 48 - 60 }} className='ph20'>
+                <div style={{ overflowY: 'scroll', height: contentH - 56 - 60 }} className='ph16'>
                     {walletsList.length > 0 ? (
                         <div className='mb20'>
                             {walletsList.map((e) => {
@@ -49,17 +49,17 @@ export const AssetsWallets = () => {
                                             // }, 100)
                                         }}
                                         key={e.id}
-                                        className={`press radius10 ph20 pv15 mt20`}
+                                        className={`press radius10 ph16 pv12 mt16`}
                                         style={isActive ? { background: '#1D70F7' } : { border: '1px solid #000' }}>
                                         <div className='flex row ac jsb'>
-                                            <div className={`fz17 ${isActive && 'cW'}`}>{e.name}</div>
-                                            <div className={`fz17 ${isActive && 'cW'}`}>
+                                            <div className={`fz18 fw600 ${isActive && 'cW'}`}>{e.name}</div>
+                                            <div className={`fz16 ${isActive ? 'cW' : 'cS'}`}>
                                                 {curNode?.type == 2 ? 'EVM' : curNode?.name}
                                             </div>
                                         </div>
 
-                                        <div className='mt20 row ae flex'>
-                                            <div style={{ minWidth: '70px' }} className={`fz15 ${isActive && 'cW'}`}>
+                                        <div className='mt5 row ac flex'>
+                                            <div style={{ minWidth: '85px' }} className={`fz16 ${isActive && 'cW'}`}>
                                                 {Base.handleAddress(e.address)}
                                             </div>
                                             <CopyToClipboard
@@ -69,8 +69,8 @@ export const AssetsWallets = () => {
                                                 }}>
                                                 <SvgIcon
                                                     name='copy'
-                                                    size={20}
-                                                    className={`ml30 press ${isActive ? 'cW' : 'cB'}`}
+                                                    size={16}
+                                                    className={`press ${isActive ? 'cW' : 'cB'}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         e.preventDefault()
@@ -89,12 +89,15 @@ export const AssetsWallets = () => {
                     )}
                 </div>
                 <div
-                    className='border-t press flex c'
-                    style={{ height: 60 }}
+                    className='press flex c'
+                    style={{ height: 60, boxShadow: '0px -4px 20px rgba(0, 0, 0, 0.05)' }}
                     onClick={() => {
                         dialogRef.current.show()
                     }}>
-                    <div className='fz17'>+　{I18n.t('assets.addWallets')}</div>
+                    <div className='fz18 cP fw600 mb8'>
+                        <span className='fz20 mr10'>+</span>
+                        {I18n.t('assets.addWallets')}
+                    </div>
                 </div>
             </div>
             <AddDialog dialogRef={dialogRef} nodeId={params?.nodeId} />

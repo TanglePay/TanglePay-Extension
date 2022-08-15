@@ -18,7 +18,7 @@ export const UserAboutUs = () => {
         {
             label: I18n.t('account.policy'),
             url: 'https://tanglepay.com/policy.html',
-            bottom: 10
+            bottom: 4
         },
         {
             label: I18n.t('user.website'),
@@ -41,12 +41,18 @@ export const UserAboutUs = () => {
         <div className='page'>
             <Nav title={I18n.t('user.aboutUs')} />
             <div style={{ overflowY: 'scroll', height: 600 - 48 }}>
-                <div className='flex c column pv30'>
-                    <img style={{ width: 65, height: 65 }} src={logo} alt='' />
-                    <div className='fz16 mt10'>TanglePay</div>
-                    <div className='fz14 cS mt10'>
-                        {I18n.t('user.curVersion')}
-                        {version}
+                <div className='flex c pv24'>
+                    <div className='flex row ac'>
+                        <img className='mr12' style={{ width: 43, height: 40 }} src={logo} alt='' />
+                        <div>
+                            <div className='fw600 cP' style={{ fontSize: 24 }}>
+                                TANGLEPAY
+                            </div>
+                            <div className='fz16 cS'>
+                                {I18n.t('user.curVersion')}
+                                {version}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {list.map((e, i) => {
@@ -60,18 +66,18 @@ export const UserAboutUs = () => {
                                     Base.push(e.url, { blank: true })
                                 }
                             }}
-                            className={`flex row ac jsb ph15 pv20 press ${i === 0 ? 'border-t' : ''}`}
+                            className={`flex row ac jsb ph16 pv20 press ${i === 0 ? 'border-t' : ''}`}
                             style={{
                                 borderBottomColor: e.bottom ? '#f5f5f5' : '#f5f5f5',
                                 borderBottomWidth: e.bottom || 1,
                                 borderBottomStyle: 'solid'
                             }}>
                             <div className='flex row ac'>
-                                <div className='fz17'>{e.label}</div>
+                                <div className='fz16'>{e.label}</div>
                             </div>
                             <div className='flex row ac'>
-                                {e.value && <div className='fz17 cS mr10'>{e.value}</div>}
-                                <SvgIcon name='right' size={15} className='cS' />
+                                {e.value && <div className='fz16 cS mr24'>{e.value}</div>}
+                                <SvgIcon name='right' size={15} className='cB' />
                             </div>
                         </div>
                     )

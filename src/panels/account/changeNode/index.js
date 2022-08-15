@@ -7,34 +7,44 @@ export const AccountChangeNode = () => {
     const changeNode = useChangeNode()
     return (
         <div className='page flex column'>
-            <div className='flex jsb column flex1 pt30'>
-                <div className='ph25'>
-                    <img className='mb15' style={{ width: 129.6, height: 135 }} src={logo_nobg} />
-                    <div>
-                        <div className='fz30 fw500 mb10'>{I18n.t('account.dearFam')}</div>
-                        <div
-                            className='fz14'
-                            style={{ lineHeight: '19px' }}
-                            dangerouslySetInnerHTML={{
-                                __html: I18n.t('account.betaReady').replace(/\n/g, '<br/>')
-                            }}></div>
+            <div className='flex jsb column flex1'>
+                <div className='ph20 flex1 flex jc column mt30'>
+                    {/* <img className='mb15' style={{ width: 129.6, height: 135 }} src={logo_nobg} /> */}
+                    <div className='mb24'>
+                        {I18n.t('account.dearFam')
+                            .split('##')
+                            .filter((e) => !!e)
+                            .map((e, i) => {
+                                return (
+                                    <span key={i} className={`fw600 ${i == 0 ? 'cP' : ''}`} style={{ fontSize: 32 }}>
+                                        {e}
+                                    </span>
+                                )
+                            })}
                     </div>
+                    <div
+                        className='fz16'
+                        style={{ lineHeight: '19px' }}
+                        dangerouslySetInnerHTML={{
+                            __html: I18n.t('account.betaReady').replace(/\n/g, '<br/>')
+                        }}></div>
                 </div>
                 <div
-                    className='ph15 pv25'
+                    className='p20'
                     style={{ backgroundColor: '#1F7EFC', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-                    <div className='fz14 cW'>{I18n.t('account.changeTips')}</div>
-                    <div className='mt20 bgW' style={{ borderRadius: 16, maxHeight: 175, overflow: 'scroll' }}>
+                    <div className='fz16 cW'>{I18n.t('account.changeTips')}</div>
+                    <div className='mt20 bgW' style={{ borderRadius: 16, maxHeight: 240, overflow: 'scroll' }}>
                         {IotaSDK.nodes.map((e, i) => {
                             return (
                                 <div
                                     key={e.id}
-                                    className={`press pv20 flex c ${i != 0 && 'border-t'}`}
+                                    style={{ height: 60 }}
+                                    className={`press flex ac pl24 ${i != 0 && 'border-t'}`}
                                     onClick={async () => {
                                         await changeNode(e.id)
                                         Base.push('/account/login')
                                     }}>
-                                    <div className='fz15 fw500'>{e.name}</div>
+                                    <div className='fz18 fw500'>{e.name}</div>
                                 </div>
                             )
                         })}

@@ -45,7 +45,7 @@ export const PasswordDialog = ({ dialogRef }) => {
     }, [])
     return (
         <Mask opacity={0.3} onMaskClick={() => hide()} visible={isShow}>
-            <div style={{ width: contentW - 60 }} className='radius10 bgW p20 pa-c password-dialog'>
+            <div style={{ width: contentW - 32 }} className='radius10 bgW p16 pa-c password-dialog'>
                 <Formik
                     innerRef={formRef}
                     initialValues={{}}
@@ -78,7 +78,7 @@ export const PasswordDialog = ({ dialogRef }) => {
                     }}>
                     {({ handleChange, handleSubmit, values, errors }) => (
                         <Form>
-                            <div className='mt10 fz18 fw600 mb10'>{curWallet.name}</div>
+                            <div className='fz18 fw600 mb10'>{curWallet.name}</div>
                             <Form.Item className={`pl0 ${errors.password && 'form-error'}`}>
                                 <Input
                                     type='password'
@@ -88,8 +88,8 @@ export const PasswordDialog = ({ dialogRef }) => {
                                     value={values.password}
                                 />
                             </Form.Item>
-                            <div className='mt30'>
-                                <Button color='primary' size='large' block onClick={handleSubmit}>
+                            <div className='mt24'>
+                                <Button color='primary' block onClick={handleSubmit}>
                                     {I18n.t('assets.confirm')}
                                 </Button>
                             </div>

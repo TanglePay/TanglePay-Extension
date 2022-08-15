@@ -1,4 +1,5 @@
-@nav-height: 48px;
+@nav-height: 56px;
+@bottom-height: 60px;
 .c {
     align-items: center;
     justify-content: center;
@@ -65,7 +66,7 @@
     background-color: #fff;
 }
 .bgS {
-    background-color: #f2f2f2;
+    background-color: #f5f5f5;
 }
 .cW {
     color: #fff;
@@ -81,6 +82,9 @@
 }
 .cB {
     color: #000;
+}
+.radius8 {
+    border-radius: 8px;
 }
 .radius10 {
     border-radius: 10px;
@@ -99,6 +103,12 @@
 }
 .line-h0 {
     line-height: 0;
+}
+.fw300 {
+    font-weight: 300;
+}
+.fw400 {
+    font-weight: 400;
 }
 // bold
 .fw500 {
@@ -167,7 +177,7 @@
     .loop(@i + @gap, @gap, @total);
 }
 .loop(0, 5, 80);
-.loop(0, 8, 32);
+.loop(0, 4, 32);
 
 .dapp-dialog {
     opacity: 1 !important;
@@ -188,7 +198,7 @@
 }
 .view-content {
     overflow-y: scroll;
-    height: calc(100vh - @nav-height - @nav-height);
+    height: calc(100vh - @nav-height - @bottom-height);
 }
 
 .border {
@@ -223,6 +233,15 @@
     white-space: nowrap;
     display: block;
 }
+.ellipsis-2 {
+    text-overflow: -o-ellipsis-lastline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
 // absolute center vertical/horizental
 .pa-c {
     position: absolute;
@@ -232,6 +251,9 @@
 }
 
 // overrides
+.adm-button-large {
+    height: 48px !important;
+}
 .adm-button-small {
     font-size: 12px;
     padding: 6px 8px;
@@ -256,15 +278,22 @@
 }
 .adm-nav-bar {
     height: @nav-height;
+    --height: @nav-height;
     .adm-nav-bar-title {
-        font-size: 15px;
+        font-size: 18px;
     }
+}
+.adm-tab-bar {
+    height: @bottom-height;
+    min-height: @bottom-height;
+    box-shadow: 0px -4px 20px rgba(0, 0, 0, 0.05);
+    border-top: none;
 }
 .adm-button {
     --border-radius: 10px;
 }
 .adm-button-block {
-    height: 44px;
+    height: 48px;
 }
 .adm-button-large {
     padding: 10px 22px;
@@ -291,7 +320,7 @@
     display: none;
 }
 .assets-nav {
-    padding: 0 5px 0 15px;
+    padding: 12px 16px;
     justify-content: space-between;
     background: #f2f4f6;
     .adm-nav-bar-left {
@@ -305,6 +334,7 @@
     }
     .adm-nav-bar-back {
         margin-right: 0;
+        padding: 0;
     }
     .adm-nav-bar-right {
         width: 26px;
@@ -312,4 +342,10 @@
     .adm-nav-bar-title {
         display: none;
     }
+}
+.adm-button-disabled {
+    background: #959595;
+    opacity: 0.5;
+    border-radius: 8px;
+    border: 0;
 }

@@ -21,8 +21,8 @@ export const TipsDialog = ({ dialogRef }) => {
     }
     return (
         <Mask className='m0' opacity={0.3} onMaskClick={hide} visible={isShow}>
-            <div className='flex c w100' style={{ height: '100vh' }}>
-                <div className='ph20 pt50 pb20 w100 radius10 bgS mt70'>
+            <div className='flex c w100' style={{ height: 600 }}>
+                <div className='ph20 pt50 pb20 w100 radius10 bgS'>
                     <div className='mb20 flex column ac pv30 ph50 bgW radius10'>
                         <div>
                             <SvgIcon size={55} name='no_screenshot' className='cB' />
