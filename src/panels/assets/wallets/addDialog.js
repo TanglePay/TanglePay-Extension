@@ -73,8 +73,9 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                             {(curNode?.type == 1 || curNode?.type == 3) && (
                                 <div
                                     onClick={() => {
-                                        hide()
-                                        Base.push('/assets/claimReward')
+                                        // hide()
+                                        // Base.push('/assets/claimReward')
+                                        Toast.show(I18n.t('account.unopen'))
                                     }}
                                     className='pv24 border-t flex c press'>
                                     <div className='fz18'>{I18n.t('shimmer.claimStakingReward')}</div>
