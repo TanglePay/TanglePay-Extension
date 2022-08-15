@@ -105,15 +105,49 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 }
                 return true
             }
-            if (method === 'iota_sign' || method === 'iota_connect') {
-                const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&expires=${expires}`
-                params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-            } else {
-                params.url =
-                    chrome.extension.getURL('index.html') +
-                    `?isKeepPopup=${isKeepPopup}&cmd=iota_request&origin=${encodeURIComponent(
-                        origin
-                    )}&method=${method}&params=${encodeURIComponent(JSON.stringify(request.greeting.params))}`
+            switch (method) {
+                case 'iota_getPublicKey':
+                    {
+                        const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}`
+                        params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                    }
+                    break
+                case 'iota_sendTransaction':
+                    {
+                        const {
+                            to,
+                            value,
+                            unit = 'Mi',
+                            network = '',
+                            merchant = '',
+                            item_desc = '',
+                            data = ''
+                        } = requestParams
+                        const url = `tanglepay://iota_sendTransaction/${to}?isKeepPopup=${isKeepPopup}&origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&taggedData=${data}`
+                        params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                    }
+                    break
+                case 'iota_changeAccount':
+                    {
+                        const { network = '' } = requestParams
+                        const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&network=${network}&expires=${expires}`
+                        params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                    }
+                    break
+                case 'iota_sign':
+                case 'iota_connect':
+                    {
+                        const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&expires=${expires}`
+                        params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                    }
+                    break
+                default:
+                    params.url =
+                        chrome.extension.getURL('index.html') +
+                        `?isKeepPopup=${isKeepPopup}&cmd=iota_request&origin=${encodeURIComponent(
+                            origin
+                        )}&method=${method}&params=${encodeURIComponent(JSON.stringify(request.greeting.params))}`
+                    break
             }
             if (window.tanglepayDialog && window.tanglepayDialogKeep) {
                 const views = chrome.extension.getViews()

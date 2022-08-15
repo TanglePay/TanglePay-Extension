@@ -7,7 +7,7 @@ export const StakingHistory = () => {
     return (
         <div className='h100'>
             <Nav title={I18n.t('staking.his')} />
-            <div className='page-content'>
+            <div className='page-content' style={{ overflow: 'scroll' }}>
                 <List />
             </div>
         </div>

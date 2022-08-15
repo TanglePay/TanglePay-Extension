@@ -6,6 +6,7 @@ import { Base } from '@tangle-pay/common'
 import _uniq from 'lodash/uniq'
 import { useStore } from '@tangle-pay/store'
 import { useGetDappsConfig } from '@tangle-pay/store/dapps'
+import { SvgIcon } from '@/common/assets'
 
 export const Apps = () => {
     useGetDappsConfig()
@@ -75,28 +76,42 @@ export const Apps = () => {
     }, [JSON.stringify(dapps)])
     useEffect(() => {
         const dom = document.getElementById('apps-id')
-        const height = document.body.offsetHeight - dom.offsetTop - 51
+        const height = document.body.offsetHeight - dom.offsetTop - 61
         setHeight(height)
     }, [JSON.stringify(list), JSON.stringify(keywords)])
     return (
         <div className='h100'>
             {/* <AssetsNav /> */}
-            <div className='ph15'>
-                <Form.Item style={{ paddingLeft: 0 }}>
-                    <Input id='input' value={searchStr} onChange={setSearch} placeholder='Search Dapp' />
-                </Form.Item>
-                <div className='flex row ac pt20 jsb' style={{ flexWrap: 'wrap' }}>
+            <div className='pt24'>
+                <div style={{ height: 36, padding: 6 }} className='mh16 flex row ac bgS radius10'>
+                    <SvgIcon name='search' color='#6C737C' size='20' />
+                    <Input
+                        className='ml4 fw400 fz16'
+                        id='input'
+                        value={searchStr}
+                        onChange={setSearch}
+                        placeholder='Search Dapp'
+                        style={{
+                            '--placeholder-color': '#6C737C',
+                            '--font-size': '16px'
+                        }}
+                    />
+                </div>
+                <div className='ph16 flex row ac pt16 jsb' style={{ flexWrap: 'wrap' }}>
                     {keywords.map((e) => {
                         return (
-                            <div onClick={() => setSearch(e.url)} key={e.label} className='press p10 mb10 bgS radius10'>
-                                <span className='fz12'>{e.label}</span>
+                            <div
+                                onClick={() => setSearch(e.url)}
+                                key={e.label}
+                                className='press pv8 ph16 mb8 bgS radius10'>
+                                <span className='fz16'>{e.label}</span>
                             </div>
                         )
                     })}
                 </div>
                 <div>
                     <div>
-                        <div className='flex ac row pt30 pb15'>
+                        <div className='ph16 flex ac row pt8 pb4 border-b'>
                             {tabs.map((e) => {
                                 const cur = curTab === e.label
                                 return (
@@ -106,13 +121,15 @@ export const Apps = () => {
                                         onClick={() => {
                                             setCurTab(e.label)
                                         }}>
-                                        <span className={`fz15 mr10 ${!cur ? 'cB' : 'cP fw600'}`}>{e.label}</span>
+                                        <span className={`fz16 mr10 ${!cur ? 'cB' : 'cP'}`}>{e.label}</span>
                                     </div>
                                 )
                             })}
                         </div>
                     </div>
-                    <List list={showList} height={height} />
+                    <div className='ph16'>
+                        <List list={showList} height={height} />
+                    </div>
                 </div>
             </div>
         </div>

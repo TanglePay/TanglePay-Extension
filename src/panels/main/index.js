@@ -13,19 +13,23 @@ export const Main = () => {
     const initRoutes = [
         {
             key: 'assets',
-            title: I18n.t('assets.assets')
+            title: I18n.t('assets.assets'),
+            size: 30
         },
         {
             key: 'apps',
-            title: I18n.t('apps.title')
+            title: I18n.t('apps.title'),
+            size: 30
         },
         {
             key: 'staking',
-            title: I18n.t('discover.title')
+            title: I18n.t('discover.title'),
+            size: 30
         },
         {
             key: 'me',
-            title: I18n.t('user.me')
+            title: I18n.t('user.me'),
+            size: 30
         }
     ]
     const [lang] = useStore('common.lang')
@@ -88,10 +92,15 @@ export const Main = () => {
                 {routes.map((item) => (
                     <TabBar.Item
                         key={item.key}
+                        style={{ paddingBottom: 14 }}
                         icon={(e) => {
-                            return <SvgIcon key={item.key} name={item.key} size={item.key === 'staking' ? 22 : 18} />
+                            return <SvgIcon key={item.key} name={item.key} size={item.size} />
                         }}
-                        title={item.title}
+                        title={
+                            <div className={'fz14 mt8'} style={{ transform: 'scale(0.9)' }}>
+                                {item.title}
+                            </div>
+                        }
                     />
                 ))}
             </TabBar>

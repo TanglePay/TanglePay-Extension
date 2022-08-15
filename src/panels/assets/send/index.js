@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
@@ -8,6 +8,7 @@ import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, Toast } from '@/common'
 import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
+// import { SendFailDialog } from '@/common/components/sendFailDialog'
 
 const schema = Yup.object().shape({
     // currency: Yup.string().required(),
@@ -16,6 +17,8 @@ const schema = Yup.object().shape({
     password: Yup.string().required()
 })
 export const AssetsSend = () => {
+    // const sendFailDialog = useRef()
+    // const timeHandler = useRef()
     const [statedAmount] = useStore('staking.statedAmount')
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
@@ -31,6 +34,11 @@ export const AssetsSend = () => {
         realBalance = BigNumber(0)
     }
     let available = Base.formatNum(realBalance.div(Math.pow(10, assets.decimal)))
+    // useEffect(() => {
+    //     return () => {
+    //         clearTimeout(timeHandler.current)
+    //     }
+    // }, [])
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
@@ -70,6 +78,11 @@ export const AssetsSend = () => {
                         }
                         Toast.showLoading()
                         try {
+                            // if (curWallet.nodeId === IotaSDK.SMR_NODE_ID) {
+                            //     setTimeout(() => {
+                            //         sendFailDialog.current.show()
+                            //     }, 15000)
+                            // }
                             const res = await IotaSDK.send(curWallet, receiver, sendAmount, {
                                 contract: assets?.contract,
                                 token: assets?.name
@@ -102,32 +115,32 @@ export const AssetsSend = () => {
                         }
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='ph50 pt30'>
+                        <div className='p16'>
                             <Form>
                                 <Form.Item className='pl0'>
                                     <div className='flex row ac jsb'>
-                                        <div className='fz16'>{I18n.t('assets.currency')}</div>
+                                        <div className='fz18'>{I18n.t('assets.currency')}</div>
                                         <div className='flex row ac'>
-                                            <div className='fz14 cS'>{currency}</div>
+                                            <div className='fz16 cS'>{currency}</div>
                                         </div>
                                     </div>
                                 </Form.Item>
                                 <Form.Item className={`mt5 pl0 ${errors.receiver && 'form-error'}`}>
-                                    <div className='fz16 mb10'>{I18n.t('assets.receiver')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('assets.receiver')}</div>
                                     <TextArea
                                         autoSize={{ minRows: 1, maxRows: 2 }}
-                                        className='fz14 pl0 pb0'
+                                        className='fz16 pl0 pb0'
                                         placeholder={I18n.t('assets.receiverTips')}
                                         onChange={handleChange('receiver')}
                                         value={values.receiver}
                                     />
                                 </Form.Item>
                                 <Form.Item className={`mt5 pl0 ${errors.amount && 'form-error'}`}>
-                                    <div className='fz16 mb10'>{I18n.t('assets.amount')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('assets.amount')}</div>
                                     <div className='flex ac jsb'>
                                         <Input
                                             type='number'
-                                            className='pl0 flex1'
+                                            className='pl0 flex1 pv4'
                                             placeholder={I18n.t('assets.amountTips')}
                                             onChange={handleChange('amount')}
                                             value={values.amount}
@@ -140,34 +153,46 @@ export const AssetsSend = () => {
                                                 if (parseFloat(str) < Math.pow(10, -precision)) {
                                                     str = String(Math.pow(10, -precision))
                                                 }
+                                                if (curWallet.nodeId === IotaSDK.SMR_NODE_ID) {
+                                                    str = String(parseInt(str))
+                                                }
                                                 setFieldValue('amount', str)
                                             }}
                                         />
-                                        <div className='fz14 cS'>
+                                        <div className='fz16 cS'>
                                             {I18n.t('assets.balance')} {Base.formatNum(available)} {assets.unit}
                                         </div>
                                     </div>
                                 </Form.Item>
                                 <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz16 mb10'>{I18n.t('assets.password')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
                                     <Input
                                         type='password'
-                                        className='pl0'
+                                        className='pl0 pv4'
                                         placeholder={I18n.t('assets.passwordTips')}
                                         onChange={handleChange('password')}
                                         value={values.password}
                                     />
                                 </Form.Item>
                                 <div className='pb30' style={{ marginTop: 100 }}>
-                                    <Button color='primary' size='large' block onClick={handleSubmit}>
+                                    <Button
+                                        disabled={curWallet.nodeId === IotaSDK.SMR_NODE_ID}
+                                        color='primary'
+                                        size='large'
+                                        block
+                                        onClick={handleSubmit}>
                                         {I18n.t('assets.confirm')}
                                     </Button>
+                                    {curWallet.nodeId === IotaSDK.SMR_NODE_ID ? (
+                                        <div className='fz12 cS mt12'>{I18n.t('shimmer.sendTips')}</div>
+                                    ) : null}
                                 </div>
                             </Form>
                         </div>
                     )}
                 </Formik>
             </div>
+            {/* <SendFailDialog dialogRef={sendFailDialog} /> */}
         </div>
     )
 }

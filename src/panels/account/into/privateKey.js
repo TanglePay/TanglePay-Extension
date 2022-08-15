@@ -50,11 +50,11 @@ export const AccountIntoPrivateKey = () => {
                         Base.replace('/main')
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='ph20 flex column jsb'>
+                        <div className='p16 flex column jsb'>
                             <Form>
                                 <div>
                                     <div>
-                                        <div className='fz14 pb10 tc cS'>{I18n.t('account.inputPrivateKey')}</div>
+                                        <div className='fz16 cS'>{I18n.t('account.inputPrivateKey')}</div>
                                     </div>
                                     <div
                                         className={`border radius10 mt10 flex c column ${
@@ -68,17 +68,19 @@ export const AccountIntoPrivateKey = () => {
                                         />
                                     </div>
                                 </div>
-                                <Form.Item className={`mt10 pl0 ${errors.name && 'form-error'}`}>
-                                    <div className='fz14 mb10'>{I18n.t('account.intoName')}</div>
+                                <Form.Item className={`mt24 pl0 ${errors.name && 'form-error'}`}>
+                                    <div className='fz16 mb10'>{I18n.t('account.intoName')}</div>
                                     <Input
+                                        className='pv4'
                                         placeholder={I18n.t('account.intoNameTips')}
                                         onChange={handleChange('name')}
                                         value={values.name}
                                     />
                                 </Form.Item>
-                                <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz14 mb10'>{I18n.t('account.intoPassword')}</div>
+                                <Form.Item className={`mt24 pl0 ${errors.password && 'form-error'}`}>
+                                    <div className='fz16 mb10'>{I18n.t('account.intoPassword')}</div>
                                     <Input
+                                        className='pv4'
                                         type='password'
                                         placeholder={I18n.t('account.intoPasswordTips')}
                                         onChange={handleChange('password')}
@@ -88,6 +90,7 @@ export const AccountIntoPrivateKey = () => {
                                 </Form.Item>
                                 <Form.Item className={`pl0 mb5 ${errors.rePassword && 'form-error'}`}>
                                     <Input
+                                        className='pv4'
                                         type='password'
                                         placeholder={I18n.t('account.intoRePasswordTips')}
                                         onChange={handleChange('rePassword')}
@@ -96,18 +99,17 @@ export const AccountIntoPrivateKey = () => {
                                 </Form.Item>
                             </Form>
                             <div
-                                className='flex row as pl0 mt60 mb20'
+                                className='flex row ac pl0 mt30 mb20'
                                 onClick={() => {
                                     setFieldValue('agree', !values.agree)
                                 }}>
                                 <SvgIcon
                                     size={15}
-                                    className={`mr10 ${values.agree ? 'cP' : 'cB'}`}
-                                    style={{ marginTop: 3 }}
+                                    className={`mr8 ${values.agree ? 'cP' : 'cB'}`}
                                     name={values.agree ? 'checkbox_1' : 'checkbox_0'}
                                 />
                                 <div
-                                    className={`fz14 tl ${!errors.agree ? 'cB' : 'cR'}`}
+                                    className={`fz14 fw600 tl ${!errors.agree ? 'cB' : 'cR'}`}
                                     style={{ lineHeight: '22px' }}>
                                     {I18n.t('account.intoAgree')
                                         .split('##')

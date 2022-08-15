@@ -9,12 +9,12 @@ export const UserWallets = () => {
     return (
         <div className='page'>
             <Nav title={I18n.t('user.manageWallets')} />
-            <div className='page-content ph20 pb20'>
+            <div className='page-content ph16 pb20'>
                 {walletsList.map((e) => {
                     const curNode = IotaSDK.nodes.find((d) => d.id === e.nodeId) || {}
                     return (
                         <div
-                            className='flex ac jsb row border radius10 ph20 pv15 mt20 press'
+                            className='flex ac jsb row border radius10 ph16 pv12 mt16 press'
                             style={{
                                 borderColor: '#000'
                             }}
@@ -23,12 +23,14 @@ export const UserWallets = () => {
                             }}
                             key={e.id}>
                             <div className='flex1'>
-                                <div className='flex row ac jsb mr20'>
-                                    <div className='fz17'>{e.name}</div>
-                                    <div className='fz17'>{curNode?.type == 2 ? 'EVM' : curNode?.name}</div>
+                                <div className='flex row ac jsb mr16'>
+                                    <div className='fz18 fw600'>{e.name}</div>
+                                    <div className='fz16'>{curNode?.type == 2 ? 'EVM' : curNode?.name}</div>
                                 </div>
-                                <div className='mt20 flex row ae'>
-                                    <div className='fz15'>{Base.handleAddress(e.address)}</div>
+                                <div className='mt5 flex row ae'>
+                                    <div className='fz16' style={{ minWidth: '85px' }}>
+                                        {Base.handleAddress(e.address)}
+                                    </div>
                                     <CopyToClipboard
                                         text={e.address}
                                         onCopy={() => Toast.success(I18n.t('assets.copied'))}>
@@ -38,8 +40,8 @@ export const UserWallets = () => {
                                                 e.preventDefault()
                                             }}
                                             name='copy'
-                                            size={20}
-                                            className='cB press ml30'
+                                            size={16}
+                                            className='cB press'
                                         />
                                     </CopyToClipboard>
                                 </div>

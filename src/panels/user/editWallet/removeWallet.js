@@ -17,14 +17,14 @@ export const RemoveWallet = () => {
         <div>
             <Nav title={name} />
             <div>
-                <div className='pv20 ph15'>
-                    <div className='border radius10 p10'>
-                        <div className='fz13 cS' style={{ lineHeight: '20px', wordBreak: 'break-all' }}>
+                <div className='pv16 ph16'>
+                    <div className='border radius10 p8'>
+                        <div className='fz16' style={{ lineHeight: '20px', wordBreak: 'break-all' }}>
                             {curEdit.address}
                         </div>
                     </div>
                 </div>
-                <div className='flex c pb20'>
+                <div className='flex mt8 c pb16'>
                     <div className='fz16 fw600'>{I18n.t('account.removeTitle')}</div>
                 </div>
                 <div className='radius10 mh15 p10 mb10' style={{ backgroundColor: 'rgba(213, 53, 84, 0.05)' }}>

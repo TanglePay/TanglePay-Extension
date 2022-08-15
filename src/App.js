@@ -54,7 +54,7 @@ const App = () => {
         // changeNode after get walletsList
         const res = await Base.getLocalData('common.curNodeId')
         // dispatch({ type: 'common.curNodeId', data: res })
-        await changeNode(res || 1)
+        await changeNode(res || IotaSDK.IOTA_NODE_ID)
     }
     const init = async () => {
         Trace.login()

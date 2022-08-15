@@ -36,40 +36,41 @@ export const CoinList = () => {
                         style={{ height: itemH }}
                         className='flex row ac press'>
                         <img
-                            className='mr15 border'
-                            style={{ width: 35, height: 35, borderRadius: 35 }}
+                            className='mr10 border'
+                            style={{ width: 48, height: 48, borderRadius: 48 }}
                             src={Base.getIcon(e.name)}
                             alt=''
                         />
                         <div style={{ height: itemH }} className='border-b flex flex1 row ac jsb'>
                             <div className='flex ac row'>
-                                <div className='fz17'>{e.name}</div>
+                                <div className='fz18 mr5'>{e.name}</div>
                                 {!IotaSDK.isWeb3Node && statedAmount > 0 && !needRestake && (
                                     <div
                                         style={{
                                             transform: 'scale(0.7)',
-                                            borderColor: '#BABABA',
+                                            borderColor: '#4A4A4D',
                                             padding: '1px 4px',
+                                            color: '#4A4A4D',
                                             borderRadius: 4
                                         }}
-                                        className='fz12 border ml10 cS'>
+                                        className='fz12 border cS'>
                                         {I18n.t('staking.title')}
                                     </div>
                                 )}
                             </div>
                             {isShowAssets ? (
                                 <div>
-                                    <div className='fz15 tr mb15'>
+                                    <div className='fz16 tr mb8'>
                                         {e.balance} {e.unit || e.name}
                                     </div>
-                                    <div className='fz15 tr cS'>
+                                    <div className='fz14 tr cS'>
                                         {curLegal.unit} {e.assets}
                                     </div>
                                 </div>
                             ) : (
                                 <div>
-                                    <div className='fz15 tr mb15'>****</div>
-                                    <div className='fz15 tr cS'>****</div>
+                                    <div className='fz16 tr mb8'>****</div>
+                                    <div className='fz14 tr cS'>****</div>
                                 </div>
                             )}
                         </div>
@@ -125,19 +126,19 @@ export const RewardsList = () => {
             return (
                 <div key={e.symbol} className='flex row ac' style={{ height: itemH }}>
                     <img
-                        className='mr15 border'
-                        style={{ width: 35, height: 35, borderRadius: 35, opacity: 0.4 }}
+                        className='mr10 border'
+                        style={{ width: 48, height: 48, borderRadius: 48, opacity: 0.4 }}
                         src={Base.getIcon(e.symbol)}
                     />
                     <div className='flex flex1 row ac jsb border-b' style={{ height: itemH, color: 'rgba(0,0,0,0.4)' }}>
-                        <div className='fz17'>{e.unit}</div>
+                        <div className='fz16'>{e.unit}</div>
                         {isShowAssets ? (
                             <div>
-                                <div className='fz15 tr'>{e.amountLabel}</div>
+                                <div className='fz16 tr'>{e.amountLabel}</div>
                             </div>
                         ) : (
                             <div>
-                                <div className='fz15 tr'>****</div>
+                                <div className='fz16 tr'>****</div>
                             </div>
                         )}
                     </div>

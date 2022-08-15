@@ -19,6 +19,7 @@ export const AccountInto = () => {
     let params = useLocation()
     params = Base.handlerParams(params.search)
     const type = parseInt(params.type)
+    const from = params.from
     const form = useRef()
     useCreateCheck((name) => {
         form.current.setFieldValue('name', name)
@@ -53,16 +54,22 @@ export const AccountInto = () => {
                             addWallet({
                                 ...res
                             })
-                            Base.replace('/main')
+                            if (from === 'smr') {
+                                Base.replace('/assets/claimReward/claimSMR', {
+                                    id: res.id
+                                })
+                            } else {
+                                Base.replace('/main')
+                            }
                         }
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='ph20 flex column jsb'>
+                        <div className='p16 flex column jsb'>
                             <Form>
                                 {type === 1 ? (
                                     <div>
                                         <div>
-                                            <div className='fz14 pb10 tc cS'>{I18n.t('account.mnemonicTips')}</div>
+                                            <div className='fz16 cS'>{I18n.t('account.mnemonicTips')}</div>
                                         </div>
                                         <div
                                             className={`border radius10 mt10 flex c column ${
@@ -88,19 +95,21 @@ export const AccountInto = () => {
                                         <div>{I18n.t('account.intoSelectFile')}</div>
                                     </div>
                                 )}
-                                <Form.Item className={`mt10 pl0 ${errors.name && 'form-error'}`}>
-                                    <div className='fz14 mb10'>{I18n.t('account.intoName')}</div>
+                                <Form.Item className={`mt24 pl0 ${errors.name && 'form-error'}`}>
+                                    <div className='fz16 mb10'>{I18n.t('account.intoName')}</div>
                                     <Input
+                                        className='pv4'
                                         placeholder={I18n.t('account.intoNameTips')}
                                         onChange={handleChange('name')}
                                         value={values.name}
                                     />
                                 </Form.Item>
-                                <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz14 mb10'>
+                                <Form.Item className={`mt24 pl0 ${errors.password && 'form-error'}`}>
+                                    <div className='fz16 mb10'>
                                         {I18n.t(type === 1 ? 'account.intoPassword' : 'account.intoFilePassword')}
                                     </div>
                                     <Input
+                                        className='pv4'
                                         type='password'
                                         placeholder={I18n.t(
                                             type === 1 ? 'account.intoPasswordTips' : 'account.intoFilePasswordTips'
@@ -113,6 +122,7 @@ export const AccountInto = () => {
                                 {type === 1 && (
                                     <Form.Item className={`pl0 mb5 ${errors.rePassword && 'form-error'}`}>
                                         <Input
+                                            className='pv4'
                                             type='password'
                                             placeholder={I18n.t('account.intoRePasswordTips')}
                                             onChange={handleChange('rePassword')}
@@ -122,18 +132,17 @@ export const AccountInto = () => {
                                 )}
                             </Form>
                             <div
-                                className='flex row as pl0 mt60 mb20'
+                                className='flex row ac pl0 mt30 mb20'
                                 onClick={() => {
                                     setFieldValue('agree', !values.agree)
                                 }}>
                                 <SvgIcon
                                     size={15}
-                                    className={`mr10 ${values.agree ? 'cP' : 'cB'}`}
-                                    style={{ marginTop: 3 }}
+                                    className={`mr8 ${values.agree ? 'cP' : 'cB'}`}
                                     name={values.agree ? 'checkbox_1' : 'checkbox_0'}
                                 />
                                 <div
-                                    className={`fz14 tl ${!errors.agree ? 'cB' : 'cR'}`}
+                                    className={`fz14 fw600 tl ${!errors.agree ? 'cB' : 'cR'}`}
                                     style={{ lineHeight: '22px' }}>
                                     {I18n.t('account.intoAgree')
                                         .split('##')
@@ -160,7 +169,7 @@ export const AccountInto = () => {
                                         })}
                                 </div>
                             </div>
-                            <Button size='large' color='primary' block onClick={handleSubmit}>
+                            <Button style={{ height: 40 }} color='primary' block onClick={handleSubmit}>
                                 {I18n.t('account.intoBtn')}
                             </Button>
                         </div>

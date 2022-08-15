@@ -19,19 +19,19 @@ export const PrivateKey = () => {
         <div>
             <Nav title={name} />
             <div>
-                <div className='pv20 ph15 border-b'>
-                    <div className='border radius10 p10'>
-                        <div className='fz13 cS' style={{ lineHeight: '20px', wordBreak: 'break-all' }}>
+                <div className='p16'>
+                    <div className='border radius10 p8'>
+                        <div className='fz16' style={{ lineHeight: '18px', wordBreak: 'break-all' }}>
                             {curEdit.address}
                         </div>
                     </div>
                 </div>
-                <div className='ph15'>
-                    <div className='flex c pv20'>
-                        <div className='fz18'>{I18n.t('account.showKey')}</div>
+                <div className='ph16'>
+                    <div className='flex c pt8 pb24'>
+                        <div className='fz18 fw600'>{I18n.t('account.showKey')}</div>
                     </div>
                     <div>
-                        <div className='fz14'>
+                        <div className='fz16'>
                             {I18n.t(keyStr ? 'account.copyKeyTips' : 'assets.passwordTips').replace('{name}', name)}
                         </div>
                         {!keyStr ? (
@@ -39,19 +39,19 @@ export const PrivateKey = () => {
                                 type='password'
                                 value={password}
                                 onChange={setPassword}
-                                className='border-b mt15 pv10'
+                                className='border-b mt15 mb8'
                             />
                         ) : (
                             <CopyToClipboard text={keyStr} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
                                 <div
-                                    className='fz14 pt20 fw500 press'
-                                    style={{ lineHeight: '20px', wordBreak: 'break-word' }}>
+                                    className='fz16 pt8 fw600 press'
+                                    style={{ lineHeight: '18px', wordBreak: 'break-word' }}>
                                     {keyStr}
                                 </div>
                             </CopyToClipboard>
                         )}
                     </div>
-                    <div className='mv20 radius10 p10' style={{ backgroundColor: 'rgba(213, 53, 84, 0.05)' }}>
+                    <div className='mt16 mb32 radius10 p10' style={{ backgroundColor: 'rgba(213, 53, 84, 0.05)' }}>
                         <div className='fz14' style={{ color: '#D53554' }}>
                             {I18n.t('account.showKeyTips')}
                         </div>
