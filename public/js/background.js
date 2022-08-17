@@ -78,31 +78,44 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             let cacheRes = getBackgroundData(cacheKey)
             const connectCacheKey = `${origin}_iota_connect_${cacheAddress}`
             const connectCacheRes = getBackgroundData(connectCacheKey)
-            if (
-                cacheRes &&
-                connectCacheRes &&
-                connectCacheRes?.expires &&
-                connectCacheRes?.expires > new Date().getTime()
-            ) {
-                delete cacheRes.expires
+            let isConnect = false
+            if (connectCacheRes && connectCacheRes?.expires && connectCacheRes?.expires > new Date().getTime()) {
+                isConnect = true
+                if (cacheRes) {
+                    delete cacheRes.expires
+                    sendToContentScript({
+                        cmd: 'iota_request',
+                        code: 200,
+                        data: {
+                            method,
+                            response: cacheRes
+                        }
+                    })
+                    if (method === 'iota_connect') {
+                        setBackgroundData(connectCacheKey, {
+                            ...connectCacheRes,
+                            expires: expires + new Date().getTime()
+                        })
+                    }
+                    if (!isKeepPopup && window.tanglepayDialog) {
+                        window.tanglepayDialogKeep = false
+                        chrome.windows.remove(window.tanglepayDialog)
+                    }
+                    return true
+                }
+            }
+            if (!isConnect && method !== 'iota_connect') {
                 sendToContentScript({
                     cmd: 'iota_request',
-                    code: 200,
+                    code: -1,
                     data: {
                         method,
-                        response: cacheRes
+                        response: {
+                            msg: 'not authorized',
+                            status: 2
+                        }
                     }
                 })
-                if (method === 'iota_connect') {
-                    setBackgroundData(connectCacheKey, {
-                        ...connectCacheRes,
-                        expires: expires + new Date().getTime()
-                    })
-                }
-                if (!isKeepPopup && window.tanglepayDialog) {
-                    window.tanglepayDialogKeep = false
-                    chrome.windows.remove(window.tanglepayDialog)
-                }
                 return true
             }
             switch (method) {
