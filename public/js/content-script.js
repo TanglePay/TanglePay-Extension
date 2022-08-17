@@ -16,8 +16,9 @@ function injectCustomJs(jsPath) {
 }
 
 // send message to background
-function sendToBackground({ cmd, data, origin, isKeepPopup }) {
+function sendToBackground({ cmd, data, isKeepPopup }) {
     var left = window.document.body.offsetWidth - 400
+    var origin = window.location.origin
     chrome.runtime.sendMessage(
         { cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin, isKeepPopup },
         function (response) {
