@@ -67,9 +67,9 @@ export const PrivateKey = () => {
                                 {I18n.t('apps.cancel')}
                             </Button> */}
                             <Button
-                                onClick={() => {
+                                onClick={async () => {
                                     try {
-                                        const privateKeyStr = IotaSDK.getPrivateKey(curEdit.seed, password)
+                                        const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, password)
                                         setKeyStr(privateKeyStr.replace(/^0x/, ''))
                                     } catch (error) {
                                         return Toast.error(I18n.t('assets.passwordError'))

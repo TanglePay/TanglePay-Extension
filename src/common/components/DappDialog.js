@@ -193,8 +193,9 @@ export const DappDialog = () => {
             return
         }
         const res = Base.handlerParams(url)
+        const regex = /(<([^>]+)>)/gi
         for (const i in res) {
-            res[i] = (res[i] || '').replace(/#\/.+/, '')
+            res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
         }
         let {
             network,
