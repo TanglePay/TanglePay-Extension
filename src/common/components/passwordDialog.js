@@ -70,6 +70,14 @@ export const PasswordDialog = ({ dialogRef }) => {
                                 }
                                 editWallet(curWallet.id, obj)
                                 hide(obj)
+
+                                // v1->v2 start
+                                if (!IotaSDK.checkKeyAndIvIsV2(curWallet.seed)) {
+                                    setTimeout(() => {
+                                        editWallet(curWallet.id, obj, true)
+                                    }, 300)
+                                }
+                                // v1->v2 end
                             }
                         } catch (error) {
                             console.log(error)
