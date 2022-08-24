@@ -147,10 +147,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                         params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                     }
                     break
+                case 'eth_sign':
                 case 'iota_sign':
                 case 'iota_connect':
                     {
-                        const url = `tanglepay://${method}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&expires=${expires}`
+                        let methodStr = method !== 'eth_sign' ? method : 'iota_sign'
+                        const url = `tanglepay://${methodStr}?isKeepPopup=${isKeepPopup}&origin=${origin}&content=${content}&expires=${expires}`
                         params.url = chrome.extension.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                     }
                     break
