@@ -48,10 +48,10 @@ export default {
             Trace.dappConnect(origin.replace(/.+\/\//, ''), curWallet.address, curWallet.nodeId, IotaSDK.curNode.token)
         }
     },
-    async iota_sign(origin, expires, content, isKeepPopup) {
+    async iota_sign(origin, expires, content, isKeepPopup, password) {
         this.isKeepPopup = isKeepPopup
         const curWallet = await this.getCurWallet()
-        const res = await IotaSDK.iota_sign(curWallet, content)
+        const res = await IotaSDK.iota_sign({ ...curWallet, password }, content)
         if (res) {
             this.sendMessage('iota_sign', res)
         } else {

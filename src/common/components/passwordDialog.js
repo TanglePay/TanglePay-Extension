@@ -56,33 +56,26 @@ export const PasswordDialog = ({ dialogRef }) => {
                     validationSchema={Yup.object().shape({
                         password: Yup.string().required()
                     })}
-                    onSubmit={(values) => {
+                    onSubmit={async (values) => {
                         const { password } = values
-                        // password is validated via decryption
-                        try {
-                            const res = IotaSDK.decryptSeed(curWallet.seed, password)
-                            if (!res) {
-                                Toast.error(I18n.t('assets.passwordError'))
-                            } else {
-                                const obj = {
-                                    ...curWallet,
-                                    password
-                                }
-                                editWallet(curWallet.id, obj)
-                                hide(obj)
-
-                                // v1->v2 start
-                                if (!IotaSDK.checkKeyAndIvIsV2(curWallet.seed)) {
-                                    setTimeout(() => {
-                                        editWallet(curWallet.id, obj, true)
-                                    }, 300)
-                                }
-                                // v1->v2 end
-                            }
-                        } catch (error) {
-                            console.log(error)
-                            Toast.error(I18n.t('assets.passwordError'))
+                        const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                        if (!isPassword) {
+                            return Toast.error(I18n.t('assets.passwordError'))
                         }
+                        const obj = {
+                            ...curWallet,
+                            password
+                        }
+                        editWallet(curWallet.id, obj)
+                        hide(obj)
+
+                        // v1->v2 start
+                        if (!IotaSDK.checkKeyAndIvIsV2(curWallet.seed)) {
+                            setTimeout(() => {
+                                editWallet(curWallet.id, obj, true)
+                            }, 300)
+                        }
+                        // v1->v2 end
                     }}>
                     {({ handleChange, handleSubmit, values, errors }) => (
                         <Form>

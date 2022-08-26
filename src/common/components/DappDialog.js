@@ -63,8 +63,11 @@ export const DappDialog = () => {
         taggedData
     }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
-        if (password !== curWallet.password && !noPassword.includes(type)) {
-            return Toast.error(I18n.t('assets.passwordError'))
+        if (!noPassword.includes(type)) {
+            const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+            if (!isPassword) {
+                return Toast.error(I18n.t('assets.passwordError'))
+            }
         }
         let messageId = ''
         switch (type) {
@@ -136,7 +139,7 @@ export const DappDialog = () => {
                 break
             case 'sign':
                 try {
-                    messageId = await IotaSDK.iota_sign(curWallet, content)
+                    messageId = await IotaSDK.iota_sign({ ...curWallet, password }, content)
                     Toast.hideLoading()
                 } catch (error) {
                     Toast.hideLoading()
@@ -168,7 +171,7 @@ export const DappDialog = () => {
                 break
             case 'iota_sign':
                 {
-                    await Bridge.iota_sign(origin, expires, content, isKeepPopup)
+                    await Bridge.iota_sign(origin, expires, content, isKeepPopup, password)
                 }
                 break
             default:
