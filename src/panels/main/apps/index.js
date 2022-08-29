@@ -47,7 +47,7 @@ export const Apps = () => {
             if (e.keyCode == '13') {
                 let value = e.target.value
                 if (/^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/.test(value)) {
-                    Base.push(`http://${value}`)
+                    Base.push(`https://${value}`)
                 } else if (/(http|https):\/\/([\w.]+\/?)\S*/.test(value)) {
                     Base.push(value)
                 }

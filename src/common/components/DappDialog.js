@@ -9,6 +9,7 @@ import Bridge from '@/common/bridge'
 
 export const DappDialog = () => {
     const [isShow, setShow] = useState(false)
+    const [isRequestAssets] = useStore('common.isRequestAssets')
     const [init, setInit] = useState(false)
     const [contentH, setContenth] = useState(600)
     const [password, setPassword] = useState('')
@@ -387,6 +388,11 @@ export const DappDialog = () => {
     useEffect(() => {
         handleUrl(deepLink, curWallet.password)
     }, [JSON.stringify(curWallet), deepLink, curNodeId])
+    useEffect(() => {
+        if (dappData.type === 'iota_sendTransaction' || dappData.type === 'send') {
+            isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
+        }
+    }, [dappData.type, isRequestAssets])
     useEffect(() => {
         const params = Base.handlerParams(window.location.search)
         const url = params.url
