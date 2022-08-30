@@ -24,7 +24,7 @@
         "https://node.iotaichi.com/",
         "https://api.lb-0.h.chrysalis-devnet.iota.cafe/"
     ],
-    "web_accessible_resources": ["js/inject.js"],
+    "web_accessible_resources": ["js/inject.js", "font/Open-Sans.ttf"],
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
