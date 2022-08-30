@@ -64,6 +64,7 @@ export const PasswordDialog = ({ dialogRef }) => {
                         }
                         const obj = {
                             ...curWallet,
+                            oldPassword: password,
                             password
                         }
                         editWallet(curWallet.id, obj)

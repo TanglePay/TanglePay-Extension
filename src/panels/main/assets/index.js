@@ -49,11 +49,11 @@ export const Assets = ({ tabKey }) => {
                 renderText={() => <Loading />}
                 onRefresh={() => {
                     if (curWallet.address) {
-                        IotaSDK.inputPassword(curWallet).then((res) => {
-                            if (res) {
-                                refreshAssets(Math.random())
-                            }
-                        })
+                        // IotaSDK.inputPassword(curWallet).then((res) => {
+                        //     if (res) {
+                        refreshAssets(Math.random())
+                        //     }
+                        // })
                     }
                 }}>
                 <div>
