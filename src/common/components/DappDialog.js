@@ -10,6 +10,7 @@ import Bridge from '@/common/bridge'
 export const DappDialog = () => {
     const [isShow, setShow] = useState(false)
     const [isRequestAssets] = useStore('common.isRequestAssets')
+    const [isRequestHis] = useStore('common.isRequestHis')
     const [init, setInit] = useState(false)
     const [contentH, setContenth] = useState(600)
     const [password, setPassword] = useState('')
@@ -98,7 +99,7 @@ export const DappDialog = () => {
                     }
                     Toast.showLoading()
                     try {
-                        const res = await IotaSDK.send(curWallet, address, amount, {
+                        const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
                             contract: assets?.contract,
                             token: assets?.name,
                             taggedData
@@ -390,9 +391,9 @@ export const DappDialog = () => {
     }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
         if (dappData.type === 'iota_sendTransaction' || dappData.type === 'send') {
-            isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
+            isRequestAssets && isRequestHis ? Toast.hideLoading() : Toast.showLoading()
         }
-    }, [dappData.type, isRequestAssets])
+    }, [dappData.type, isRequestAssets, isRequestHis])
     useEffect(() => {
         const params = Base.handlerParams(window.location.search)
         const url = params.url
