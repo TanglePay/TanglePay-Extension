@@ -11,3 +11,15 @@ fs.copyFileSync(temIotaPPath, toIotaPPath)
 const temIotaNextPPath = path.join(__dirname, './template/iota-next-package.json')
 const toIotaNextPPath = path.join(__dirname, '../node_modules/@iota/iota.js-next/package.json')
 fs.copyFileSync(temIotaNextPPath, toIotaNextPPath)
+
+const temMqttNextPath = path.join(__dirname, './template/mqtt-next-index-browser.js')
+const toMqttNextPath = path.join(__dirname, '../node_modules/@iota/mqtt.js-next/dist/cjs/index-browser.js')
+fs.copyFileSync(temMqttNextPath, toMqttNextPath)
+
+const temMqttPPath = path.join(__dirname, './template/mqtt-package.json')
+const toMqttPPath = path.join(__dirname, '../node_modules/@iota/mqtt.js/package.json')
+fs.copyFileSync(temMqttPPath, toMqttPPath)
+
+const temMqttNextPPath = path.join(__dirname, './template/mqtt-next-package.json')
+const toMqttNextPPath = path.join(__dirname, '../node_modules/@iota/mqtt.js-next/package.json')
+fs.copyFileSync(temMqttNextPPath, toMqttNextPPath)
