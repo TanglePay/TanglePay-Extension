@@ -64,9 +64,7 @@ export default {
         this.isKeepPopup = isKeepPopup
         try {
             const curWallet = await this.getCurWallet()
-            const baseSeed = IotaSDK.getSeed(curWallet.seed, curWallet.password)
-            const addressKeyPair = IotaSDK.getPair(baseSeed)
-            this.sendMessage('iota_getPublicKey', IotaSDK.bytesToHex(addressKeyPair.publicKey))
+            this.sendMessage('iota_getPublicKey', curWallet.publicKey)
         } catch (error) {
             this.sendErrorMessage('iota_getPublicKey', {
                 msg: error.toString()
