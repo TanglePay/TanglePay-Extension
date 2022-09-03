@@ -47,13 +47,10 @@ export const Assets = ({ tabKey }) => {
             <AssetsNav hasChangeNode />
             <PullToRefresh
                 renderText={() => <Loading />}
-                onRefresh={() => {
+                onRefresh={async () => {
                     if (curWallet.address) {
-                        // IotaSDK.inputPassword(curWallet).then((res) => {
-                        //     if (res) {
+                        // await Base.setLocalData(`valid.addresses.${curWallet.address}`, []);
                         refreshAssets(Math.random())
-                        //     }
-                        // })
                     }
                 }}>
                 <div>
