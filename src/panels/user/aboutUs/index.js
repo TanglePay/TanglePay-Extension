@@ -43,7 +43,7 @@ export const UserAboutUs = () => {
             <div style={{ overflowY: 'scroll', height: 600 - 48 }}>
                 <div className='flex c pv24'>
                     <div className='flex row ac'>
-                        <img className='mr12' style={{ width: 43, height: 40 }} src={logo} alt='' />
+                        <img className='mr12' style={{ width: 43, height: 43 }} src={logo} alt='' />
                         <div>
                             <div className='fw600 cP' style={{ fontSize: 24 }}>
                                 TANGLEPAY

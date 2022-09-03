@@ -48,10 +48,10 @@ export default {
             Trace.dappConnect(origin.replace(/.+\/\//, ''), curWallet.address, curWallet.nodeId, IotaSDK.curNode.token)
         }
     },
-    async iota_sign(origin, expires, content, isKeepPopup) {
+    async iota_sign(origin, expires, content, isKeepPopup, password) {
         this.isKeepPopup = isKeepPopup
         const curWallet = await this.getCurWallet()
-        const res = await IotaSDK.iota_sign(curWallet, content)
+        const res = await IotaSDK.iota_sign({ ...curWallet, password }, content)
         if (res) {
             this.sendMessage('iota_sign', res)
         } else {
@@ -64,9 +64,7 @@ export default {
         this.isKeepPopup = isKeepPopup
         try {
             const curWallet = await this.getCurWallet()
-            const baseSeed = IotaSDK.getSeed(curWallet.seed, curWallet.password)
-            const addressKeyPair = IotaSDK.getPair(baseSeed)
-            this.sendMessage('iota_getPublicKey', IotaSDK.bytesToHex(addressKeyPair.publicKey))
+            this.sendMessage('iota_getPublicKey', curWallet.publicKey)
         } catch (error) {
             this.sendErrorMessage('iota_getPublicKey', {
                 msg: error.toString()
@@ -110,7 +108,8 @@ export default {
             // iota
             assetsList = assetsList || []
             let amount = BigNumber(0)
-            if (assetsList.includes('iota') && !IotaSDK.isWeb3Node) {
+            const curWallet = await this.getCurWallet()
+            if (assetsList.includes('iota') && !IotaSDK.checkSMR(curWallet.nodeId) && !IotaSDK.isWeb3Node) {
                 const res = await Promise.all(addressList.map((e) => IotaSDK.client.address(e)))
                 res.forEach((e) => {
                     amount = amount.plus(e.balance)
@@ -126,22 +125,33 @@ export default {
 
             // stake
             let othersDic = {}
-            if (assetsList.includes('smr') || assetsList.includes('asmb')) {
-                let eventConfig = await fetch(`${API_URL}/events.json?v=${new Date().getTime()}`).then((res) =>
-                    res.json()
-                )
-                eventConfig = eventConfig?.rewards || {}
-                const othersRes = await IotaSDK.getAddressListRewards(addressList)
-                for (const i in othersRes) {
-                    const { symbol, amount, minimumReached } = othersRes[i]
-                    const { ratio, unit } = eventConfig[symbol]
-                    if (minimumReached && assetsList.includes(unit.toLocaleLowerCase())) {
-                        othersDic[symbol] = othersDic[symbol] || {
-                            amount: 0,
-                            symbol,
-                            icon: `http://api.iotaichi.com/icon/${unit}.png`
+            if (IotaSDK.checkSMR(curWallet.nodeId)) {
+                if (assetsList.includes('smr')) {
+                    const smrAessets = (await IotaSDK.getBalance(curWallet, addressList)) || []
+                    othersDic.smr = {
+                        amount: smrAessets.find((e) => e.token === IotaSDK.curNode?.token)?.realBalance,
+                        symbol: 'smr',
+                        icon: `https://api.iotaichi.com/icon/SMR.png`
+                    }
+                }
+            } else {
+                if (assetsList.includes('smr') || assetsList.includes('asmb')) {
+                    let eventConfig = await fetch(`${API_URL}/events.json?v=${new Date().getTime()}`).then((res) =>
+                        res.json()
+                    )
+                    eventConfig = eventConfig?.rewards || {}
+                    const othersRes = await IotaSDK.getAddressListRewards(addressList)
+                    for (const i in othersRes) {
+                        const { symbol, amount, minimumReached } = othersRes[i]
+                        const { ratio, unit } = eventConfig[symbol]
+                        if (minimumReached && assetsList.includes(unit.toLocaleLowerCase())) {
+                            othersDic[symbol] = othersDic[symbol] || {
+                                amount: 0,
+                                symbol,
+                                icon: `https://api.iotaichi.com/icon/${unit}.png`
+                            }
+                            othersDic[symbol].amount += amount * ratio
                         }
-                        othersDic[symbol].amount += amount * ratio
                     }
                 }
             }
@@ -151,7 +161,6 @@ export default {
                 collectibles,
                 others: Object.values(othersDic)
             }
-            const curWallet = await this.getCurWallet()
             const key = `${origin}_iota_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
             this.cacheBgData(key, assetsData)
 

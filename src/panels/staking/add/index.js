@@ -47,7 +47,8 @@ export const StakingAdd = () => {
                     validationSchema={schema}
                     onSubmit={async (values) => {
                         const { password } = values
-                        if (password !== curWallet.password) {
+                        const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                        if (!isPassword) {
                             return Toast.error(I18n.t('assets.passwordError'))
                         }
                         if (available <= 0) {
@@ -56,7 +57,7 @@ export const StakingAdd = () => {
                         const request = async (requestTokens) => {
                             Toast.showLoading()
                             const res = await IotaSDK.handleStake({
-                                wallet: curWallet,
+                                wallet: { ...curWallet, password },
                                 tokens: requestTokens,
                                 amount: realBalance,
                                 type
