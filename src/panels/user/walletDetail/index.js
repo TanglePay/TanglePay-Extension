@@ -5,7 +5,7 @@ import { Base, I18n } from '@tangle-pay/common'
 import numeral from 'numeral'
 import { useStore } from '@tangle-pay/store'
 import { useGetWalletInfo, useGetNodeWallet } from '@tangle-pay/store/common'
-const XLSX = require('xlsx')
+const XLSX = window.XLSX
 
 export const WalletDetail = () => {
     const [curWallet] = useGetNodeWallet()

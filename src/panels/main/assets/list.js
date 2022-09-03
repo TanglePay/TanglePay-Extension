@@ -146,17 +146,7 @@ export const RewardsList = () => {
             )
         })
     }, [JSON.stringify(list), isShowAssets])
-    return (
-        <>
-            {list.length <= 0 ? null : ListEl}
-            {!isRequestAssets && (
-                <div className='p30 flex c row'>
-                    <Loading color='gray' />
-                    <span className='flex cS fz16 pl10'>{I18n.t('assets.requestAssets')}</span>
-                </div>
-            )}
-        </>
-    )
+    return list.length <= 0 ? null : ListEl
 }
 
 export const ActivityList = ({ search }) => {

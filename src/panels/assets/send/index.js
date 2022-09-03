@@ -52,7 +52,8 @@ export const AssetsSend = () => {
                     validationSchema={schema}
                     onSubmit={async (values) => {
                         let { password, amount, receiver } = values
-                        if (password !== curWallet.password) {
+                        const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                        if (!isPassword) {
                             return Toast.error(I18n.t('assets.passwordError'))
                         }
                         amount = parseFloat(amount) || 0
@@ -83,7 +84,7 @@ export const AssetsSend = () => {
                             //         sendFailDialog.current.show()
                             //     }, 15000)
                             // }
-                            const res = await IotaSDK.send(curWallet, receiver, sendAmount, {
+                            const res = await IotaSDK.send({ ...curWallet, password }, receiver, sendAmount, {
                                 contract: assets?.contract,
                                 token: assets?.name
                             })
@@ -176,16 +177,16 @@ export const AssetsSend = () => {
                                 </Form.Item>
                                 <div className='pb30' style={{ marginTop: 100 }}>
                                     <Button
-                                        disabled={curWallet.nodeId === IotaSDK.SMR_NODE_ID}
+                                        // disabled={curWallet.nodeId === IotaSDK.SMR_NODE_ID}
                                         color='primary'
                                         size='large'
                                         block
                                         onClick={handleSubmit}>
                                         {I18n.t('assets.confirm')}
                                     </Button>
-                                    {curWallet.nodeId === IotaSDK.SMR_NODE_ID ? (
+                                    {/* {curWallet.nodeId === IotaSDK.SMR_NODE_ID ? (
                                         <div className='fz12 cS mt12'>{I18n.t('shimmer.sendTips')}</div>
-                                    ) : null}
+                                    ) : null} */}
                                 </div>
                             </Form>
                         </div>

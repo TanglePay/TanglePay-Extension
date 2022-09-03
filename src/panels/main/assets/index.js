@@ -47,8 +47,9 @@ export const Assets = ({ tabKey }) => {
             <AssetsNav hasChangeNode />
             <PullToRefresh
                 renderText={() => <Loading />}
-                onRefresh={() => {
-                    if (isRequestAssets && isRequestHis) {
+                onRefresh={async () => {
+                    if (curWallet.address) {
+                        // await Base.setLocalData(`valid.addresses.${curWallet.address}`, []);
                         refreshAssets(Math.random())
                     }
                 }}>
@@ -111,10 +112,18 @@ export const Assets = ({ tabKey }) => {
                     </div>
                     <div className='ph16' id='content-id' style={{ height, overflowY: 'scroll' }}>
                         {curTab === 0 ? (
-                            <div>
-                                <CoinList />
-                                {assetsTab.includes('stake') && <RewardsList />}
-                            </div>
+                            <>
+                                <div>
+                                    <CoinList />
+                                    {assetsTab.includes('stake') && <RewardsList />}
+                                </div>
+                                {!isRequestAssets && (
+                                    <div className='p30 flex c row'>
+                                        <Loading color='gray' />
+                                        <span className='flex cS fz16 pl10'>{I18n.t('assets.requestAssets')}</span>
+                                    </div>
+                                )}
+                            </>
                         ) : curTab == 1 ? (
                             <CollectiblesList />
                         ) : (

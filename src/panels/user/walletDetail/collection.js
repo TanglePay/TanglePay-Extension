@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { AssetsNav, Nav, SvgIcon, Toast } from '@/common'
 import { Button, Input, Mask } from 'antd-mobile'
-import { Base, I18n } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { useCollect, useGetWalletInfo, useGetNodeWallet } from '@tangle-pay/store/common'
 
@@ -52,11 +52,12 @@ export const WalletCollection = () => {
                         <div className='fz16 mt24'>{I18n.t('assets.passwordTips')}</div>
                         <Input type='password' value={password} onChange={setPassword} className='border-b pv10' />
                         <Button
-                            onClick={() => {
-                                if (password !== curWallet.password) {
+                            onClick={async () => {
+                                const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                                if (!isPassword) {
                                     return Toast.error(I18n.t('assets.passwordError'))
                                 }
-                                start(curWallet, setList)
+                                start({ ...curWallet, password }, setList)
                                 setShow(true)
                             }}
                             disabled={!password}

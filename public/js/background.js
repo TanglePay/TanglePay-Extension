@@ -130,7 +130,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                         const {
                             to,
                             value,
-                            unit = 'Mi',
+                            unit = '',
                             network = '',
                             merchant = '',
                             item_desc = '',
