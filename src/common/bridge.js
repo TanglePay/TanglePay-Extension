@@ -92,7 +92,7 @@ export default {
             }
             const curWallet = await this.getCurWallet()
             const key = `${origin}_eth_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
-            this.cacheBgData(key, assetsData)
+            // this.cacheBgData(key, assetsData)
             Toast.hideLoading()
             this.sendMessage('eth_getBalance', assetsData)
         } catch (error) {
@@ -162,7 +162,7 @@ export default {
                 others: Object.values(othersDic)
             }
             const key = `${origin}_iota_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
-            this.cacheBgData(key, assetsData)
+            // this.cacheBgData(key, assetsData)
 
             Toast.hideLoading()
             this.sendMessage('iota_getBalance', assetsData)
