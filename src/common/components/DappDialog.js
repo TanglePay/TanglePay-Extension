@@ -199,7 +199,7 @@ export const DappDialog = () => {
     const checkDeepLink = (url) => {
         return /^tanglepay:\/\/.+/.test(url)
     }
-    const handleUrl = async (url) => {
+    const handleUrl = async (url, password) => {
         if (!url) return
         if (!checkDeepLink(url)) {
             return
@@ -236,6 +236,10 @@ export const DappDialog = () => {
                 Base.push('/assets/wallets', { nodeId: toNetId || '' })
             }, 500)
         } else {
+            if (!password || !/password_/.test(password)) {
+                hide()
+                return
+            }
             setDeepLink('')
             clearTimeout(selectTimeHandler.current)
             const path = url.replace('tanglepay://', '').split('?')[0]
@@ -404,11 +408,14 @@ export const DappDialog = () => {
         }
     }
     useEffect(() => {
-        handleUrl(deepLink)
+        handleUrl(deepLink, curWallet.password)
     }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
         if (dappData.type === 'iota_sendTransaction' || dappData.type === 'send') {
             isRequestAssets && isRequestHis ? Toast.hideLoading() : Toast.showLoading()
+        }
+        if (dappData.type === 'iota_connect') {
+            isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
         }
     }, [dappData.type, isRequestAssets, isRequestHis])
     useEffect(() => {

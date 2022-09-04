@@ -11728,10 +11728,10 @@
     "quick-lru" "^5.1.1"
     "resolve" "^1.22.1"
 
-"tanglepay@^1.8.1":
-  "integrity" "sha512-cxqwmI1Mpf5PKNk2ZImtoKZcvODtomOkCnHQgMzDumnN3l98ml3a6nUWGkMaVzBZKVspIV30P40wrYxdlt3/cg=="
-  "resolved" "https://registry.npmjs.org/tanglepay/-/tanglepay-1.8.1.tgz"
-  "version" "1.8.1"
+"tanglepay@^1.8.4":
+  "integrity" "sha512-7WxxaixGNbleMHYqdNkT1wrS3Ech93NWmd77wzenOl5SiLXhC6S1OMo9+Z6MHTtzeyEiuMMJR1q4bUqCMhtPPA=="
+  "resolved" "https://registry.npmjs.org/tanglepay/-/tanglepay-1.8.4.tgz"
+  "version" "1.8.4"
 
 "tapable@^1.0.0":
   "integrity" "sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA=="
