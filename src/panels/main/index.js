@@ -58,10 +58,7 @@ export const Main = () => {
     // tangleSDK
     useEffect(() => {
         window.Bridge = Bridge
-        if (curWallet.password) {
-            Bridge.connect(window.location.search)
-        }
-    }, [curWallet.password])
+    }, [])
     useEffect(() => {
         if (curWallet.password && curWallet.address) {
             Bridge.sendEvt('accountsChanged', {

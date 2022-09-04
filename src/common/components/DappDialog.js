@@ -199,7 +199,7 @@ export const DappDialog = () => {
     const checkDeepLink = (url) => {
         return /^tanglepay:\/\/.+/.test(url)
     }
-    const handleUrl = async (url, password) => {
+    const handleUrl = async (url) => {
         if (!url) return
         if (!checkDeepLink(url)) {
             return
@@ -236,10 +236,6 @@ export const DappDialog = () => {
                 Base.push('/assets/wallets', { nodeId: toNetId || '' })
             }, 500)
         } else {
-            if (!password) {
-                hide()
-                return
-            }
             setDeepLink('')
             clearTimeout(selectTimeHandler.current)
             const path = url.replace('tanglepay://', '').split('?')[0]
@@ -408,7 +404,7 @@ export const DappDialog = () => {
         }
     }
     useEffect(() => {
-        handleUrl(deepLink, curWallet.password)
+        handleUrl(deepLink)
     }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
         if (dappData.type === 'iota_sendTransaction' || dappData.type === 'send') {
