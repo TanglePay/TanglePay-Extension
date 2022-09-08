@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "TanglePay IOTA Wallet",
-    "version": "1.4.1",
+    "version": "1.4.3",
     "description": "TanglePay is your IOTA wallet available on Chrome to explore Defi, NFT and more.",
     "icons": {
         "16": "images/16.png",
@@ -15,7 +15,7 @@
     },
     "author": "TanglePay",
     "background": {
-        "scripts": ["./js/background.js"],
+        "page": "background.html",
         "persistent": true
     },
     "permissions": [
@@ -31,5 +31,6 @@
             "js": ["js/content-script.js"],
             "run_at": "document_start"
         }
-    ]
+    ],
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }

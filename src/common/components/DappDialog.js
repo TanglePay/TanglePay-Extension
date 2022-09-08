@@ -236,7 +236,7 @@ export const DappDialog = () => {
                 Base.push('/assets/wallets', { nodeId: toNetId || '' })
             }, 500)
         } else {
-            if (!password) {
+            if (!password || !/password_/.test(password)) {
                 hide()
                 return
             }
@@ -413,6 +413,9 @@ export const DappDialog = () => {
     useEffect(() => {
         if (dappData.type === 'iota_sendTransaction' || dappData.type === 'send') {
             isRequestAssets && isRequestHis ? Toast.hideLoading() : Toast.showLoading()
+        }
+        if (dappData.type === 'iota_connect') {
+            isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
         }
     }, [dappData.type, isRequestAssets, isRequestHis])
     useEffect(() => {
