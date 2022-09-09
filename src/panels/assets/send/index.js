@@ -8,6 +8,7 @@ import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, Toast } from '@/common'
 import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
+import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 // import { SendFailDialog } from '@/common/components/sendFailDialog'
 
 const schema = Yup.object().shape({
@@ -19,7 +20,8 @@ const schema = Yup.object().shape({
 export const AssetsSend = () => {
     // const sendFailDialog = useRef()
     // const timeHandler = useRef()
-    const [statedAmount] = useStore('staking.statedAmount')
+    // const [statedAmount] = useStore('staking.statedAmount')
+    useGetParticipationEvents()
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
     params = Base.handlerParams(params.search)
@@ -28,8 +30,9 @@ export const AssetsSend = () => {
     const form = useRef()
     const [curWallet] = useGetNodeWallet()
     const assets = assetsList.find((e) => e.name === currency) || {}
-    const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
-    let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
+    // const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
+    // let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
+    let realBalance = BigNumber(assets.realBalance || 0)
     if (Number(realBalance) < 0) {
         realBalance = BigNumber(0)
     }
@@ -66,9 +69,7 @@ export const AssetsSend = () => {
                             }
                         }
                         if (residue < 0) {
-                            return Toast.error(
-                                I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
-                            )
+                            return Toast.error(I18n.t('assets.balanceError'))
                         }
                         if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
                             if (residue < Number(BigNumber(0.01).times(decimal))) {
@@ -86,17 +87,13 @@ export const AssetsSend = () => {
                             // }
                             const res = await IotaSDK.send({ ...curWallet, password }, receiver, sendAmount, {
                                 contract: assets?.contract,
-                                token: assets?.name
+                                token: assets?.name,
+                                residue
                             })
+
                             if (res) {
                                 Toast.hideLoading()
-                                Toast.success(
-                                    I18n.t(
-                                        IotaSDK.checkWeb3Node(curWallet.nodeId)
-                                            ? 'assets.sendSucc'
-                                            : 'assets.sendSuccRestake'
-                                    )
-                                )
+                                Toast.success(I18n.t('assets.sendSucc'))
                                 Base.goBack()
                             }
                         } catch (error) {
@@ -108,7 +105,7 @@ export const AssetsSend = () => {
                                     values.amount
                                 }---amount:${amount}---sendAmount:${sendAmount}---residue:${residue}---realBalance:${Number(
                                     realBalance
-                                )}---available:${available}---bigStatedAmount:${bigStatedAmount}`,
+                                )}---available:${available}---`,
                                 {
                                     duration: 5000
                                 }

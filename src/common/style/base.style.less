@@ -349,3 +349,18 @@
     border-radius: 8px;
     border: 0;
 }
+
+.adm-switch-checkbox {
+    min-width: 40px;
+    height: 26px;
+    &:before {
+        height: 22px;
+    }
+    .adm-switch-handle {
+        width: 22px;
+        height: 22px;
+    }
+}
+.adm-switch.adm-switch-checked .adm-switch-handle {
+    left: calc(100% - (26px - 2px));
+}

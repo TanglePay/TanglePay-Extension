@@ -6,11 +6,12 @@ import { useStore } from '@tangle-pay/store'
 import BigNumber from 'bignumber.js'
 import { Toast } from './Toast'
 import Bridge from '@/common/bridge'
+import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 
 export const DappDialog = () => {
     const [isShow, setShow] = useState(false)
     const [isRequestAssets] = useStore('common.isRequestAssets')
-    const [isRequestHis] = useStore('common.isRequestHis')
+    useGetParticipationEvents()
     const [init, setInit] = useState(false)
     const [contentH, setContenth] = useState(600)
     const [password, setPassword] = useState('')
@@ -21,7 +22,6 @@ export const DappDialog = () => {
     const selectTimeHandler = useRef()
     const [curWallet] = useGetNodeWallet()
     const [assetsList] = useStore('common.assetsList')
-    const [statedAmount] = useStore('staking.statedAmount')
     const [curNodeId] = useStore('common.curNodeId')
     const changeNode = useChangeNode()
     const show = () => {
@@ -85,8 +85,6 @@ export const DappDialog = () => {
                     }
                     let assets = assetsList.find((e) => e.name === curToken) || {}
                     let realBalance = BigNumber(assets.realBalance || 0)
-                    const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
-                    realBalance = realBalance.minus(bigStatedAmount)
                     let residue = Number(realBalance.minus(amount)) || 0
                     const decimal = Math.pow(10, assets.decimal)
                     if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
@@ -95,9 +93,7 @@ export const DappDialog = () => {
                         }
                     }
                     if (residue < 0) {
-                        return Toast.error(
-                            I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
-                        )
+                        return Toast.error(I18n.t('assets.balanceError'))
                     }
                     if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
                         if (residue < decimal && residue != 0) {
@@ -109,7 +105,9 @@ export const DappDialog = () => {
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
                             contract: assets?.contract,
                             token: assets?.name,
-                            taggedData
+                            taggedData,
+                            residue,
+                            awaitStake: true
                         })
                         if (!res) {
                             return
@@ -137,7 +135,7 @@ export const DappDialog = () => {
                             Toast.error(
                                 `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
                                     realBalance
-                                )}---bigStatedAmount:${bigStatedAmount}`,
+                                )}`,
                                 {
                                     duration: 5000
                                 }
@@ -412,12 +410,12 @@ export const DappDialog = () => {
     }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
         if (dappData.type === 'iota_sendTransaction' || dappData.type === 'send') {
-            isRequestAssets && isRequestHis ? Toast.hideLoading() : Toast.showLoading()
+            isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
         }
         if (dappData.type === 'iota_connect') {
             isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
         }
-    }, [dappData.type, isRequestAssets, isRequestHis])
+    }, [dappData.type, isRequestAssets])
     useEffect(() => {
         const params = Base.handlerParams(window.location.search)
         const url = params.url
