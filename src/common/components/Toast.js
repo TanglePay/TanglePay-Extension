@@ -42,12 +42,13 @@ export const Toast = {
     hide() {
         AntdToast.clear()
     },
-    showLoading() {
+    showLoading(params) {
+        const duration = params?.duration || 300000
         AntdToast.show({
             ...config,
             icon: 'loading',
             content: '',
-            duration: 300000
+            duration
         })
     },
     hideLoading() {

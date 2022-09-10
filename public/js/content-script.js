@@ -8,7 +8,7 @@ function injectCustomJs(jsPath) {
     var temp = document.createElement('script')
     temp.setAttribute('type', 'text/javascript')
     // extension url is similar as：chrome-extension://ihcokhadfjfchaeagdoclpnjdiokfakg/js/inject.js
-    temp.src = chrome.extension.getURL(jsPath)
+    temp.src = chrome.runtime.getURL(jsPath)
     temp.onload = function () {
         this.parentNode.removeChild(this)
     }
@@ -16,11 +16,11 @@ function injectCustomJs(jsPath) {
 }
 
 // send message to background
-function sendToBackground({ cmd, data, isKeepPopup }) {
+function sendToBackground({ cmd, data }) {
     var left = window.document.body.offsetWidth - 400
     var origin = window.location.origin
     chrome.runtime.sendMessage(
-        { cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin, isKeepPopup },
+        { cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin },
         function (response) {
             switch (response?.cmd) {
                 case 'getTanglePayInfo':
