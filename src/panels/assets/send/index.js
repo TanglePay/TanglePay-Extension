@@ -80,11 +80,6 @@ export const AssetsSend = () => {
                         }
                         Toast.showLoading()
                         try {
-                            // if (curWallet.nodeId === IotaSDK.SMR_NODE_ID) {
-                            //     setTimeout(() => {
-                            //         sendFailDialog.current.show()
-                            //     }, 15000)
-                            // }
                             const res = await IotaSDK.send({ ...curWallet, password }, receiver, sendAmount, {
                                 contract: assets?.contract,
                                 token: assets?.name,
@@ -151,7 +146,7 @@ export const AssetsSend = () => {
                                                 if (parseFloat(str) < Math.pow(10, -precision)) {
                                                     str = String(Math.pow(10, -precision))
                                                 }
-                                                if (curWallet.nodeId === IotaSDK.SMR_NODE_ID) {
+                                                if (IotaSDK.checkSMR(curWallet.nodeId)) {
                                                     str = String(parseInt(str))
                                                 }
                                                 setFieldValue('amount', str)
@@ -173,17 +168,9 @@ export const AssetsSend = () => {
                                     />
                                 </Form.Item>
                                 <div className='pb30' style={{ marginTop: 100 }}>
-                                    <Button
-                                        // disabled={curWallet.nodeId === IotaSDK.SMR_NODE_ID}
-                                        color='primary'
-                                        size='large'
-                                        block
-                                        onClick={handleSubmit}>
+                                    <Button color='primary' size='large' block onClick={handleSubmit}>
                                         {I18n.t('assets.confirm')}
                                     </Button>
-                                    {/* {curWallet.nodeId === IotaSDK.SMR_NODE_ID ? (
-                                        <div className='fz12 cS mt12'>{I18n.t('shimmer.sendTips')}</div>
-                                    ) : null} */}
                                 </div>
                             </Form>
                         </div>

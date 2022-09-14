@@ -58,9 +58,11 @@ const App = () => {
     }
     const init = async () => {
         Trace.login()
+        Toast.showLoading()
         await IotaSDK.getNodes()
         await getLocalInfo()
         await initChangeNode()
+        Toast.hideLoading()
         setSceneList(panelsList)
     }
     useEffect(() => {

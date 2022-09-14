@@ -38,9 +38,9 @@ const getBalanceNodeMatch = async (method, addressList) => {
     const nodeId = addressInfo?.nodeId
     TanglePayNodeInfo = (await getBackgroundData('tanglePayNodeList')) || { list: [] }
     const nodeInfo = TanglePayNodeInfo.list.find((e) => e.id == nodeId)
-    switch (nodeId) {
-        case TanglePayNodeInfo.IOTA_NODE_ID:
-        case TanglePayNodeInfo.SMR_NODE_ID:
+    switch (nodeInfo.type) {
+        case 1:
+        case 3:
             {
                 if (method !== 'iota_getBalance') {
                     return null
@@ -82,21 +82,21 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
     let otherRes = {}
     let collectibles = []
     TanglePayNodeInfo = (await getBackgroundData('tanglePayNodeList')) || { list: [] }
-    switch (nodeInfo.id) {
-        case TanglePayNodeInfo.IOTA_NODE_ID:
-        case TanglePayNodeInfo.SMR_NODE_ID: {
+    switch (nodeInfo.type) {
+        case 1:
+        case 3: {
             let isGetIota = false
             let isGetSmr = false
             let isGetSoonaverse = false
             let isGetStakingSmr = false
             let isGetStakingAsmb = false
-            if (nodeInfo.id == TanglePayNodeInfo.IOTA_NODE_ID) {
+            if (nodeInfo.type == 1) {
                 isGetIota = assetsList.includes('iota')
                 isGetSoonaverse = assetsList.includes('soonaverse')
                 isGetStakingSmr = assetsList.includes('smr')
                 isGetStakingAsmb = assetsList.includes('asmb')
             }
-            if (nodeInfo.id == TanglePayNodeInfo.SMR_NODE_ID) {
+            if (nodeInfo.type == 3) {
                 isGetSmr = assetsList.includes('smr')
             }
             if (isGetIota || isGetSmr) {
