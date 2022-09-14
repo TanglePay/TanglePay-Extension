@@ -34,16 +34,24 @@ export const CoinList = () => {
                         }}
                         key={e.name}
                         style={{ height: itemH }}
-                        className='flex row ac press'>
+                        className='flex row ac press pr'>
                         <img
-                            className='mr10 border'
-                            style={{ width: 48, height: 48, borderRadius: 48 }}
+                            className='mr10 border pa bgW'
+                            style={{ width: 48, height: 48, borderRadius: 48, left: 0, opacity: 1, top: 8, zIndex: 0 }}
                             src={Base.getIcon(e.name)}
                             alt=''
+                            onError={(e) => {
+                                e.target.style.opacity = 0
+                            }}
                         />
+                        <div
+                            className='mr10 border bgP flex c cW fw600 fz24'
+                            style={{ width: 48, height: 48, borderRadius: 48 }}>
+                            {String(e.name).toLocaleUpperCase()[0]}
+                        </div>
                         <div style={{ height: itemH }} className='border-b flex flex1 row ac jsb'>
                             <div className='flex ac row'>
-                                <div className='fz18 mr5'>{e.name}</div>
+                                <div className='fz18 mr5'>{String(e.name).toLocaleUpperCase()}</div>
                                 {!IotaSDK.isWeb3Node &&
                                 statedAmount &&
                                 e.realBalance > 0 &&
@@ -65,7 +73,7 @@ export const CoinList = () => {
                             {isShowAssets ? (
                                 <div>
                                     <div className='fz16 tr mb8'>
-                                        {e.balance} {e.unit || e.name}
+                                        {e.balance} {String(e.unit || e.name).toLocaleUpperCase()}
                                     </div>
                                     <div className='fz14 tr cS'>
                                         {curLegal.unit} {e.assets}
