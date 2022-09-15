@@ -70,7 +70,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 className='pv24 flex c press'>
                                 <div className='fz18'>{I18n.t('account.createTitle')}</div>
                             </div>
-                            {(curNode?.type == 1 || curNode?.type == 3) && (
+                            {curNode?.type == 3 && (
                                 <div
                                     onClick={() => {
                                         hide()
