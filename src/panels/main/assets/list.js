@@ -29,11 +29,15 @@ export const CoinList = () => {
             {assetsList.map((e) => {
                 return (
                     <div
-                        onClick={() => {
-                            Base.push('assets/send', { currency: e.name })
-                        }}
+                        onClick={
+                            !e.isSMRToken
+                                ? () => {
+                                      Base.push('assets/send', { currency: e.name })
+                                  }
+                                : null
+                        }
                         key={e.name}
-                        style={{ height: itemH }}
+                        style={{ height: itemH, opacity: e.isSMRToken ? 0.4 : 1 }}
                         className='flex row ac press pr'>
                         <img
                             className='mr10 border pa bgW'

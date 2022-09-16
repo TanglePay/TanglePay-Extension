@@ -26,7 +26,7 @@ export const AssetsSend = () => {
     let params = useLocation()
     params = Base.handlerParams(params.search)
     let currency = params?.currency
-    currency = currency || assetsList[0].name
+    currency = currency || assetsList[0]?.name
     const form = useRef()
     const [curWallet] = useGetNodeWallet()
     const assets = assetsList.find((e) => e.name === currency) || {}
