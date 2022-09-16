@@ -16,7 +16,7 @@ export const UserSetting = () => {
         },
         {
             icon: 'stake',
-            label: 'restake',
+            label: I18n.t('staking.restake'),
             type: 'switch',
             value: isNoRestake,
             onChange: (e) => {
@@ -32,7 +32,7 @@ export const UserSetting = () => {
             icon: 'network',
             label: I18n.t('user.network'),
             size: 20,
-            right: <div className='fz14 cS'>{curNodeKey}</div>
+            right: <div className='fz16 cS'>{curNodeKey}</div>
         })
     }
     useEffect(() => {
