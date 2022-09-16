@@ -200,19 +200,23 @@ export const ActivityList = ({ search }) => {
 
                             <div className='fz15 cS'>{dayjs(e.timestamp * 1000).format('YYYY-MM-DD HH:mm')}</div>
                         </div>
-                        {isShowAssets ? (
-                            <div>
-                                <div className='fz15 tr mb5'>
-                                    {isOutto ? '-' : '+'} {e.num} {e.coin}
-                                </div>
-                                <div className='fz15 tr cS'>$ {e.assets}</div>
-                            </div>
-                        ) : (
-                            <div>
-                                <div className='fz15 tr mb5'>****</div>
-                                <div className='fz15 tr cS'>****</div>
-                            </div>
-                        )}
+                        {!isStake ? (
+                            <>
+                                {isShowAssets ? (
+                                    <div>
+                                        <div className='fz15 tr mb5'>
+                                            {isOutto ? '-' : '+'} {e.num} {e.coin}
+                                        </div>
+                                        <div className='fz15 tr cS'>$ {e.assets}</div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className='fz15 tr mb5'>****</div>
+                                        <div className='fz15 tr cS'>****</div>
+                                    </div>
+                                )}
+                            </>
+                        ) : null}
                     </div>
                 </div>
             )
