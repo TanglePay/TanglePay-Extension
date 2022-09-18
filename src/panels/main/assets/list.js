@@ -29,15 +29,11 @@ export const CoinList = () => {
             {assetsList.map((e) => {
                 return (
                     <div
-                        onClick={
-                            !e.isSMRToken
-                                ? () => {
-                                      Base.push('assets/send', { currency: e.name })
-                                  }
-                                : null
-                        }
+                        onClick={() => {
+                            Base.push('assets/send', { currency: e.name })
+                        }}
                         key={e.name}
-                        style={{ height: itemH, opacity: e.isSMRToken ? 0.4 : 1 }}
+                        style={{ height: itemH }}
                         className='flex row ac press pr'>
                         <img
                             className='mr10 border pa bgW'
@@ -174,7 +170,7 @@ export const ActivityList = ({ search }) => {
     )
     const ListEl = useMemo(() => {
         return showList.map((e, i) => {
-            const isOutto = [1, 3].includes(e.type)
+            const isOutto = [1, 3, 6].includes(e.type)
             const isStake = [2, 3].includes(e.type)
             const isSign = e.type == 4
             return (

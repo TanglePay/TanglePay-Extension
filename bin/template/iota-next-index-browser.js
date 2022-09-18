@@ -4304,7 +4304,7 @@
                 const o = {
                     type: BASIC_OUTPUT_TYPE,
                     amount: output.amount.toString(),
-                    nativeTokens: [],
+                    nativeTokens: output.nativeTokens || [],
                     unlockConditions: [
                         {
                             type: ADDRESS_UNLOCK_CONDITION_TYPE,
