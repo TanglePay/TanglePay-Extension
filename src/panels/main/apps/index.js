@@ -41,23 +41,23 @@ export const Apps = () => {
             )
         }
     }, [searchStr, curTab, JSON.stringify(list)])
-    useEffect(() => {
-        const input = document.getElementById('input')
-        const onKeydown = (e) => {
-            if (e.keyCode == '13') {
-                let value = e.target.value
-                if (/^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/.test(value)) {
-                    Base.push(`https://${value}`)
-                } else if (/(http|https):\/\/([\w.]+\/?)\S*/.test(value)) {
-                    Base.push(value)
-                }
-            }
-        }
-        input.addEventListener('keydown', onKeydown)
-        return () => {
-            input.removeEventListener('keydown', onKeydown)
-        }
-    }, [])
+    // useEffect(() => {
+    //     const input = document.getElementById('input')
+    //     const onKeydown = (e) => {
+    //         if (e.keyCode == '13') {
+    //             let value = e.target.value
+    //             if (/^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/.test(value)) {
+    //                 Base.push(`https://${value}`)
+    //             } else if (/(http|https):\/\/([\w.]+\/?)\S*/.test(value)) {
+    //                 Base.push(value)
+    //             }
+    //         }
+    //     }
+    //     input.addEventListener('keydown', onKeydown)
+    //     return () => {
+    //         input.removeEventListener('keydown', onKeydown)
+    //     }
+    // }, [])
     useEffect(() => {
         let tabs = []
         const list = []
@@ -82,8 +82,9 @@ export const Apps = () => {
     return (
         <div className='h100'>
             {/* <AssetsNav /> */}
-            <div className='pt24'>
-                <div style={{ height: 36, padding: 6 }} className='mh16 flex row ac bgS radius10'>
+            <div>
+                {/* <div className='pt24'> */}
+                {/* <div style={{ height: 36, padding: 6 }} className='mh16 flex row ac bgS radius10'>
                     <SvgIcon name='search' color='#6C737C' size='20' />
                     <Input
                         className='ml4 fw400 fz16'
@@ -96,19 +97,21 @@ export const Apps = () => {
                             '--font-size': '16px'
                         }}
                     />
-                </div>
-                <div className='ph16 flex row ac pt16 jsb' style={{ flexWrap: 'wrap' }}>
-                    {keywords.map((e) => {
-                        return (
-                            <div
-                                onClick={() => setSearch(e.url)}
-                                key={e.label}
-                                className='press pv8 ph16 mb8 bgS radius10'>
-                                <span className='fz16'>{e.label}</span>
-                            </div>
-                        )
-                    })}
-                </div>
+                </div> */}
+                {/* {keywords.length > 0 ? (
+                    <div className='ph16 flex row ac pt16' style={{ flexWrap: 'wrap' }}>
+                        {keywords.map((e) => {
+                            return (
+                                <div
+                                    onClick={() => setSearch(e.url)}
+                                    key={e.label}
+                                    className='press pv8 ph16 mr8 mb8 bgS radius10'>
+                                    <span className='fz16'>{e.label}</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                ) : null} */}
                 <div>
                     <div>
                         <div className='ph16 flex ac row pt8 pb4 border-b'>

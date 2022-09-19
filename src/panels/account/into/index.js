@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
@@ -8,6 +8,7 @@ import { useCreateCheck } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 import { Nav, SvgIcon, Toast } from '@/common'
 import './index.less'
+import { ExpDialog } from './expDialog'
 const schema = Yup.object().shape({
     mnemonic: Yup.string().required(),
     name: Yup.string().required(),
@@ -16,6 +17,7 @@ const schema = Yup.object().shape({
     agree: Yup.bool().isTrue().required()
 })
 export const AccountInto = () => {
+    const dialogRef = useRef()
     let params = useLocation()
     params = Base.handlerParams(params.search)
     const type = parseInt(params.type)
@@ -68,8 +70,17 @@ export const AccountInto = () => {
                             <Form>
                                 {type === 1 ? (
                                     <div>
-                                        <div>
+                                        <div className='flex ac js'>
                                             <div className='fz16 cS'>{I18n.t('account.mnemonicTips')}</div>
+                                            <SvgIcon
+                                                onClick={() => {
+                                                    dialogRef.current.show()
+                                                }}
+                                                name='help'
+                                                className='cS ml8 press mt4'
+                                                size='16'
+                                                style={{ height: 18 }}
+                                            />
                                         </div>
                                         <div
                                             className={`border radius10 mt10 flex c column ${
@@ -176,6 +187,7 @@ export const AccountInto = () => {
                     )}
                 </Formik>
             </div>
+            <ExpDialog dialogRef={dialogRef} />
         </div>
     )
 }
