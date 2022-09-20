@@ -144,7 +144,7 @@ export const DappDialog = () => {
                         code: 200,
                         address: curWallet.address,
                         nodeId: curWallet.nodeId,
-                        network: IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.network
+                        network: IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.network
                     })
                     Toast.hideLoading()
                 }
@@ -198,7 +198,7 @@ export const DappDialog = () => {
         let toNetId
         if (network) {
             await IotaSDK.getNodes()
-            toNetId = IotaSDK.nodes.find((e) => e.network === network)?.id
+            toNetId = IotaSDK.nodes.find((e) => e.network == network)?.id
         }
         if (toNetId && parseInt(toNetId) !== parseInt(curNodeId)) {
             await changeNode(toNetId)

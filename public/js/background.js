@@ -100,10 +100,17 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 isGetSmr = assetsList.includes('smr')
             }
             if (isGetIota || isGetSmr) {
-                const res = await fetch(`${nodeInfo.explorerApiUrl}/search/${nodeInfo.network}/${address}`).then(
-                    (res) => res.json()
-                )
-                amount = res?.addressDetails?.balance || res?.address?.balance || 0
+                if (isGetSmr) {
+                    const res = await fetch(
+                        `${nodeInfo.explorerApiUrl}/balance/chronicle/${nodeInfo.network}/${address}`
+                    ).then((res) => res.json())
+                    amount = res?.totalBalance || 0
+                } else {
+                    const res = await fetch(`${nodeInfo.explorerApiUrl}/search/${nodeInfo.network}/${address}`).then(
+                        (res) => res.json()
+                    )
+                    amount = res?.address?.balance || 0
+                }
             }
             if (isGetStakingSmr || isGetStakingAsmb) {
                 const res = await fetch(`${nodeInfo.url}/api/plugins/participation/addresses/${address}`).then((res) =>
