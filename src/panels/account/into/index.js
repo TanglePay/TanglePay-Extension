@@ -66,7 +66,7 @@ export const AccountInto = () => {
                         }
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='p16 flex column jsb'>
+                        <div className='p16 pt12 flex column jsb'>
                             <Form>
                                 {type === 1 ? (
                                     <div>
@@ -79,11 +79,11 @@ export const AccountInto = () => {
                                                 name='help'
                                                 className='cS ml8 press mt4'
                                                 size='16'
-                                                style={{ height: 18 }}
+                                                style={{ height: 23 }}
                                             />
                                         </div>
                                         <div
-                                            className={`border radius10 mt10 flex c column ${
+                                            className={`border radius10 mt12 flex c column ${
                                                 !errors.mnemonic ? 'border-color-b' : 'border-color-r'
                                             }`}>
                                             <TextArea

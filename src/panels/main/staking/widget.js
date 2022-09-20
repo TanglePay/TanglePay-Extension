@@ -15,7 +15,7 @@ dayjs.extend(utc)
 const AmountCon = ({ amountList }) => {
     return (
         <div className='ph16 pb24'>
-            <div className='fz16 fw600'>{I18n.t('staking.amount')}</div>
+            <div className='fz16'>{I18n.t('staking.amount')}</div>
             {amountList.map((e, i) => {
                 return (
                     <div key={i} className='flex row jsb ac mt12'>
@@ -65,7 +65,7 @@ const Upcoming = ({ startTime, commenceTime, uncomingTokens, handleStaking }) =>
                 </Button>
             )}
             <div>
-                <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
+                <div className='pv16 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='radius10 bgW p15'>
                     <div className='flex c row'>
                         <SvgIcon name='time' size={14} className='cS' />
@@ -96,7 +96,7 @@ const UnParticipate = ({ statedTokens, unStakeTokens, handleStaking, uncomingTok
                 <div>{I18n.t('staking.stake')}</div>
             </Button>
             <div>
-                <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
+                <div className='pv16 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='flex row ac mb10' style={{ flexWrap: 'wrap' }}>
                     {unStakeTokens.map((d, di) => {
                         return <StakingTokenItem key={di} className='mr10 mb10' coin={d.token} />
@@ -125,9 +125,9 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
     const uList = uncomingTokens.filter((e) => !statedTokens.find((d) => d.eventId === e.eventId))
     return (
         <div className='ph16 pb10 radius10 bgS'>
-            <div className='fw600 fz24 tc'>{I18n.t('staking.title')}</div>
+            <div className='fz24 tc'>{I18n.t('staking.title')}</div>
             <div>
-                <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
+                <div className='pv16 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='flex row ae jsb mb10' style={{ flexWrap: 'wrap' }}>
                     <div className='flex flex1 row ac' style={{ flexWrap: 'wrap' }}>
                         {stakingTokenList.map((d, di) => {
@@ -186,9 +186,9 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
 const Ended = ({ statedTokens, unStakeTokens }) => {
     return (
         <div className='p16 pb10 radius10 bgS'>
-            <div className='fw600 fz24 tc'>{` `}</div>
+            <div className='fz24 tc'>{` `}</div>
             <div>
-                <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
+                <div className='pv16 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='flex row ac jsb mb10'>
                     <div className='flex row ac' style={{ flexWrap: 'wrap' }}>
                         {[...statedTokens, ...unStakeTokens].map((d, di) => {

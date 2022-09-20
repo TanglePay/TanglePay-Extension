@@ -92,17 +92,18 @@ export const DappDialog = () => {
                             token: assets?.name,
                             taggedData,
                             residue,
+                            realBalance: Number(realBalance),
                             awaitStake: true
                         })
                         if (!res) {
                             throw I18n.t('user.nodeError')
                         }
                         messageId = res.messageId
-                        Toast.hideLoading()
+                        // Toast.hideLoading()
                         if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
                             Bridge.sendMessage(type, res)
                         } else {
-                            Toast.success(I18n.t('assets.sendSucc'))
+                            // Toast.success(I18n.t('assets.sendSucc'))
                         }
                     } catch (error) {
                         Toast.hideLoading()

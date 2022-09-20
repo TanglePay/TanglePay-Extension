@@ -3,6 +3,7 @@ import { Button, Mask } from 'antd-mobile'
 import { I18n, Base, IotaSDK } from '@tangle-pay/common'
 export const ExpDialog = ({ dialogRef }) => {
     const [isShow, setShow] = useState(false)
+    const [expStr, setExpStr] = useState('')
     useImperativeHandle(
         dialogRef,
         () => {
@@ -14,6 +15,7 @@ export const ExpDialog = ({ dialogRef }) => {
     )
     const show = () => {
         setShow(true)
+        setExpStr(IotaSDK.getMnemonic())
     }
     const hide = () => {
         setShow(false)
@@ -27,7 +29,7 @@ export const ExpDialog = ({ dialogRef }) => {
                         <div
                             className='fz16 p12 pt10 radius10'
                             style={{ border: '1px solid #000', lineHeight: '20px' }}>
-                            {IotaSDK.getMnemonic()}
+                            {expStr}
                         </div>
                         <div className='pt16'>
                             <Button

@@ -114,7 +114,7 @@ export const Apps = () => {
                 ) : null} */}
                 <div>
                     <div>
-                        <div className='ph16 flex ac row pt8 pb4 border-b'>
+                        <div className='ph16 flex ac row pt12 pb4 border-b'>
                             {tabs.map((e) => {
                                 const cur = curTab === e.label
                                 return (
@@ -130,7 +130,7 @@ export const Apps = () => {
                             })}
                         </div>
                     </div>
-                    <div className='ph16'>
+                    <div className='pl16 pr4'>
                         <List list={showList} height={height} />
                     </div>
                 </div>

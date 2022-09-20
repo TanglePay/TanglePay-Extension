@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
-import { Nav, SvgIcon } from '@/common'
+import { Nav, SvgIcon, Toast } from '@/common'
 import { Switch } from 'antd-mobile'
+import { useChangeNode } from '@tangle-pay/store/common'
 
 export const UserSetting = () => {
     useStore('common.lang')
+    const changeNode = useChangeNode()
     const [isNoRestake, setNoRestake] = useState(false)
     const list = [
         {
             icon: 'lang',
             label: I18n.t('user.language'),
-            path: '/user/lang',
-            size: 24
+            size: 24,
+            onClick: () => {
+                Base.push('/user/lang')
+            }
         },
         {
             icon: 'stake',
@@ -32,7 +36,21 @@ export const UserSetting = () => {
             icon: 'network',
             label: I18n.t('user.network'),
             size: 20,
-            right: <div className='fz16 cS'>{curNodeKey}</div>
+            right: <div className='fz16 cS'>{curNodeKey}</div>,
+            onClick: async () => {
+                const curNodeId = IotaSDK?.curNode?.id
+                Toast.showLoading()
+                try {
+                    await IotaSDK.getNodes()
+                    if (curNodeId) {
+                        await changeNode(curNodeId)
+                        IotaSDK.refreshAssets()
+                    }
+                    Toast.hideLoading()
+                } catch (error) {
+                    Toast.hideLoading()
+                }
+            }
         })
     }
     useEffect(() => {
@@ -48,15 +66,9 @@ export const UserSetting = () => {
                     {list.map((e, i) => {
                         return (
                             <div
-                                onClick={
-                                    e.path
-                                        ? () => {
-                                              Base.push(e.path)
-                                          }
-                                        : null
-                                }
+                                onClick={e.onClick ? e.onClick : null}
                                 key={i}
-                                className={`${e.path ? 'press' : ''} flex row ac jsb p16 border-b`}>
+                                className={`${!!e.onClick ? 'press' : ''} flex row ac jsb p16 border-b`}>
                                 <div className='flex row ac'>
                                     <SvgIcon name={e.icon} size={e.size} className='cB' />
                                     <div className='fz18 ml12'>{e.label}</div>

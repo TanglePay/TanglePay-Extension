@@ -79,34 +79,42 @@ export const AssetsSend = () => {
                             }
                         }
                         Toast.showLoading()
+                        const tokenId = assets?.tokenId
                         try {
+                            let mainBalance = 0
+                            if (tokenId) {
+                                mainBalance = assetsList.find((e) => e.name === IotaSDK.curNode?.token)?.realBalance
+                            }
                             const res = await IotaSDK.send({ ...curWallet, password }, receiver, sendAmount, {
                                 contract: assets?.contract,
                                 token: assets?.name,
                                 residue,
+                                realBalance: Number(realBalance),
                                 awaitStake: true,
-                                tokenId: assets?.tokenId,
-                                decimal: assets?.decimal
+                                tokenId,
+                                decimal: assets?.decimal,
+                                mainBalance
                             })
                             if (res) {
-                                Toast.hideLoading()
-                                Toast.success(I18n.t('assets.sendSucc'))
+                                // Toast.hideLoading()
+                                // Toast.success(I18n.t('assets.sendSucc'))
                                 Base.goBack()
                             }
                         } catch (error) {
                             Toast.hideLoading()
                             // Toast.error(I18n.t('assets.sendError'))
                             console.log(error)
-                            Toast.error(
-                                `${error.toString()}---input:${
-                                    values.amount
-                                }---amount:${amount}---sendAmount:${sendAmount}---residue:${residue}---realBalance:${Number(
-                                    realBalance
-                                )}---available:${available}---`,
-                                {
-                                    duration: 5000
-                                }
-                            )
+                            Toast.error(error.toString())
+                            // Toast.error(
+                            //     `${error.toString()}---input:${
+                            //         values.amount
+                            //     }---amount:${amount}---sendAmount:${sendAmount}---residue:${residue}---realBalance:${Number(
+                            //         realBalance
+                            //     )}---available:${available}---`,
+                            //     {
+                            //         duration: 5000
+                            //     }
+                            // )
                         }
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
