@@ -58,7 +58,8 @@ export const ClaimSMR = () => {
                             if (res.code > 0) {
                                 if (res.code === 200) {
                                     addWallet({
-                                        ...res.addressInfo
+                                        ...res.addressInfo,
+                                        password
                                     })
                                     Base.replace('/assets/claimReward/claimResult', { id, amount: res.amount })
                                 } else {

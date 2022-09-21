@@ -50,7 +50,7 @@ export const AccountIntoPrivateKey = () => {
                         Base.replace('/main')
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
-                        <div className='p16 flex column jsb'>
+                        <div className='p16 pt12 flex column jsb'>
                             <Form>
                                 <div>
                                     <div>
@@ -68,19 +68,19 @@ export const AccountIntoPrivateKey = () => {
                                         />
                                     </div>
                                 </div>
-                                <Form.Item className={`mt24 pl0 ${errors.name && 'form-error'}`}>
+                                <Form.Item className={`mt10 pl0 ${errors.name && 'form-error'}`}>
                                     <div className='fz16 mb10'>{I18n.t('account.intoName')}</div>
                                     <Input
-                                        className='pv4'
+                                        style={{ paddingTop: 3, paddingBottom: 3 }}
                                         placeholder={I18n.t('account.intoNameTips')}
                                         onChange={handleChange('name')}
                                         value={values.name}
                                     />
                                 </Form.Item>
-                                <Form.Item className={`mt24 pl0 ${errors.password && 'form-error'}`}>
+                                <Form.Item className={`mt16 pl0 ${errors.password && 'form-error'}`}>
                                     <div className='fz16 mb10'>{I18n.t('account.intoPassword')}</div>
                                     <Input
-                                        className='pv4'
+                                        style={{ paddingTop: 3, paddingBottom: 3 }}
                                         type='password'
                                         placeholder={I18n.t('account.intoPasswordTips')}
                                         onChange={handleChange('password')}
