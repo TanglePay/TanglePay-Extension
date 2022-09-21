@@ -71,6 +71,9 @@ export const Apps = () => {
                 label: e
             }
         })
+        list.sort((a, b) => {
+            return a.id === 'Iotabee' ? -1 : 0
+        })
         setList(list)
         setTabs(tabs)
     }, [JSON.stringify(dapps)])
@@ -113,7 +116,7 @@ export const Apps = () => {
                     </div>
                 ) : null} */}
                 <div>
-                    <div>
+                    {tabs.length > 0 ? (
                         <div className='ph16 flex ac row pt12 pb4 border-b'>
                             {tabs.map((e) => {
                                 const cur = curTab === e.label
@@ -129,7 +132,7 @@ export const Apps = () => {
                                 )
                             })}
                         </div>
-                    </div>
+                    ) : null}
                     <div className='pl16 pr4'>
                         <List list={showList} height={height} />
                     </div>

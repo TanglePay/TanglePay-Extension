@@ -73,7 +73,9 @@ export const ClaimSMR = () => {
                         <div className='ph16'>
                             <Form>
                                 <Form.Item className={`mb16 pl0 border-b ${errors.password && 'form-error'}`}>
-                                    <div className='fz16 mb16'>{I18n.t('account.intoPassword')}</div>
+                                    <div className='fz16 mb16'>
+                                        {I18n.t('account.showKeyInputPassword').replace(/{name}/, curEdit.name)}
+                                    </div>
                                     <Input
                                         className='fz16'
                                         type='password'

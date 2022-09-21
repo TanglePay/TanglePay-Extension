@@ -107,7 +107,8 @@ export const RewardsList = () => {
                 const symbol = item.symbol
                 obj[symbol] = obj[symbol] || {
                     ...item,
-                    amount: 0
+                    amount: 0,
+                    isSMR: symbol.includes('SMR')
                 }
                 obj[symbol].amount += item.amount
                 const ratio = _get(rewards, `${symbol}.ratio`) || 0
@@ -131,18 +132,32 @@ export const RewardsList = () => {
                 obj[symbol].unit = unit
             }
         }
-        setList(Object.values(obj))
+        const arr = Object.values(obj)
+        arr.sort((a) => (a.isSMR ? -1 : 0))
+        setList(arr)
     }, [JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address + curWallet.nodeId])
     const ListEl = useMemo(() => {
         return list.map((e) => {
             return (
-                <div key={e.symbol} className='flex row ac' style={{ height: itemH }}>
+                <div
+                    onClick={() => {
+                        if (e.isSMR) {
+                            Base.push('/assets/claimReward/claimSMR', {
+                                id: curWallet.id
+                            })
+                        }
+                    }}
+                    key={e.symbol}
+                    className={`flex row ac ${e.isSMR ? 'press' : ''}`}
+                    style={{ height: itemH }}>
                     <img
                         className='mr10 border'
-                        style={{ width: 48, height: 48, borderRadius: 48, opacity: 0.4 }}
+                        style={{ width: 48, height: 48, borderRadius: 48, opacity: !e.isSMR ? 0.4 : 1 }}
                         src={Base.getIcon(e.symbol)}
                     />
-                    <div className='flex flex1 row ac jsb border-b' style={{ height: itemH, color: 'rgba(0,0,0,0.4)' }}>
+                    <div
+                        className='flex flex1 row ac jsb border-b'
+                        style={{ height: itemH, color: e.isSMR ? '' : 'rgba(0,0,0,0.4)' }}>
                         <div className='fz16'>{e.unit}</div>
                         {isShowAssets ? (
                             <div>

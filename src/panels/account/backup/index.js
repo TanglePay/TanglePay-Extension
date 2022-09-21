@@ -25,7 +25,7 @@ export const AccountBackup = () => {
                     </div>
                     <div style={{ marginBottom: 80 }}>
                         <div
-                            className='fz14'
+                            className='fz16'
                             style={{ lineHeight: '20px' }}
                             dangerouslySetInnerHTML={{
                                 __html: I18n.t('account.backupTipsContent').replace(/\n/g, '<br/>')

@@ -76,17 +76,17 @@ export const AccountRegister = () => {
                                     />
                                 </Form.Item>
                                 <div
-                                    className='flex row ac pl0 mt20'
+                                    className='flex row as pl0 mt20'
                                     onClick={() => {
                                         setFieldValue('agree', !values.agree)
                                     }}>
                                     <SvgIcon
                                         size={15}
-                                        className={`mr8 ${values.agree ? 'cP' : 'cB'}`}
+                                        className={`mr8 fz20 ${values.agree ? 'cP' : 'cB'}`}
                                         name={values.agree ? 'checkbox_1' : 'checkbox_0'}
                                     />
                                     <div
-                                        className={`fz14 fw600 tl ${!errors.agree ? 'cB' : 'cR'}`}
+                                        className={`fz16 tl ${!errors.agree ? 'cB' : 'cR'}`}
                                         style={{ lineHeight: '22px' }}>
                                         {I18n.t('account.intoAgree')
                                             .split('##')
