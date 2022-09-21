@@ -110,14 +110,15 @@ export const DappDialog = () => {
                         if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
                             Bridge.sendErrorMessage(type, error)
                         } else {
-                            Toast.error(
-                                `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
-                                    realBalance
-                                )}`,
-                                {
-                                    duration: 5000
-                                }
-                            )
+                            Toast.error(String(error))
+                            // Toast.error(
+                            //     `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
+                            //         realBalance
+                            //     )}`,
+                            //     {
+                            //         duration: 5000
+                            //     }
+                            // )
                         }
                     }
                 }
