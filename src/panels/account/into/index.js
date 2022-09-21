@@ -106,21 +106,21 @@ export const AccountInto = () => {
                                         <div>{I18n.t('account.intoSelectFile')}</div>
                                     </div>
                                 )}
-                                <Form.Item className={`mt24 pl0 ${errors.name && 'form-error'}`}>
+                                <Form.Item className={`mt10 pl0 ${errors.name && 'form-error'}`}>
                                     <div className='fz16 mb10'>{I18n.t('account.intoName')}</div>
                                     <Input
-                                        className='pv4'
+                                        style={{ paddingTop: 3, paddingBottom: 3 }}
                                         placeholder={I18n.t('account.intoNameTips')}
                                         onChange={handleChange('name')}
                                         value={values.name}
                                     />
                                 </Form.Item>
-                                <Form.Item className={`mt24 pl0 ${errors.password && 'form-error'}`}>
+                                <Form.Item className={`mt16 pl0 ${errors.password && 'form-error'}`}>
                                     <div className='fz16 mb10'>
                                         {I18n.t(type === 1 ? 'account.intoPassword' : 'account.intoFilePassword')}
                                     </div>
                                     <Input
-                                        className='pv4'
+                                        style={{ paddingTop: 3, paddingBottom: 3 }}
                                         type='password'
                                         placeholder={I18n.t(
                                             type === 1 ? 'account.intoPasswordTips' : 'account.intoFilePasswordTips'
@@ -133,7 +133,7 @@ export const AccountInto = () => {
                                 {type === 1 && (
                                     <Form.Item className={`pl0 mb5 ${errors.rePassword && 'form-error'}`}>
                                         <Input
-                                            className='pv4'
+                                            style={{ paddingTop: 3, paddingBottom: 3 }}
                                             type='password'
                                             placeholder={I18n.t('account.intoRePasswordTips')}
                                             onChange={handleChange('rePassword')}

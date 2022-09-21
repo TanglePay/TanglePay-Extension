@@ -25,7 +25,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["js/inject.js", "font/Open-Sans.ttf"],
+            "resources": ["js/inject.js", "font/OpenSans-Regular.ttf", "font/OpenSans-Medium.ttf"],
             "matches": ["<all_urls>"]
         }
     ],

@@ -32,7 +32,7 @@ export const AccountMnemonic = () => {
                                 <div className='pa fz16' style={{ left: 6, top: 4 }}>
                                     {i + 1}
                                 </div>
-                                <div className='fz18 tc'>{e}</div>
+                                <div className='fz18 fw600 tc'>{e}</div>
                             </div>
                         )
                     })}
