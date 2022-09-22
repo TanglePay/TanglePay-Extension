@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { Button } from 'antd-mobile'
 import { Base, I18n } from '@tangle-pay/common'
-import { IntoDialog } from './intoDialog'
+import { AddDialog } from '../../assets/wallets/addDialog'
 
 export const AccountLogin = () => {
     const dialogRef = useRef()
@@ -33,11 +33,12 @@ export const AccountLogin = () => {
                         size='large'
                         block
                         onClick={() => {
-                            Base.push('/account/register')
+                            // Base.push('/account/register')
+                            dialogRef.current.show()
                         }}>
-                        {I18n.t('account.create')}
+                        {I18n.t('assets.addWallets')}
                     </Button>
-                    <Button
+                    {/* <Button
                         color='primary'
                         size='large'
                         className='mt20'
@@ -47,10 +48,10 @@ export const AccountLogin = () => {
                             dialogRef.current.show()
                         }}>
                         {I18n.t('account.hasWallet')}
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
-            <IntoDialog dialogRef={dialogRef} />
+            <AddDialog dialogRef={dialogRef} />
         </div>
     )
 }

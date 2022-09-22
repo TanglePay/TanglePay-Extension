@@ -11,7 +11,7 @@ export const UserWallets = () => {
             <Nav title={I18n.t('user.manageWallets')} />
             <div className='page-content ph16 pb20'>
                 {walletsList.map((e) => {
-                    const curNode = IotaSDK.nodes.find((d) => d.id === e.nodeId) || {}
+                    const curNode = IotaSDK.nodes.find((d) => d.id == e.nodeId) || {}
                     return (
                         <div
                             className='flex ac jsb row border radius10 ph16 pv12 mt16 press'

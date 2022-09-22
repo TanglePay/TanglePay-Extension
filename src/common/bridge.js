@@ -4,10 +4,9 @@ import { Toast } from './components/Toast'
 export default {
     async connect(url) {
         const query = Base.handlerParams(url) || {}
-        let { cmd, method, params, origin, isKeepPopup } = query
+        let { cmd, method, params, origin } = query
         switch (cmd) {
             case 'iota_request':
-                this.isKeepPopup = isKeepPopup == 1
                 if (!IotaSDK.client) {
                     return this.sendErrorMessage(method, {
                         msg: 'Wallet initialization failed',
@@ -30,8 +29,7 @@ export default {
         const curWallet = (list || []).find((e) => e.isSelected)
         return curWallet
     },
-    async iota_connect(origin, expires, isKeepPopup) {
-        this.isKeepPopup = isKeepPopup
+    async iota_connect(origin, expires) {
         const curWallet = await this.getCurWallet()
         if (curWallet.address) {
             const key = `${origin}_iota_connect_${curWallet.address}_${curWallet.nodeId}`
@@ -48,8 +46,7 @@ export default {
             Trace.dappConnect(origin.replace(/.+\/\//, ''), curWallet.address, curWallet.nodeId, IotaSDK.curNode.token)
         }
     },
-    async iota_sign(origin, expires, content, isKeepPopup, password) {
-        this.isKeepPopup = isKeepPopup
+    async iota_sign(origin, expires, content, password) {
         const curWallet = await this.getCurWallet()
         const res = await IotaSDK.iota_sign({ ...curWallet, password }, content)
         if (res) {
@@ -60,8 +57,7 @@ export default {
             })
         }
     },
-    async iota_getPublicKey(origin, expires, isKeepPopup) {
-        this.isKeepPopup = isKeepPopup
+    async iota_getPublicKey(origin, expires) {
         try {
             const curWallet = await this.getCurWallet()
             this.sendMessage('iota_getPublicKey', curWallet.publicKey)
@@ -92,7 +88,7 @@ export default {
             }
             const curWallet = await this.getCurWallet()
             const key = `${origin}_eth_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
-            this.cacheBgData(key, assetsData)
+            // this.cacheBgData(key, assetsData)
             Toast.hideLoading()
             this.sendMessage('eth_getBalance', assetsData)
         } catch (error) {
@@ -162,7 +158,7 @@ export default {
                 others: Object.values(othersDic)
             }
             const key = `${origin}_iota_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
-            this.cacheBgData(key, assetsData)
+            // this.cacheBgData(key, assetsData)
 
             Toast.hideLoading()
             this.sendMessage('iota_getBalance', assetsData)
@@ -209,52 +205,70 @@ export default {
             })
         }
     },
-    sendToContentScript(cmd, method, response) {
-        const bg = window.chrome?.extension?.getBackgroundPage()
-        if (bg) {
-            bg.sendToContentScript({
-                cmd,
-                code: 200,
-                data: {
-                    method,
-                    response
+    sendToContentScript(cmd, { method, response, code = 200 }) {
+        // V2
+        // const bg = window.chrome?.extension?.getBackgroundPage()
+        // if (bg) {
+        //     bg.sendToContentScript({
+        //         cmd,
+        //         code: 200,
+        //         data: {
+        //             method,
+        //             response
+        //         }
+        //     })
+        // }
+        // V3
+        const sendMessage = window.chrome?.runtime?.sendMessage
+        if (sendMessage) {
+            sendMessage({
+                cmd: `contentToBackground##popupBridgeToBackground`,
+                sendData: {
+                    cmd,
+                    code,
+                    data: {
+                        method,
+                        response
+                    }
                 }
             })
         }
     },
     sendEvt(event, response) {
-        this.sendToContentScript('iota_event', event, response)
+        this.sendToContentScript('iota_event', {
+            method: event,
+            response
+        })
     },
     cacheBgData(key, cacheData) {
-        const bg = window.chrome?.extension?.getBackgroundPage()
-        if (bg) {
-            bg.setBackgroundData(key, cacheData)
-        }
+        // V2
+        // const bg = window.chrome?.extension?.getBackgroundPage()
+        // if (bg) {
+        //     bg.setBackgroundData(key, cacheData)
+        // }
+        // V3
+        Base.setLocalData(key, cacheData)
     },
     sendMessage(method, response) {
-        this.sendToContentScript('iota_request', method, response)
-        if (!this.isKeepPopup) {
-            this.closeWindow()
-        }
+        this.sendToContentScript('iota_request', { method, response })
+        this.closeWindow()
     },
     sendErrorMessage(method, response) {
-        const bg = window.chrome?.extension?.getBackgroundPage()
-        if (bg) {
-            bg.sendToContentScript({
-                cmd: 'iota_request',
-                code: -1,
-                data: {
-                    method,
-                    response
-                }
-            })
-        }
+        this.sendToContentScript('iota_request', { method, response, code: -1 })
         this.closeWindow()
     },
     closeWindow() {
-        const bg = window.chrome?.extension?.getBackgroundPage()
-        if (bg && bg.tanglepayDialog) {
-            window.chrome.windows.remove(bg.tanglepayDialog)
+        // v2
+        // const bg = window.chrome?.extension?.getBackgroundPage()
+        // if (bg && bg.tanglepayDialog) {
+        //     window.chrome.windows.remove(bg.tanglepayDialog)
+        // }
+        // v3
+        const sendMessage = window.chrome?.runtime?.sendMessage
+        if (sendMessage) {
+            sendMessage({
+                cmd: `contentToBackground##popupBridgeCloseWindow`
+            })
         }
     }
 }

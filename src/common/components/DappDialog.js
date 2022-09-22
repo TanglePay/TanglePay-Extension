@@ -6,11 +6,12 @@ import { useStore } from '@tangle-pay/store'
 import BigNumber from 'bignumber.js'
 import { Toast } from './Toast'
 import Bridge from '@/common/bridge'
+import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 
 export const DappDialog = () => {
     const [isShow, setShow] = useState(false)
     const [isRequestAssets] = useStore('common.isRequestAssets')
-    const [isRequestHis] = useStore('common.isRequestHis')
+    useGetParticipationEvents()
     const [init, setInit] = useState(false)
     const [contentH, setContenth] = useState(600)
     const [password, setPassword] = useState('')
@@ -21,7 +22,6 @@ export const DappDialog = () => {
     const selectTimeHandler = useRef()
     const [curWallet] = useGetNodeWallet()
     const [assetsList] = useStore('common.assetsList')
-    const [statedAmount] = useStore('staking.statedAmount')
     const [curNodeId] = useStore('common.curNodeId')
     const changeNode = useChangeNode()
     const show = () => {
@@ -33,17 +33,12 @@ export const DappDialog = () => {
         setShow(false)
         Toast.hideLoading()
     }
-    const closeWindow = () => {
-        const bg = window.chrome?.extension?.getBackgroundPage()
-        if (bg && bg.tanglepayDialog) {
-            window.chrome.windows.remove(bg.tanglepayDialog)
-        }
-    }
     const onHandleCancel = async ({ type }) => {
         switch (type) {
             case 'iota_sign':
             case 'iota_connect':
             case 'iota_sendTransaction':
+            case 'eth_sendTransaction':
                 Bridge.sendErrorMessage(type, {
                     msg: 'cancel'
                 })
@@ -53,18 +48,7 @@ export const DappDialog = () => {
                 break
         }
     }
-    const onExecute = async ({
-        address,
-        return_url,
-        content,
-        type,
-        amount,
-        origin,
-        isKeepPopup,
-        expires,
-        taggedData,
-        contract
-    }) => {
+    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
             const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
@@ -75,6 +59,7 @@ export const DappDialog = () => {
         let messageId = ''
         switch (type) {
             case 'iota_sendTransaction':
+            case 'eth_sendTransaction':
             case 'send':
                 {
                     let curToken = IotaSDK.curNode?.token
@@ -85,21 +70,17 @@ export const DappDialog = () => {
                     }
                     let assets = assetsList.find((e) => e.name === curToken) || {}
                     let realBalance = BigNumber(assets.realBalance || 0)
-                    const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
-                    realBalance = realBalance.minus(bigStatedAmount)
                     let residue = Number(realBalance.minus(amount)) || 0
                     const decimal = Math.pow(10, assets.decimal)
-                    if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+                    if (!IotaSDK.checkWeb3Node(curWallet.nodeId) && !IotaSDK.checkSMR(curWallet.nodeId)) {
                         if (amount < decimal) {
                             return Toast.error(I18n.t('assets.sendBelow1Tips'))
                         }
                     }
                     if (residue < 0) {
-                        return Toast.error(
-                            I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
-                        )
+                        return Toast.error(I18n.t('assets.balanceError'))
                     }
-                    if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+                    if (!IotaSDK.checkWeb3Node(curWallet.nodeId) && !IotaSDK.checkSMR(curWallet.nodeId)) {
                         if (residue < decimal && residue != 0) {
                             return Toast.error(I18n.t('assets.residueBelow1Tips'))
                         }
@@ -109,40 +90,36 @@ export const DappDialog = () => {
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
                             contract: assets?.contract,
                             token: assets?.name,
-                            taggedData
+                            taggedData,
+                            residue,
+                            realBalance: Number(realBalance),
+                            awaitStake: true
                         })
                         if (!res) {
-                            return
+                            throw I18n.t('user.nodeError')
                         }
                         messageId = res.messageId
-
-                        if (type === 'iota_sendTransaction') {
+                        // Toast.hideLoading()
+                        if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
                             Bridge.sendMessage(type, res)
+                        } else {
+                            // Toast.success(I18n.t('assets.sendSucc'))
                         }
-
-                        Toast.hideLoading()
-                        Toast.success(
-                            I18n.t(
-                                IotaSDK.checkWeb3Node(curWallet.nodeId) ? 'assets.sendSucc' : 'assets.sendSuccRestake'
-                            )
-                        )
-                        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-                        await sleep(2000)
                     } catch (error) {
-                        if (type === 'iota_sendTransaction') {
-                            Bridge.sendErrorMessage(type, error)
-                        }
                         Toast.hideLoading()
-                        setTimeout(() => {
-                            Toast.error(
-                                `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
-                                    realBalance
-                                )}---bigStatedAmount:${bigStatedAmount}`,
-                                {
-                                    duration: 5000
-                                }
-                            )
-                        }, 500)
+                        if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
+                            Bridge.sendErrorMessage(type, error)
+                        } else {
+                            Toast.error(String(error))
+                            // Toast.error(
+                            //     `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
+                            //         realBalance
+                            //     )}`,
+                            //     {
+                            //         duration: 5000
+                            //     }
+                            // )
+                        }
                     }
                 }
                 break
@@ -159,28 +136,28 @@ export const DappDialog = () => {
                 break
             case 'iota_getPublicKey':
                 {
-                    await Bridge.iota_getPublicKey(origin, expires, isKeepPopup)
+                    await Bridge.iota_getPublicKey(origin, expires)
                 }
                 break
             case 'iota_changeAccount':
                 {
-                    await Bridge.sendMessage(type, {
+                    Bridge.sendMessage(type, {
                         code: 200,
                         address: curWallet.address,
                         nodeId: curWallet.nodeId,
-                        network: IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.network
+                        network: IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.network
                     })
                     Toast.hideLoading()
                 }
                 break
             case 'iota_connect':
                 {
-                    await Bridge.iota_connect(origin, expires, isKeepPopup)
+                    await Bridge.iota_connect(origin, expires)
                 }
                 break
             case 'iota_sign':
                 {
-                    await Bridge.iota_sign(origin, expires, content, isKeepPopup, password)
+                    await Bridge.iota_sign(origin, expires, content, password)
                 }
                 break
             default:
@@ -192,9 +169,7 @@ export const DappDialog = () => {
             Base.push(url, { blank: true })
         }
         hide()
-        if (!isKeepPopup) {
-            closeWindow()
-        }
+        Bridge.closeWindow()
     }
     const checkDeepLink = (url) => {
         return /^tanglepay:\/\/.+/.test(url)
@@ -218,14 +193,13 @@ export const DappDialog = () => {
             merchant = '',
             content = '',
             origin = '',
-            isKeepPopup,
             expires,
             taggedData = ''
         } = res
         let toNetId
         if (network) {
             await IotaSDK.getNodes()
-            toNetId = IotaSDK.nodes.find((e) => e.network === network)?.id
+            toNetId = IotaSDK.nodes.find((e) => e.network == network)?.id
         }
         if (toNetId && parseInt(toNetId) !== parseInt(curNodeId)) {
             await changeNode(toNetId)
@@ -236,7 +210,7 @@ export const DappDialog = () => {
                 Base.push('/assets/wallets', { nodeId: toNetId || '' })
             }, 500)
         } else {
-            if (!password) {
+            if (!password || !/password_/.test(password)) {
                 hide()
                 return
             }
@@ -248,6 +222,7 @@ export const DappDialog = () => {
                 let [type, address] = path.split('/')
                 switch (type) {
                     case 'iota_sendTransaction': //sdk send
+                    case 'eth_sendTransaction':
                     case 'send':
                         {
                             value = parseFloat(value) || 0
@@ -285,10 +260,18 @@ export const DappDialog = () => {
                                     sendAmount = value
                                 }
                             } else {
-                                unit = unit || 'Mi'
-                                showValue = IotaSDK.convertUnits(value, unit, 'Mi')
-                                sendAmount = IotaSDK.convertUnits(value, unit, 'i')
-                                showUnit = 'MIOTA'
+                                if (IotaSDK.checkSMR(toNetId || curNodeId)) {
+                                    unit = unit || 'SMR'
+                                    showValue = value
+                                    sendAmount =
+                                        unit !== 'Glow' ? Math.pow(10, IotaSDK.curNode?.decimal || 0) * value : value
+                                    showUnit = unit
+                                } else {
+                                    unit = unit || 'Mi'
+                                    showValue = IotaSDK.convertUnits(value, unit, 'Mi')
+                                    sendAmount = IotaSDK.convertUnits(value, unit, 'i')
+                                    showUnit = 'MIOTA'
+                                }
                             }
 
                             let str = I18n.t('apps.send')
@@ -369,7 +352,6 @@ export const DappDialog = () => {
                                 return_url,
                                 type,
                                 origin,
-                                isKeepPopup: isKeepPopup == 1,
                                 expires
                             })
                             show()
@@ -395,7 +377,6 @@ export const DappDialog = () => {
                                 type,
                                 content,
                                 origin,
-                                isKeepPopup: isKeepPopup == 1,
                                 expires
                             })
                             show()
@@ -411,10 +392,19 @@ export const DappDialog = () => {
         handleUrl(deepLink, curWallet.password)
     }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
-        if (dappData.type === 'iota_sendTransaction' || dappData.type === 'send') {
-            isRequestAssets && isRequestHis ? Toast.hideLoading() : Toast.showLoading()
+        if (
+            dappData.type === 'iota_sendTransaction' ||
+            dappData.type === 'eth_sendTransaction' ||
+            dappData.type === 'send'
+        ) {
+            if (!IotaSDK.isNeedRestake) {
+                isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
+            }
         }
-    }, [dappData.type, isRequestAssets, isRequestHis])
+        if (dappData.type === 'iota_connect') {
+            isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
+        }
+    }, [dappData.type, isRequestAssets])
     useEffect(() => {
         const params = Base.handlerParams(window.location.search)
         const url = params.url
@@ -472,7 +462,7 @@ export const DappDialog = () => {
                                 onClick={() => {
                                     onHandleCancel(dappData)
                                     hide()
-                                    closeWindow()
+                                    Bridge.closeWindow()
                                 }}
                                 style={{ '--border-radius': '30px' }}
                                 color='default'

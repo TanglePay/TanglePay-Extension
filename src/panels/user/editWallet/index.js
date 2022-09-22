@@ -16,7 +16,7 @@ export const UserEditWallet = () => {
     useEffect(() => {
         setContentW(document.getElementById('app').offsetWidth)
     }, [])
-    const curNode = IotaSDK.nodes.find((d) => d.id === curEdit.nodeId)
+    const curNode = IotaSDK.nodes.find((d) => d.id == curEdit.nodeId)
     return (
         <div>
             <Nav title={I18n.t('user.manage')} />

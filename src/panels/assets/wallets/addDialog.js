@@ -20,10 +20,10 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
         },
         []
     )
-    const show = () => {
-        if (nodeId) {
+    const show = (showNodeId) => {
+        if (nodeId || showNodeId) {
             setShowNode(false)
-            changeNode(parseInt(nodeId))
+            changeNode(parseInt(nodeId || showNodeId))
         } else {
             setShowNode(true)
         }
@@ -70,7 +70,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 className='pv24 flex c press'>
                                 <div className='fz18'>{I18n.t('account.createTitle')}</div>
                             </div>
-                            {(curNode?.type == 1 || curNode?.type == 3) && (
+                            {curNode?.type == 3 && (
                                 <div
                                     onClick={() => {
                                         hide()

@@ -5,9 +5,12 @@ import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common/assets'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Toast } from '@/common'
+import { useGetParticipationEvents, useGetRewards } from '@tangle-pay/store/staking'
 
 export const Discover = () => {
     const [curWallet] = useGetNodeWallet()
+    useGetParticipationEvents()
+    useGetRewards(curWallet, false)
     const [switchConfig, setSwichConfig] = useState({})
     useEffect(() => {
         fetch(`${API_URL}/switchConfig.json?v=${new Date().getTime()}`)

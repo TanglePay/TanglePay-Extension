@@ -8,13 +8,13 @@ const Item = ({ id, icon, desc, developer, url }) => {
             onClick={() => {
                 Base.push(url, { title: id })
             }}>
-            <div className='flex c p10 radius10 border mr10'>
-                <img style={{ width: 60, height: 60 }} src={Base.getIcon(icon)} />
+            <div className='mr8'>
+                <img className='border' style={{ width: 64, height: 64, borderRadius: 16 }} src={Base.getIcon(icon)} />
             </div>
             <div className='border-b'>
-                <div className='fz18 fw600 mb5'>{id}</div>
-                {desc ? <div className='fz16 cS ellipsis-2 mb5'>{desc}</div> : null}
-                {developer ? <div className='fz16 cS mb5'>{developer}</div> : null}
+                <div className='fz18 mb5'>{id}</div>
+                {desc ? <div className='fz16 cS ellipsis-2 mb5 fw300'>{desc}</div> : null}
+                {developer ? <div className='fz16 cS mb5 fw300'>{developer}</div> : null}
             </div>
         </div>
     )

@@ -47,7 +47,7 @@ export const AssetsReceive = () => {
                         <div
                             className='ph10 pv5 bgS'
                             style={{ borderRadius: 4, maxWidth: '100%', wordWrap: 'break-word' }}>
-                            <div className='fz11 tc' style={{ lineHeight: '20px' }}>
+                            <div className='fz16 tc' style={{ lineHeight: '20px' }}>
                                 {curWallet.address}
                                 <SvgIcon
                                     style={{ display: 'inline-block', verticalAlign: 'middle' }}
