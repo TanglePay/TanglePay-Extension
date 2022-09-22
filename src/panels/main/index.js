@@ -47,7 +47,7 @@ export const Main = () => {
         Bridge.cacheBgData('cur_wallet_address', `${curWallet.address || ''}_${curWallet.nodeId || ''}`)
     }, [curWallet.address + curWallet.nodeId])
     useEffect(() => {
-        const filterMenuList = IotaSDK.nodes.find((e) => e.id === curWallet.nodeId)?.filterMenuList || []
+        const filterMenuList = IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.filterMenuList || []
         setRoutes([...initRoutes.filter((e) => !filterMenuList.includes(e.key))])
     }, [curWallet.nodeId, JSON.stringify(initRoutes)])
     useEffect(() => {

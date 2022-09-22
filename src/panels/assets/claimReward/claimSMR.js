@@ -52,24 +52,31 @@ export const ClaimSMR = () => {
                         if (!Base.checkPassword(password)) {
                             return Toast.error(I18n.t('account.intoPasswordTips'))
                         }
-                        await changeNode(IotaSDK.SMR_NODE_ID)
-                        const res = await IotaSDK.claimSMR({ ...curEdit, password })
-                        if (res.code > 0) {
-                            if (res.code === 200) {
-                                addWallet({
-                                    ...res.addressInfo
-                                })
-                                Base.replace('/assets/claimReward/claimResult', { id, amount: res.amount })
-                            } else {
-                                setShow(true)
+                        try {
+                            await changeNode(IotaSDK.SMR_NODE_ID)
+                            const res = await IotaSDK.claimSMR({ ...curEdit, password })
+                            if (res.code > 0) {
+                                if (res.code === 200) {
+                                    addWallet({
+                                        ...res.addressInfo,
+                                        password
+                                    })
+                                    Base.replace('/assets/claimReward/claimResult', { id, amount: res.amount })
+                                } else {
+                                    setShow(true)
+                                }
                             }
+                        } catch (error) {
+                            setShow(true)
                         }
                     }}>
                     {({ handleChange, handleSubmit, values, errors }) => (
                         <div className='ph16'>
                             <Form>
                                 <Form.Item className={`mb16 pl0 border-b ${errors.password && 'form-error'}`}>
-                                    <div className='fz16 mb16'>{I18n.t('account.intoPassword')}</div>
+                                    <div className='fz16 mb16'>
+                                        {I18n.t('account.showKeyInputPassword').replace(/{name}/, curEdit.name)}
+                                    </div>
                                     <Input
                                         className='fz16'
                                         type='password'

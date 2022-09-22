@@ -265,7 +265,7 @@
     }
     .adm-input,
     .adm-text-area {
-        font-size: 13px;
+        font-size: 14px;
     }
     .adm-list-item-content {
         padding: 10px 10px 10px 0;
@@ -348,4 +348,19 @@
     opacity: 0.5;
     border-radius: 8px;
     border: 0;
+}
+
+.adm-switch-checkbox {
+    min-width: 40px;
+    height: 22px;
+    &:before {
+        height: 18px;
+    }
+    .adm-switch-handle {
+        width: 18px;
+        height: 18px;
+    }
+}
+.adm-switch.adm-switch-checked .adm-switch-handle {
+    left: calc(100% - (22px - 2px));
 }

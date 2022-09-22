@@ -125,7 +125,7 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
     const uList = uncomingTokens.filter((e) => !statedTokens.find((d) => d.eventId === e.eventId))
     return (
         <div className='ph16 pb10 radius10 bgS'>
-            <div className='fw600 fz24 tc'>{I18n.t('staking.title')}</div>
+            <div className='fz24 fw600 tc'>{I18n.t('staking.title')}</div>
             <div>
                 <div className='pv16 fw600 fz16'>{I18n.t('staking.airdrops')}</div>
                 <div className='flex row ae jsb mb10' style={{ flexWrap: 'wrap' }}>

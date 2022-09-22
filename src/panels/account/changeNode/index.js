@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useChangeNode } from '@tangle-pay/store/common'
-import { default as logo_nobg } from '@tangle-pay/assets/images/logo_nobg.png'
+import { AddDialog } from '../../assets/wallets/addDialog'
+// import { default as logo_nobg } from '@tangle-pay/assets/images/logo_nobg.png'
 
 export const AccountChangeNode = () => {
-    const changeNode = useChangeNode()
+    const dialogRef = useRef()
+    // const changeNode = useChangeNode()
     return (
-        <div className='page flex column'>
+        <div className='page flex column mask-content-je'>
             <div className='flex jsb column flex1'>
                 <div className='ph20 flex1 flex jc column mt30'>
                     {/* <img className='mb15' style={{ width: 129.6, height: 135 }} src={logo_nobg} /> */}
@@ -41,8 +43,9 @@ export const AccountChangeNode = () => {
                                     style={{ height: 60 }}
                                     className={`press flex ac pl24 ${i != 0 && 'border-t'}`}
                                     onClick={async () => {
-                                        await changeNode(e.id)
-                                        Base.push('/account/login')
+                                        // await changeNode(e.id)
+                                        dialogRef.current.show(e.id)
+                                        // Base.push('/account/login')
                                     }}>
                                     <div className='fz18 fw500'>{e.name}</div>
                                 </div>
@@ -51,6 +54,7 @@ export const AccountChangeNode = () => {
                     </div>
                 </div>
             </div>
+            <AddDialog dialogRef={dialogRef} />
         </div>
     )
 }

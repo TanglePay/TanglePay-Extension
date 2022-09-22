@@ -8,6 +8,7 @@ import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, Toast } from '@/common'
 import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
+import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 // import { SendFailDialog } from '@/common/components/sendFailDialog'
 
 const schema = Yup.object().shape({
@@ -19,17 +20,19 @@ const schema = Yup.object().shape({
 export const AssetsSend = () => {
     // const sendFailDialog = useRef()
     // const timeHandler = useRef()
-    const [statedAmount] = useStore('staking.statedAmount')
+    // const [statedAmount] = useStore('staking.statedAmount')
+    useGetParticipationEvents()
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
     params = Base.handlerParams(params.search)
     let currency = params?.currency
-    currency = currency || assetsList[0].name
+    currency = currency || assetsList[0]?.name
     const form = useRef()
     const [curWallet] = useGetNodeWallet()
     const assets = assetsList.find((e) => e.name === currency) || {}
-    const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
-    let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
+    // const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
+    // let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
+    let realBalance = BigNumber(assets.realBalance || 0)
     if (Number(realBalance) < 0) {
         realBalance = BigNumber(0)
     }
@@ -60,17 +63,15 @@ export const AssetsSend = () => {
                         const decimal = Math.pow(10, assets.decimal)
                         let sendAmount = Number(BigNumber(amount).times(decimal))
                         let residue = Number(realBalance.minus(sendAmount)) || 0
-                        if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+                        if (!IotaSDK.checkWeb3Node(curWallet.nodeId) && !IotaSDK.checkSMR(curWallet.nodeId)) {
                             if (sendAmount < decimal) {
                                 return Toast.error(I18n.t('assets.sendBelow1Tips'))
                             }
                         }
                         if (residue < 0) {
-                            return Toast.error(
-                                I18n.t(statedAmount > 0 ? 'assets.balanceStakeError' : 'assets.balanceError')
-                            )
+                            return Toast.error(I18n.t('assets.balanceError'))
                         }
-                        if (!IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+                        if (!IotaSDK.checkWeb3Node(curWallet.nodeId) && !IotaSDK.checkSMR(curWallet.nodeId)) {
                             if (residue < Number(BigNumber(0.01).times(decimal))) {
                                 sendAmount = Number(realBalance)
                             } else if (residue < decimal && residue != 0) {
@@ -78,41 +79,42 @@ export const AssetsSend = () => {
                             }
                         }
                         Toast.showLoading()
+                        const tokenId = assets?.tokenId
                         try {
-                            // if (curWallet.nodeId === IotaSDK.SMR_NODE_ID) {
-                            //     setTimeout(() => {
-                            //         sendFailDialog.current.show()
-                            //     }, 15000)
-                            // }
+                            let mainBalance = 0
+                            if (tokenId) {
+                                mainBalance = assetsList.find((e) => e.name === IotaSDK.curNode?.token)?.realBalance
+                            }
                             const res = await IotaSDK.send({ ...curWallet, password }, receiver, sendAmount, {
                                 contract: assets?.contract,
-                                token: assets?.name
+                                token: assets?.name,
+                                residue,
+                                realBalance: Number(realBalance),
+                                awaitStake: true,
+                                tokenId,
+                                decimal: assets?.decimal,
+                                mainBalance
                             })
                             if (res) {
-                                Toast.hideLoading()
-                                Toast.success(
-                                    I18n.t(
-                                        IotaSDK.checkWeb3Node(curWallet.nodeId)
-                                            ? 'assets.sendSucc'
-                                            : 'assets.sendSuccRestake'
-                                    )
-                                )
+                                // Toast.hideLoading()
+                                // Toast.success(I18n.t('assets.sendSucc'))
                                 Base.goBack()
                             }
                         } catch (error) {
                             Toast.hideLoading()
                             // Toast.error(I18n.t('assets.sendError'))
                             console.log(error)
-                            Toast.error(
-                                `${error.toString()}---input:${
-                                    values.amount
-                                }---amount:${amount}---sendAmount:${sendAmount}---residue:${residue}---realBalance:${Number(
-                                    realBalance
-                                )}---available:${available}---bigStatedAmount:${bigStatedAmount}`,
-                                {
-                                    duration: 5000
-                                }
-                            )
+                            Toast.error(error.toString())
+                            // Toast.error(
+                            //     `${error.toString()}---input:${
+                            //         values.amount
+                            //     }---amount:${amount}---sendAmount:${sendAmount}---residue:${residue}---realBalance:${Number(
+                            //         realBalance
+                            //     )}---available:${available}---`,
+                            //     {
+                            //         duration: 5000
+                            //     }
+                            // )
                         }
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
@@ -154,7 +156,7 @@ export const AssetsSend = () => {
                                                 if (parseFloat(str) < Math.pow(10, -precision)) {
                                                     str = String(Math.pow(10, -precision))
                                                 }
-                                                if (curWallet.nodeId === IotaSDK.SMR_NODE_ID) {
+                                                if (IotaSDK.checkSMR(curWallet.nodeId)) {
                                                     str = String(parseInt(str))
                                                 }
                                                 setFieldValue('amount', str)
@@ -176,17 +178,9 @@ export const AssetsSend = () => {
                                     />
                                 </Form.Item>
                                 <div className='pb30' style={{ marginTop: 100 }}>
-                                    <Button
-                                        // disabled={curWallet.nodeId === IotaSDK.SMR_NODE_ID}
-                                        color='primary'
-                                        size='large'
-                                        block
-                                        onClick={handleSubmit}>
+                                    <Button color='primary' size='large' block onClick={handleSubmit}>
                                         {I18n.t('assets.confirm')}
                                     </Button>
-                                    {/* {curWallet.nodeId === IotaSDK.SMR_NODE_ID ? (
-                                        <div className='fz12 cS mt12'>{I18n.t('shimmer.sendTips')}</div>
-                                    ) : null} */}
                                 </div>
                             </Form>
                         </div>

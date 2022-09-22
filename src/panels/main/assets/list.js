@@ -34,17 +34,29 @@ export const CoinList = () => {
                         }}
                         key={e.name}
                         style={{ height: itemH }}
-                        className='flex row ac press'>
+                        className='flex row ac press pr'>
                         <img
-                            className='mr10 border'
-                            style={{ width: 48, height: 48, borderRadius: 48 }}
+                            className='mr10 border pa bgW'
+                            style={{ width: 48, height: 48, borderRadius: 48, left: 0, opacity: 1, top: 8, zIndex: 0 }}
                             src={Base.getIcon(e.name)}
                             alt=''
+                            onError={(e) => {
+                                e.target.style.opacity = 0
+                            }}
                         />
+                        <div
+                            className='mr10 border bgP flex c cW fw600 fz24'
+                            style={{ width: 48, height: 48, borderRadius: 48 }}>
+                            {String(e.name).toLocaleUpperCase()[0]}
+                        </div>
                         <div style={{ height: itemH }} className='border-b flex flex1 row ac jsb'>
                             <div className='flex ac row'>
-                                <div className='fz18 mr5'>{e.name}</div>
-                                {!IotaSDK.isWeb3Node && statedAmount > 0 && !needRestake && (
+                                <div className='fz18 mr5'>{String(e.name).toLocaleUpperCase()}</div>
+                                {!IotaSDK.isWeb3Node &&
+                                statedAmount &&
+                                e.realBalance > 0 &&
+                                statedAmount > 0 &&
+                                !needRestake ? (
                                     <div
                                         style={{
                                             transform: 'scale(0.7)',
@@ -56,12 +68,12 @@ export const CoinList = () => {
                                         className='fz12 border cS'>
                                         {I18n.t('staking.title')}
                                     </div>
-                                )}
+                                ) : null}
                             </div>
                             {isShowAssets ? (
                                 <div>
                                     <div className='fz16 tr mb8'>
-                                        {e.balance} {e.unit || e.name}
+                                        {e.balance} {String(e.unit || e.name).toLocaleUpperCase()}
                                     </div>
                                     <div className='fz14 tr cS'>
                                         {curLegal.unit} {e.assets}
@@ -89,13 +101,15 @@ export const RewardsList = () => {
     const [isRequestAssets] = useStore('common.isRequestAssets')
     useEffect(() => {
         const obj = {}
+        const hasSMR = !!IotaSDK.nodes.find((e) => e.bech32HRP === 'smr')
         for (const i in stakedRewards) {
             const item = stakedRewards[i]
             if (item.amount > 0 && item.minimumReached) {
                 const symbol = item.symbol
                 obj[symbol] = obj[symbol] || {
                     ...item,
-                    amount: 0
+                    amount: 0,
+                    isSMR: hasSMR && symbol.includes('SMR')
                 }
                 obj[symbol].amount += item.amount
                 const ratio = _get(rewards, `${symbol}.ratio`) || 0
@@ -119,18 +133,32 @@ export const RewardsList = () => {
                 obj[symbol].unit = unit
             }
         }
-        setList(Object.values(obj))
+        const arr = Object.values(obj)
+        arr.sort((a) => (a.isSMR ? -1 : 0))
+        setList(arr)
     }, [JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address + curWallet.nodeId])
     const ListEl = useMemo(() => {
         return list.map((e) => {
             return (
-                <div key={e.symbol} className='flex row ac' style={{ height: itemH }}>
+                <div
+                    onClick={() => {
+                        if (e.isSMR) {
+                            Base.push('/assets/claimReward/claimSMR', {
+                                id: curWallet.id
+                            })
+                        }
+                    }}
+                    key={e.symbol}
+                    className={`flex row ac ${e.isSMR ? 'press' : ''}`}
+                    style={{ height: itemH }}>
                     <img
                         className='mr10 border'
-                        style={{ width: 48, height: 48, borderRadius: 48, opacity: 0.4 }}
+                        style={{ width: 48, height: 48, borderRadius: 48, opacity: !e.isSMR ? 0.4 : 1 }}
                         src={Base.getIcon(e.symbol)}
                     />
-                    <div className='flex flex1 row ac jsb border-b' style={{ height: itemH, color: 'rgba(0,0,0,0.4)' }}>
+                    <div
+                        className='flex flex1 row ac jsb border-b'
+                        style={{ height: itemH, color: e.isSMR ? '' : 'rgba(0,0,0,0.4)' }}>
                         <div className='fz16'>{e.unit}</div>
                         {isShowAssets ? (
                             <div>
@@ -158,7 +186,7 @@ export const ActivityList = ({ search }) => {
     )
     const ListEl = useMemo(() => {
         return showList.map((e, i) => {
-            const isOutto = [1, 3].includes(e.type)
+            const isOutto = [1, 3, 6].includes(e.type)
             const isStake = [2, 3].includes(e.type)
             const isSign = e.type == 4
             return (
@@ -184,19 +212,23 @@ export const ActivityList = ({ search }) => {
 
                             <div className='fz15 cS'>{dayjs(e.timestamp * 1000).format('YYYY-MM-DD HH:mm')}</div>
                         </div>
-                        {isShowAssets ? (
-                            <div>
-                                <div className='fz15 tr mb5'>
-                                    {isOutto ? '-' : '+'} {e.num} {e.coin}
-                                </div>
-                                <div className='fz15 tr cS'>$ {e.assets}</div>
-                            </div>
-                        ) : (
-                            <div>
-                                <div className='fz15 tr mb5'>****</div>
-                                <div className='fz15 tr cS'>****</div>
-                            </div>
-                        )}
+                        {!isStake ? (
+                            <>
+                                {isShowAssets ? (
+                                    <div>
+                                        <div className='fz15 tr mb5'>
+                                            {isOutto ? '-' : '+'} {e.num} {e.coin}
+                                        </div>
+                                        <div className='fz15 tr cS'>$ {e.assets}</div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className='fz15 tr mb5'>****</div>
+                                        <div className='fz15 tr cS'>****</div>
+                                    </div>
+                                )}
+                            </>
+                        ) : null}
                     </div>
                 </div>
             )

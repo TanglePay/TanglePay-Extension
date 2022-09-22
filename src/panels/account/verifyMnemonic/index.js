@@ -1,36 +1,62 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Base, I18n } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Button, Swiper } from 'antd-mobile'
 import { useLocation } from 'react-router-dom'
-import { Nav } from '@/common'
+import { Nav, Toast } from '@/common'
+import { useStore } from '@tangle-pay/store'
+import { useAddWallet } from '@tangle-pay/store/common'
 import './index.less'
 
-const VerifyItem = ({ setNext, index, word, err, isTop, isLast }) => {
+const VerifyItem = ({ setNext, index, word, err, isTop, isLast, addWallet }) => {
     const [error, setError] = useState(false)
-    const handleVerify = (curWord) => {
+    const [registerInfo, seRegisterInfo] = useStore('common.registerInfo')
+    const handleVerify = async (curWord) => {
         if (word === curWord) {
-            isLast ? Base.push('/account/verifySucc') : setNext()
+            if (isLast) {
+                try {
+                    Toast.showLoading()
+                    const res = await IotaSDK.importMnemonic(registerInfo)
+                    addWallet(res)
+                    seRegisterInfo({})
+                    Toast.hideLoading()
+                    Base.replace('/main')
+                } catch (error) {
+                    console.log(error)
+                    Toast.hideLoading()
+                    Base.goBack()
+                }
+            } else {
+                setNext()
+            }
+            // isLast ? Base.push('/account/verifySucc') : setNext()
         }
         setError(word !== curWord)
     }
     const topStr = isTop ? word : err
     const bottomStr = isTop ? err : word
     return (
-        <div className='ph50 bgW'>
+        <div className='ph20 bgW'>
             <div style={{ marginTop: 120, marginBottom: 120 }}>
-                <div className={`fz16 tc ${error && 'cR'}`}>Word # {index + 1}</div>
+                <div className={`fz18 tc ${error && 'cR'}`}>Word # {index + 1}</div>
             </div>
             <div>
                 <Button
                     type='submit'
                     size='large'
                     color='default'
-                    className='mb20'
+                    style={{ backgroundColor: '#F5F5F5', border: 0 }}
+                    className='mb16'
                     onClick={() => handleVerify(topStr)}
                     block>
                     {topStr}
                 </Button>
-                <Button type='submit' size='large' color='default' onClick={() => handleVerify(bottomStr)} block>
+                <Button
+                    type='submit'
+                    size='large'
+                    color='default'
+                    style={{ backgroundColor: '#F5F5F5', border: 0 }}
+                    onClick={() => handleVerify(bottomStr)}
+                    block>
                     {bottomStr}
                 </Button>
             </div>
@@ -39,6 +65,8 @@ const VerifyItem = ({ setNext, index, word, err, isTop, isLast }) => {
 }
 
 export const AccountVerifyMnemonic = () => {
+    const addWallet = useAddWallet()
+    const [curIndex, setCurInex] = useState(0)
     let params = useLocation()
     params = Base.handlerParams(params.search)
     let { list = '', errList = '' } = params
@@ -61,12 +89,18 @@ export const AccountVerifyMnemonic = () => {
     }, [])
     return (
         <div className='page verify-mnemonic-page'>
-            <Nav title={I18n.t('account.testBackup')} />
-            <Swiper ref={carousel} allowTouchMove={false} autoplay={false} loop={false}>
+            <Nav title={`${I18n.t('account.testBackup')} (${curIndex + 1}/${list.length})`} />
+            <Swiper
+                ref={carousel}
+                allowTouchMove={false}
+                autoplay={false}
+                loop={false}
+                onIndexChange={(i) => setCurInex(i)}>
                 {list.map((item, index) => {
                     return (
                         <Swiper.Item key={`${item.word}_${index}`}>
                             <VerifyItem
+                                addWallet={addWallet}
                                 setNext={setNext}
                                 key={`${item.word}_${index}`}
                                 word={item}
