@@ -129,7 +129,7 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 const isGetSoonaverse = assetsList.includes('soonaverse')
                 const url = nodeInfo.url
                 if (isGetEvm) {
-                    const web3 = new Web3(url)
+                    const web3 = new window.Web3(url)
                     amount = await web3.eth.getBalance(address)
                 }
                 if (isGetSoonaverse) {
