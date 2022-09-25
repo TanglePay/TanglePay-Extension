@@ -48,7 +48,18 @@ export const DappDialog = () => {
                 break
         }
     }
-    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract }) => {
+    const onExecute = async ({
+        address,
+        return_url,
+        content,
+        type,
+        amount,
+        origin,
+        expires,
+        taggedData,
+        contract,
+        foundryData
+    }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
             const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
@@ -62,6 +73,7 @@ export const DappDialog = () => {
             case 'eth_sendTransaction':
             case 'send':
                 {
+                    let mainBalance = 0
                     let curToken = IotaSDK.curNode?.token
                     if (contract) {
                         curToken =
@@ -69,6 +81,17 @@ export const DappDialog = () => {
                             IotaSDK.curNode?.token
                     }
                     let assets = assetsList.find((e) => e.name === curToken) || {}
+                    if (foundryData) {
+                        mainBalance = assetsList.find((e) => e.name === IotaSDK.curNode?.token)?.realBalance
+                        assets = assetsList.find((e) => e.name === foundryData.symbol)
+                        if (!assets) {
+                            assets = {
+                                realBalance: 0,
+                                decimal: foundryData.decimals,
+                                name: foundryData.symbol
+                            }
+                        }
+                    }
                     let realBalance = BigNumber(assets.realBalance || 0)
                     let residue = Number(realBalance.minus(amount)) || 0
                     const decimal = Math.pow(10, assets.decimal)
@@ -93,7 +116,10 @@ export const DappDialog = () => {
                             taggedData,
                             residue,
                             realBalance: Number(realBalance),
-                            awaitStake: true
+                            awaitStake: true,
+                            tokenId: foundryData?.tokenId,
+                            decimal: assets?.decimal,
+                            mainBalance
                         })
                         if (!res) {
                             throw I18n.t('user.nodeError')
@@ -194,7 +220,8 @@ export const DappDialog = () => {
             content = '',
             origin = '',
             expires,
-            taggedData = ''
+            taggedData = '',
+            assetId = ''
         } = res
         let toNetId
         if (network) {
@@ -226,6 +253,7 @@ export const DappDialog = () => {
                     case 'send':
                         {
                             value = parseFloat(value) || 0
+                            let foundryData = null
                             if (!value && !taggedData) {
                                 return Toast.error('Required: value')
                             }
@@ -261,11 +289,27 @@ export const DappDialog = () => {
                                 }
                             } else {
                                 if (IotaSDK.checkSMR(toNetId || curNodeId)) {
-                                    unit = unit || 'SMR'
-                                    showValue = value
-                                    sendAmount =
-                                        unit !== 'Glow' ? Math.pow(10, IotaSDK.curNode?.decimal || 0) * value : value
-                                    showUnit = unit
+                                    if (assetId) {
+                                        setInit(false)
+                                        Toast.showLoading()
+                                        foundryData = await IotaSDK.foundry(assetId)
+                                        setInit(true)
+                                        Toast.hideLoading()
+                                        foundryData = IotaSDK.handleFoundry(foundryData)
+                                        foundryData.tokenId = assetId
+                                        unit = (foundryData.symbol || '').toLocaleUpperCase()
+                                        showValue = value / Math.pow(10, foundryData.decimals || 0)
+                                        sendAmount = value
+                                        showUnit = unit
+                                    } else {
+                                        unit = unit || 'SMR'
+                                        showValue = value
+                                        sendAmount =
+                                            unit !== 'Glow'
+                                                ? Math.pow(10, IotaSDK.curNode?.decimal || 0) * value
+                                                : value
+                                        showUnit = unit
+                                    }
                                 } else {
                                     unit = unit || 'Mi'
                                     showValue = IotaSDK.convertUnits(value, unit, 'Mi')
@@ -291,7 +335,8 @@ export const DappDialog = () => {
                                 amount: sendAmount,
                                 address,
                                 taggedData,
-                                contract
+                                contract,
+                                foundryData
                             })
                             show()
                         }

@@ -317,9 +317,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         network = '',
                                         merchant = '',
                                         item_desc = '',
-                                        data = ''
+                                        data = '',
+                                        assetId = ''
                                     } = requestParams
-                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&taggedData=${data}`
+                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&taggedData=${data}&assetId=${assetId}`
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
