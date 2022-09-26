@@ -4,7 +4,7 @@ import { Nav, SvgIcon } from '@/common'
 import { default as logo } from '@tangle-pay/assets/images/logo.png'
 
 export const UserAboutUs = () => {
-    var version = window?.chrome?.app?.getDetails()?.version || '1.0.0'
+    var version = window?.chrome?.runtime?.getManifest()?.version || '1.0.0'
     const list = [
         {
             label: I18n.t('user.versionUpdate'),

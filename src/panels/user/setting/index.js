@@ -28,6 +28,14 @@ export const UserSetting = () => {
                 Base.setLocalData('common.isNoRestake', e ? 0 : 1)
             },
             size: 22
+        },
+        {
+            icon: 'advanced',
+            label: 'Advanced',
+            onClick: () => {
+                Base.push('/user/advanced')
+            },
+            size: 22
         }
     ]
     const curNodeKey = IotaSDK?.curNode?.curNodeKey
