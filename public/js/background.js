@@ -5,6 +5,33 @@ importScripts('./sdk/web3.min.js')
 importScripts('./sdk/Converter.js')
 const API_URL = 'https://api.iotaichi.com'
 
+const getLocalStorage = async (key) => {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(key, (res) => {
+            res = res[key] || null
+            resolve(res)
+        })
+    })
+}
+
+const getFoundry = async (nodeUrl, id) => {
+    const localTokensConfig = (await getLocalStorage('shimmer.sdk.tokensConfig')) || {}
+    if (localTokensConfig[id]) {
+        return localTokensConfig[id]
+    }
+    let foundryOutput = await fetch(`${nodeUrl}/api/indexer/v1/outputs/foundry/${id}`).then((res) => res.json())
+    foundryOutput = foundryOutput?.items?.[0] || ''
+    if (!foundryOutput) {
+        return {}
+    }
+    const output = await fetch(`${nodeUrl}/api/core/v2/outputs/${foundryOutput}`).then((res) => res.json())
+    localTokensConfig[id] = output
+    chrome.storage.local.set({
+        ['shimmer.sdk.tokensConfig']: localTokensConfig
+    })
+    return output
+}
+
 const getAddressInfo = async (address) => {
     const key = 'common.walletsList'
     return new Promise((resolve) => {
@@ -48,7 +75,7 @@ const getShimmerBalance = async (nodeUrl, address) => {
             const nativeTokenOutput = output.output
             if (Array.isArray(nativeTokenOutput.nativeTokens)) {
                 for (const token of nativeTokenOutput.nativeTokens) {
-                    nativeTokens[token.id] = BigNumber(0)
+                    nativeTokens[token.id] = nativeTokens[token.id] || BigNumber(0)
                     nativeTokens[token.id] = nativeTokens[token.id].plus(token.amount)
                 }
             }
@@ -458,16 +485,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                 if (nativeTokensList.length > 0) {
                                                     Promise.all(
                                                         nativeTokensList.map((e) => {
-                                                            return fetch(
-                                                                `${nodeInfo.explorerApiUrl}/foundry/${nodeInfo.network}/${e.id}`
-                                                            ).then((res) => res.json())
+                                                            return getFoundry(nodeInfo.url, e.id)
                                                         })
                                                     ).then((tokensRes) => {
-                                                        console.log(tokensRes, '----')
                                                         nativeTokensList.forEach((e, i) => {
-                                                            let info = tokensRes[
-                                                                i
-                                                            ]?.foundryDetails?.output?.immutableFeatures.find(
+                                                            let info = tokensRes[i]?.output?.immutableFeatures.find(
                                                                 (e) => !!e.data
                                                             )
                                                             if (info) {
