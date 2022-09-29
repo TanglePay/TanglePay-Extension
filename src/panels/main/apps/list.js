@@ -13,8 +13,18 @@ const Item = ({ id, icon, desc, developer, url }) => {
             </div>
             <div className='border-b'>
                 <div className='fz18 mb5'>{id}</div>
-                {desc ? <div className='fz16 cS ellipsis-2 mb5 fw300'>{desc}</div> : null}
-                {developer ? <div className='fz16 cS mb5 fw300'>{developer}</div> : null}
+                {desc ? (
+                    <div
+                        style={{ wordBreak: 'break-word', whiteSpace: 'break-spaces' }}
+                        className='fz16 cS ellipsis-2 mb5 fw300'>
+                        {desc}
+                    </div>
+                ) : null}
+                {developer ? (
+                    <div style={{ wordBreak: 'break-word', whiteSpace: 'break-spaces' }} className='fz16 cS mb5 fw300'>
+                        {developer}
+                    </div>
+                ) : null}
             </div>
         </div>
     )

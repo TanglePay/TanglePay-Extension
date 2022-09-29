@@ -32,7 +32,7 @@ export const AssetsSend = () => {
     const assets = assetsList.find((e) => e.name === currency) || {}
     // const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
     // let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
-    let realBalance = BigNumber(assets.realBalance || 0)
+    let realBalance = BigNumber(assets.realAvailable || assets.realBalance || 0)
     if (Number(realBalance) < 0) {
         realBalance = BigNumber(0)
     }
@@ -163,7 +163,7 @@ export const AssetsSend = () => {
                                             }}
                                         />
                                         <div className='fz16 cS'>
-                                            {I18n.t('assets.balance')} {Base.formatNum(available)} {assets.unit}
+                                            {I18n.t('staking.available')} {Base.formatNum(available)} {assets.unit}
                                         </div>
                                     </div>
                                 </Form.Item>

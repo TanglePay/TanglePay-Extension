@@ -3805,6 +3805,17 @@
      */
     B1T6.TRITS_PER_TRYTE = 3
 
+    // check output
+    function checkOutput(output) {
+        const isSpent = output?.metadata?.isSpent
+        const outputType = output?.output?.type
+        const nativeTokens = output?.output?.nativeTokens || []
+        let unlockConditions = output?.output?.unlockConditions || []
+        const unlockConditionsData = unlockConditions.find((e) => e.type != ADDRESS_UNLOCK_CONDITION_TYPE)
+        const canUse = !isSpent && outputType == BASIC_OUTPUT_TYPE && !nativeTokens.length && !unlockConditionsData
+        return canUse
+    }
+
     // Copyright 2020 IOTA Stiftung
     /**
      * Get the balance for an address.
@@ -3817,6 +3828,7 @@
         const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
         const indexerPluginClient = new IndexerPluginClient(localClient)
         let total = bigInt__default['default'](0)
+        let available = bigInt__default['default'](0)
         let ledgerIndex = 0
         const nativeTokens = {}
         let response
@@ -3827,9 +3839,12 @@
                 const output = await localClient.output(outputId)
                 if (!output.metadata.isSpent) {
                     total = total.plus(output.output.amount)
-                    const nativeTokenOutput = output.output
-                    if (Array.isArray(nativeTokenOutput.nativeTokens)) {
-                        for (const token of nativeTokenOutput.nativeTokens) {
+                    const nativeTokenOutput = output.output?.nativeTokens || []
+                    if (checkOutput(output)) {
+                        available = available.plus(output.output.amount)
+                    }
+                    if (nativeTokenOutput.length > 0) {
+                        for (const token of nativeTokenOutput) {
                             nativeTokens[token.id] =
                                 (_a = nativeTokens[token.id]) !== null && _a !== void 0
                                     ? _a
@@ -3847,7 +3862,8 @@
         return {
             balance: total,
             nativeTokens,
-            ledgerIndex
+            ledgerIndex,
+            available
         }
     }
 
@@ -3864,9 +3880,7 @@
             response = await indexerPluginClient.outputs({ addressBech32, cursor })
             for (const outputId of response.items) {
                 const output = await localClient.output(outputId)
-                const unlockConditions = output.output?.unlockConditions
-                const addressUnlockCondition = unlockConditions.find((u) => u.type === EXPIRATION_UNLOCK_CONDITION_TYPE)
-                if (!output.metadata.isSpent && !addressUnlockCondition) {
+                if (checkOutput(output)) {
                     total = total.plus(output.output.amount)
                     const nativeTokenOutput = output.output
                     if (Array.isArray(nativeTokenOutput.nativeTokens)) {
@@ -4639,16 +4653,7 @@
             } else {
                 for (const addressOutputId of addressOutputIds.items) {
                     const addressOutput = await localClient.output(addressOutputId)
-                    const addressUnlockCondition = addressOutput.output.unlockConditions.find(
-                        (u) => u.type === EXPIRATION_UNLOCK_CONDITION_TYPE
-                    )
-                    const nativeTokens = addressOutput.output?.nativeTokens || []
-                    if (
-                        !addressOutput.metadata.isSpent &&
-                        consumedBalance.lesser(requiredBalance) &&
-                        !addressUnlockCondition &&
-                        !nativeTokens.length
-                    ) {
+                    if (checkOutput(addressOutput) && consumedBalance.lesser(requiredBalance)) {
                         if (bigInt__default['default'](addressOutput.output.amount).equals(0)) {
                             zeroBalance++
                             if (zeroBalance >= zeroCount) {
@@ -5946,6 +5951,7 @@
     exports.UINT8_SIZE = UINT8_SIZE
     exports.UTXO_INPUT_TYPE = UTXO_INPUT_TYPE
     exports.UnitsHelper = UnitsHelper
+    exports.checkOutput = checkOutput
     exports.addressBalance = addressBalance
     exports.addressUnlockBalance = addressUnlockBalance
     exports.blockIdFromMilestonePayload = blockIdFromMilestonePayload

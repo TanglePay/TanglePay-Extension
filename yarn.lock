@@ -10390,6 +10390,11 @@
     "@babel/runtime" "^7.14.5"
     "html-parse-stringify" "^3.0.1"
 
+"react-ipfs-image@^0.6.0":
+  "integrity" "sha512-Ms17ZQFpzUGxz0QXB3wsSW4qTQkD6m0vxkwdXJ6nVsDKuta+QG9qRBITMhO5avYnOiLARJfLZOChVbYbdNJ/Rw=="
+  "resolved" "https://registry.npmjs.org/react-ipfs-image/-/react-ipfs-image-0.6.0.tgz"
+  "version" "0.6.0"
+
 "react-is@^16.12.0", "react-is@^16.13.1", "react-is@^16.6.0", "react-is@^16.7.0":
   "integrity" "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="
   "resolved" "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
@@ -10530,7 +10535,7 @@
     "loose-envify" "^1.4.0"
     "prop-types" "^15.6.2"
 
-"react@*", "react@^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0", "react@^15.3.0 || 16 || 17 || 18", "react@^15.5.3 || ^16.0.0 || ^17.0.0", "react@^15.5.4 || ^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.3.0 || ^17", "react@^16.8.0  || >=17.0.0 || >=18.0.0", "react@^16.8.0 || ^17.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.6 || ^17.0", "react@^16.8.6 || ^17.0.0", "react@^17.0.2", "react@>= 16", "react@>= 16.8.0", "react@>=15", "react@>=16.6.0", "react@>=16.8.0", "react@>=16.9.0", "react@>=17.0.0", "react@17.0.2":
+"react@*", "react@^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0", "react@^15.3.0 || 16 || 17 || 18", "react@^15.5.3 || ^16.0.0 || ^17.0.0", "react@^15.5.4 || ^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.3.0 || ^17", "react@^16.8.0  || >=17.0.0 || >=18.0.0", "react@^16.8.0 || ^17.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.6 || ^17.0", "react@^16.8.6 || ^17.0.0", "react@^17.0.2", "react@>= 16", "react@>= 16.8.0", "react@>=15", "react@>=16", "react@>=16.6.0", "react@>=16.8.0", "react@>=16.9.0", "react@>=17.0.0", "react@17.0.2":
   "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
   "version" "17.0.2"
@@ -11670,10 +11675,10 @@
     "quick-lru" "^5.1.1"
     "resolve" "^1.22.1"
 
-"tanglepay@^2.0.2":
-  "integrity" "sha512-yrZOniE6i9Fwm3FziJgUa4bUzMOQzHOEt5OIAOBpGK3pcjEt2GPs4wx1mpkQA2JN6WR9mpqspr3JgtZuVTKfdA=="
-  "resolved" "https://registry.npmjs.org/tanglepay/-/tanglepay-2.0.2.tgz"
-  "version" "2.0.2"
+"tanglepay@^2.1.1":
+  "integrity" "sha512-Surcoa+GH/OJ6aeEE/RihFK2Lu2vEgIV+R4Lx1FQa2Er6TF33pCdBxAETnsqWG77+CnGobj53tUl6LrZOaW3GQ=="
+  "resolved" "https://registry.npmjs.org/tanglepay/-/tanglepay-2.1.1.tgz"
+  "version" "2.1.1"
 
 "tapable@^1.0.0":
   "integrity" "sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA=="

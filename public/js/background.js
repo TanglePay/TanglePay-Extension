@@ -2,7 +2,36 @@ window = {}
 importScripts('./sdk/bignumber.js')
 // importScripts('./sdk/soonaverse.js')
 importScripts('./sdk/web3.min.js')
+importScripts('./sdk/Converter.js')
 const API_URL = 'https://api.iotaichi.com'
+
+const getLocalStorage = async (key) => {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(key, (res) => {
+            res = res[key] || null
+            resolve(res)
+        })
+    })
+}
+
+const getFoundry = async (nodeUrl, id) => {
+    const localTokensConfig = (await getLocalStorage('shimmer.sdk.tokensConfig')) || {}
+    if (localTokensConfig[id]) {
+        return localTokensConfig[id]
+    }
+    let foundryOutput = await fetch(`${nodeUrl}/api/indexer/v1/outputs/foundry/${id}`).then((res) => res.json())
+    foundryOutput = foundryOutput?.items?.[0] || ''
+    if (!foundryOutput) {
+        return {}
+    }
+    const output = await fetch(`${nodeUrl}/api/core/v2/outputs/${foundryOutput}`).then((res) => res.json())
+    localTokensConfig[id] = output
+    chrome.storage.local.set({
+        ['shimmer.sdk.tokensConfig']: localTokensConfig
+    })
+    return output
+}
+
 const getAddressInfo = async (address) => {
     const key = 'common.walletsList'
     return new Promise((resolve) => {
@@ -32,6 +61,30 @@ const getValidAddresses = async (address) => {
             resolve(res[key] || [])
         })
     })
+}
+
+//shimmer get outputs
+const getShimmerBalance = async (nodeUrl, address) => {
+    const response = await fetch(`${nodeUrl}/api/indexer/v1/outputs/basic?address=${address}`).then((res) => res.json())
+    let total = BigNumber(0)
+    let nativeTokens = {}
+    for (const outputId of response.items) {
+        const output = await fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json())
+        if (!output.metadata.isSpent) {
+            total = total.plus(output.output.amount)
+            const nativeTokenOutput = output.output
+            if (Array.isArray(nativeTokenOutput.nativeTokens)) {
+                for (const token of nativeTokenOutput.nativeTokens) {
+                    nativeTokens[token.id] = nativeTokens[token.id] || BigNumber(0)
+                    nativeTokens[token.id] = nativeTokens[token.id].plus(token.amount)
+                }
+            }
+        }
+    }
+    return {
+        balance: Number(total),
+        nativeTokens
+    }
 }
 const getBalanceNodeMatch = async (method, addressList) => {
     const addressInfo = await getAddressInfo()
@@ -81,6 +134,7 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
     let amount = 0
     let otherRes = {}
     let collectibles = []
+    let nativeTokens = {}
     TanglePayNodeInfo = (await getBackgroundData('tanglePayNodeList')) || { list: [] }
     switch (nodeInfo.type) {
         case 1:
@@ -101,10 +155,13 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
             }
             if (isGetIota || isGetSmr) {
                 if (isGetSmr) {
-                    const res = await fetch(
-                        `${nodeInfo.explorerApiUrl}/balance/chronicle/${nodeInfo.network}/${address}`
-                    ).then((res) => res.json())
-                    amount = res?.totalBalance || 0
+                    // const res = await fetch(
+                    //     `${nodeInfo.explorerApiUrl}/balance/chronicle/${nodeInfo.network}/${address}`
+                    // ).then((res) => res.json())
+                    // amount = res?.totalBalance || 0
+                    const res = await getShimmerBalance(nodeInfo.url, address)
+                    amount = res?.balance || 0
+                    nativeTokens = res?.nativeTokens || []
                 } else {
                     const res = await fetch(`${nodeInfo.explorerApiUrl}/search/${nodeInfo.network}/${address}`).then(
                         (res) => res.json()
@@ -129,7 +186,7 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 const isGetSoonaverse = assetsList.includes('soonaverse')
                 const url = nodeInfo.url
                 if (isGetEvm) {
-                    const web3 = new Web3(url)
+                    const web3 = new window.Web3(url)
                     amount = await web3.eth.getBalance(address)
                 }
                 if (isGetSoonaverse) {
@@ -141,7 +198,8 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
     return {
         amount,
         otherRes,
-        collectibles
+        collectibles,
+        nativeTokens
     }
 }
 var setBackgroundData = (s_key, data) => {
@@ -317,9 +375,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         network = '',
                                         merchant = '',
                                         item_desc = '',
-                                        data = ''
+                                        data = '',
+                                        assetId = ''
                                     } = requestParams
-                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&taggedData=${data}`
+                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&taggedData=${data}&assetId=${assetId}`
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
@@ -340,7 +399,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
-                                const sendBalanceRes = ({ amount, others, collectibles }) => {
+                                const sendBalanceRes = ({ amount, others, collectibles, nativeTokens }) => {
                                     if (amount < 0) {
                                         sendToContentScript({
                                             cmd: 'iota_request',
@@ -358,7 +417,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                             amount,
                                             collectibles: [],
                                             others: others || [],
-                                            collectibles: collectibles || []
+                                            collectibles: collectibles || [],
+                                            nativeTokens: nativeTokens || []
                                         }
                                         sendToContentScript({
                                             cmd: 'iota_request',
@@ -383,10 +443,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                 let balance = new BigNumber(0)
                                                 let others = {}
                                                 let collectibles = []
+                                                let nativeTokens = {}
                                                 res.forEach((e) => {
                                                     const { amount, otherRes } = e
                                                     balance = balance.plus(amount || 0)
                                                     collectibles = [...collectibles, ...e.collectibles]
+                                                    for (const tokenId in e.nativeTokens) {
+                                                        const amount = e.nativeTokens[tokenId]
+                                                        if (nativeTokens[tokenId]) {
+                                                            nativeTokens[tokenId] = nativeTokens[tokenId].plus(amount)
+                                                        } else {
+                                                            nativeTokens[tokenId] = amount
+                                                        }
+                                                    }
                                                     for (const i in otherRes) {
                                                         const { amount, minimumReached, symbol } = otherRes[i]
                                                         others[symbol] = others[symbol] || {
@@ -405,11 +474,46 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                 for (const i in others) {
                                                     others[i].amount = Number(others[i].amount)
                                                 }
-                                                sendBalanceRes({
-                                                    amount: Number(balance),
-                                                    others: Object.values(others),
-                                                    collectibles
-                                                })
+                                                let nativeTokensList = []
+                                                for (const tokenId in nativeTokens) {
+                                                    const amount = nativeTokens[tokenId]
+                                                    nativeTokensList.push({
+                                                        id: tokenId,
+                                                        amount: Number(amount)
+                                                    })
+                                                }
+                                                if (nativeTokensList.length > 0) {
+                                                    Promise.all(
+                                                        nativeTokensList.map((e) => {
+                                                            return getFoundry(nodeInfo.url, e.id)
+                                                        })
+                                                    ).then((tokensRes) => {
+                                                        nativeTokensList.forEach((e, i) => {
+                                                            let info = tokensRes[i]?.output?.immutableFeatures.find(
+                                                                (e) => !!e.data
+                                                            )
+                                                            if (info) {
+                                                                e.info = Converter.hexToUtf8(
+                                                                    info.data.replace(/^0x/, '')
+                                                                )
+                                                                e.info = JSON.parse(e.info)
+                                                            }
+                                                        })
+                                                        sendBalanceRes({
+                                                            amount: Number(balance),
+                                                            others: Object.values(others),
+                                                            collectibles,
+                                                            nativeTokens: nativeTokensList
+                                                        })
+                                                    })
+                                                } else {
+                                                    sendBalanceRes({
+                                                        amount: Number(balance),
+                                                        others: Object.values(others),
+                                                        collectibles,
+                                                        nativeTokens: nativeTokensList
+                                                    })
+                                                }
                                             })
                                         }
                                     })
