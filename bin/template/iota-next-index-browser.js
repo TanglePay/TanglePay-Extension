@@ -3806,13 +3806,14 @@
     B1T6.TRITS_PER_TRYTE = 3
 
     // check output
-    async function checkOutput(output) {
+    function checkOutput(output) {
         const isSpent = output?.metadata?.isSpent
         const outputType = output?.output?.type
         const nativeTokens = output?.output?.nativeTokens || []
         let unlockConditions = output?.output?.unlockConditions || []
         const unlockConditionsData = unlockConditions.find((e) => e.type != ADDRESS_UNLOCK_CONDITION_TYPE)
-        return !isSpent && outputType == BASIC_OUTPUT_TYPE && nativeTokens.length > 0 && !unlockConditionsData
+        const canUse = !isSpent && outputType == BASIC_OUTPUT_TYPE && !nativeTokens.length && !unlockConditionsData
+        return canUse
     }
 
     // Copyright 2020 IOTA Stiftung
@@ -4652,9 +4653,7 @@
             } else {
                 for (const addressOutputId of addressOutputIds.items) {
                     const addressOutput = await localClient.output(addressOutputId)
-                    console.log(addressOutput, '----------------------------------------')
                     if (checkOutput(addressOutput) && consumedBalance.lesser(requiredBalance)) {
-                        console.log('参与计算')
                         if (bigInt__default['default'](addressOutput.output.amount).equals(0)) {
                             zeroBalance++
                             if (zeroBalance >= zeroCount) {
