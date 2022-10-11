@@ -50,8 +50,16 @@ export const AssetsNav = ({ hasChangeNode }) => {
                         {isWeb3 && hasChangeNode && (
                             <div
                                 onClick={() => setOpenChange(!isOpenChange)}
-                                className='network-con ml10 border ph10 flex row ac press'
+                                className='network-con ml10 border ph10 flex row ac press bgW'
                                 style={{ borderRadius: 24, height: '32px', lineHeight: '32px' }}>
+                                <div
+                                    className='mr8'
+                                    style={{
+                                        width: 10,
+                                        height: 10,
+                                        borderRadius: '50%',
+                                        background: '#5BB3AE'
+                                    }}></div>
                                 <div className='ellipsis fz14 fw500 mr10'>{curNode?.name}</div>
                                 <SvgIcon
                                     style={{

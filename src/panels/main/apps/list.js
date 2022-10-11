@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { Base } from '@tangle-pay/common'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { Toast } from '@/common'
+import { Base, I18n } from '@tangle-pay/common'
 
-const Item = ({ id, icon, desc, developer, url }) => {
-    return (
+const Item = ({ id, icon, desc, developer, url, curAddress }) => {
+    const hasTips = id === 'Simplex' && curAddress
+    const El = (
         <div
             className='press flex row ac pt8'
             onClick={() => {
-                Base.push(url, { title: id })
+                if (!hasTips) {
+                    Base.push(url, { title: id })
+                }
             }}>
             <div className='mr8'>
                 <img className='border' style={{ width: 64, height: 64, borderRadius: 16 }} src={Base.getIcon(icon)} />
@@ -28,13 +33,32 @@ const Item = ({ id, icon, desc, developer, url }) => {
             </div>
         </div>
     )
+    if (hasTips) {
+        return (
+            <CopyToClipboard
+                text={curAddress}
+                onCopy={() => {
+                    if (curAddress) {
+                        Toast.success(I18n.t('discover.addressCopy'))
+                        setTimeout(() => {
+                            Base.push(url)
+                        }, 2000)
+                    } else {
+                        Base.push(url)
+                    }
+                }}>
+                {El}
+            </CopyToClipboard>
+        )
+    }
+    return El
 }
 
-export const List = ({ list, height }) => {
+export const List = ({ list, height, curWallet }) => {
     return (
         <div id='apps-id' style={{ height, overflowY: 'scroll' }}>
             {list.map((e) => {
-                return <Item key={e.id} {...e} />
+                return <Item key={e.id} {...e} curAddress={curWallet?.address} />
             })}
         </div>
     )

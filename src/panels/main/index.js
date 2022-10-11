@@ -21,11 +21,11 @@ export const Main = () => {
             title: I18n.t('apps.title'),
             size: 30
         },
-        {
-            key: 'staking',
-            title: I18n.t('discover.title'),
-            size: 30
-        },
+        // {
+        //     key: 'staking',
+        //     title: I18n.t('discover.title'),
+        //     size: 30
+        // },
         {
             key: 'me',
             title: I18n.t('user.me'),

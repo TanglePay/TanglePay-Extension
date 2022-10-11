@@ -3829,6 +3829,8 @@
         const indexerPluginClient = new IndexerPluginClient(localClient)
         let total = bigInt__default['default'](0)
         let available = bigInt__default['default'](0)
+        let outputIds = []
+        let availableOutputIds = []
         let ledgerIndex = 0
         const nativeTokens = {}
         let response
@@ -3839,9 +3841,11 @@
                 const output = await localClient.output(outputId)
                 if (!output.metadata.isSpent) {
                     total = total.plus(output.output.amount)
+                    outputIds.push(outputId)
                     const nativeTokenOutput = output.output?.nativeTokens || []
                     if (checkOutput(output)) {
                         available = available.plus(output.output.amount)
+                        availableOutputIds.push(outputId)
                     }
                     if (nativeTokenOutput.length > 0) {
                         for (const token of nativeTokenOutput) {
@@ -3863,46 +3867,9 @@
             balance: total,
             nativeTokens,
             ledgerIndex,
-            available
-        }
-    }
-
-    async function addressUnlockBalance(client, addressBech32) {
-        var _a
-        const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
-        const indexerPluginClient = new IndexerPluginClient(localClient)
-        let total = bigInt__default['default'](0)
-        let ledgerIndex = 0
-        const nativeTokens = {}
-        let response
-        let cursor
-        do {
-            response = await indexerPluginClient.outputs({ addressBech32, cursor })
-            for (const outputId of response.items) {
-                const output = await localClient.output(outputId)
-                if (checkOutput(output)) {
-                    total = total.plus(output.output.amount)
-                    const nativeTokenOutput = output.output
-                    if (Array.isArray(nativeTokenOutput.nativeTokens)) {
-                        for (const token of nativeTokenOutput.nativeTokens) {
-                            nativeTokens[token.id] =
-                                (_a = nativeTokens[token.id]) !== null && _a !== void 0
-                                    ? _a
-                                    : bigInt__default['default'](0)
-                            nativeTokens[token.id] = nativeTokens[token.id].add(
-                                util_js.HexHelper.toBigInt256(token.amount)
-                            )
-                        }
-                    }
-                }
-                ledgerIndex = output.metadata.ledgerIndex
-            }
-            cursor = response.cursor
-        } while (cursor && response.items.length > 0)
-        return {
-            balance: total,
-            nativeTokens,
-            ledgerIndex
+            available,
+            outputIds,
+            availableOutputIds
         }
     }
 
@@ -5953,7 +5920,6 @@
     exports.UnitsHelper = UnitsHelper
     exports.checkOutput = checkOutput
     exports.addressBalance = addressBalance
-    exports.addressUnlockBalance = addressUnlockBalance
     exports.blockIdFromMilestonePayload = blockIdFromMilestonePayload
     exports.buildTransactionPayload = buildTransactionPayload
     exports.calculateInputs = calculateInputs

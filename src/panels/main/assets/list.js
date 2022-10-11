@@ -14,7 +14,9 @@ export const CoinList = () => {
     const [needRestake] = useStore('staking.needRestake')
     const [statedAmount] = useStore('staking.statedAmount')
     let [assetsList] = useStore('common.assetsList')
-    const curLegal = useGetLegal()
+    const [unlockConditions] = useStore('common.unlockConditions')
+    console.log(unlockConditions)
+    // const curLegal = useGetLegal()
     const contractList = IotaSDK.curNode?.contractList || []
     assetsList = assetsList.filter((e) => {
         const { name } = e
@@ -24,9 +26,11 @@ export const CoinList = () => {
         const contract = contractList.find((e) => e.token === name)?.contract
         return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
     })
+    const isSMRNode = IotaSDK.checkSMR(IotaSDK.curNode?.id)
     return (
         <div>
             {assetsList.map((e) => {
+                const isSMR = isSMRNode && !e.isSMRToken
                 return (
                     <div
                         onClick={() => {
@@ -75,14 +79,19 @@ export const CoinList = () => {
                                     <div className='fz16 tr mb8'>
                                         {e.balance} {String(e.unit || e.name).toLocaleUpperCase()}
                                     </div>
-                                    <div className='fz14 tr cS'>
-                                        {curLegal.unit} {e.assets}
-                                    </div>
+                                    {isSMR ? (
+                                        <div className='fz14 tr cS'>
+                                            {I18n.t('staking.available')} {e.available}{' '}
+                                            {String(e.unit || e.name).toLocaleUpperCase()}
+                                        </div>
+                                    ) : null}
                                 </div>
                             ) : (
                                 <div>
                                     <div className='fz16 tr mb8'>****</div>
-                                    <div className='fz14 tr cS'>****</div>
+                                    {isSMR ? (
+                                        <div className='fz14 tr cS'>{I18n.t('staking.available')} ****</div>
+                                    ) : null}
                                 </div>
                             )}
                         </div>

@@ -1,11 +1,17 @@
 import React from 'react'
-import { Base, I18n } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { SvgIcon, Nav } from '@/common'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
+import { useGetParticipationEvents, useGetRewards } from '@tangle-pay/store/staking'
 
 export const User = () => {
     const [curWallet] = useGetNodeWallet()
+    useGetParticipationEvents()
+    useGetRewards(curWallet, false)
+    const curNode = IotaSDK.nodes.find((d) => d.id == curWallet.nodeId)
+    const filterMenuList = curNode?.filterMenuList || []
+    const hasStake = !filterMenuList.includes('staking')
     useStore('common.lang')
     const list = [
         {
@@ -13,6 +19,11 @@ export const User = () => {
             label: I18n.t('user.manageWallets'),
             // path: 'user/wallets'
             path: 'user/editWallet'
+        },
+        hasStake && {
+            icon: 'stake',
+            label: I18n.t('staking.title'),
+            path: 'stake/index'
         },
         {
             icon: 'set',
@@ -24,7 +35,7 @@ export const User = () => {
             label: I18n.t('user.aboutUs'),
             path: 'user/aboutUs'
         }
-    ]
+    ].filter((e) => !!e)
     return (
         <div className='user-page'>
             <Nav backArrow={false} title={I18n.t('user.me')}></Nav>
