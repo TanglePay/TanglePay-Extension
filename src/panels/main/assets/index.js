@@ -100,7 +100,7 @@ export const Assets = ({ tabKey }) => {
                                     {unlockConditions.length > 0 ? (
                                         <div
                                             onClick={() => {
-                                                Base.push('/assets/trading')
+                                                Base.push('/assets/tradingList')
                                             }}
                                             className='cW fz16 ph5 flex c ml24 press'
                                             style={{ background: '#D53554', borderRadius: 4, height: 18 }}>

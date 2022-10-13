@@ -31,7 +31,12 @@ import { ClaimSMR } from './assets/claimReward/claimSMR'
 import { ClaimResult } from './assets/claimReward/claimResult'
 import { UserAdvanced } from './user/advanced'
 import { AssetsTrading } from './assets/trading'
+import { AssetsTradingList } from './assets/trading/list'
 export const panelsList = [
+    {
+        path: 'assets/tradingList',
+        component: AssetsTradingList
+    },
     {
         path: 'assets/trading',
         component: AssetsTrading
