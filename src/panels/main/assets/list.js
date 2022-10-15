@@ -108,6 +108,7 @@ export const RewardsList = () => {
     const [curWallet] = useGetNodeWallet()
     const [{ rewards }] = useStore('staking.config')
     const [isRequestAssets] = useStore('common.isRequestAssets')
+    const [checkClaim] = useStore('common.checkClaim')
     useEffect(() => {
         const obj = {}
         const hasSMR = !!IotaSDK.nodes.find((e) => e.bech32HRP === 'smr')
@@ -142,10 +143,13 @@ export const RewardsList = () => {
                 obj[symbol].unit = unit
             }
         }
-        const arr = Object.values(obj)
+        let arr = Object.values(obj)
         arr.sort((a) => (a.isSMR ? -1 : 0))
+        if (checkClaim) {
+            arr = arr.filter((e) => !e.isSMR)
+        }
         setList(arr)
-    }, [JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address + curWallet.nodeId])
+    }, [checkClaim, JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address + curWallet.nodeId])
     const ListEl = useMemo(() => {
         return list.map((e) => {
             return (

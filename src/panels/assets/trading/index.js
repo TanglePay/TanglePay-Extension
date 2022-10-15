@@ -22,12 +22,11 @@ export const AssetsTrading = () => {
     const [unlockConditions] = useStore('common.unlockConditions')
     const { onDismiss, onAccept } = useHandleUnlocalConditions()
     const curInfo = unlockConditions.find((e) => e.blockId == id) || {}
-    console.log(curInfo, '-------')
     return (
         <div className='page assets-trading'>
             <Nav title={I18n.t('assets.tradingTitle')} />
             <div className='ph16 pt16'>
-                <div className='fz18 mb20 fw600'>Accept The Transaction</div>
+                <div className='fz18 mb20 fw600'>{I18n.t('assets.acceptTitle')}</div>
                 <div className='flex ac border-b pb20'>
                     <div className='flex c pr'>
                         <img
@@ -54,16 +53,17 @@ export const AssetsTrading = () => {
                         </div>
                     </div>
                     <div className='cP fz16 fw600 ml20 mr24'>
-                        {/* {item.token}: {item.amountStr} */}
                         {curInfo.token}: {curInfo.amountStr}
                     </div>
-                    <div className='fz16 fw400 ellipsis'>From {Base.handleAddress(curInfo.unlockAddress)}</div>
+                    <div className='fz16 fw400 ellipsis'>
+                        {I18n.t('assets.tradingFrom')} {Base.handleAddress(curInfo.unlockAddress)}
+                    </div>
                 </div>
                 {curInfo.standard || curInfo.depositStr ? (
                     <div className='pt16'>
                         {curInfo.depositStr ? (
                             <div className='flex ac jsb pb10'>
-                                <div className='fz16 fw400'>Storage Deposit</div>
+                                <div className='fz16 fw400'>{I18n.t('assets.storageDeposit')}</div>
                                 <div className='fz16 fw400'>{curInfo.depositStr}</div>
                             </div>
                         ) : null}
@@ -72,7 +72,7 @@ export const AssetsTrading = () => {
                         </div>
                         {curInfo.standard ? (
                             <div className='flex ac jsb pb10'>
-                                <div className='fz16 fw400'>Standard</div>
+                                <div className='fz16 fw400'>{I18n.t('assets.standard')}</div>
                                 <div className='fz16 fw400'>{curInfo.standard}</div>
                             </div>
                         ) : null}
@@ -81,7 +81,7 @@ export const AssetsTrading = () => {
                 {curInfo.assetsId ? (
                     <div className='pt10'>
                         <div className='pb10'>
-                            <div className='fz16 fw400'>Token ID</div>
+                            <div className='fz16 fw400'>{I18n.t('assets.tokenID')}</div>
                         </div>
                         <div className='pb10'>
                             <CopyToClipboard

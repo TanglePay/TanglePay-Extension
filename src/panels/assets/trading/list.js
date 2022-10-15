@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Nav, SvgIcon, Toast, NoData } from '@/common'
-import { Base, I18n, IotaSDK } from '@tangle-pay/common'
+import React from 'react'
+import { Nav, SvgIcon, NoData } from '@/common'
+import { Base, I18n } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
-import { SwipeAction, Button } from 'antd-mobile'
+import { Button } from 'antd-mobile'
 import { useHandleUnlocalConditions } from '@tangle-pay/store/common'
 import './index.less'
 
@@ -46,7 +46,9 @@ const Item = (item) => {
                     </div>
                     <div style={{ width: 130 }}>
                         <div className='fz16 fw400 ellipsis mb4'>{item.blockId}</div>
-                        <div className='fz16 fw400 ellipsis'>From {Base.handleAddress(item.unlockAddress)}</div>
+                        <div className='fz16 fw400 ellipsis'>
+                            {I18n.t('assets.tradingFrom')} {Base.handleAddress(item.unlockAddress)}
+                        </div>
                     </div>
                 </div>
             </div>
