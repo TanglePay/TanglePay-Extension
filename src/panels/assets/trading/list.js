@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Nav, SvgIcon, Toast } from '@/common'
+import { Nav, SvgIcon, Toast, NoData } from '@/common'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { SwipeAction, Button } from 'antd-mobile'
@@ -28,7 +28,7 @@ const Item = (item) => {
                     <img
                         className='border pa bgW'
                         style={{ width: 32, height: 32, borderRadius: 32, left: 24, opacity: 1, top: 20, zIndex: 0 }}
-                        src={Base.getIcon(item.token)}
+                        src={item.logoUrl}
                         alt=''
                         onError={(e) => {
                             e.target.style.opacity = 0
@@ -92,11 +92,15 @@ export const AssetsTradingList = () => {
     return (
         <div className='page assets-trading'>
             <Nav title={I18n.t('assets.tradingList')} />
-            <div>
-                {unlockConditions.map((e, i) => {
-                    return <Item {...e} key={e.blockId} i={i} />
-                })}
-            </div>
+            {unlockConditions.length > 0 ? (
+                <div>
+                    {unlockConditions.map((e, i) => {
+                        return <Item {...e} key={e.blockId} i={i} />
+                    })}
+                </div>
+            ) : (
+                <NoData />
+            )}
         </div>
     )
 }

@@ -3831,8 +3831,11 @@
         let available = bigInt__default['default'](0)
         let outputIds = []
         let availableOutputIds = []
+        let outputDatas = []
+        let availableOutputDatas = []
         let ledgerIndex = 0
         const nativeTokens = {}
+        let availableNativeTokens = {}
         let response
         let cursor
         do {
@@ -3842,11 +3845,16 @@
                 if (!output.metadata.isSpent) {
                     total = total.plus(output.output.amount)
                     outputIds.push(outputId)
+                    outputDatas.push(output)
                     const nativeTokenOutput = output.output?.nativeTokens || []
-                    if (checkOutput(output)) {
+                    const isCheckOutput = checkOutput(output)
+                    if (isCheckOutput) {
                         available = available.plus(output.output.amount)
                         availableOutputIds.push(outputId)
+                        availableOutputDatas.push(output)
                     }
+                    let unlockConditions = output.output?.unlockConditions || []
+                    const isLock = unlockConditions.find((e) => e.type != ADDRESS_UNLOCK_CONDITION_TYPE)
                     if (nativeTokenOutput.length > 0) {
                         for (const token of nativeTokenOutput) {
                             nativeTokens[token.id] =
@@ -3856,6 +3864,15 @@
                             nativeTokens[token.id] = nativeTokens[token.id].add(
                                 util_js.HexHelper.toBigInt256(token.amount)
                             )
+                            if (!isLock) {
+                                availableNativeTokens[token.id] =
+                                    (_a = availableNativeTokens[token.id]) !== null && _a !== void 0
+                                        ? _a
+                                        : bigInt__default['default'](0)
+                                availableNativeTokens[token.id] = availableNativeTokens[token.id].add(
+                                    util_js.HexHelper.toBigInt256(token.amount)
+                                )
+                            }
                         }
                     }
                 }
@@ -3866,10 +3883,13 @@
         return {
             balance: total,
             nativeTokens,
+            availableNativeTokens,
             ledgerIndex,
             available,
             outputIds,
-            availableOutputIds
+            availableOutputIds,
+            outputDatas,
+            availableOutputDatas
         }
     }
 

@@ -7,6 +7,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useGetNodeWallet, useHandleUnlocalConditions } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 const schema = Yup.object().shape({
     password: Yup.string().required()
@@ -19,7 +20,9 @@ export const AssetsTrading = () => {
     params = Base.handlerParams(params.search)
     const id = params.id
     const [unlockConditions] = useStore('common.unlockConditions')
+    const { onDismiss, onAccept } = useHandleUnlocalConditions()
     const curInfo = unlockConditions.find((e) => e.blockId == id) || {}
+    console.log(curInfo, '-------')
     return (
         <div className='page assets-trading'>
             <Nav title={I18n.t('assets.tradingTitle')} />
@@ -38,7 +41,7 @@ export const AssetsTrading = () => {
                                 top: 0,
                                 zIndex: 0
                             }}
-                            src={Base.getIcon('SMR')}
+                            src={curInfo.logoUrl}
                             alt=''
                             onError={(e) => {
                                 e.target.style.opacity = 0
@@ -47,38 +50,50 @@ export const AssetsTrading = () => {
                         <div
                             className='border bgP flex c cW fw600 fz24'
                             style={{ width: 32, height: 32, borderRadius: 32 }}>
-                            {String('SMR').toLocaleUpperCase()[0]}
+                            {String(curInfo.token).toLocaleUpperCase()[0]}
                         </div>
                     </div>
                     <div className='cP fz16 fw600 ml20 mr24'>
                         {/* {item.token}: {item.amountStr} */}
-                        SMR: 254
+                        {curInfo.token}: {curInfo.amountStr}
                     </div>
                     <div className='fz16 fw400 ellipsis'>From {Base.handleAddress(curInfo.unlockAddress)}</div>
                 </div>
-                <div className='pt16'>
-                    <div className='flex ac jsb pb10'>
-                        <div className='fz16 fw400'>Storage Deposit</div>
-                        <div className='fz16 fw400'>0.05</div>
+                {curInfo.standard || curInfo.depositStr ? (
+                    <div className='pt16'>
+                        {curInfo.depositStr ? (
+                            <div className='flex ac jsb pb10'>
+                                <div className='fz16 fw400'>Storage Deposit</div>
+                                <div className='fz16 fw400'>{curInfo.depositStr}</div>
+                            </div>
+                        ) : null}
+                        <div className='flex ac jsb pb10'>
+                            <div className='fz16 fw400'>{curInfo.token}</div>
+                        </div>
+                        {curInfo.standard ? (
+                            <div className='flex ac jsb pb10'>
+                                <div className='fz16 fw400'>Standard</div>
+                                <div className='fz16 fw400'>{curInfo.standard}</div>
+                            </div>
+                        ) : null}
                     </div>
-                    <div className='flex ac jsb pb10'>
-                        <div className='fz16 fw400'>SMR</div>
-                    </div>
-                    <div className='flex ac jsb pb10'>
-                        <div className='fz16 fw400'>Standard</div>
-                        <div className='fz16 fw400'>IRC30</div>
-                    </div>
-                </div>
-                <div className='pt10'>
-                    <div className='pb10'>
-                        <div className='fz16 fw400'>Token ID</div>
-                    </div>
-                    <div className='pb10'>
-                        <div className='fz16 fw400' style={{ wordBreak: 'break-all' }}>
-                            0x0877afeijkcjick6ie74islflij08kcl2iwld06ek0lmc123if0100000000
+                ) : null}
+                {curInfo.assetsId ? (
+                    <div className='pt10'>
+                        <div className='pb10'>
+                            <div className='fz16 fw400'>Token ID</div>
+                        </div>
+                        <div className='pb10'>
+                            <CopyToClipboard
+                                text={curInfo.assetsId}
+                                onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                                <div className='fz16 fw400 press' style={{ wordBreak: 'break-all' }}>
+                                    {curInfo.assetsId}
+                                </div>
+                            </CopyToClipboard>
                         </div>
                     </div>
-                </div>
+                ) : null}
                 <div className='mt10'>
                     <Formik
                         innerRef={form}
@@ -89,10 +104,25 @@ export const AssetsTrading = () => {
                         validationSchema={schema}
                         onSubmit={async (values) => {
                             const { password } = values
-                            if (!Base.checkPassword(password)) {
-                                return Toast.error(I18n.t('account.intoPasswordTips'))
+                            const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                            if (!isPassword) {
+                                return Toast.error(I18n.t('assets.passwordError'))
                             }
-                            console.log(password)
+                            try {
+                                Toast.showLoading()
+                                await onAccept({
+                                    ...curInfo,
+                                    curWallet: { ...curWallet, password }
+                                })
+                                onDismiss(curInfo.blockId)
+                                Toast.hideLoading()
+                                IotaSDK.refreshAssets()
+                                Base.goBack()
+                            } catch (error) {
+                                Toast.hideLoading()
+                                Toast.show(String(error))
+                                Base.goBack()
+                            }
                         }}>
                         {({ handleChange, handleSubmit, values, errors }) => (
                             <div>
