@@ -32,6 +32,23 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
     const hide = () => {
         setShow(false)
     }
+    const list = []
+    let evmName = []
+    const nodes = JSON.parse(JSON.stringify(IotaSDK.nodes))
+    nodes.forEach((e) => {
+        if (IotaSDK.checkWeb3Node(e.id)) {
+            if (!list.find((d) => d.type == e.type)) {
+                list.push({ ...e })
+            }
+            evmName.push(e.name)
+        } else {
+            list.push({ ...e })
+        }
+    })
+    const evmData = list.find((e) => IotaSDK.checkWeb3Node(e.id))
+    if (evmData) {
+        evmData.name = `EVM (${evmName.join(' / ')})`
+    }
     return (
         <Mask className='m0' opacity={0.3} onMaskClick={hide} visible={isShow}>
             <div className='ph16 pb16 w100 radius10 bgS'>
@@ -42,7 +59,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                     <>
                         <div className='fz16 cS mb16'>{I18n.t('account.selectNode')}</div>
                         <div className='bgW radius10'>
-                            {IotaSDK.nodes.map((e, i) => {
+                            {list.map((e, i) => {
                                 return (
                                     <div
                                         key={e.id}

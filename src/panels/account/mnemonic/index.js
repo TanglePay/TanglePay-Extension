@@ -10,7 +10,6 @@ export const AccountMnemonic = () => {
     const [errList, setErrList] = useState([])
     useEffect(() => {
         const code = IotaSDK.getMnemonic()
-        // console.log(code)
         setList(code.toString().split(' '))
         setErrList(IotaSDK.getMnemonic().toString().split(' '))
         setRegisterInfo({ ...registerInfo, mnemonic: code })

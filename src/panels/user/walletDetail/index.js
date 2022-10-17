@@ -34,9 +34,9 @@ export const WalletDetail = () => {
                             const sheet = []
                             list.forEach((e, i) => {
                                 sheet.push({
-                                    address: e.address,
-                                    nums: e.outputIds.length,
-                                    balance: numeral(e.balanceMIOTA).format('0,0.0000')
+                                    [I18n.t('account.address')]: e.address,
+                                    [I18n.t('account.outputNum')]: e.outputIds.length,
+                                    [I18n.t('staking.available')]: numeral(e.balanceMIOTA).format('0,0.0000')
                                 })
                             })
                             const workBook = {
@@ -66,7 +66,10 @@ export const WalletDetail = () => {
                         <div style={{ height: 26 }} className='flex ac jsb mb8 fz16'>
                             <div className='flex1'>{I18n.t('account.address')}</div>
                             <div className='flex1 tr'>{I18n.t('account.outputNum')}</div>
-                            <div className='flex1 tr'>{I18n.t('account.iotaNum')}</div>
+                            <div className='flex1 tr'>
+                                {I18n.t('staking.available') + ' '}
+                                {totalInfo.unit || ''}
+                            </div>
                         </div>
                         {list.map((e, i) => {
                             return (
