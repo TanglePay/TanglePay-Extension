@@ -11675,10 +11675,10 @@
     "quick-lru" "^5.1.1"
     "resolve" "^1.22.1"
 
-"tanglepay@^2.1.4":
-  "integrity" "sha512-8jrcckulvmgZJKtcfD+gzAwHQr/UAb3ZG+ResxThtDaP3hJdIzADDLUPNIHm2IVC0tRfQ2oFJqHcJN6DavxtjA=="
-  "resolved" "https://registry.npmjs.org/tanglepay/-/tanglepay-2.1.4.tgz"
-  "version" "2.1.4"
+"tanglepay@^2.1.5":
+  "integrity" "sha512-VD2hhWUjcu38jJv9ejTbWfW3WHN4q5hPFMAdf6SUPE1whu6OAFi3ucrQfj2+0+w+MTaLe8dFgWkWsaMZLRZ8YQ=="
+  "resolved" "https://registry.npmjs.org/tanglepay/-/tanglepay-2.1.5.tgz"
+  "version" "2.1.5"
 
 "tapable@^1.0.0":
   "integrity" "sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA=="

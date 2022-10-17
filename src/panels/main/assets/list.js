@@ -15,7 +15,6 @@ export const CoinList = () => {
     const [statedAmount] = useStore('staking.statedAmount')
     let [assetsList] = useStore('common.assetsList')
     const [unlockConditions] = useStore('common.unlockConditions')
-    console.log(unlockConditions)
     // const curLegal = useGetLegal()
     const contractList = IotaSDK.curNode?.contractList || []
     assetsList = assetsList.filter((e) => {
@@ -82,7 +81,7 @@ export const CoinList = () => {
                                     {isSMR ? (
                                         <div className='fz14 tr cS'>
                                             {I18n.t('staking.available')} {e.available}{' '}
-                                            {String(e.unit || e.name).toLocaleUpperCase()}
+                                            {/* {String(e.unit || e.name).toLocaleUpperCase()} */}
                                         </div>
                                     ) : null}
                                 </div>
