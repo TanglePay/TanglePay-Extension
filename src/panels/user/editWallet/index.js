@@ -63,7 +63,7 @@ export const UserEditWallet = () => {
                         </div> */}
                     </div>
                 </div>
-                {curNode?.type == 1 || curNode?.type == 3 ? (
+                {curNode?.type == 1 ? (
                     <div
                         onClick={() => {
                             Base.push('/user/walletDetail')
