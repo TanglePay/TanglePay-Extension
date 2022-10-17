@@ -2,7 +2,7 @@ import React from 'react'
 import { Nav, SvgIcon, NoData } from '@/common'
 import { Base, I18n } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
-import { Button } from 'antd-mobile'
+import { Button, Dialog } from 'antd-mobile'
 import { useHandleUnlocalConditions } from '@tangle-pay/store/common'
 import './index.less'
 
@@ -70,7 +70,14 @@ const Item = (item) => {
                     <Button
                         color='default'
                         onClick={() => {
-                            onDismiss(item.blockId)
+                            Dialog.confirm({
+                                content: I18n.t('assets.dismissTips'),
+                                cancelText: I18n.t('apps.cancel'),
+                                confirmText: I18n.t('apps.execute'),
+                                onConfirm: () => {
+                                    onDismiss(item.blockId)
+                                }
+                            })
                         }}>
                         {I18n.t('shimmer.dismiss')}
                     </Button>

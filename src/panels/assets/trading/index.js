@@ -116,7 +116,11 @@ export const AssetsTrading = () => {
                                 })
                                 onDismiss(curInfo.blockId)
                                 Toast.hideLoading()
+                                Toast.show(I18n.t('assets.acceptSucc'))
                                 IotaSDK.refreshAssets()
+                                setTimeout(() => {
+                                    IotaSDK.refreshAssets()
+                                }, 3000)
                                 Base.goBack()
                             } catch (error) {
                                 Toast.hideLoading()
