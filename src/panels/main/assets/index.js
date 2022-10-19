@@ -16,6 +16,7 @@ export const Assets = ({ tabKey }) => {
     const [height, setHeight] = useState(0)
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
+    const [unlockConditions] = useStore('common.unlockConditions')
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
     const [, refreshAssets] = useStore('common.forceRequest')
     const [curWallet] = useGetNodeWallet()
@@ -96,6 +97,16 @@ export const Assets = ({ tabKey }) => {
                                     <div className={`${curTab === 0 ? 'cP' : 'cB'} fz16`}>
                                         {I18n.t('assets.assets')}
                                     </div>
+                                    {unlockConditions.length > 0 ? (
+                                        <div
+                                            onClick={() => {
+                                                Base.push('/assets/tradingList')
+                                            }}
+                                            className='cW fz16 ph5 flex c ml24 press'
+                                            style={{ background: '#D53554', borderRadius: 4, height: 18 }}>
+                                            {unlockConditions.length}
+                                        </div>
+                                    ) : null}
                                 </div>
                                 {assetsTab.includes('soonaverse') && (
                                     <div onClick={() => setTab(1)} className='press flex c' style={{ height: 60 }}>

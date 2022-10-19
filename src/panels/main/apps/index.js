@@ -7,6 +7,7 @@ import _uniq from 'lodash/uniq'
 import { useStore } from '@tangle-pay/store'
 import { useGetDappsConfig } from '@tangle-pay/store/dapps'
 import { SvgIcon } from '@/common/assets'
+import { useGetNodeWallet } from '@tangle-pay/store/common'
 
 export const Apps = () => {
     useGetDappsConfig()
@@ -18,6 +19,7 @@ export const Apps = () => {
     const [searchStr, setSearch] = useState('')
     const [showList, setShowList] = useState([])
     const [curTab, setCurTab] = useState('All')
+    const [curWallet] = useGetNodeWallet()
     useEffect(() => {
         const newList = list.filter((e) => e.tags.includes(curTab))
         if (!searchStr) {
@@ -134,7 +136,7 @@ export const Apps = () => {
                         </div>
                     ) : null}
                     <div className='pl16 pr4'>
-                        <List list={showList} height={height} />
+                        <List list={showList} height={height} curWallet={curWallet} />
                     </div>
                 </div>
             </div>

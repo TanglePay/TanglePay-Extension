@@ -7,6 +7,23 @@ import { AddDialog } from '../../assets/wallets/addDialog'
 export const AccountChangeNode = () => {
     const dialogRef = useRef()
     // const changeNode = useChangeNode()
+    const list = []
+    let evmName = []
+    const nodes = JSON.parse(JSON.stringify(IotaSDK.nodes))
+    nodes.forEach((e) => {
+        if (IotaSDK.checkWeb3Node(e.id)) {
+            if (!list.find((d) => d.type == e.type)) {
+                list.push({ ...e })
+            }
+            evmName.push(e.name)
+        } else {
+            list.push({ ...e })
+        }
+    })
+    const evmData = list.find((e) => IotaSDK.checkWeb3Node(e.id))
+    if (evmData) {
+        evmData.name = `EVM (${evmName.join(' / ')})`
+    }
     return (
         <div className='page flex column mask-content-je'>
             <div className='flex jsb column flex1'>
@@ -36,7 +53,7 @@ export const AccountChangeNode = () => {
                     style={{ backgroundColor: '#1F7EFC', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
                     <div className='fz16 cW'>{I18n.t('account.changeTips')}</div>
                     <div className='mt20 bgW' style={{ borderRadius: 16, maxHeight: 240, overflow: 'scroll' }}>
-                        {IotaSDK.nodes.map((e, i) => {
+                        {list.map((e, i) => {
                             return (
                                 <div
                                     key={e.id}
