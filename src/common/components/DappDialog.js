@@ -306,6 +306,9 @@ export const DappDialog = () => {
                                         showUnit = unit
                                     } else {
                                         unit = unit || 'SMR'
+                                        if (!['SMR', 'Glow'].includes(unit)) {
+                                            unit = 'SMR'
+                                        }
                                         showValue = value
                                         sendAmount =
                                             unit !== 'Glow'
@@ -315,6 +318,9 @@ export const DappDialog = () => {
                                     }
                                 } else {
                                     unit = unit || 'Mi'
+                                    if (!['Mi', 'i'].includes(unit)) {
+                                        unit = 'Mi'
+                                    }
                                     showValue = IotaSDK.convertUnits(value, unit, 'Mi')
                                     sendAmount = IotaSDK.convertUnits(value, unit, 'i')
                                     showUnit = 'MIOTA'
