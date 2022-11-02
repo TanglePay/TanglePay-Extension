@@ -7,6 +7,7 @@ import BigNumber from 'bignumber.js'
 import { Toast } from './Toast'
 import Bridge from '@/common/bridge'
 import { useGetParticipationEvents } from '@tangle-pay/store/staking'
+import { Unit } from '@iota/unit-converter'
 
 export const DappDialog = () => {
     const [isShow, setShow] = useState(false)
@@ -318,7 +319,7 @@ export const DappDialog = () => {
                                     }
                                 } else {
                                     unit = unit || 'Mi'
-                                    if (!['Mi', 'i'].includes(unit)) {
+                                    if (!Unit[unit]) {
                                         unit = 'Mi'
                                     }
                                     showValue = IotaSDK.convertUnits(value, unit, 'Mi')
