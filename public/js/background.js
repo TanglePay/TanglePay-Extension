@@ -68,8 +68,11 @@ const getShimmerBalance = async (nodeUrl, address) => {
     const response = await fetch(`${nodeUrl}/api/indexer/v1/outputs/basic?address=${address}`).then((res) => res.json())
     let total = BigNumber(0)
     let nativeTokens = {}
-    for (const outputId of response.items) {
-        const output = await fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json())
+    const localOutputDatas = await Promise.all(
+        response.items.map((outputId) => fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json()))
+    )
+    for (const [index, outputId] of response.items.entries()) {
+        const output = localOutputDatas[index]
         if (!output.metadata.isSpent) {
             total = total.plus(output.output.amount)
             const nativeTokenOutput = output.output
