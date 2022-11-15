@@ -18,7 +18,7 @@ module.exports = {
                     ...config.output,
                     filename: 'app.js',
                     chunkFilename: 'static/js/bundle_[name].js'
-                },
+                }
                 // config.plugins.push(
                 //     new TerserPlugin({
                 //         terserOptions: {
