@@ -229,7 +229,7 @@ export const ActivityList = ({ search }) => {
                             <>
                                 {isShowAssets ? (
                                     <div>
-                                        <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 140 }}>
+                                        <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
                                             {isOutto ? '-' : '+'} {!isNft ? `${e.num} ` : ''}
                                             {e.coin}
                                         </div>
@@ -292,7 +292,8 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                         {list.map((e, i) => {
                             return (
                                 <div
-                                    className='press'
+                                    style={{ borderRadius: 8 }}
+                                    className='press bgS mb15'
                                     key={`${e.uid}_${i}`}
                                     onClick={() => {
                                         ImageViewer.Multi.show({
@@ -301,7 +302,6 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                                         })
                                     }}>
                                     <img
-                                        className='mb15'
                                         style={{
                                             borderRadius: 8,
                                             width: imgW,
