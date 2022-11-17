@@ -13,6 +13,7 @@ const webpack = require('webpack')
 module.exports = override(
     addWebpackResolve({
         // extensions: ['.wasm', '.mjs', '.js', '.json', '.jsx'],
+
         fallback: {
             stream: require.resolve('stream-browserify'),
             crypto: require.resolve('crypto-browserify'),
