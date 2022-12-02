@@ -59,7 +59,8 @@ export const DappDialog = () => {
         expires,
         taggedData,
         contract,
-        foundryData
+        foundryData,
+        tag
     }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
@@ -123,7 +124,8 @@ export const DappDialog = () => {
                             awaitStake: true,
                             tokenId: foundryData?.tokenId,
                             decimal: assets?.decimal,
-                            mainBalance
+                            mainBalance,
+                            tag
                         })
                         if (!res) {
                             throw I18n.t('user.nodeError')
@@ -225,7 +227,8 @@ export const DappDialog = () => {
             origin = '',
             expires,
             taggedData = '',
-            assetId = ''
+            assetId = '',
+            tag = ''
         } = res
         let toNetId
         if (network) {
@@ -346,7 +349,8 @@ export const DappDialog = () => {
                                 address,
                                 taggedData,
                                 contract,
-                                foundryData
+                                foundryData,
+                                tag
                             })
                             show()
                         }
