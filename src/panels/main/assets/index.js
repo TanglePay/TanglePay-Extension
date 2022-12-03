@@ -17,6 +17,7 @@ export const Assets = ({ tabKey }) => {
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
     const [unlockConditions] = useStore('common.unlockConditions')
+    const [lockedList] = useStore('common.lockedList')
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
     const [, refreshAssets] = useStore('common.forceRequest')
     const [curWallet] = useGetNodeWallet()
@@ -105,14 +106,18 @@ export const Assets = ({ tabKey }) => {
                                         </div>
                                     </div>
                                 )}
-                                {unlockConditions.length > 0 ? (
+                                {unlockConditions.length > 0 || lockedList.length > 0 ? (
                                     <div
                                         onClick={() => {
                                             Base.push('/assets/tradingList')
                                         }}
                                         className='cW fz16 ph5 flex c press'
-                                        style={{ background: '#D53554', borderRadius: 4, height: 18 }}>
-                                        {unlockConditions.length}
+                                        style={{
+                                            background: unlockConditions.length == 0 ? '#3671ee' : '#D53554',
+                                            borderRadius: 4,
+                                            height: 18
+                                        }}>
+                                        {unlockConditions.length + lockedList.length}
                                     </div>
                                 ) : null}
                             </div>

@@ -267,6 +267,7 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
     const images = list.map((e) => {
         return e.imageType === 'mp4' ? e.thumbnailImage : e.media
     })
+    const isSMRNode = IotaSDK.checkSMR(IotaSDK.curNode?.id)
     return (
         <div>
             <div
@@ -293,15 +294,24 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                             return (
                                 <div
                                     style={{ borderRadius: 8 }}
-                                    className='press bgS mb15'
+                                    className='press mb15'
                                     key={`${e.uid}_${i}`}
                                     onClick={() => {
-                                        ImageViewer.Multi.show({
-                                            images,
-                                            defaultIndex: i
-                                        })
+                                        if (isSMRNode && e.nftId) {
+                                            Base.push('assets/send', {
+                                                nftId: e.nftId,
+                                                currency: e.name,
+                                                nftImg: e.thumbnailImage || e.media
+                                            })
+                                        } else {
+                                            ImageViewer.Multi.show({
+                                                images,
+                                                defaultIndex: i
+                                            })
+                                        }
                                     }}>
                                     <img
+                                        className='bgS'
                                         style={{
                                             borderRadius: 8,
                                             width: imgW,

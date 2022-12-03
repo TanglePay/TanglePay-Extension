@@ -4426,7 +4426,12 @@
                             }
                         }
                     ],
-                    features: []
+                    features: output.features || []
+                }
+                if (output.nftId) {
+                    o.nftId = output.nftId
+                    o.type = NFT_OUTPUT_TYPE
+                    o.immutableFeatures = output.immutableFeatures || []
                 }
                 const writeStream = new util_js.WriteStream()
                 serializeOutput(writeStream, o)

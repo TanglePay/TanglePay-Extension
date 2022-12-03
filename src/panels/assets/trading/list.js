@@ -96,15 +96,66 @@ const Item = (item) => {
     )
 }
 
+const LockedItem = (item) => {
+    return (
+        <div className='border-b' style={{ overflow: 'hidden' }}>
+            <div style={{ height: 72 }} className='w100 flex ac row'>
+                <div className='flex c pr' style={{ height: 72, width: 80 }}>
+                    <img
+                        className='border pa bgW'
+                        style={{ width: 32, height: 32, borderRadius: 32, left: 24, opacity: 1, top: 20, zIndex: 0 }}
+                        src={item.logoUrl}
+                        alt=''
+                        onError={(e) => {
+                            e.target.style.opacity = 0
+                        }}
+                    />
+                    <div
+                        className='border bgP flex c cW fw600 fz24'
+                        style={{ width: 32, height: 32, borderRadius: 32 }}>
+                        {String(item.token).toLocaleUpperCase()[0]}
+                    </div>
+                </div>
+                <div className='flex ac flex1 border-b' style={{ height: 72 }}>
+                    <div style={{ width: 100 }} className='cP fz16 fw600'>
+                        {item.token}: {item.amountStr}
+                    </div>
+                    <div style={{ width: 130 }}>
+                        <div className='fz16 fw400 ellipsis mb4'>{item.blockId}</div>
+                        <div className='fz16 fw400 ellipsis'>
+                            {I18n.t('assets.tradingFrom')} {Base.handleAddress(item.unlockAddress)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className='w100 flex ac row jsb pr24 adm-swipe-action-track' style={{ height: 60 }}>
+                <div className='flex ac row'>
+                    <div className='flex c' style={{ width: 80 }}>
+                        <SvgIcon size='24' style={{ width: 24, height: 24 }} name='tradingTime' />
+                    </div>
+                    <div className='fz16 fw400'>{item.timeStr}</div>
+                </div>
+                <div className='bgS fz14' style={{ borderRadius: 4, padding: '2px 10px' }}>
+                    locked
+                </div>
+            </div>
+        </div>
+    )
+}
+
 export const AssetsTradingList = () => {
     const [unlockConditions] = useStore('common.unlockConditions')
+    const [lockedList] = useStore('common.lockedList')
     return (
         <div className='page assets-trading'>
             <Nav title={I18n.t('assets.tradingList')} />
-            {unlockConditions.length > 0 ? (
+            {unlockConditions.length > 0 || lockedList.length > 0 ? (
                 <div>
                     {unlockConditions.map((e, i) => {
                         return <Item {...e} key={e.blockId} i={i} />
+                    })}
+                    {lockedList.map((e, i) => {
+                        return <LockedItem {...e} key={e.blockId} />
                     })}
                 </div>
             ) : (
