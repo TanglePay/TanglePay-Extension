@@ -9,7 +9,7 @@ import './index.less'
 
 const VerifyItem = ({ setNext, index, word, err, isTop, isLast, addWallet }) => {
     const [error, setError] = useState(false)
-    const [registerInfo, seRegisterInfo] = useStore('common.registerInfo')
+    const [registerInfo, setRegisterInfo] = useStore('common.registerInfo')
     const handleVerify = async (curWord) => {
         if (word === curWord) {
             if (isLast) {
@@ -17,7 +17,7 @@ const VerifyItem = ({ setNext, index, word, err, isTop, isLast, addWallet }) => 
                     Toast.showLoading()
                     const res = await IotaSDK.importMnemonic(registerInfo)
                     addWallet(res)
-                    seRegisterInfo({})
+                    setRegisterInfo({})
                     Toast.hideLoading()
                     Base.replace('/main')
                 } catch (error) {
