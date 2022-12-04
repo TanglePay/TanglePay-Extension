@@ -69,7 +69,13 @@ function checkOutput(output) {
     const nativeTokens = output?.output?.nativeTokens || []
     let unlockConditions = output?.output?.unlockConditions || []
     const unlockConditionsData = unlockConditions.find((e) => e.type != 0)
-    const canUse = !isSpent && outputType == 3 && !nativeTokens.length && !unlockConditionsData
+    const features = output?.output?.features || []
+    let featuresLock = false
+    if (features.length > 0) {
+        const PARTICIPATE = `0x${Converter.utf8ToHex('PARTICIPATE')}`
+        featuresLock = !!features.find((e) => e.tag === PARTICIPATE)
+    }
+    const canUse = !featuresLock && !isSpent && outputType == 3 && !nativeTokens.length && !unlockConditionsData
     return canUse
 }
 //shimmer get outputs
@@ -397,9 +403,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         item_desc = '',
                                         data = '',
                                         assetId = '',
-                                        tag
+                                        nftId = '',
+                                        tag = ''
                                     } = requestParams
-                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}`
+                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}`
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break

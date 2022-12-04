@@ -136,7 +136,7 @@ const LockedItem = (item) => {
                     <div className='fz16 fw400'>{item.timeStr}</div>
                 </div>
                 <div className='bgS fz14' style={{ borderRadius: 4, padding: '2px 10px' }}>
-                    locked
+                    {I18n.t('assets.locked')}
                 </div>
             </div>
         </div>

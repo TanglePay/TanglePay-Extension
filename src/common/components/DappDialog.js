@@ -60,7 +60,8 @@ export const DappDialog = () => {
         taggedData,
         contract,
         foundryData,
-        tag
+        tag,
+        nftId
     }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
@@ -99,7 +100,7 @@ export const DappDialog = () => {
                         realBalance = BigNumber(assets.realAvailable || 0)
                     }
                     let residue = Number(realBalance.minus(amount)) || 0
-                    const decimal = Math.pow(10, assets.decimal)
+                    let decimal = Math.pow(10, assets.decimal)
                     if (!IotaSDK.checkWeb3Node(curWallet.nodeId) && !IotaSDK.checkSMR(curWallet.nodeId)) {
                         if (amount < decimal) {
                             return Toast.error(I18n.t('assets.sendBelow1Tips'))
@@ -115,6 +116,13 @@ export const DappDialog = () => {
                     }
                     Toast.showLoading()
                     try {
+                        // nft
+                        if (nftId) {
+                            amount = 1
+                            residue = 0
+                            realBalance = 0
+                            decimal = 0
+                        }
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
                             contract: assets?.contract,
                             token: assets?.name,
@@ -125,7 +133,8 @@ export const DappDialog = () => {
                             tokenId: foundryData?.tokenId,
                             decimal: assets?.decimal,
                             mainBalance,
-                            tag
+                            tag,
+                            nftId
                         })
                         if (!res) {
                             throw I18n.t('user.nodeError')
@@ -228,6 +237,7 @@ export const DappDialog = () => {
             expires,
             taggedData = '',
             assetId = '',
+            nftId = '',
             tag = ''
         } = res
         let toNetId
@@ -260,6 +270,9 @@ export const DappDialog = () => {
                     case 'send':
                         {
                             value = parseFloat(value) || 0
+                            if (nftId) {
+                                value = 1
+                            }
                             let foundryData = null
                             if (!value && !taggedData) {
                                 return Toast.error('Required: value')
@@ -296,7 +309,37 @@ export const DappDialog = () => {
                                 }
                             } else {
                                 if (IotaSDK.checkSMR(toNetId || curNodeId)) {
-                                    if (assetId) {
+                                    if (nftId) {
+                                        value = 1
+                                        showValue = 1
+                                        unit = Base.handleAddress(nftId)
+                                        setInit(false)
+                                        Toast.showLoading()
+                                        if (IotaSDK?.IndexerPluginClient?.nft) {
+                                            let nftInfo = await IotaSDK.IndexerPluginClient.nft(nftId)
+                                            if (nftInfo?.items?.[0]) {
+                                                nftInfo = await IotaSDK.client.output(nftInfo?.items?.[0])
+                                                console.log(nftInfo)
+
+                                                let info = (nftInfo?.output?.immutableFeatures || []).find((d) => {
+                                                    return d.type == 2
+                                                })
+                                                if (info && info.data) {
+                                                    try {
+                                                        info = IotaSDK.hexToUtf8(info.data)
+                                                        info = JSON.parse(info)
+                                                        unit = info.name
+                                                    } catch (error) {
+                                                        console.log(error)
+                                                    }
+                                                }
+                                            }
+                                            console.log(nftInfo)
+                                        }
+                                        showUnit = unit
+                                        setInit(true)
+                                        Toast.hideLoading()
+                                    } else if (assetId) {
                                         setInit(false)
                                         Toast.showLoading()
                                         foundryData = await IotaSDK.foundry(assetId)
@@ -350,7 +393,8 @@ export const DappDialog = () => {
                                 taggedData,
                                 contract,
                                 foundryData,
-                                tag
+                                tag,
+                                nftId
                             })
                             show()
                         }
