@@ -26,6 +26,8 @@ export const AssetsSend = () => {
     let params = useLocation()
     params = Base.handlerParams(params.search)
     let currency = params?.currency
+    const nftId = params?.nftId
+    const nftImg = params?.nftImg
     currency = currency || assetsList[0]?.name
     const form = useRef()
     const [curWallet] = useGetNodeWallet()
@@ -51,7 +53,7 @@ export const AssetsSend = () => {
             <div>
                 <Formik
                     innerRef={form}
-                    initialValues={{}}
+                    initialValues={nftId ? { amount: '1' } : {}}
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
@@ -63,7 +65,7 @@ export const AssetsSend = () => {
                             return Toast.error(I18n.t('assets.passwordError'))
                         }
                         amount = parseFloat(amount) || 0
-                        const decimal = Math.pow(10, assets.decimal)
+                        let decimal = Math.pow(10, assets.decimal)
                         let sendAmount = Number(BigNumber(amount).times(decimal))
                         let residue = Number(realBalance.minus(sendAmount)) || 0
                         if (!IotaSDK.checkWeb3Node(curWallet.nodeId) && !IotaSDK.checkSMR(curWallet.nodeId)) {
@@ -88,6 +90,14 @@ export const AssetsSend = () => {
                             if (tokenId) {
                                 mainBalance = assetsList.find((e) => e.name === IotaSDK.curNode?.token)?.realBalance
                             }
+                            // nft
+                            if (nftId) {
+                                amount = 1
+                                sendAmount = 1
+                                residue = 0
+                                realBalance = 0
+                                decimal = 0
+                            }
                             const res = await IotaSDK.send({ ...curWallet, password }, receiver, sendAmount, {
                                 contract: assets?.contract,
                                 token: assets?.name,
@@ -96,7 +106,8 @@ export const AssetsSend = () => {
                                 awaitStake: true,
                                 tokenId,
                                 decimal: assets?.decimal,
-                                mainBalance
+                                mainBalance,
+                                nftId
                             })
                             if (res) {
                                 // Toast.hideLoading()
@@ -125,9 +136,24 @@ export const AssetsSend = () => {
                             <Form>
                                 <Form.Item className='pl0'>
                                     <div className='flex row ac jsb'>
-                                        <div className='fz18'>{I18n.t('assets.currency')}</div>
+                                        <div className='fz18 flex ac'>
+                                            <span>{nftId ? 'NFT' : I18n.t('assets.currency')}</span>
+                                            {nftId ? (
+                                                <img
+                                                    className='bgS ml12'
+                                                    style={{
+                                                        borderRadius: 4,
+                                                        width: 30,
+                                                        height: 30
+                                                    }}
+                                                    src={nftImg}
+                                                />
+                                            ) : null}
+                                        </div>
                                         <div className='flex row ac'>
-                                            <div className='fz16 cS'>{currency}</div>
+                                            <div style={{ maxWidth: 200 }} className='fz16 cS ellipsis'>
+                                                {currency}
+                                            </div>
                                         </div>
                                     </div>
                                 </Form.Item>
@@ -141,32 +167,34 @@ export const AssetsSend = () => {
                                         value={values.receiver}
                                     />
                                 </Form.Item>
-                                <Form.Item className={`mt5 pl0 ${errors.amount && 'form-error'}`}>
-                                    <div className='fz18 mb10'>{I18n.t('assets.amount')}</div>
-                                    <div className='flex ac jsb'>
-                                        <Input
-                                            type='number'
-                                            className='pl0 flex1 pv4'
-                                            placeholder={I18n.t('assets.amountTips')}
-                                            onChange={handleChange('amount')}
-                                            value={values.amount}
-                                            onBlur={() => {
-                                                let precision = assets.decimal
-                                                if (precision > 6) {
-                                                    precision = 6
-                                                }
-                                                let str = Base.formatNum(values.amount, precision)
-                                                if (parseFloat(str) < Math.pow(10, -precision)) {
-                                                    str = String(Math.pow(10, -precision))
-                                                }
-                                                setFieldValue('amount', str)
-                                            }}
-                                        />
-                                        <div className='fz16 cS'>
-                                            {I18n.t('staking.available')} {Base.formatNum(available)} {assets.unit}
+                                {!nftId ? (
+                                    <Form.Item className={`mt5 pl0 ${errors.amount && 'form-error'}`}>
+                                        <div className='fz18 mb10'>{I18n.t('assets.amount')}</div>
+                                        <div className='flex ac jsb'>
+                                            <Input
+                                                type='number'
+                                                className='pl0 flex1 pv4'
+                                                placeholder={I18n.t('assets.amountTips')}
+                                                onChange={handleChange('amount')}
+                                                value={values.amount}
+                                                onBlur={() => {
+                                                    let precision = assets.decimal
+                                                    if (precision > 6) {
+                                                        precision = 6
+                                                    }
+                                                    let str = Base.formatNum(values.amount, precision)
+                                                    if (parseFloat(str) < Math.pow(10, -precision)) {
+                                                        str = String(Math.pow(10, -precision))
+                                                    }
+                                                    setFieldValue('amount', str)
+                                                }}
+                                            />
+                                            <div className='fz16 cS'>
+                                                {I18n.t('staking.available')} {Base.formatNum(available)} {assets.unit}
+                                            </div>
                                         </div>
-                                    </div>
-                                </Form.Item>
+                                    </Form.Item>
+                                ) : null}
                                 <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
                                     <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
                                     <Input

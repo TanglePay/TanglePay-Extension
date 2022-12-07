@@ -17,6 +17,7 @@ export const Assets = ({ tabKey }) => {
     const [isRequestAssets] = useStore('common.isRequestAssets')
     const [isRequestHis] = useStore('common.isRequestHis')
     const [unlockConditions] = useStore('common.unlockConditions')
+    const [lockedList] = useStore('common.lockedList')
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
     const [, refreshAssets] = useStore('common.forceRequest')
     const [curWallet] = useGetNodeWallet()
@@ -93,28 +94,32 @@ export const Assets = ({ tabKey }) => {
                     <div className='ph16 flex row jsb ac mt8 border-b'>
                         <div className='w100 flex row ac jsb'>
                             <div className='flex row ac'>
-                                <div onClick={() => setTab(0)} className='flex c mr30 press' style={{ height: 60 }}>
+                                <div onClick={() => setTab(0)} className='flex c mr24 press' style={{ height: 60 }}>
                                     <div className={`${curTab === 0 ? 'cP' : 'cB'} fz16`}>
                                         {I18n.t('assets.assets')}
                                     </div>
-                                    {unlockConditions.length > 0 ? (
-                                        <div
-                                            onClick={() => {
-                                                Base.push('/assets/tradingList')
-                                            }}
-                                            className='cW fz16 ph5 flex c ml24 press'
-                                            style={{ background: '#D53554', borderRadius: 4, height: 18 }}>
-                                            {unlockConditions.length}
-                                        </div>
-                                    ) : null}
                                 </div>
                                 {assetsTab.includes('soonaverse') && (
-                                    <div onClick={() => setTab(1)} className='press flex c' style={{ height: 60 }}>
+                                    <div onClick={() => setTab(1)} className='press flex c mr24' style={{ height: 60 }}>
                                         <div className={`${curTab === 1 ? 'cP' : 'cB'} fz16`}>
                                             {I18n.t('nft.collectibles')}
                                         </div>
                                     </div>
                                 )}
+                                {unlockConditions.length > 0 || lockedList.length > 0 ? (
+                                    <div
+                                        onClick={() => {
+                                            Base.push('/assets/tradingList')
+                                        }}
+                                        className='cW fz16 ph5 flex c press'
+                                        style={{
+                                            background: unlockConditions.length == 0 ? '#3671ee' : '#D53554',
+                                            borderRadius: 4,
+                                            height: 18
+                                        }}>
+                                        {unlockConditions.length + lockedList.length}
+                                    </div>
+                                ) : null}
                             </div>
                             <div onClick={() => setTab(2)} className='press flex c' style={{ height: 60 }}>
                                 <div className={`${curTab === 2 ? 'cP' : 'cB'} fz16`}>{I18n.t('assets.activity')}</div>

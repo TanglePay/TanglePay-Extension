@@ -29,7 +29,7 @@ export const AccountChangeNode = () => {
             <div className='flex jsb column flex1'>
                 <div className='ph20 flex1 flex jc column mt30'>
                     {/* <img className='mb15' style={{ width: 129.6, height: 135 }} src={logo_nobg} /> */}
-                    <div className='mb24'>
+                    <div className='mb24 tc'>
                         {I18n.t('account.dearFam')
                             .split('##')
                             .filter((e) => !!e)
@@ -42,7 +42,7 @@ export const AccountChangeNode = () => {
                             })}
                     </div>
                     <div
-                        className='fz16'
+                        className='fz16 tc'
                         style={{ lineHeight: '19px' }}
                         dangerouslySetInnerHTML={{
                             __html: I18n.t('account.betaReady').replace(/\n/g, '<br/>')

@@ -63,20 +63,46 @@ const getValidAddresses = async (address) => {
     })
 }
 
+function checkOutput(output) {
+    const isSpent = output?.metadata?.isSpent
+    const outputType = output?.output?.type
+    const nativeTokens = output?.output?.nativeTokens || []
+    let unlockConditions = output?.output?.unlockConditions || []
+    const unlockConditionsData = unlockConditions.find((e) => e.type != 0)
+    const features = output?.output?.features || []
+    let featuresLock = false
+    if (features.length > 0) {
+        const PARTICIPATE = `0x${Converter.utf8ToHex('PARTICIPATE')}`
+        featuresLock = !!features.find((e) => e.tag === PARTICIPATE)
+    }
+    const canUse = !featuresLock && !isSpent && outputType == 3 && !nativeTokens.length && !unlockConditionsData
+    return canUse
+}
 //shimmer get outputs
 const getShimmerBalance = async (nodeUrl, address) => {
     const response = await fetch(`${nodeUrl}/api/indexer/v1/outputs/basic?address=${address}`).then((res) => res.json())
     let total = BigNumber(0)
     let nativeTokens = {}
-    for (const outputId of response.items) {
-        const output = await fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json())
+    const localOutputDatas = await Promise.all(
+        response.items.map((outputId) => fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json()))
+    )
+    for (const [index, outputId] of response.items.entries()) {
+        const output = localOutputDatas[index]
         if (!output.metadata.isSpent) {
-            total = total.plus(output.output.amount)
+            let unlockConditions = output.output?.unlockConditions || []
+            const isLock = unlockConditions.find((e) => e.type != 0)
+            const isCheckOutput = checkOutput(output)
+            if (isCheckOutput) {
+                total = total.plus(output.output.amount)
+            }
+
             const nativeTokenOutput = output.output
             if (Array.isArray(nativeTokenOutput.nativeTokens)) {
                 for (const token of nativeTokenOutput.nativeTokens) {
-                    nativeTokens[token.id] = nativeTokens[token.id] || BigNumber(0)
-                    nativeTokens[token.id] = nativeTokens[token.id].plus(token.amount)
+                    if (!isLock) {
+                        nativeTokens[token.id] = nativeTokens[token.id] || BigNumber(0)
+                        nativeTokens[token.id] = nativeTokens[token.id].plus(token.amount)
+                    }
                 }
             }
         }
@@ -376,9 +402,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         merchant = '',
                                         item_desc = '',
                                         data = '',
-                                        assetId = ''
+                                        assetId = '',
+                                        nftId = '',
+                                        tag = ''
                                     } = requestParams
-                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&taggedData=${data}&assetId=${assetId}`
+                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}`
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break

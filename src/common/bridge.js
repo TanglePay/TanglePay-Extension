@@ -33,14 +33,16 @@ export default {
         const curWallet = await this.getCurWallet()
         if (curWallet.address) {
             const key = `${origin}_iota_connect_${curWallet.address}_${curWallet.nodeId}`
-            this.cacheBgData(key, {
-                address: curWallet.address,
-                nodeId: curWallet.nodeId,
-                expires: new Date().getTime() + parseInt(expires || 0)
-            })
-            this.sendMessage('iota_connect', {
+            const obj = {
                 address: curWallet.address,
                 nodeId: curWallet.nodeId
+            }
+            if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+                obj.chainId = await IotaSDK.client.eth.getChainId()
+            }
+            this.cacheBgData(key, { ...obj, expires: new Date().getTime() + parseInt(expires || 0) })
+            this.sendMessage('iota_connect', {
+                ...obj
             })
 
             Trace.dappConnect(origin.replace(/.+\/\//, ''), curWallet.address, curWallet.nodeId, IotaSDK.curNode.token)

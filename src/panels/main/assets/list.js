@@ -198,9 +198,10 @@ export const ActivityList = ({ search }) => {
     )
     const ListEl = useMemo(() => {
         return showList.map((e, i) => {
-            const isOutto = [1, 3, 6].includes(e.type)
+            const isOutto = [1, 3, 6, 8].includes(e.type)
             const isStake = [2, 3].includes(e.type)
             const isSign = e.type == 4
+            const isNft = [7, 8].includes(e.type)
             return (
                 <div
                     key={e.id + i}
@@ -228,8 +229,9 @@ export const ActivityList = ({ search }) => {
                             <>
                                 {isShowAssets ? (
                                     <div>
-                                        <div className='fz15 tr mb5'>
-                                            {isOutto ? '-' : '+'} {e.num} {e.coin}
+                                        <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
+                                            {isOutto ? '-' : '+'} {!isNft ? `${e.num} ` : ''}
+                                            {e.coin}
                                         </div>
                                         <div className='fz15 tr cS'>$ {e.assets}</div>
                                     </div>
@@ -265,6 +267,7 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
     const images = list.map((e) => {
         return e.imageType === 'mp4' ? e.thumbnailImage : e.media
     })
+    const isSMRNode = IotaSDK.checkSMR(IotaSDK.curNode?.id)
     return (
         <div>
             <div
@@ -290,16 +293,25 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                         {list.map((e, i) => {
                             return (
                                 <div
-                                    className='press'
+                                    style={{ borderRadius: 8 }}
+                                    className='press mb15'
                                     key={`${e.uid}_${i}`}
                                     onClick={() => {
-                                        ImageViewer.Multi.show({
-                                            images,
-                                            defaultIndex: i
-                                        })
+                                        if (isSMRNode && e.nftId) {
+                                            Base.push('assets/send', {
+                                                nftId: e.nftId,
+                                                currency: e.name,
+                                                nftImg: e.thumbnailImage || e.media
+                                            })
+                                        } else {
+                                            ImageViewer.Multi.show({
+                                                images,
+                                                defaultIndex: i
+                                            })
+                                        }
                                     }}>
                                     <img
-                                        className='mb15'
+                                        className='bgS'
                                         style={{
                                             borderRadius: 8,
                                             width: imgW,
