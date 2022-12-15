@@ -62,20 +62,27 @@ const getValidAddresses = async (address) => {
         })
     })
 }
-
+function checkUnLock(output) {
+    const nowTime = parseInt(new Date().getTime() / 1000)
+    let unlockConditions = output?.output?.unlockConditions || []
+    let lockData = unlockConditions.find((e) => e.type != 0)
+    if (lockData && lockData.type == 2 && nowTime > lockData.unixTime) {
+        lockData = null
+    }
+    const features = output?.output?.features || []
+    let featuresLock = false
+    if (features.length > 0) {
+        const PARTICIPATE = `0x${util_js.Converter.utf8ToHex('PARTICIPATE')}`
+        featuresLock = !!features.find((e) => e.tag === PARTICIPATE)
+    }
+    return !lockData && !featuresLock
+}
 function checkOutput(output) {
     const isSpent = output?.metadata?.isSpent
     const outputType = output?.output?.type
     const nativeTokens = output?.output?.nativeTokens || []
-    let unlockConditions = output?.output?.unlockConditions || []
-    const unlockConditionsData = unlockConditions.find((e) => e.type != 0)
-    const features = output?.output?.features || []
-    let featuresLock = false
-    if (features.length > 0) {
-        const PARTICIPATE = `0x${Converter.utf8ToHex('PARTICIPATE')}`
-        featuresLock = !!features.find((e) => e.tag === PARTICIPATE)
-    }
-    const canUse = !featuresLock && !isSpent && outputType == 3 && !nativeTokens.length && !unlockConditionsData
+    const isUnLock = checkUnLock(output)
+    const canUse = !isSpent && outputType == 3 && !nativeTokens.length && isUnLock
     return canUse
 }
 //shimmer get outputs
@@ -89,8 +96,7 @@ const getShimmerBalance = async (nodeUrl, address) => {
     for (const [index, outputId] of response.items.entries()) {
         const output = localOutputDatas[index]
         if (!output.metadata.isSpent) {
-            let unlockConditions = output.output?.unlockConditions || []
-            const isLock = unlockConditions.find((e) => e.type != 0)
+            const isUnLock = checkUnLock(output)
             const isCheckOutput = checkOutput(output)
             if (isCheckOutput) {
                 total = total.plus(output.output.amount)
@@ -99,7 +105,7 @@ const getShimmerBalance = async (nodeUrl, address) => {
             const nativeTokenOutput = output.output
             if (Array.isArray(nativeTokenOutput.nativeTokens)) {
                 for (const token of nativeTokenOutput.nativeTokens) {
-                    if (!isLock) {
+                    if (isUnLock) {
                         nativeTokens[token.id] = nativeTokens[token.id] || BigNumber(0)
                         nativeTokens[token.id] = nativeTokens[token.id].plus(token.amount)
                     }
