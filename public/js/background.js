@@ -32,6 +32,15 @@ const getFoundry = async (nodeUrl, id) => {
     return output
 }
 
+const getLoginToken = async () => {
+    const key = 'token'
+    return new Promise((resolve) => {
+        chrome.storage.local.get(key, (res) => {
+            resolve(res[key] || '')
+        })
+    })
+}
+
 const getAddressInfo = async (address) => {
     const key = 'common.walletsList'
     return new Promise((resolve) => {
@@ -371,6 +380,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                             data: {
                                                 method,
                                                 response: addressInfo ? addressInfo?.publicKey : ''
+                                            }
+                                        })
+                                    })
+                                }
+                                break
+                            case 'get_login_token':
+                                {
+                                    getLoginToken().then((res) => {
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            code: res ? 200 : -1,
+                                            data: {
+                                                method,
+                                                response: res || ''
                                             }
                                         })
                                     })
