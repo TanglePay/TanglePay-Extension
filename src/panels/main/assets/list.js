@@ -294,7 +294,7 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                             return (
                                 <div
                                     style={{ borderRadius: 8 }}
-                                    className='press mb15'
+                                    className='press mb15 pr'
                                     key={`${e.uid}_${i}`}
                                     onClick={() => {
                                         if (isSMRNode && e.nftId) {
@@ -310,6 +310,52 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                                             })
                                         }
                                     }}>
+                                    <div
+                                        className='pa flex as jsb'
+                                        style={{
+                                            width: imgW,
+                                            height: 30,
+                                            left: parseInt(i % 3) == 1 ? 16 : 0,
+                                            top: 0,
+                                            backgroundColor: 'rgba(0,0,0,0.5)',
+                                            borderTopLeftRadius: 8,
+                                            borderTopRightRadius: 8
+                                            // justifyContent: 'flex-end'
+                                        }}>
+                                        <SvgIcon
+                                            onClick={(e) => {
+                                                ImageViewer.Multi.show({
+                                                    images,
+                                                    defaultIndex: i
+                                                })
+                                                e.stopPropagation()
+                                                e.preventDefault()
+                                            }}
+                                            className='ml4 mt4'
+                                            name='eye_1'
+                                            color='white'
+                                            size='20'
+                                        />
+                                        {isSMRNode && e.nftId ? (
+                                            <SvgIcon
+                                                onClick={(e) => {
+                                                    if (isSMRNode && e.nftId) {
+                                                        Base.push('assets/send', {
+                                                            nftId: e.nftId,
+                                                            currency: e.name,
+                                                            nftImg: e.thumbnailImage || e.media
+                                                        })
+                                                        e.stopPropagation()
+                                                        e.preventDefault()
+                                                    }
+                                                }}
+                                                className='mr4 mt4'
+                                                name='send'
+                                                color='white'
+                                                size='18'
+                                            />
+                                        ) : null}
+                                    </div>
                                     <img
                                         className='bgS'
                                         style={{
@@ -317,7 +363,8 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                                             width: imgW,
                                             height: imgW,
                                             marginLeft: parseInt(i % 3) == 1 ? 16 : 0,
-                                            marginRight: parseInt(i % 3) == 1 ? 16 : 0
+                                            marginRight: parseInt(i % 3) == 1 ? 16 : 0,
+                                            objectFit: 'contain'
                                         }}
                                         src={e.thumbnailImage || e.media}
                                     />
