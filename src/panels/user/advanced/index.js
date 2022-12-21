@@ -10,12 +10,16 @@ export const UserAdvanced = () => {
     const [_, changeWalletList] = useStore('common.walletsList')
     const [shimmerSupport, setShimmerSupport] = useState(false)
     const [iotaSupport, setIotaSupport] = useState(false)
+    const [polyganSupport, setPolyganSupport] = useState(false)
     useEffect(() => {
         Base.getLocalData('common.shimmerSupport').then((res) => {
             setShimmerSupport(res == 1)
         })
         Base.getLocalData('common.iotaSupport').then((res) => {
             setIotaSupport(res == 1)
+        })
+        Base.getLocalData('common.polyganSupport').then((res) => {
+            setPolyganSupport(res == 1)
         })
     }, [])
     const handleChange = async () => {
@@ -49,6 +53,17 @@ export const UserAdvanced = () => {
                         onChange={async (e) => {
                             setIotaSupport(e)
                             Base.setLocalData('common.iotaSupport', e ? 1 : 0)
+                            await handleChange()
+                        }}
+                    />
+                </div>
+                <div className='flex row ac jsb p16 border-b'>
+                    <div className='fz18'>Support Polygon Testnet</div>
+                    <Switch
+                        checked={polyganSupport}
+                        onChange={async (e) => {
+                            setPolyganSupport(e)
+                            Base.setLocalData('common.polyganSupport', e ? 1 : 0)
                             await handleChange()
                         }}
                     />
