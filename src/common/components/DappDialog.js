@@ -61,7 +61,10 @@ export const DappDialog = () => {
         contract,
         foundryData,
         tag,
-        nftId
+        nftId,
+        abiFunc,
+        contractInfo,
+        abiParams
     }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
@@ -76,6 +79,20 @@ export const DappDialog = () => {
             case 'eth_sendTransaction':
             case 'send':
                 {
+                    if (abiFunc && abiFunc !== 'transfer') {
+                        if (contractInfo) {
+                            try {
+                                Toast.showLoading()
+                                const contractRes = await contractInfo.methods[abiFunc](...abiParams).call()
+                                Toast.hideLoading()
+                                Bridge.sendMessage(type, contractRes)
+                            } catch (error) {
+                                Toast.hideLoading()
+                                return Toast.error(error.toString())
+                            }
+                        }
+                        return
+                    }
                     let mainBalance = 0
                     let curToken = IotaSDK.curNode?.token
                     if (contract) {
@@ -285,28 +302,62 @@ export const DappDialog = () => {
                             let showUnit = ''
                             let sendAmount = 0
                             let contract = ''
+                            let abiFunc = ''
+                            let contractInfo = null
+                            let abiParams = []
+                            let gasFee = ''
                             if (IotaSDK.checkWeb3Node(toNetId || curNodeId)) {
+                                setInit(false)
+                                Toast.showLoading()
+                                unit = unit || 'wei'
                                 let curToken = IotaSDK.curNode?.token
+                                sendAmount = Number(new BigNumber(value))
+                                showValue = IotaSDK.client.utils.fromWei(String(sendAmount), 'ether')
+                                // contract
                                 if (taggedData) {
                                     contract = address
-                                    unit = 'wei'
-                                    value = `0x${taggedData.slice(-64).replace(/^0+/, '')}`
-                                    value = IotaSDK.client?.utils.hexToNumberString(value) || 0
-                                    address = `0x${taggedData.slice(-(64 + 40), -64)}`
-                                    curToken =
-                                        (IotaSDK.curNode.contractList || []).find((e) => e.contract === contract)
-                                            ?.token || IotaSDK.curNode?.token
+                                    const { functionName, params, web3Contract } = IotaSDK.getAbiParams(
+                                        address,
+                                        taggedData
+                                    )
+                                    for (const i in params) {
+                                        if (Object.hasOwnProperty.call(params, i) && /^\d$/.test(i)) {
+                                            abiParams.push(params[i])
+                                        }
+                                    }
+                                    contractInfo = web3Contract
+                                    abiFunc = functionName
+                                    switch (functionName) {
+                                        // case 'transfer':
+                                        case 'approve':
+                                            const contractGasLimit =
+                                                (IotaSDK.curNode.contractList || []).find(
+                                                    (e) => e.contract === contract
+                                                )?.gasLimit || 0
+                                            const { gasPrice } = await IotaSDK.getGasLimit(
+                                                contractGasLimit,
+                                                curWallet.address,
+                                                0
+                                            )
+                                            gasFee = IotaSDK.client.utils.fromWei(gasPrice, 'ether')
+                                            gasFee = `${gasFee} ${IotaSDK.curNode.token}`
+                                            address = params[0]
+                                            value = params[1]
+                                            break
+                                        default:
+                                            address = params[0]
+                                            value = params[1]
+                                            break
+                                    }
+
+                                    curToken = (await web3Contract.methods.symbol().call()) || IotaSDK.curNode?.token
+                                    const decimals = await web3Contract.methods.decimals().call()
+                                    sendAmount = Number(new BigNumber(value))
+                                    showValue = new BigNumber(value).div(BigNumber(10).pow(decimals)).valueOf()
+                                    setInit(true)
+                                    Toast.hideLoading()
                                 }
-                                unit = unit || 'wei'
-                                if (IotaSDK.client?.utils) {
-                                    sendAmount = IotaSDK.client.utils.toWei(String(value), unit)
-                                    showValue = IotaSDK.client.utils.fromWei(String(sendAmount), 'ether')
-                                    showUnit = curToken
-                                } else {
-                                    showValue = value
-                                    showUnit = unit
-                                    sendAmount = value
-                                }
+                                showUnit = curToken
                             } else {
                                 if (IotaSDK.checkSMR(toNetId || curNodeId)) {
                                     if (nftId) {
@@ -374,7 +425,12 @@ export const DappDialog = () => {
                                 }
                             }
 
-                            let str = I18n.t('apps.send')
+                            let str = I18n.t(abiFunc === 'approve' ? 'apps.approve' : 'apps.send')
+                            if (abiFunc && abiFunc !== 'approve' && abiFunc !== 'transfer') {
+                                str = I18n.t('apps.contractFunc')
+                                    .replace('#abiFunc#', abiFunc)
+                                    .replace('#abiParams#', abiParams.join(','))
+                            }
                             let fromStr = I18n.t('apps.sendFrom')
                             let forStr = I18n.t('apps.sendFor')
                             str = str.replace('#merchant#', merchant ? fromStr + merchant : '')
@@ -384,6 +440,7 @@ export const DappDialog = () => {
                                 .replace('#amount#', '<span class="fw600">' + showValue + '</span>')
                                 .replace('#unit#', showUnit)
                                 .replace(/\n/g, '<br/>')
+                                .replace('#fee#', gasFee)
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
@@ -394,7 +451,10 @@ export const DappDialog = () => {
                                 contract,
                                 foundryData,
                                 tag,
-                                nftId
+                                nftId,
+                                abiFunc,
+                                contractInfo,
+                                abiParams
                             })
                             show()
                         }
@@ -570,7 +630,7 @@ export const DappDialog = () => {
                                 style={{ '--border-radius': '30px' }}
                                 color='default'
                                 size='small'>
-                                {I18n.t('apps.cancel')}
+                                {I18n.t(dappData.abiFunc == 'approve' ? 'apps.reject' : 'apps.cancel')}
                             </Button>
                         </div>
                     </div>
