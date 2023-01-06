@@ -41,7 +41,7 @@ export const CoinList = () => {
                         <img
                             className='mr10 border pa bgW'
                             style={{ width: 48, height: 48, borderRadius: 48, left: 0, opacity: 1, top: 8, zIndex: 0 }}
-                            src={e.logoUrl || Base.getIcon(e.name)}
+                            src={e.logoUrl || Base.getIcon(e.isSMRToken ? e.tokenId : e.name)}
                             alt=''
                             onError={(e) => {
                                 e.target.style.opacity = 0
