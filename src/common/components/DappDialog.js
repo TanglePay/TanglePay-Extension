@@ -79,20 +79,6 @@ export const DappDialog = () => {
             case 'eth_sendTransaction':
             case 'send':
                 {
-                    if (abiFunc && abiFunc !== 'transfer') {
-                        if (contractInfo) {
-                            try {
-                                Toast.showLoading()
-                                const contractRes = await contractInfo.methods[abiFunc](...abiParams).call()
-                                Toast.hideLoading()
-                                Bridge.sendMessage(type, contractRes)
-                            } catch (error) {
-                                Toast.hideLoading()
-                                return Toast.error(error.toString())
-                            }
-                        }
-                        return
-                    }
                     let mainBalance = 0
                     let curToken = IotaSDK.curNode?.token
                     if (contract) {
@@ -328,7 +314,10 @@ export const DappDialog = () => {
                                     contractInfo = web3Contract
                                     abiFunc = functionName
                                     switch (functionName) {
-                                        // case 'transfer':
+                                        case 'transfer':
+                                            address = params[0]
+                                            value = params[1]
+                                            break
                                         case 'approve':
                                             const contractGasLimit =
                                                 (IotaSDK.curNode.contractList || []).find(
@@ -345,8 +334,6 @@ export const DappDialog = () => {
                                             value = params[1]
                                             break
                                         default:
-                                            address = params[0]
-                                            value = params[1]
                                             break
                                     }
 
@@ -372,7 +359,6 @@ export const DappDialog = () => {
                                             let nftInfo = await IotaSDK.IndexerPluginClient.nft(nftId)
                                             if (nftInfo?.items?.[0]) {
                                                 nftInfo = await IotaSDK.client.output(nftInfo?.items?.[0])
-                                                console.log(nftInfo)
 
                                                 let info = (nftInfo?.output?.immutableFeatures || []).find((d) => {
                                                     return d.type == 2
@@ -387,7 +373,6 @@ export const DappDialog = () => {
                                                     }
                                                 }
                                             }
-                                            console.log(nftInfo)
                                         }
                                         showUnit = unit
                                         setInit(true)
