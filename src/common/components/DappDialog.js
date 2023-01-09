@@ -127,7 +127,7 @@ export const DappDialog = () => {
                             decimal = 0
                         }
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
-                            contract: assets?.contract,
+                            contract: contract || assets?.contract,
                             token: assets?.name,
                             taggedData,
                             residue,
@@ -336,13 +336,14 @@ export const DappDialog = () => {
                                         default:
                                             break
                                     }
-
-                                    curToken = (await web3Contract.methods.symbol().call()) || IotaSDK.curNode?.token
-                                    const decimals = await web3Contract.methods.decimals().call()
-                                    IotaSDK.importContract(contract, curToken)
-
                                     sendAmount = Number(new BigNumber(value))
-                                    showValue = new BigNumber(value).div(BigNumber(10).pow(decimals)).valueOf()
+                                    try {
+                                        curToken =
+                                            (await web3Contract.methods.symbol().call()) || IotaSDK.curNode?.token
+                                        const decimals = await web3Contract.methods.decimals().call()
+                                        IotaSDK.importContract(contract, curToken)
+                                        showValue = new BigNumber(value).div(BigNumber(10).pow(decimals)).valueOf()
+                                    } catch (error) {}
                                     setInit(true)
                                     Toast.hideLoading()
                                 }
