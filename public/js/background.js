@@ -273,6 +273,16 @@ window.tanglepayCallBack = {}
 chrome.windows.onRemoved.addListener((id) => {
     if (window.tanglepayDialog === id) {
         window.tanglepayDialog = null
+        sendToContentScript({
+            cmd: 'iota_request',
+            code: -1,
+            data: {
+                method: curMethod,
+                response: {
+                    msg: 'cancel'
+                }
+            }
+        })
     }
 })
 
@@ -292,7 +302,7 @@ var createDialog = function (params) {
     }
     create()
 }
-
+let curMethod = ''
 // get message from content-script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
@@ -326,6 +336,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break
         case 'iota_request': {
             const { method, params: requestParams } = request.greeting
+            curMethod = method
             let { content, expires } = requestParams || {}
             content = content || ''
             expires = expires || 1000 * 3600 * 24
