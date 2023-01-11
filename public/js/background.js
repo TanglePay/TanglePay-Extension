@@ -273,16 +273,18 @@ window.tanglepayCallBack = {}
 chrome.windows.onRemoved.addListener((id) => {
     if (window.tanglepayDialog === id) {
         window.tanglepayDialog = null
-        sendToContentScript({
-            cmd: 'iota_request',
-            code: -1,
-            data: {
-                method: curMethod,
-                response: {
-                    msg: 'cancel'
+        if (curMethod) {
+            sendToContentScript({
+                cmd: 'iota_request',
+                code: -1,
+                data: {
+                    method: curMethod,
+                    response: {
+                        msg: 'cancel'
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 })
 
@@ -764,6 +766,7 @@ function sendToContentScript(message) {
             })
         })
     } else {
+        curMethod = ''
         // message
         const callBack = window.tanglepayCallBack[message.cmd]
         callBack && callBack(message)
