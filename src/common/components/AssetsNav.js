@@ -103,7 +103,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                             borderRadius: 8
                         }}>
                         <div className='flex c border-b' style={{ height: 44, minWidth: 260 }}>
-                            {I18n.t('user.network')}
+                            EVM {I18n.t('user.network')}
                         </div>
                         {web3Nodes.map((e) => {
                             return (

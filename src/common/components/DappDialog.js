@@ -292,6 +292,8 @@ export const DappDialog = () => {
                             let contractInfo = null
                             let abiParams = []
                             let gasFee = ''
+                            let contractAmount = ''
+                            let showContractAmount = ''
                             if (IotaSDK.checkWeb3Node(toNetId || curNodeId)) {
                                 setInit(false)
                                 Toast.showLoading()
@@ -311,12 +313,15 @@ export const DappDialog = () => {
                                             abiParams.push(params[i])
                                         }
                                     }
+                                    if (sendAmount) {
+                                        abiParams.push(`${showValue} ${curToken}`)
+                                    }
                                     contractInfo = web3Contract
                                     abiFunc = functionName
                                     switch (functionName) {
                                         case 'transfer':
                                             address = params[0]
-                                            value = params[1]
+                                            contractAmount = params[1]
                                             break
                                         case 'approve':
                                             const contractGasLimit =
@@ -331,18 +336,20 @@ export const DappDialog = () => {
                                             gasFee = IotaSDK.client.utils.fromWei(gasPrice, 'ether')
                                             gasFee = `${gasFee} ${IotaSDK.curNode.token}`
                                             address = params[0]
-                                            value = params[1]
+                                            contractAmount = params[1]
                                             break
                                         default:
                                             break
                                     }
-                                    sendAmount = Number(new BigNumber(value))
+                                    contractAmount = Number(new BigNumber(contractAmount))
                                     try {
                                         curToken =
                                             (await web3Contract.methods.symbol().call()) || IotaSDK.curNode?.token
                                         const decimals = await web3Contract.methods.decimals().call()
                                         IotaSDK.importContract(contract, curToken)
-                                        showValue = new BigNumber(value).div(BigNumber(10).pow(decimals)).valueOf()
+                                        showContractAmount = new BigNumber(contractAmount)
+                                            .div(BigNumber(10).pow(decimals))
+                                            .valueOf()
                                     } catch (error) {}
                                     setInit(true)
                                     Toast.hideLoading()
@@ -426,6 +433,7 @@ export const DappDialog = () => {
                             str = str.trim().replace('#address#', address)
                             str = str
                                 .replace('#amount#', '<span class="fw600">' + showValue + '</span>')
+                                .replace('#contractAmount#', '<span class="fw600">' + showContractAmount + '</span>')
                                 .replace('#unit#', showUnit)
                                 .replace(/\n/g, '<br/>')
                                 .replace('#fee#', gasFee)
