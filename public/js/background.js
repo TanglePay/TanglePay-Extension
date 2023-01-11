@@ -453,9 +453,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                             data = '',
                                             assetId = '',
                                             nftId = '',
-                                            tag = ''
+                                            tag = '',
+                                            gas = ''
                                         } = requestParams
-                                        const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}`
+                                        const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}&gas=${gas}`
                                         params.url =
                                             chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                     }
