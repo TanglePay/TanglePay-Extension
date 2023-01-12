@@ -3,6 +3,7 @@ importScripts('./sdk/bignumber.js')
 // importScripts('./sdk/soonaverse.js')
 importScripts('./sdk/web3.min.js')
 importScripts('./sdk/Converter.js')
+importScripts('./sdk/TokenERC20.js')
 const API_URL = 'https://api.iotaichi.com'
 
 const getLocalStorage = async (key) => {
@@ -126,6 +127,13 @@ const getShimmerBalance = async (nodeUrl, address) => {
         balance: Number(total),
         nativeTokens
     }
+}
+const getNodeInfo = async () => {
+    const addressInfo = await getAddressInfo()
+    const nodeId = addressInfo?.nodeId
+    TanglePayNodeInfo = (await getBackgroundData('tanglePayNodeList')) || { list: [] }
+    const nodeInfo = TanglePayNodeInfo.list.find((e) => e.id == nodeId)
+    return nodeInfo || {}
 }
 const getBalanceNodeMatch = async (method, addressList) => {
     const addressInfo = await getAddressInfo()
@@ -265,6 +273,18 @@ window.tanglepayCallBack = {}
 chrome.windows.onRemoved.addListener((id) => {
     if (window.tanglepayDialog === id) {
         window.tanglepayDialog = null
+        if (curMethod) {
+            sendToContentScript({
+                cmd: 'iota_request',
+                code: -1,
+                data: {
+                    method: curMethod,
+                    response: {
+                        msg: 'cancel'
+                    }
+                }
+            })
+        }
     }
 })
 
@@ -284,7 +304,7 @@ var createDialog = function (params) {
     }
     create()
 }
-
+let curMethod = ''
 // get message from content-script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
@@ -318,6 +338,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break
         case 'iota_request': {
             const { method, params: requestParams } = request.greeting
+            curMethod = method
             let { content, expires } = requestParams || {}
             content = content || ''
             expires = expires || 1000 * 3600 * 24
@@ -423,20 +444,91 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_sendTransaction':
                             case 'eth_sendTransaction':
                                 {
-                                    const {
-                                        to,
-                                        value,
-                                        unit = '',
-                                        network = '',
-                                        merchant = '',
-                                        item_desc = '',
-                                        data = '',
-                                        assetId = '',
-                                        nftId = '',
-                                        tag = ''
-                                    } = requestParams
-                                    const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}`
-                                    params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                    const setWindowData = () => {
+                                        const {
+                                            to,
+                                            value,
+                                            unit = '',
+                                            network = '',
+                                            merchant = '',
+                                            item_desc = '',
+                                            data = '',
+                                            assetId = '',
+                                            nftId = '',
+                                            tag = '',
+                                            gas = ''
+                                        } = requestParams
+                                        const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}&gas=${gas}`
+                                        params.url =
+                                            chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                    }
+
+                                    const checkSignData = (data) => {
+                                        let isCall = false
+                                        ;[
+                                            '0xdd62ed3e',
+                                            '0x70a08231',
+                                            '0x313ce567',
+                                            '0xa0712d68',
+                                            '0x07546172',
+                                            '0x06fdde03',
+                                            '0x95d89b41',
+                                            '0x18160ddd'
+                                        ].forEach((e) => {
+                                            if (RegExp(`^${e}`).test(data)) {
+                                                isCall = true
+                                            }
+                                        })
+                                        return isCall
+                                    }
+                                    if (
+                                        method === 'eth_sendTransaction' &&
+                                        requestParams.data &&
+                                        checkSignData(requestParams.data)
+                                    ) {
+                                        const tokenAbi = [...TanglePay_TokenERC20]
+                                        getNodeInfo().then(async (res) => {
+                                            if (res.url) {
+                                                console.log(res.url)
+                                                const web3 = new window.Web3(res.url)
+                                                const web3Contract = new web3.eth.Contract(tokenAbi, requestParams.to)
+                                                const bytes = web3.utils.hexToBytes(requestParams.data)
+                                                let functionSign = bytes.slice(0, 4)
+                                                functionSign = web3.utils.bytesToHex(functionSign)
+                                                console.log(functionSign, web3)
+                                                window.web3 = web3
+                                                const abi = web3.eth.abi
+                                                let item = tokenAbi.find((e) => e.signature === functionSign)
+                                                if (item && item.name) {
+                                                    const paramsHex = web3.utils.bytesToHex(bytes.slice(4))
+                                                    const abiParams = abi.decodeParameters(item.inputs, paramsHex)
+                                                    let abiParamsList = []
+                                                    for (const i in abiParams) {
+                                                        if (
+                                                            Object.hasOwnProperty.call(abiParams, i) &&
+                                                            /^\d$/.test(i)
+                                                        ) {
+                                                            abiParamsList.push(abiParams[i])
+                                                        }
+                                                    }
+                                                    const contractRes = await web3Contract.methods[item.name](
+                                                        ...abiParamsList
+                                                    ).call()
+                                                    console.log(contractRes, '----------------')
+                                                    sendToContentScript({
+                                                        cmd: 'iota_request',
+                                                        code: contractRes ? 200 : -1,
+                                                        data: {
+                                                            method,
+                                                            response: contractRes
+                                                        }
+                                                    })
+                                                }
+                                            }
+                                        })
+                                    } else {
+                                        setWindowData()
+                                    }
                                 }
                                 break
                             case 'iota_changeAccount':
@@ -674,6 +766,7 @@ function sendToContentScript(message) {
             })
         })
     } else {
+        curMethod = ''
         // message
         const callBack = window.tanglepayCallBack[message.cmd]
         callBack && callBack(message)
