@@ -10745,10 +10745,10 @@ tailwindcss@^3.0.2:
     quick-lru "^5.1.1"
     resolve "^1.22.1"
 
-tanglepay@^2.4.1:
-  version "2.4.1"
-  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-2.4.1.tgz#e331e41c313bd8fbdaab4e4bf5d6150a6b889d80"
-  integrity sha512-n3WvGOGdRJB1mRDh7YHGa3KjzZOdwUvAVF7FcBHlCkdDeZUQYrWYjbS79JkCHUoG5a9zs5sVRzJ0mZ6Q4R/4tA==
+tanglepay@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-2.4.2.tgz#966a34a0a4cb17e7ff5dd0171e7815eec802c252"
+  integrity sha512-J0Hin3aiHFSWCDwEr+AjeE8RRWPWKqWk/dqGeSH2qK0l+tzN9zf6wOuOE38boTO6eQPzB52Siuf0b29KwJ9dpg==
 
 tapable@^1.0.0:
   version "1.1.3"
