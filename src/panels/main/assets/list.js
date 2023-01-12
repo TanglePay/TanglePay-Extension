@@ -41,7 +41,7 @@ export const CoinList = () => {
                         <img
                             className='mr10 border pa bgW'
                             style={{ width: 48, height: 48, borderRadius: 48, left: 0, opacity: 1, top: 8, zIndex: 0 }}
-                            src={e.logoUrl || Base.getIcon(e.name)}
+                            src={e.logoUrl || Base.getIcon(e.isSMRToken ? e.tokenId : e.name)}
                             alt=''
                             onError={(e) => {
                                 e.target.style.opacity = 0
@@ -292,24 +292,7 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                     <div className='flex row ac border-b' style={{ flexWrap: 'wrap' }}>
                         {list.map((e, i) => {
                             return (
-                                <div
-                                    style={{ borderRadius: 8 }}
-                                    className='press mb15 pr'
-                                    key={`${e.uid}_${i}`}
-                                    onClick={() => {
-                                        if (isSMRNode && e.nftId) {
-                                            Base.push('assets/send', {
-                                                nftId: e.nftId,
-                                                currency: e.name,
-                                                nftImg: e.thumbnailImage || e.media
-                                            })
-                                        } else {
-                                            ImageViewer.Multi.show({
-                                                images,
-                                                defaultIndex: i
-                                            })
-                                        }
-                                    }}>
+                                <div style={{ borderRadius: 8 }} className='mb15 pr' key={`${e.uid}_${i}`}>
                                     <div
                                         className='pa flex as jsb'
                                         style={{
@@ -331,25 +314,25 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                                                 e.stopPropagation()
                                                 e.preventDefault()
                                             }}
-                                            className='ml4 mt4'
+                                            className='press ml4 mt4'
                                             name='eye_1'
                                             color='white'
                                             size='20'
                                         />
                                         {isSMRNode && e.nftId ? (
                                             <SvgIcon
-                                                onClick={(e) => {
+                                                onClick={(d) => {
                                                     if (isSMRNode && e.nftId) {
                                                         Base.push('assets/send', {
                                                             nftId: e.nftId,
                                                             currency: e.name,
                                                             nftImg: e.thumbnailImage || e.media
                                                         })
-                                                        e.stopPropagation()
-                                                        e.preventDefault()
+                                                        d.stopPropagation()
+                                                        d.preventDefault()
                                                     }
                                                 }}
-                                                className='mr4 mt4'
+                                                className='press mr4 mt4'
                                                 name='send'
                                                 color='white'
                                                 size='18'
