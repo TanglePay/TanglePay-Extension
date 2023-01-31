@@ -361,6 +361,11 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                                         ) : null}
                                     </div>
                                     <img
+                                        onClick={() => {
+                                            Base.push('assets/nftDetail', {
+                                                nft:JSON.stringify(e)
+                                            })
+                                        }}
                                         className='bgS'
                                         style={{
                                             borderRadius: 8,

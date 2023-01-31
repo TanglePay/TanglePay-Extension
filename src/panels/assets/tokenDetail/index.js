@@ -21,7 +21,7 @@ export const TokenDetail = () => {
     let { tokenId, name, standard, logoUrl } = params
     name = (name || '').toLocaleUpperCase()
     return (
-        <div className='page assets-trading'>
+        <div className='page'>
             <Nav title={I18n.t('assets.tokenDetail')} />
             <div>
                 <div className='flex c column' style={{ marginTop: 72, marginBottom: 48 }}>
@@ -66,9 +66,11 @@ export const TokenDetail = () => {
                     ) : null}
                     <div className='mb16 bgS radius10 ph16 pv15'>
                         <div className='fz16 fw600 mb4'>{I18n.t('assets.tokenID')}</div>
-                        <div className='fz16 fw400' style={{ wordBreak: 'break-word' }}>
-                            {tokenId}
-                        </div>
+                        <CopyToClipboard text={tokenId} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                            <div className='fz16 fw400 press' style={{ wordBreak: 'break-all' }}>
+                                {tokenId}
+                            </div>
+                        </CopyToClipboard>
                     </div>
                 </div>
             </div>
