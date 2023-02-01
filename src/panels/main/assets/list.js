@@ -17,14 +17,14 @@ export const CoinList = () => {
     const [unlockConditions] = useStore('common.unlockConditions')
     // const curLegal = useGetLegal()
     const contractList = IotaSDK.curNode?.contractList || []
-    assetsList = assetsList.filter((e) => {
-        const { name } = e
-        if (!e.contract) {
-            return true
-        }
-        const contract = contractList.find((e) => e.token === name)?.contract
-        return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
-    })
+    // assetsList = assetsList.filter((e) => {
+    //     const { name } = e
+    //     if (!e.contract) {
+    //         return true
+    //     }
+    //     const contract = contractList.find((e) => e.token === name)?.contract
+    //     return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
+    // })
     const isSMRNode = IotaSDK.checkSMR(IotaSDK.curNode?.id)
     return (
         <div>

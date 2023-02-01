@@ -66,6 +66,7 @@ export const AssetsSend = () => {
                         }
                         amount = parseFloat(amount) || 0
                         let decimal = Math.pow(10, assets.decimal)
+                        console.log(decimal, '-------')
                         let sendAmount = Number(BigNumber(amount).times(decimal))
                         let residue = Number(realBalance.minus(sendAmount)) || 0
                         if (!IotaSDK.checkWeb3Node(curWallet.nodeId) && !IotaSDK.checkSMR(curWallet.nodeId)) {

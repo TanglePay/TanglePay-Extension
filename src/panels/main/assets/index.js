@@ -133,12 +133,22 @@ export const Assets = ({ tabKey }) => {
                                     <CoinList />
                                     {assetsTab.includes('stake') && <RewardsList />}
                                 </div>
-                                {!isRequestAssets && (
+                                {!isRequestAssets ? (
                                     <div className='p30 flex c row'>
                                         <Loading color='gray' />
                                         <span className='flex cS fz16 pl10'>{I18n.t('assets.requestAssets')}</span>
                                     </div>
-                                )}
+                                ) : null}
+                                {IotaSDK.checkWeb3Node(curWallet.nodeId) ? (
+                                    <div
+                                        className='cP fz16 fw600 pv16 mt4 press flex c'
+                                        onClick={() => {
+                                            Base.push('assets/importToken')
+                                        }}>
+                                        <span className='fz24 fw600 mr4'>+</span>
+                                        {I18n.t('assets.importToken')}
+                                    </div>
+                                ) : null}
                             </>
                         ) : curTab == 1 ? (
                             <CollectiblesList />
