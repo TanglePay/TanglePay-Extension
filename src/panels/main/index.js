@@ -9,6 +9,7 @@ import { useStore } from '@tangle-pay/store'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { SvgIcon } from '@/common'
 import Bridge from '@/common/bridge'
+import { useGetDappsConfig } from '@tangle-pay/store/dapps'
 export const Main = () => {
     const initRoutes = [
         {
@@ -33,10 +34,12 @@ export const Main = () => {
         }
     ]
     const [lang] = useStore('common.lang')
+    const [dappsList] = useStore('dapps.list')
     const [curKey, setActive] = useStore('common.curMainActive')
     const [curWallet] = useGetNodeWallet()
     const [opacity, setOpacity] = useState(0)
     const [routes, setRoutes] = useState([...initRoutes])
+    useGetDappsConfig(curWallet)
     useEffect(() => {
         IotaSDK.changeNodesLang(lang)
     }, [lang])
@@ -47,9 +50,12 @@ export const Main = () => {
         Bridge.cacheBgData('cur_wallet_address', `${curWallet.address || ''}_${curWallet.nodeId || ''}`)
     }, [curWallet.address + curWallet.nodeId])
     useEffect(() => {
-        const filterMenuList = IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.filterMenuList || []
+        const filterMenuList = [...(IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.filterMenuList || [])]
+        if (JSON.stringify(dappsList) === '{}') {
+            filterMenuList.push('apps')
+        }
         setRoutes([...initRoutes.filter((e) => !filterMenuList.includes(e.key))])
-    }, [curWallet.nodeId, JSON.stringify(initRoutes)])
+    }, [curWallet.nodeId, JSON.stringify(initRoutes), JSON.stringify(dappsList)])
     useEffect(() => {
         setTimeout(() => {
             setOpacity(1)
