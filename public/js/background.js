@@ -6,6 +6,11 @@ importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
 const API_URL = 'https://api.iotaichi.com'
 
+const flatten = (arr, depth = 1) =>
+    depth != 1
+        ? arr.reduce((a, v) => a.concat(Array.isArray(v) ? flatten(v, depth - 1) : v), [])
+        : arr.reduce((a, v) => a.concat(v), [])
+
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
         chrome.storage.local.get(key, (res) => {
@@ -201,6 +206,7 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
             }
             if (nodeInfo.type == 3) {
                 isGetSmr = assetsList.includes('smr')
+                isGetSoonaverse = assetsList.includes('soonaverse')
             }
             if (isGetIota || isGetSmr) {
                 if (isGetSmr) {
@@ -225,7 +231,50 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 otherRes = res?.data?.rewards || {}
             }
             if (isGetSoonaverse) {
-                collectibles = await window.soon.getNftsByIotaAddress([address])
+                if (nodeInfo.type == 1) {
+                    let iotaMemberIds = await fetch(
+                        `https://soonaverse.com/api/getMany?collection=member&fieldName=validatedAddress.iota&fieldValue=${address}`
+                    ).then((res) => res.json())
+                    let res = await Promise.all(
+                        iotaMemberIds.map((e) => {
+                            return fetch(
+                                `https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${e.uid}`
+                            )
+                                .then((res) => res.json())
+                                .catch(() => [])
+                        })
+                    )
+                    res = flatten(res)
+                    collectibles = res
+                } else if (nodeInfo.type == 3) {
+                    let shimmerNftOutputIds = await fetch(
+                        `${nodeInfo.url}/api/indexer/v1/outputs/nft?address=${address}`
+                    ).then((res) => res.json())
+                    shimmerNftOutputIds = shimmerNftOutputIds.items
+
+                    const nftInfos = await Promise.all(
+                        shimmerNftOutputIds.map((e) => {
+                            return fetch(`${nodeInfo.url}/api/core/v2/outputs/${e}`)
+                                .then((res) => res.json())
+                                .catch(() => {})
+                        })
+                    )
+
+                    let shimmerRes = []
+                    nftInfos.forEach((e, i) => {
+                        let info = (e?.output?.immutableFeatures || []).find((d) => {
+                            return d.type == 2
+                        })
+                        if (info && info.data) {
+                            try {
+                                info = Converter.hexToUtf8(info.data.replace(/^0x/, ''))
+                                info = JSON.parse(info)
+                                shimmerRes.push({ ...info, nftId: e?.output?.nftId })
+                            } catch (error) {}
+                        }
+                    })
+                    collectibles = shimmerRes
+                }
             }
             break
         }
@@ -239,7 +288,17 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                     amount = await web3.eth.getBalance(address)
                 }
                 if (isGetSoonaverse) {
-                    collectibles = await window.soon.getNftsByEthAddress(address)
+                    let ethMemberIds = await fetch(
+                        `https://soonaverse.com/api/getById?collection=member&uid=${address}`
+                    ).then((res) => res.json())
+                    if (ethMemberIds && ethMemberIds.uid) {
+                        let list = await fetch(
+                            `https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${ethMemberIds.uid}`
+                        )
+                            .then((res) => res.json())
+                            .catch(() => [])
+                        collectibles = list
+                    }
                 }
             }
             break
