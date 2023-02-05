@@ -14,12 +14,20 @@ export const NftDetail = () => {
     params = Base.handlerParams(params.search)
     params = JSON.parse(params.nft)
     let { thumbnailImage, media, attributes } = params
-    attributes = attributes.props || {}
+    attributes = attributes.props || attributes || []
     let propsList = []
     for (const i in attributes) {
         if (Object.hasOwnProperty.call(attributes, i)) {
+            const obj = attributes[i]
+            let label = ''
+            for (const j in obj) {
+                if (j !== 'value') {
+                    label = j
+                }
+            }
             propsList.push({
-                ...attributes[i]
+                label,
+                value: obj.value
             })
         }
     }
@@ -40,9 +48,9 @@ export const NftDetail = () => {
                         }}
                         src={thumbnailImage || media}
                     />
-                    <div className='fz16 mt8 fw600'>{params.name}</div>
-                    <div className='fz16 mt4 fw600 cS'>{params.issuerName}</div>
-                    <div className='fz14 mt12 fw400 cS'>{params.description}</div>
+                    <div className='fz18 mt8 fw600 tc'>{params.name}</div>
+                    <div className='fz18 mt4 fw600 cS'>{params.issuerName}</div>
+                    <div className='fz16 mt12 fw400 cS'>{params.description}</div>
                 </div>
                 <div>
                     <div
@@ -51,7 +59,7 @@ export const NftDetail = () => {
                             setOpenDetail(!openDetail)
                         }}
                         style={{ height: 32 }}>
-                        <div className='fz16 fw600 mr4'>{I18n.t('assets.nftDetail')}</div>
+                        <div className='fz18 fw600 mr4'>{I18n.t('assets.nftDetail')}</div>
                         <SvgIcon size={14} name='up' style={!openDetail && { transform: 'rotate(180deg)' }} />
                     </div>
                     {openDetail ? (
@@ -63,34 +71,34 @@ export const NftDetail = () => {
                                 </div>
                             ) : null}
                             {params.nftId ? (
-                                <div className='mb8 bgS radius10 flex ac jsb ph16 pv8'>
-                                    <div className='fz16 fw400'>NFT ID</div>
+                                <div className='mb8 bgS radius10 ph16 pv8'>
+                                    <div className='fz16 fw400 mb4'>NFT ID</div>
                                     <CopyToClipboard
                                         text={params.nftId}
                                         onCopy={() => Toast.success(I18n.t('assets.copied'))}>
-                                        <div className='fz12 press' style={{ wordBreak: 'break-all', maxWidth: 180 }}>
+                                        <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
                                             {params.nftId}
                                         </div>
                                     </CopyToClipboard>
                                 </div>
                             ) : null}
-                            <div className='mb16 bgS radius10 ph16 pv8'>
+                            <div className='mb8 bgS radius10 ph16 pv8'>
                                 <div className='fz16 fw400 mb4'>URI</div>
                                 <CopyToClipboard
                                     text={params.uri}
                                     onCopy={() => Toast.success(I18n.t('assets.copied'))}>
-                                    <div className='fz12 press' style={{ wordBreak: 'break-all' }}>
+                                    <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
                                         {params.uri}
                                     </div>
                                 </CopyToClipboard>
                             </div>
                             {params.collectionId ? (
-                                <div className='mb8 bgS radius10 flex ac jsb ph16 pv8'>
-                                    <div className='fz16 fw400'>{I18n.t('assets.collectionID')}</div>
+                                <div className='mb8 bgS radius10 ph16 pv8'>
+                                    <div className='fz16 fw400 mb4'>{I18n.t('assets.collectionID')}</div>
                                     <CopyToClipboard
                                         text={params.collectionId}
                                         onCopy={() => Toast.success(I18n.t('assets.copied'))}>
-                                        <div className='fz12 press' style={{ wordBreak: 'break-all', maxWidth: 180 }}>
+                                        <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
                                             {params.collectionId}
                                         </div>
                                     </CopyToClipboard>
@@ -99,14 +107,14 @@ export const NftDetail = () => {
                         </div>
                     ) : null}
                 </div>
-                <div className='pb24'>
+                <div className='pb24 mt16'>
                     <div
                         className='press flex row ac'
                         onClick={() => {
                             setOpenProperties(!openProperties)
                         }}
                         style={{ height: 32 }}>
-                        <div className='fz16 fw600 mr4'>{I18n.t('assets.nftProperties')}</div>
+                        <div className='fz18 fw600 mr4'>{I18n.t('assets.nftProperties')}</div>
                         <SvgIcon size={14} name='up' style={!openProperties && { transform: 'rotate(180deg)' }} />
                     </div>
                     {openProperties ? (
@@ -114,8 +122,8 @@ export const NftDetail = () => {
                             {propsList.map((e) => {
                                 return (
                                     <div className='bgS radius10 p12 mr8'>
-                                        <div className='cS fz14 fw600'>{e.label}</div>
-                                        <div className='mt4 fz14 fw600'>{e.value}</div>
+                                        <div className='cS fz16 fw600'>{e.label}</div>
+                                        <div className='mt4 fz16 fw600'>{e.value}</div>
                                     </div>
                                 )
                             })}

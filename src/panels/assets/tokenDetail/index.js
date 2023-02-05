@@ -49,25 +49,25 @@ export const TokenDetail = () => {
                             {String(name).toLocaleUpperCase()[0]}
                         </div>
                     </div>
-                    <div className='fz16 mt8 fw600'>{name}</div>
+                    <div className='fz18 mt8 fw600'>{name}</div>
                 </div>
                 <div className='ph16'>
                     {standard ? (
                         <div className='mb16 bgS radius10 flex ac jsb ph16' style={{ height: 48 }}>
-                            <div className='fz16 fw600'>{I18n.t('assets.standard')}</div>
-                            <div className='fz16 fw600'>{standard}</div>
+                            <div className='fz18 fw600'>{I18n.t('assets.standard')}</div>
+                            <div className='fz18 fw600'>{standard}</div>
                         </div>
                     ) : null}
                     {name ? (
                         <div className='mb16 bgS radius10 flex ac jsb ph16' style={{ height: 48 }}>
-                            <div className='fz16 fw600'>{I18n.t('assets.tokenName')}</div>
-                            <div className='fz16 fw600'>{name}</div>
+                            <div className='fz18 fw600'>{I18n.t('assets.tokenName')}</div>
+                            <div className='fz18 fw600'>{name}</div>
                         </div>
                     ) : null}
                     <div className='mb16 bgS radius10 ph16 pv15'>
-                        <div className='fz16 fw600 mb4'>{I18n.t('assets.tokenID')}</div>
+                        <div className='fz18 fw600 mb4'>{I18n.t('assets.tokenID')}</div>
                         <CopyToClipboard text={tokenId} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
-                            <div className='fz16 fw400 press' style={{ wordBreak: 'break-all' }}>
+                            <div className='fz18 fw400 press' style={{ wordBreak: 'break-all' }}>
                                 {tokenId}
                             </div>
                         </CopyToClipboard>
