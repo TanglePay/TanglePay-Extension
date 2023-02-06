@@ -21,10 +21,10 @@ export const ImportToken = () => {
                 <div className='ph16'>
                     <div className='flex row ac border-b'>
                         <div onClick={() => setTab(0)} className='flex c mr12 press' style={{ height: 50 }}>
-                            <div className={`${curTab === 0 ? 'cP' : 'cB'} fw600 fz16`}>{I18n.t('assets.search')}</div>
+                            <div className={`${curTab === 0 ? 'cP' : 'cB'} fw600 fz18`}>{I18n.t('assets.search')}</div>
                         </div>
                         <div onClick={() => setTab(1)} className='flex c mr12 press' style={{ height: 50 }}>
-                            <div className={`${curTab === 1 ? 'cP' : 'cB'} fw600 fz16`}>
+                            <div className={`${curTab === 1 ? 'cP' : 'cB'} fw600 fz18`}>
                                 {I18n.t('assets.customTokens')}
                             </div>
                         </div>
@@ -35,7 +35,7 @@ export const ImportToken = () => {
                         <div style={{ height: 48, padding: 6 }} className='mh16 flex row ac bgS pl8 radius10'>
                             <SvgIcon name='search' color='#6C737C' size='16' />
                             <Input
-                                className='ml4 mb4 fw400 fz16'
+                                className='ml4 mb4 fw400 fz18'
                                 id='input'
                                 value={searchStr}
                                 onChange={setSearch}
