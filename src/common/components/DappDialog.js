@@ -8,8 +8,10 @@ import { Toast } from './Toast'
 import Bridge from '@/common/bridge'
 import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 import { Unit } from '@iota/unit-converter'
+import { GasDialog } from '@/common/components/gasDialog'
 
 export const DappDialog = () => {
+    const gasDialog = useRef()
     const [isShow, setShow] = useState(false)
     const [isRequestAssets] = useStore('common.isRequestAssets')
     useGetParticipationEvents()
@@ -25,6 +27,22 @@ export const DappDialog = () => {
     const [assetsList] = useStore('common.assetsList')
     const [curNodeId] = useStore('common.curNodeId')
     const changeNode = useChangeNode()
+    const [gasInfo, setGasInfo] = useState({})
+    useEffect(() => {
+        if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+            const eth = IotaSDK.client.eth
+            Promise.all([eth.getGasPrice()]).then(([gasPrice]) => {
+                let gasLimit = gasInfo.gasLimit || 21000
+                let total = new BigNumber(gasPrice).times(gasLimit)
+                total = IotaSDK.client.utils.fromWei(total.valueOf(), 'ether')
+                setGasInfo({
+                    gasLimit,
+                    gasPrice,
+                    total
+                })
+            })
+        }
+    }, [curWallet.nodeId])
     const show = () => {
         // requestAnimationFrame(() => {
         setShow(true)
@@ -61,8 +79,7 @@ export const DappDialog = () => {
         contract,
         foundryData,
         tag,
-        nftId,
-        gas
+        nftId
     }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
@@ -136,7 +153,8 @@ export const DappDialog = () => {
                             mainBalance,
                             tag,
                             nftId,
-                            gas
+                            gas: gasInfo.gasLimit,
+                            gasPrice: gasInfo.gasPrice
                         })
                         if (!res) {
                             throw I18n.t('user.nodeError')
@@ -151,7 +169,7 @@ export const DappDialog = () => {
                     } catch (error) {
                         Toast.hideLoading()
                         if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
-                            Bridge.sendErrorMessage(type, error)
+                            Bridge.sendErrorMessage(type, String(error))
                         } else {
                             Toast.error(String(error))
                             // Toast.error(
@@ -356,6 +374,8 @@ export const DappDialog = () => {
                                     } catch (error) {}
                                     setInit(true)
                                     Toast.hideLoading()
+                                } else {
+                                    setInit(true)
                                 }
                                 showUnit = curToken
                             } else {
@@ -599,8 +619,28 @@ export const DappDialog = () => {
                                 })}
                             </span>
                         </div>
+                        {['iota_sendTransaction', 'eth_sendTransaction', 'send'].includes(dappData.type) &&
+                        IotaSDK.checkWeb3Node(curWallet.nodeId) ? (
+                            <Form.Item noStyle>
+                                <div className='flex row ac jsb pv10 mt5'>
+                                    <div className='fz16'>{I18n.t('assets.estimateGasFee')}</div>
+                                    <div className='flex row ac'>
+                                        <div className='cS fz16 fw400 tr mr16'>{gasInfo.total}</div>
+                                        <div
+                                            className='press cP fz16 fw400'
+                                            onClick={() => {
+                                                gasDialog.current.show(gasInfo, (res) => {
+                                                    setGasInfo(res)
+                                                })
+                                            }}>
+                                            {I18n.t('assets.edit')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </Form.Item>
+                        ) : null}
                         {dappData.type !== 'iota_connect' && (
-                            <Form.Item>
+                            <Form.Item className='pl0'>
                                 <Input
                                     type='password'
                                     onChange={setPassword}
@@ -635,6 +675,7 @@ export const DappDialog = () => {
                     </div>
                 )}
             </div>
+            <GasDialog dialogRef={gasDialog} />
         </Mask>
     )
 }
