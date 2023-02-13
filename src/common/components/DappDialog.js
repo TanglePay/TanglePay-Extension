@@ -28,21 +28,6 @@ export const DappDialog = () => {
     const [curNodeId] = useStore('common.curNodeId')
     const changeNode = useChangeNode()
     const [gasInfo, setGasInfo] = useState({})
-    useEffect(() => {
-        if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
-            const eth = IotaSDK.client.eth
-            Promise.all([eth.getGasPrice()]).then(([gasPrice]) => {
-                let gasLimit = gasInfo.gasLimit || 21000
-                let total = new BigNumber(gasPrice).times(gasLimit)
-                total = IotaSDK.client.utils.fromWei(total.valueOf(), 'ether')
-                setGasInfo({
-                    gasLimit,
-                    gasPrice,
-                    total
-                })
-            })
-        }
-    }, [curWallet.nodeId])
     const show = () => {
         // requestAnimationFrame(() => {
         setShow(true)
@@ -318,6 +303,20 @@ export const DappDialog = () => {
                                 let curToken = IotaSDK.curNode?.token
                                 sendAmount = Number(new BigNumber(value))
                                 showValue = IotaSDK.client.utils.fromWei(String(sendAmount), 'ether')
+
+                                let [gasPrice, gasLimit] = await Promise.all([
+                                    IotaSDK.client.eth.getGasPrice(),
+                                    IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? address : '')
+                                ])
+                                gasLimit = gasLimit || 21000
+                                let total = new BigNumber(gasPrice).times(gasLimit)
+                                total = IotaSDK.client.utils.fromWei(total.valueOf(), 'ether')
+                                setGasInfo({
+                                    gasLimit,
+                                    gasPrice,
+                                    total
+                                })
+
                                 // contract
                                 if (taggedData) {
                                     contract = address

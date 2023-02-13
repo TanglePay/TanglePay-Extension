@@ -14,7 +14,7 @@ export const NftDetail = () => {
     params = Base.handlerParams(params.search)
     params = JSON.parse(params.nft)
     let { thumbnailImage, media, attributes } = params
-    attributes = attributes.props || attributes || []
+    attributes = attributes?.props || attributes || []
     let propsList = []
     for (const i in attributes) {
         if (Object.hasOwnProperty.call(attributes, i)) {

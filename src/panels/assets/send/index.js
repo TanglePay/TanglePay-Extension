@@ -53,18 +53,20 @@ export const AssetsSend = () => {
     useEffect(() => {
         if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
             const eth = IotaSDK.client.eth
-            Promise.all([eth.getGasPrice()]).then(([gasPrice]) => {
-                let gasLimit = gasInfo.gasLimit || 21000
-                let total = new BigNumber(gasPrice).times(gasLimit)
-                total = IotaSDK.client.utils.fromWei(total.valueOf(), 'ether')
-                setGasInfo({
-                    gasLimit,
-                    gasPrice,
-                    total
-                })
-            })
+            Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract)]).then(
+                ([gasPrice, gas]) => {
+                    let gasLimit = gasInfo.gasLimit || gas
+                    let total = new BigNumber(gasPrice).times(gasLimit)
+                    total = IotaSDK.client.utils.fromWei(total.valueOf(), 'ether')
+                    setGasInfo({
+                        gasLimit,
+                        gasPrice,
+                        total
+                    })
+                }
+            )
         }
-    }, [curWallet.nodeId])
+    }, [curWallet.nodeId, assets?.contract])
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
