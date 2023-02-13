@@ -27,13 +27,19 @@ export const AssetsSend = () => {
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
     params = Base.handlerParams(params.search)
+    const assetsId = params.id
     let currency = params?.currency
     const nftId = params?.nftId
     const nftImg = params?.nftImg
     currency = currency || assetsList[0]?.name
     const form = useRef()
     const [curWallet] = useGetNodeWallet()
-    const assets = assetsList.find((e) => e.name === currency) || {}
+    let assets = assetsList.find((e) => e.name === currency) || {}
+    if (assetsId) {
+        console.log(assetsId)
+        assets = assetsList.find((e) => e.tokenId === assetsId || e.contract === assetsId) || {}
+        console.log(assets)
+    }
     // const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
     // let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
     let realBalance = BigNumber(assets.realBalance || 0)

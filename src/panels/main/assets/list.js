@@ -42,7 +42,7 @@ export const CoinList = () => {
                                         logoUrl: e.logoUrl
                                     })
                                 } else {
-                                    Base.push('assets/send', { currency: e.name })
+                                    Base.push('assets/send', { currency: e.name, id: e.tokenId || e.contract || '' })
                                 }
                             }}>
                             <img
@@ -70,7 +70,7 @@ export const CoinList = () => {
                         </div>
                         <div
                             onClick={() => {
-                                Base.push('assets/send', { currency: e.name })
+                                Base.push('assets/send', { currency: e.name, id: e.tokenId || e.contract || '' })
                             }}
                             style={{ height: itemH }}
                             className='border-b flex flex1 row ac jsb'>
