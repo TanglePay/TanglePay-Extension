@@ -27,7 +27,7 @@ export const AssetsSend = () => {
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
     params = Base.handlerParams(params.search)
-    const assetsId = params.id
+    const assetsId = params?.id
     let currency = params?.currency
     const nftId = params?.nftId
     const nftImg = params?.nftImg
@@ -230,7 +230,7 @@ export const AssetsSend = () => {
                                                 <div
                                                     className='press cP fz14 fw400'
                                                     onClick={() => {
-                                                        gasDialog.current.show(gasInfo, (res) => {
+                                                        gasDialog.current.show({ ...gasInfo }, (res) => {
                                                             setGasInfo(res)
                                                         })
                                                     }}>

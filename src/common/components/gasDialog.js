@@ -49,21 +49,23 @@ export const GasDialog = ({ dialogRef }) => {
         setContentW(document.getElementById('app').offsetWidth)
     }, [])
     useEffect(() => {
-        let { gasPrice, gasLimit } = gasInfo
-        gasPrice = IotaSDK.getNumberStr(parseFloat(gasPrice) || '')
-        gasLimit = IotaSDK.getNumberStr(parseFloat(gasLimit) || '')
-        let total = 0
-        if (gasPrice && gasLimit) {
-            gasPrice = IotaSDK.client.utils.toHex(gasPrice)
-            gasLimit = IotaSDK.client.utils.toHex(gasLimit)
-            total = new BigNumber(gasPrice).times(gasLimit)
-            total = IotaSDK.getNumberStr(total)
-            total = IotaSDK.client.utils.fromWei(total, 'ether')
-        }
-        setGasInfo({
-            ...gasInfo,
-            total
-        })
+        try {
+            let { gasPrice, gasLimit } = gasInfo
+            gasPrice = IotaSDK.getNumberStr(parseFloat(gasPrice) || '')
+            gasLimit = IotaSDK.getNumberStr(parseFloat(gasLimit) || '')
+            let total = 0
+            if (gasPrice && gasLimit) {
+                gasPrice = IotaSDK.client.utils.toHex(gasPrice)
+                gasLimit = IotaSDK.client.utils.toHex(gasLimit)
+                total = new BigNumber(gasPrice).times(gasLimit)
+                total = IotaSDK.getNumberStr(total)
+                total = IotaSDK.client.utils.fromWei(total, 'ether')
+            }
+            setGasInfo({
+                ...gasInfo,
+                total
+            })
+        } catch (error) {}
     }, [JSON.stringify(gasInfo)])
     return (
         <Mask opacity={0.3} onMaskClick={() => hide()} visible={isShow}>
@@ -92,6 +94,7 @@ export const GasDialog = ({ dialogRef }) => {
                                     <StepInput
                                         className='name-input'
                                         onChange={(e) => {
+                                            e = IotaSDK.getNumberStr(e)
                                             setGasInfo({ ...gasInfo, gasPrice: e })
                                             setFieldValue('gasPrice', e)
                                         }}
@@ -103,6 +106,7 @@ export const GasDialog = ({ dialogRef }) => {
                                     <StepInput
                                         className='name-input'
                                         onChange={(e) => {
+                                            e = IotaSDK.getNumberStr(e)
                                             setGasInfo({ ...values, gasLimit: e })
                                             setFieldValue('gasLimit', e)
                                         }}
