@@ -31,7 +31,10 @@ export const CoinList = () => {
             {assetsList.map((e) => {
                 const isSMR = isSMRNode && !e.isSMRToken
                 return (
-                    <div key={e.name} style={{ height: itemH }} className='flex row ac press pr'>
+                    <div
+                        key={`${e.name}_${e.tokenId}_${e.contract}`}
+                        style={{ height: itemH }}
+                        className='flex row ac press pr'>
                         <div
                             onClick={() => {
                                 if (e.isSMRToken) {
