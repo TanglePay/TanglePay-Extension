@@ -85,10 +85,10 @@ export const NftDetail = () => {
                             <div className='mb8 bgS radius10 ph16 pv8'>
                                 <div className='fz16 fw400 mb4'>URI</div>
                                 <CopyToClipboard
-                                    text={params.uri}
+                                    text={params.uri || params.ipfsMedia}
                                     onCopy={() => Toast.success(I18n.t('assets.copied'))}>
                                     <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
-                                        {params.uri}
+                                        {params.uri || params.ipfsMedia}
                                     </div>
                                 </CopyToClipboard>
                             </div>
@@ -119,9 +119,9 @@ export const NftDetail = () => {
                     </div>
                     {openProperties ? (
                         <div className='flex ac row mt8' style={{ flexWrap: 'wrap' }}>
-                            {propsList.map((e) => {
+                            {propsList.map((e, i) => {
                                 return (
-                                    <div className='bgS radius10 p12 mr8'>
+                                    <div key={i} className='bgS radius10 p12 mr8 mb8'>
                                         <div className='cS fz16 fw600'>{e.label}</div>
                                         <div className='mt4 fz16 fw600'>{e.value}</div>
                                     </div>
