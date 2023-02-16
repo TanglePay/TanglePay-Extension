@@ -98,7 +98,7 @@ export const GasDialog = ({ dialogRef }) => {
                                             setGasInfo({ ...gasInfo, gasPrice: e })
                                             setFieldValue('gasPrice', e)
                                         }}
-                                        value={values.gasPrice}
+                                        value={values.gasPrice || ''}
                                     />
                                 </Form.Item>
                                 <Form.Item className={`pl0 ${errors.gasLimit && 'form-error'}`}>
@@ -110,12 +110,12 @@ export const GasDialog = ({ dialogRef }) => {
                                             setGasInfo({ ...values, gasLimit: e })
                                             setFieldValue('gasLimit', e)
                                         }}
-                                        value={values.gasLimit}
+                                        value={values.gasLimit || ''}
                                     />
                                 </Form.Item>
                                 <Form.Item className={`pl0 `}>
                                     <div className='fz18 mb10'>{I18n.t('assets.maxFee')}</div>
-                                    <div>{gasInfo.total}</div>
+                                    <div>{gasInfo.total || ''}</div>
                                 </Form.Item>
                                 <div className='mt24'>
                                     <Button color='primary' block onClick={handleSubmit}>

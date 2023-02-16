@@ -226,7 +226,11 @@ export const AssetsSend = () => {
                                         <div className='flex row ac jsb pv10 mt5'>
                                             <div>{I18n.t('assets.estimateGasFee')}</div>
                                             <div className='flex row ac'>
-                                                <div className='cS fz14 fw400 tr mr16'>{gasInfo.total}</div>
+                                                <div
+                                                    className='cS fz14 fw400 tr mr16 ellipsis'
+                                                    style={{ maxWidth: 150 }}>
+                                                    {gasInfo.total}
+                                                </div>
                                                 <div
                                                     className='press cP fz14 fw400'
                                                     onClick={() => {

@@ -624,7 +624,9 @@ export const DappDialog = () => {
                                 <div className='flex row ac jsb pv10 mt5'>
                                     <div className='fz16'>{I18n.t('assets.estimateGasFee')}</div>
                                     <div className='flex row ac'>
-                                        <div className='cS fz16 fw400 tr mr16'>{gasInfo.total}</div>
+                                        <div className='cS fz16 fw400 tr mr16 ellipsis' style={{ maxWidth: 150 }}>
+                                            {gasInfo.total}
+                                        </div>
                                         <div
                                             className='press cP fz16 fw400'
                                             onClick={() => {
