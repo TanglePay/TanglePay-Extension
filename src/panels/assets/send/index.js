@@ -234,6 +234,9 @@ export const AssetsSend = () => {
                                                 <div
                                                     className='press cP fz14 fw400'
                                                     onClick={() => {
+                                                        if (JSON.stringify(gasInfo) == '{}') {
+                                                            return
+                                                        }
                                                         gasDialog.current.show({ ...gasInfo }, (res) => {
                                                             setGasInfo(res)
                                                         })

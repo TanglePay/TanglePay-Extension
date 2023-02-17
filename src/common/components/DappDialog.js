@@ -630,6 +630,9 @@ export const DappDialog = () => {
                                         <div
                                             className='press cP fz16 fw400'
                                             onClick={() => {
+                                                if (JSON.stringify(gasInfo) == '{}') {
+                                                    return
+                                                }
                                                 gasDialog.current.show(gasInfo, (res) => {
                                                     setGasInfo(res)
                                                 })
