@@ -39,7 +39,7 @@ export const ImportToken = () => {
                                 id='input'
                                 value={searchStr}
                                 onChange={setSearch}
-                                placeholder='Search Tokens'
+                                placeholder={I18n.t('assets.searchToken')}
                                 style={{
                                     '--placeholder-color': '#6C737C',
                                     '--font-size': '16px'
