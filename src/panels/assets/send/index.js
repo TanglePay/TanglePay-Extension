@@ -224,15 +224,15 @@ export const AssetsSend = () => {
                                 {IotaSDK.checkWeb3Node(curWallet.nodeId) ? (
                                     <Form.Item noStyle>
                                         <div className='flex row ac jsb pv10 mt5'>
-                                            <div>{I18n.t('assets.estimateGasFee')}</div>
+                                            <div className='fz18'>{I18n.t('assets.estimateGasFee')}</div>
                                             <div className='flex row ac'>
                                                 <div
-                                                    className='cS fz14 fw400 tr mr16 ellipsis'
+                                                    className='cS fz16 fw400 tr mr16 ellipsis'
                                                     style={{ maxWidth: 150 }}>
                                                     {gasInfo.total}
                                                 </div>
                                                 <div
-                                                    className='press cP fz14 fw400'
+                                                    className='press cP fz16 fw400'
                                                     onClick={() => {
                                                         if (JSON.stringify(gasInfo) == '{}') {
                                                             return
@@ -257,7 +257,7 @@ export const AssetsSend = () => {
                                         value={values.password}
                                     />
                                 </Form.Item>
-                                <div className='pb30' style={{ marginTop: 100 }}>
+                                <div className='pb30' style={{ marginTop: 48 }}>
                                     <Button color='primary' size='large' block onClick={handleSubmit}>
                                         {I18n.t('assets.confirm')}
                                     </Button>

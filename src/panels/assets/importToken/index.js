@@ -32,17 +32,18 @@ export const ImportToken = () => {
                 </div>
                 {curTab == 0 ? (
                     <div className='mt16'>
-                        <div style={{ height: 48, padding: 6 }} className='mh16 flex row ac bgS pl8 radius10'>
-                            <SvgIcon name='search' color='#6C737C' size='16' />
+                        <div style={{ height: 48 }} className='mh16 flex row ac bgS pl8 radius10'>
+                            <SvgIcon style={{ marginTop: 4 }} name='search' color='#6C737C' size='16' />
                             <Input
-                                className='ml4 mb4 fw400 fz18'
+                                className='ml4 fz18'
                                 id='input'
                                 value={searchStr}
                                 onChange={setSearch}
                                 placeholder={I18n.t('assets.searchToken')}
                                 style={{
                                     '--placeholder-color': '#6C737C',
-                                    '--font-size': '16px'
+                                    '--font-size': '16px',
+                                    '--font-family': 'Open-Sans'
                                 }}
                             />
                         </div>

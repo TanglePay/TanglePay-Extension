@@ -70,8 +70,8 @@ export const GasDialog = ({ dialogRef }) => {
     return (
         <Mask opacity={0.3} onMaskClick={() => hide()} visible={isShow}>
             <div style={{ width: contentW - 32 }} className='radius10 bgW pa-c password-dialog'>
-                <div className='border-b pv12 ph16 fz16 fw600'>{I18n.t('assets.editPriority')}</div>
-                <div className='p16'>
+                <div className='border-b pv12 ph16 fz18 fw600'>{I18n.t('assets.editPriority')}</div>
+                <div className='p16' style={{ paddingTop: 6 }}>
                     <Formik
                         innerRef={formRef}
                         initialValues={{ ...gasInfo }}
@@ -113,8 +113,8 @@ export const GasDialog = ({ dialogRef }) => {
                                         value={values.gasLimit || ''}
                                     />
                                 </Form.Item>
-                                <Form.Item className={`pl0 `}>
-                                    <div className='fz18 mb10'>{I18n.t('assets.maxFee')}</div>
+                                <Form.Item noStyle className={`pl0 pb4`}>
+                                    <div className='fz18 mb10 pt12'>{I18n.t('assets.maxFee')}</div>
                                     <div>{gasInfo.total || ''}</div>
                                 </Form.Item>
                                 <div className='mt24'>

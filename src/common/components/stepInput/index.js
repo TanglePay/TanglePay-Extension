@@ -3,6 +3,7 @@ import { Input } from 'antd-mobile'
 import BigNumber from 'bignumber.js'
 import { IotaSDK } from '@tangle-pay/common'
 import './index.less'
+import { SvgIcon } from '../../assets'
 
 // export const StepInput = (props) => {
 //     return (
@@ -35,34 +36,10 @@ export const StepInput = (props) => {
                     onChange(parseInt(e))
                 }}
                 maxLength={18}
-                className='mr12 p10'
+                className='mr12 pl0 pt4'
             />
-            <div
-                className='press bgW border flex c cP fw600 fz11 mr12'
-                onClick={handleReduce}
-                style={{
-                    borderColor: '#3671ee',
-                    height: '20px',
-                    width: '20px',
-                    borderRadius: '50%',
-                    boxSizing: 'border-box',
-                    lineHeight: '20px'
-                }}>
-                —
-            </div>
-            <div
-                className='press bgW border flex c cP fw600 fz22'
-                onClick={handlePlus}
-                style={{
-                    borderColor: '#3671ee',
-                    height: '20px',
-                    width: '20px',
-                    borderRadius: '50%',
-                    boxSizing: 'border-box',
-                    lineHeight: '20px'
-                }}>
-                +
-            </div>
+            <SvgIcon size='20' name='minus_circle' className='press mr12' color='#3671ee' onClick={handleReduce} />
+            <SvgIcon size='20' name='add_circle' className='press' color='#3671ee' onClick={handlePlus} />
         </div>
     )
 }

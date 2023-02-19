@@ -145,7 +145,9 @@ export const Assets = ({ tabKey }) => {
                                         onClick={() => {
                                             Base.push('assets/importToken')
                                         }}>
-                                        <span className='fz24 fw600 mr4'>+</span>
+                                        <span className='fz24 fw600 mr12' style={{ lineHeight: '16px' }}>
+                                            +
+                                        </span>
                                         {I18n.t('assets.importToken')}
                                     </div>
                                 ) : null}

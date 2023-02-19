@@ -51,7 +51,7 @@ export const NftDetail = () => {
                     />
                     <div className='fz18 mt8 fw600 tc'>{params.name}</div>
                     <div className='fz18 mt4 fw600 cS'>{params.issuerName}</div>
-                    <div className='fz16 mt12 fw400 cS'>{params.description}</div>
+                    <div className='fz16 mt10 fw400 cS'>{params.description}</div>
                 </div>
                 <div>
                     <div
@@ -66,13 +66,13 @@ export const NftDetail = () => {
                     {openDetail ? (
                         <div>
                             {params.standard ? (
-                                <div className='mb8 bgS radius10 flex ac jsb ph16' style={{ height: 48 }}>
+                                <div className='mb8 bgS radius10 flex ac jsb ph12' style={{ height: 36 }}>
                                     <div className='fz16 fw400'>{I18n.t('assets.standard')}</div>
                                     <div className='fz16 fw400'>{params.standard}</div>
                                 </div>
                             ) : null}
                             {params.nftId ? (
-                                <div className='mb8 bgS radius10 ph16 pv8'>
+                                <div className='mb8 bgS radius10 ph12 pv10'>
                                     <div className='fz16 fw400 mb4'>NFT ID</div>
                                     <CopyToClipboard
                                         text={params.nftId}
@@ -83,7 +83,7 @@ export const NftDetail = () => {
                                     </CopyToClipboard>
                                 </div>
                             ) : null}
-                            <div className='mb8 bgS radius10 ph16 pv8'>
+                            <div className='mb8 bgS radius10 ph12 pv10'>
                                 <div className='fz16 fw400 mb4'>URI</div>
                                 <CopyToClipboard
                                     text={params.uri || params.ipfsMedia}
@@ -94,7 +94,7 @@ export const NftDetail = () => {
                                 </CopyToClipboard>
                             </div>
                             {params.collectionId ? (
-                                <div className='mb8 bgS radius10 ph16 pv8'>
+                                <div className='mb8 bgS radius10 ph12 pv10'>
                                     <div className='fz16 fw400 mb4'>{I18n.t('assets.collectionID')}</div>
                                     <CopyToClipboard
                                         text={params.collectionId}
@@ -108,7 +108,7 @@ export const NftDetail = () => {
                         </div>
                     ) : null}
                 </div>
-                <div className='pb24 mt16'>
+                <div className='pb24 mt8'>
                     <div
                         className='press flex row ac'
                         onClick={() => {
