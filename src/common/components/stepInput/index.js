@@ -19,6 +19,9 @@ export const StepInput = (props) => {
     useEffect(() => {
         setValue(value)
     }, [value])
+    useEffect(() => {
+        onChange(inputValue)
+    }, [inputValue])
     const handleReduce = () => {
         if (inputValue && inputValue > 0) {
             setValue(IotaSDK.getNumberStr(BigNumber(inputValue).minus(1).valueOf()))
@@ -33,9 +36,10 @@ export const StepInput = (props) => {
                 style={{ flex: 1 }}
                 value={String(inputValue)}
                 onChange={(e) => {
-                    onChange(parseInt(e))
+                    e = String(e).replace(/[a-zA-z]/, '')
+                    onChange(e)
                 }}
-                maxLength={18}
+                maxLength={12}
                 className='mr12 pl0 pt4'
             />
             <SvgIcon size='20' name='minus_circle' className='press mr12' color='#3671ee' onClick={handleReduce} />

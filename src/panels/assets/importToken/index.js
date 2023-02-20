@@ -12,13 +12,13 @@ const schema = Yup.object().shape({
 })
 export const ImportToken = () => {
     const form = useRef()
-    const [curTab, setTab] = useState(0)
+    const [curTab, setTab] = useState(1)
     const [searchStr, setSearch] = useState('')
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.importToken')} />
             <div className='page-contetn'>
-                <div className='ph16'>
+                {/* <div className='ph16'>
                     <div className='flex row ac border-b'>
                         <div onClick={() => setTab(0)} className='flex c mr12 press' style={{ height: 50 }}>
                             <div className={`${curTab === 0 ? 'cP' : 'cB'} fw600 fz18`}>{I18n.t('assets.search')}</div>
@@ -29,7 +29,7 @@ export const ImportToken = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 {curTab == 0 ? (
                     <div className='mt16'>
                         <div style={{ height: 48 }} className='mh16 flex row ac bgS pl8 radius10'>
@@ -122,12 +122,12 @@ export const ImportToken = () => {
                                         <Input
                                             className='pt4'
                                             placeholder={I18n.t('assets.inputContractAddress')}
-                                            onChange={handleChange('contract')}
-                                            value={values.contract}
-                                            onBlur={async () => {
-                                                if (values.contract) {
+                                            onChange={async (e) => {
+                                                setFieldValue('contract', e)
+                                                if (e.length > 24 && /^0x/i.test(e)) {
                                                     try {
-                                                        const web3Contract = IotaSDK.getContract(values.contract)
+                                                        const web3Contract = IotaSDK.getContract(e)
+                                                        console.log(web3Contract)
                                                         if (web3Contract) {
                                                             const symbol = await web3Contract.methods.symbol().call()
                                                             const decimal = await web3Contract.methods.decimals().call()
@@ -137,6 +137,7 @@ export const ImportToken = () => {
                                                     } catch (error) {}
                                                 }
                                             }}
+                                            value={values.contract}
                                         />
                                     </Form.Item>
                                     <Form.Item className={`pl0 ${errors.symbol && 'form-error'}`}>

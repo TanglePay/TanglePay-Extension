@@ -54,18 +54,19 @@ export const GasDialog = ({ dialogRef }) => {
             gasPrice = IotaSDK.getNumberStr(parseFloat(gasPrice) || '')
             gasLimit = IotaSDK.getNumberStr(parseFloat(gasLimit) || '')
             let total = 0
+            let totalEth = 0
             if (gasPrice && gasLimit) {
-                gasPrice = IotaSDK.client.utils.toHex(gasPrice)
-                gasLimit = IotaSDK.client.utils.toHex(gasLimit)
-                total = new BigNumber(gasPrice).times(gasLimit)
-                total = IotaSDK.getNumberStr(total)
-                total = IotaSDK.client.utils.fromWei(total, 'ether')
+                total = IotaSDK.getNumberStr(gasPrice * gasLimit)
+                totalEth = IotaSDK.getNumberStr(total / 1000000000)
             }
             setGasInfo({
                 ...gasInfo,
-                total
+                total,
+                totalEth
             })
-        } catch (error) {}
+        } catch (error) {
+            console.log(error)
+        }
     }, [JSON.stringify(gasInfo)])
     return (
         <Mask opacity={0.3} onMaskClick={() => hide()} visible={isShow}>
@@ -90,7 +91,7 @@ export const GasDialog = ({ dialogRef }) => {
                         {({ setFieldValue, handleSubmit, values, errors }) => (
                             <Form>
                                 <Form.Item className={`pl0 ${errors.gasPrice && 'form-error'}`}>
-                                    <div className='fz18 mb10'>{I18n.t('assets.gasFee')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('assets.gasFee')} (GWEI)</div>
                                     <StepInput
                                         className='name-input'
                                         onChange={(e) => {
@@ -114,7 +115,7 @@ export const GasDialog = ({ dialogRef }) => {
                                     />
                                 </Form.Item>
                                 <Form.Item noStyle className={`pl0 pb4`}>
-                                    <div className='fz18 mb10 pt12'>{I18n.t('assets.maxFee')}</div>
+                                    <div className='fz18 mb10 pt12'>{I18n.t('assets.maxFee')} (GWEI)</div>
                                     <div>{gasInfo.total || ''}</div>
                                 </Form.Item>
                                 <div className='mt24'>

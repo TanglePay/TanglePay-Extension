@@ -60,12 +60,15 @@ export const AssetsSend = () => {
             Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract)]).then(
                 ([gasPrice, gas]) => {
                     let gasLimit = gasInfo.gasLimit || gas
-                    let total = new BigNumber(gasPrice).times(gasLimit)
-                    total = IotaSDK.client.utils.fromWei(total.valueOf(), 'ether')
+                    let totalWei = new BigNumber(gasPrice).times(gasLimit)
+                    const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
+                    gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
+                    const total = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'gwei')
                     setGasInfo({
                         gasLimit,
                         gasPrice,
-                        total
+                        total,
+                        totalEth
                     })
                 }
             )
@@ -227,10 +230,13 @@ export const AssetsSend = () => {
                                             <div className='fz18'>{I18n.t('assets.estimateGasFee')}</div>
                                             <div className='flex row ac'>
                                                 <div
-                                                    className='cS fz16 fw400 tr mr16 ellipsis'
-                                                    style={{ maxWidth: 150 }}>
-                                                    {gasInfo.total}
+                                                    className='cS fz16 fw400 tr mr4 ellipsis'
+                                                    style={{ maxWidth: 136 }}>
+                                                    {gasInfo.totalEth}
                                                 </div>
+                                                {gasInfo.totalEth ? (
+                                                    <div className='cS fz16 fw400 tr mr8'>{IotaSDK.curNode?.token}</div>
+                                                ) : null}
                                                 <div
                                                     className='press cP fz16 fw400'
                                                     onClick={() => {
