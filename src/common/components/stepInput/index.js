@@ -36,7 +36,11 @@ export const StepInput = (props) => {
                 style={{ flex: 1 }}
                 value={String(inputValue)}
                 onChange={(e) => {
-                    e = String(e).replace(/[a-zA-z]/, '')
+                    e = String(e).replace(/[^0-9\.]/, '')
+                    if (e.split('.').length > 2) {
+                        const arr = e.split('.')
+                        e = `${arr[0]}.${arr.slice(1).join('')}`
+                    }
                     onChange(e)
                 }}
                 maxLength={12}
