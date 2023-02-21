@@ -129,16 +129,34 @@ export const Assets = ({ tabKey }) => {
                     <div className='ph16' id='content-id' style={{ height, overflowY: 'scroll' }}>
                         {curTab === 0 ? (
                             <>
-                                <div>
-                                    <CoinList />
-                                    {assetsTab.includes('stake') && <RewardsList />}
-                                </div>
-                                {!isRequestAssets && (
-                                    <div className='p30 flex c row'>
-                                        <Loading color='gray' />
-                                        <span className='flex cS fz16 pl10'>{I18n.t('assets.requestAssets')}</span>
+                                <div style={{ height }} className='flex column jsb '>
+                                    <div>
+                                        <div>
+                                            <CoinList />
+                                            {assetsTab.includes('stake') && <RewardsList />}
+                                        </div>
+                                        {!isRequestAssets ? (
+                                            <div className='ph30 pv24 flex c row'>
+                                                <Loading color='gray' />
+                                                <span className='flex cS fz16 pl10'>
+                                                    {I18n.t('assets.requestAssets')}
+                                                </span>
+                                            </div>
+                                        ) : null}
                                     </div>
-                                )}
+                                    {IotaSDK.checkWeb3Node(curWallet.nodeId) ? (
+                                        <div
+                                            className='cP fz15 pv16 mt4 press flex c'
+                                            onClick={() => {
+                                                Base.push('assets/importToken')
+                                            }}>
+                                            <span className='fz23 mr12' style={{ lineHeight: '16px' }}>
+                                                +
+                                            </span>
+                                            {I18n.t('assets.importToken')}
+                                        </div>
+                                    ) : null}
+                                </div>
                             </>
                         ) : curTab == 1 ? (
                             <CollectiblesList />

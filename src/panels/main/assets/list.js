@@ -17,14 +17,14 @@ export const CoinList = () => {
     const [unlockConditions] = useStore('common.unlockConditions')
     // const curLegal = useGetLegal()
     const contractList = IotaSDK.curNode?.contractList || []
-    assetsList = assetsList.filter((e) => {
-        const { name } = e
-        if (!e.contract) {
-            return true
-        }
-        const contract = contractList.find((e) => e.token === name)?.contract
-        return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
-    })
+    // assetsList = assetsList.filter((e) => {
+    //     const { name } = e
+    //     if (!e.contract) {
+    //         return true
+    //     }
+    //     const contract = contractList.find((e) => e.token === name)?.contract
+    //     return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
+    // })
     const isSMRNode = IotaSDK.checkSMR(IotaSDK.curNode?.id)
     return (
         <div>
@@ -32,27 +32,51 @@ export const CoinList = () => {
                 const isSMR = isSMRNode && !e.isSMRToken
                 return (
                     <div
-                        onClick={() => {
-                            Base.push('assets/send', { currency: e.name })
-                        }}
-                        key={e.name}
+                        key={`${e.name}_${e.tokenId}_${e.contract}`}
                         style={{ height: itemH }}
                         className='flex row ac press pr'>
-                        <img
-                            className='mr10 border pa bgW'
-                            style={{ width: 48, height: 48, borderRadius: 48, left: 0, opacity: 1, top: 8, zIndex: 0 }}
-                            src={e.logoUrl || Base.getIcon(e.isSMRToken ? e.tokenId : e.name)}
-                            alt=''
-                            onError={(e) => {
-                                e.target.style.opacity = 0
-                            }}
-                        />
                         <div
-                            className='mr10 border bgP flex c cW fw600 fz24'
-                            style={{ width: 48, height: 48, borderRadius: 48 }}>
-                            {String(e.name).toLocaleUpperCase()[0]}
+                            onClick={() => {
+                                if (e.isSMRToken) {
+                                    Base.push('assets/tokenDetail', {
+                                        tokenId: e.tokenId,
+                                        standard: e.standard,
+                                        name: e.name,
+                                        logoUrl: e.logoUrl
+                                    })
+                                } else {
+                                    Base.push('assets/send', { currency: e.name, id: e.tokenId || e.contract || '' })
+                                }
+                            }}>
+                            <img
+                                className='mr10 border pa bgW'
+                                style={{
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: 48,
+                                    left: 0,
+                                    opacity: 1,
+                                    top: 8,
+                                    zIndex: 0
+                                }}
+                                src={e.logoUrl || Base.getIcon(e.isSMRToken ? e.tokenId : e.name)}
+                                alt=''
+                                onError={(e) => {
+                                    e.target.style.opacity = 0
+                                }}
+                            />
+                            <div
+                                className='mr10 border bgP flex c cW fw600 fz24'
+                                style={{ width: 48, height: 48, borderRadius: 48 }}>
+                                {String(e.name).toLocaleUpperCase()[0]}
+                            </div>
                         </div>
-                        <div style={{ height: itemH }} className='border-b flex flex1 row ac jsb'>
+                        <div
+                            onClick={() => {
+                                Base.push('assets/send', { currency: e.name, id: e.tokenId || e.contract || '' })
+                            }}
+                            style={{ height: itemH }}
+                            className='border-b flex flex1 row ac jsb'>
                             <div className='flex ac row'>
                                 <div className='fz18 mr5'>{String(e.name).toLocaleUpperCase()}</div>
                                 {!IotaSDK.isWeb3Node &&
@@ -144,9 +168,9 @@ export const RewardsList = () => {
         }
         let arr = Object.values(obj)
         arr.sort((a) => (a.isSMR ? -1 : 0))
-        if (checkClaim) {
-            arr = arr.filter((e) => !e.isSMR)
-        }
+        // if (checkClaim) {
+        arr = arr.filter((e) => !e.isSMR)
+        // }
         setList(arr)
     }, [checkClaim, JSON.stringify(stakedRewards), JSON.stringify(rewards), curWallet.address + curWallet.nodeId])
     const ListEl = useMemo(() => {
@@ -340,6 +364,11 @@ const CollectiblesItem = ({ logo, name, link, list }) => {
                                         ) : null}
                                     </div>
                                     <img
+                                        onClick={() => {
+                                            Base.push('assets/nftDetail', {
+                                                nft: JSON.stringify(e)
+                                            })
+                                        }}
                                         className='bgS'
                                         style={{
                                             borderRadius: 8,
