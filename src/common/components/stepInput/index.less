@@ -1,0 +1,43 @@
+.stepper-con {
+    width: 100%;
+    .adm-stepper {
+        width: 100%;
+        position: relative;
+        .adm-button-disabled {
+            background-color: unset;
+            border: 2px solid var(--adm-color-primary);
+        }
+        .adm-stepper-minus,
+        .adm-stepper-plus {
+            position: absolute;
+            left: unset;
+            border-radius: 100%;
+            border-color: var(--adm-color-primary);
+            border-width: 2px;
+            font-weight: bold;
+            z-index: 100;
+            svg {
+                font-size: 18px;
+                transform: scale(0.9);
+            }
+            &:disabled {
+                color: var(--adm-color-primary);
+            }
+        }
+        .adm-stepper-minus {
+            right: 34px;
+        }
+        .adm-stepper-plus {
+            right: 0px;
+        }
+        .adm-stepper-input {
+            border-top: 0;
+            border-bottom: 0;
+            text-align: left;
+            width: 60%;
+            input {
+                text-align: left;
+            }
+        }
+    }
+}

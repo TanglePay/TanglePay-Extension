@@ -5,12 +5,9 @@ import { List } from './list'
 import { Base } from '@tangle-pay/common'
 import _uniq from 'lodash/uniq'
 import { useStore } from '@tangle-pay/store'
-import { useGetDappsConfig } from '@tangle-pay/store/dapps'
 import { SvgIcon } from '@/common/assets'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
-
 export const Apps = () => {
-    useGetDappsConfig()
     const [height, setHeight] = useState(0)
     const [dapps] = useStore('dapps.list')
     const [keywords] = useStore('dapps.keywords')
