@@ -400,7 +400,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             curMethod = method
             let { content, expires } = requestParams || {}
             content = content || ''
-            expires = expires || 1000 * 3600 * 24
+            expires = expires || Number.MAX_VALUE
             // get cache data
             getBackgroundData('cur_wallet_address').then((cacheAddress) => {
                 const cacheKey = `${origin}_${method}_${cacheAddress}`

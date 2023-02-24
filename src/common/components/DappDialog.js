@@ -139,7 +139,7 @@ export const DappDialog = () => {
                             tag,
                             nftId,
                             gas: gasInfo.gasLimit,
-                            gasPrice: gasInfo.gasPrice
+                            gasPrice: gasInfo.gasPriceWei
                         })
                         if (!res) {
                             throw I18n.t('user.nodeError')
@@ -308,6 +308,7 @@ export const DappDialog = () => {
                                     IotaSDK.client.eth.getGasPrice(),
                                     IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? address : '')
                                 ])
+                                const gasPriceWei = gasPrice
                                 gasLimit = gasLimit || 21000
                                 let totalWei = new BigNumber(gasPrice).times(gasLimit)
                                 const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
@@ -316,6 +317,7 @@ export const DappDialog = () => {
                                 setGasInfo({
                                     gasLimit,
                                     gasPrice,
+                                    gasPriceWei,
                                     total,
                                     totalEth
                                 })

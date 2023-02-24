@@ -62,11 +62,13 @@ export const AssetsSend = () => {
                     let gasLimit = gasInfo.gasLimit || gas
                     let totalWei = new BigNumber(gasPrice).times(gasLimit)
                     const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
+                    const gasPriceWei = gasPrice
                     gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
                     const total = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'gwei')
                     setGasInfo({
                         gasLimit,
                         gasPrice,
+                        gasPriceWei,
                         total,
                         totalEth
                     })
@@ -136,7 +138,7 @@ export const AssetsSend = () => {
                                 mainBalance,
                                 nftId,
                                 gas: gasInfo.gasLimit,
-                                gasPrice: gasInfo.gasPrice
+                                gasPrice: gasInfo.gasPriceWei
                             })
                             if (res) {
                                 // Toast.hideLoading()
