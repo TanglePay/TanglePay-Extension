@@ -16,11 +16,11 @@ function injectCustomJs(jsPath) {
 }
 
 // send message to background
-function sendToBackground({ cmd, data }) {
+function sendToBackground({ cmd, data, id }) {
     var left = window.document.body.offsetWidth - 400
     var origin = window.location.origin
     chrome.runtime.sendMessage(
-        { cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin },
+        { id, cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin },
         function (response) {
             switch (response?.cmd) {
                 case 'getTanglePayInfo':
