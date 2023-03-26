@@ -451,6 +451,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             return true
                         }
                         switch (method) {
+                            case 'iota_merge_nft':
+                                {
+                                    const { network = '' } = requestParams
+                                    const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
+                                    // params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                    params.url = chrome.runtime.getURL('index.html') + `#/assets/nftMerge`
+                                }
+                                break
                             case 'iota_getPublicKey':
                                 {
                                     getAddressInfo(requestParams?.address).then((addressInfo) => {
