@@ -311,6 +311,7 @@ export const DappDialog = () => {
                                 const gasPriceWei = gasPrice
                                 gasLimit = gasLimit || 21000
                                 let totalWei = new BigNumber(gasPrice).times(gasLimit)
+                                totalWei = IotaSDK.getNumberStr(totalWei)
                                 const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
                                 gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
                                 const total = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'gwei')
