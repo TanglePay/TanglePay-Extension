@@ -59,6 +59,10 @@ export const AssetsSend = () => {
             const eth = IotaSDK.client.eth
             Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract)]).then(
                 ([gasPrice, gas]) => {
+                    if (IotaSDK.curNode?.isTest) {
+                        gasPrice = IotaSDK.getNumberStr(gasPrice * 10)
+                        gas = IotaSDK.getNumberStr(gas * 10)
+                    }
                     let gasLimit = gasInfo.gasLimit || gas
                     let totalWei = new BigNumber(gasPrice).times(gasLimit)
                     const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')

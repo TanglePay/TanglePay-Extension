@@ -308,6 +308,10 @@ export const DappDialog = () => {
                                     IotaSDK.client.eth.getGasPrice(),
                                     IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? address : '')
                                 ])
+                                if (IotaSDK.curNode?.isTest) {
+                                    gasPrice = IotaSDK.getNumberStr(gasPrice * 10)
+                                    gasLimit = IotaSDK.getNumberStr(gasLimit * 10)
+                                }
                                 const gasPriceWei = gasPrice
                                 gasLimit = gasLimit || 21000
                                 let totalWei = new BigNumber(gasPrice).times(gasLimit)
