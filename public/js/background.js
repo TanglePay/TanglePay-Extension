@@ -94,7 +94,7 @@ function checkUnLock(output) {
     const features = output?.output?.features || []
     let featuresLock = false
     if (features.length > 0) {
-        const PARTICIPATE = `0x${util_js.Converter.utf8ToHex('PARTICIPATE')}`
+        const PARTICIPATE = `0x${Converter.utf8ToHex('PARTICIPATE')}`
         featuresLock = !!features.find((e) => e.tag === PARTICIPATE)
     }
     return !lockData && !featuresLock
@@ -374,20 +374,22 @@ var createDialog = function (params) {
 let curMethod = ''
 let web3_ = undefined
 const ensureWeb3Client = () => {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         if (web3_ !== undefined) {
             TanglePaySdkCommon.setWeb3Client(web3_)
             resolve()
         } else {
-            getNodeInfo().then(async (res) => {
-                if (res.url) {
-                    console.log(res.url)
-                    web3_ = new window.Web3(res.url)
-                    resolve()
-                } else {
-                    reject()
-                }
-            }).catch(reject)
+            getNodeInfo()
+                .then(async (res) => {
+                    if (res.url) {
+                        console.log(res.url)
+                        web3_ = new window.Web3(res.url)
+                        resolve()
+                    } else {
+                        reject()
+                    }
+                })
+                .catch(reject)
         }
     })
 }
@@ -405,20 +407,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     const cmd = (request?.cmd || '').replace('contentToBackground##', '')
     const origin = request?.origin
-    const reqId = (request?.id)?(request?.id):0
-    window.tanglepayCallBack[cmd+'_'+reqId] = sendResponse
-    const handleRequest = (func,pl,method,id)=>{
+    const reqId = request?.id ? request?.id : 0
+    window.tanglepayCallBack[cmd + '_' + reqId] = sendResponse
+    const handleRequest = (func, pl, method, id) => {
         console.log(pl)
-        func(...pl).then((res)=>{
-            sendToContentScript({
-                cmd: 'iota_request',
-                id,
-                code: res ? 200 : -1,
-                data: {
-                    method,
-                    response: res
-                }
-            }, id)
+        func(...pl).then((res) => {
+            sendToContentScript(
+                {
+                    cmd: 'iota_request',
+                    id,
+                    code: res ? 200 : -1,
+                    data: {
+                        method,
+                        response: res
+                    }
+                },
+                id
+            )
         })
     }
     switch (cmd) {
@@ -497,10 +502,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         switch (method) {
                             case 'iota_merge_nft':
                                 {
-                                    const { network = '' } = requestParams
-                                    const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
+                                    // const { network = '' } = requestParams
+                                    // const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
                                     // params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-                                    params.url = chrome.runtime.getURL('index.html') + `#/assets/nftMerge`
+                                    params.url =
+                                        chrome.runtime.getURL('index.html') +
+                                        `#/assets/nftMerge?params=${JSON.stringify(requestParams)}`
                                 }
                                 break
                             case 'iota_getPublicKey':
@@ -616,10 +623,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                 const abiParams = abi.decodeParameters(item.inputs, paramsHex)
                                                 let abiParamsList = []
                                                 for (const i in abiParams) {
-                                                    if (
-                                                        Object.hasOwnProperty.call(abiParams, i) &&
-                                                        /^\d$/.test(i)
-                                                    ) {
+                                                    if (Object.hasOwnProperty.call(abiParams, i) && /^\d$/.test(i)) {
                                                         abiParamsList.push(abiParams[i])
                                                     }
                                                 }
@@ -791,16 +795,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 break
                             case 'eth_getBlockByNumber':
                                 {
-                                    ensureWeb3Client().then(()=>{
-                                        handleRequest(TanglePaySdkCommon.ethGetBlockByNumber,requestParams,method,reqId)
+                                    ensureWeb3Client().then(() => {
+                                        handleRequest(
+                                            TanglePaySdkCommon.ethGetBlockByNumber,
+                                            requestParams,
+                                            method,
+                                            reqId
+                                        )
                                     })
-
                                 }
                                 break
                             case 'eth_gasPrice':
                                 {
-                                    ensureWeb3Client().then(()=>{
-                                        handleRequest(TanglePaySdkCommon.ethGasPrice,requestParams,method,reqId)
+                                    ensureWeb3Client().then(() => {
+                                        handleRequest(TanglePaySdkCommon.ethGasPrice, requestParams, method, reqId)
                                     })
                                 }
                                 break
@@ -868,11 +876,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return true
         }
         case 'popupBridgeToBackground':
-            window.tanglepayCallBack[cmd+'_'+reqId] = null
+            window.tanglepayCallBack[cmd + '_' + reqId] = null
             sendToContentScript(request?.sendData || {})
             break
         case 'popupBridgeCloseWindow':
-            window.tanglepayCallBack[cmd+'_'+reqId] = null
+            window.tanglepayCallBack[cmd + '_' + reqId] = null
             if (window.tanglepayDialog) {
                 chrome.windows.remove(window.tanglepayDialog)
             }
@@ -898,8 +906,8 @@ function sendToContentScript(message) {
     } else {
         curMethod = ''
         // message
-        const callBack = window.tanglepayCallBack[message.cmd + '_' +id]
+        const callBack = window.tanglepayCallBack[message.cmd + '_' + id]
         callBack && callBack(message)
-        window.tanglepayCallBack[message.cmd+'_'+id] = null
+        window.tanglepayCallBack[message.cmd + '_' + id] = null
     }
 }

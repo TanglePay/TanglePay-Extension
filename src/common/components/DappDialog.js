@@ -396,23 +396,29 @@ export const DappDialog = () => {
                                         setInit(false)
                                         Toast.showLoading()
                                         if (IotaSDK?.IndexerPluginClient?.nft) {
-                                            let nftInfo = await IotaSDK.IndexerPluginClient.nft(nftId)
-                                            if (nftInfo?.items?.[0]) {
-                                                nftInfo = await IotaSDK.client.output(nftInfo?.items?.[0])
+                                            unit = []
+                                            const getNftInfo = async (curNftId) => {
+                                                let nftInfo = await IotaSDK.IndexerPluginClient.nft(curNftId)
+                                                if (nftInfo?.items?.[0]) {
+                                                    nftInfo = await IotaSDK.client.output(nftInfo?.items?.[0])
 
-                                                let info = (nftInfo?.output?.immutableFeatures || []).find((d) => {
-                                                    return d.type == 2
-                                                })
-                                                if (info && info.data) {
-                                                    try {
-                                                        info = IotaSDK.hexToUtf8(info.data)
-                                                        info = JSON.parse(info)
-                                                        unit = info.name
-                                                    } catch (error) {
-                                                        console.log(error)
+                                                    let info = (nftInfo?.output?.immutableFeatures || []).find((d) => {
+                                                        return d.type == 2
+                                                    })
+                                                    if (info && info.data) {
+                                                        try {
+                                                            info = IotaSDK.hexToUtf8(info.data)
+                                                            info = JSON.parse(info)
+                                                            unit.push(info.name)
+                                                        } catch (error) {
+                                                            console.log(error)
+                                                        }
                                                     }
                                                 }
                                             }
+                                            const nfts = nftId.split(',')
+                                            await Promise.all(nfts.map((e) => getNftInfo(e)))
+                                            unit = unit.join(' , ')
                                         }
                                         showUnit = unit
                                         setInit(true)
