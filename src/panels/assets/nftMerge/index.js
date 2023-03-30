@@ -83,7 +83,7 @@ export const AssetsNftMerge = () => {
                         background: isDisabled ? 'rgba(54, 113, 238, 0.2)' : 'rgba(54, 113, 238, 1)'
                     }}
                     color='primary'>
-                    Select
+                    添加
                 </Button>
             </div>
             <div>
