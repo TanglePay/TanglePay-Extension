@@ -4,7 +4,7 @@ import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
-import { useGetNodeWallet } from '@tangle-pay/store/common'
+import { useGetNodeWallet, useGetAssetsList } from '@tangle-pay/store/common'
 import { Nav, Toast } from '@/common'
 import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
@@ -12,12 +12,12 @@ import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 import { GasDialog } from '@/common/components/gasDialog'
 // import { SendFailDialog } from '@/common/components/sendFailDialog'
 
-const schema = Yup.object().shape({
+const schema = {
     // currency: Yup.string().required(),
     receiver: Yup.string().required(),
     amount: Yup.number().positive().required(),
     password: Yup.string().required()
-})
+}
 export const AssetsSend = () => {
     const gasDialog = useRef()
     // const sendFailDialog = useRef()
@@ -80,6 +80,13 @@ export const AssetsSend = () => {
             )
         }
     }, [curWallet.nodeId, assets?.contract])
+    useGetAssetsList(curWallet)
+    const isLedger = curWallet.type == 'ledger'
+    if (isLedger) {
+        schema.password = Yup.string().optional()
+    } else {
+        schema.password = Yup.string().required()
+    }
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
@@ -90,12 +97,14 @@ export const AssetsSend = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={schema}
+                    validationSchema={Yup.object().shape(schema)}
                     onSubmit={async (values) => {
                         let { password, amount, receiver } = values
-                        const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
-                        if (!isPassword) {
-                            return Toast.error(I18n.t('assets.passwordError'))
+                        if (!isLedger) {
+                            const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                            if (!isPassword) {
+                                return Toast.error(I18n.t('assets.passwordError'))
+                            }
                         }
                         amount = parseFloat(amount) || 0
                         let decimal = Math.pow(10, assets.decimal)
@@ -147,7 +156,11 @@ export const AssetsSend = () => {
                             if (res) {
                                 // Toast.hideLoading()
                                 // Toast.success(I18n.t('assets.sendSucc'))
-                                Base.goBack()
+                                if (isLedger) {
+                                    Base.replace('/main')
+                                } else {
+                                    Base.goBack()
+                                }
                             }
                         } catch (error) {
                             Toast.hideLoading()
@@ -259,16 +272,18 @@ export const AssetsSend = () => {
                                         </div>
                                     </Form.Item>
                                 ) : null}
-                                <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
-                                    <Input
-                                        type='password'
-                                        className='pl0 pv4'
-                                        placeholder={I18n.t('assets.passwordTips')}
-                                        onChange={handleChange('password')}
-                                        value={values.password}
-                                    />
-                                </Form.Item>
+                                {!isLedger ? (
+                                    <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
+                                        <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
+                                        <Input
+                                            type='password'
+                                            className='pl0 pv4'
+                                            placeholder={I18n.t('assets.passwordTips')}
+                                            onChange={handleChange('password')}
+                                            value={values.password}
+                                        />
+                                    </Form.Item>
+                                ) : null}
                                 <div className='pb30' style={{ marginTop: 48 }}>
                                     <Button color='primary' size='large' block onClick={handleSubmit}>
                                         {I18n.t('assets.confirm')}

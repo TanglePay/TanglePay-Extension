@@ -68,12 +68,18 @@ export const Main = () => {
             Bridge.connect(window.location.search)
         }
     }, [curWallet.password])
-    useEffect(() => {
+    useEffect(async () => {
         if (curWallet.password && curWallet.address) {
-            Bridge.sendEvt('accountsChanged', {
+            const obj = {
                 address: curWallet.address,
                 nodeId: curWallet.nodeId
-            })
+            }
+            if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+                try {
+                    obj.chainId = await IotaSDK.client.eth.getChainId()
+                } catch (error) {}
+            }
+            Bridge.sendEvt('accountsChanged', obj)
         }
     }, [curWallet.password + curWallet.address + curWallet.nodeId])
     return (
