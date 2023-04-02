@@ -28,6 +28,7 @@ export const DappDialog = () => {
     const [curNodeId] = useStore('common.curNodeId')
     const changeNode = useChangeNode()
     const [gasInfo, setGasInfo] = useState({})
+    const isLedger = curWallet.type == 'ledger'
     const show = () => {
         // requestAnimationFrame(() => {
         setShow(true)
@@ -68,9 +69,11 @@ export const DappDialog = () => {
     }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
-            const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
-            if (!isPassword) {
-                return Toast.error(I18n.t('assets.passwordError'))
+            if (!isLedger) {
+                const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                if (!isPassword) {
+                    return Toast.error(I18n.t('assets.passwordError'))
+                }
             }
         }
         let messageId = ''
@@ -306,7 +309,11 @@ export const DappDialog = () => {
 
                                 let [gasPrice, gasLimit] = await Promise.all([
                                     IotaSDK.client.eth.getGasPrice(),
-                                    IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? address : '')
+                                    IotaSDK.getDefaultGasLimit(
+                                        curWallet.address,
+                                        taggedData ? address : '',
+                                        IotaSDK.getNumberStr(sendAmount || 0)
+                                    )
                                 ])
                                 if (IotaSDK.curNode?.isTest) {
                                     gasPrice = IotaSDK.getNumberStr(gasPrice * 10)
@@ -662,7 +669,7 @@ export const DappDialog = () => {
                                 </div>
                             </Form.Item>
                         ) : null}
-                        {dappData.type !== 'iota_connect' && (
+                        {dappData.type !== 'iota_connect' && !isLedger ? (
                             <Form.Item className='pl0'>
                                 <Input
                                     type='password'
@@ -670,7 +677,7 @@ export const DappDialog = () => {
                                     placeholder={I18n.t('assets.passwordTips')}
                                 />
                             </Form.Item>
-                        )}
+                        ) : null}
                         <div className='flex row jsb ac mt25'>
                             <Button
                                 onClick={() => {
