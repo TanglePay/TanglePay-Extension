@@ -3,7 +3,7 @@ import { useStore } from '@tangle-pay/store'
 import { useGetNftList } from '@tangle-pay/store/nft'
 import { Button } from 'antd-mobile'
 import { SvgIcon, Toast } from '@/common'
-import { Base } from '@tangle-pay/common'
+import { Base, I18n } from '@tangle-pay/common'
 import Bridge from '@/common/bridge'
 import { useLocation } from 'react-router-dom'
 
@@ -64,7 +64,7 @@ export const AssetsNftMerge = () => {
     return (
         <div className='page assets-trading'>
             <div className='flex ac jsb p16 border-b'>
-                <div className='fz18 fw600'>选择 Hero Tier</div>
+                <div className='fz18 fw600'>{I18n.t('nft.selectHero')}</div>
                 <Button
                     className='fz16 ph24'
                     disabled={isDisabled}
@@ -83,11 +83,11 @@ export const AssetsNftMerge = () => {
                         background: isDisabled ? 'rgba(54, 113, 238, 0.2)' : 'rgba(54, 113, 238, 1)'
                     }}
                     color='primary'>
-                    添加
+                    {I18n.t('nft.nftAdd')}
                 </Button>
             </div>
             <div>
-                <div className='fz18 pv8 ph16'>共 {filterNftList.length} 项</div>
+                <div className='fz18 pv8 ph16'>{I18n.t('nft.totalNum').replace('{num}', filterNftList.length)}</div>
                 <div className='ph8'>
                     {filterNftList.map((e) => {
                         const isSelect = selectList.includes(e.nftId)

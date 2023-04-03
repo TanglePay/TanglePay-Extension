@@ -378,9 +378,15 @@ export const DappDialog = () => {
                                     }
                                     contractAmount = Number(new BigNumber(contractAmount))
                                     try {
-                                        curToken =
-                                            (await web3Contract.methods.symbol().call()) || IotaSDK.curNode?.token
-                                        const decimals = await web3Contract.methods.decimals().call()
+                                        if (web3Contract?.methods?.symbol) {
+                                            curToken = await web3Contract.methods.symbol().call()
+                                        } else {
+                                            curToken = IotaSDK.curNode?.token
+                                        }
+                                        let decimals = 0
+                                        if (web3Contract?.methods?.decimals) {
+                                            decimals = await web3Contract.methods.decimals().call()
+                                        }
                                         if (isErc20) {
                                             IotaSDK.importContract(contract, curToken)
                                         }
