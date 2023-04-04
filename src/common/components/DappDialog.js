@@ -278,7 +278,7 @@ export const DappDialog = () => {
                     case 'eth_sendTransaction':
                     case 'send':
                         {
-                            value = parseFloat(value) || 0
+                            value = BigNumber(value || 0).valueOf()
                             if (nftId) {
                                 value = 1
                             }
@@ -306,34 +306,6 @@ export const DappDialog = () => {
                                 let curToken = IotaSDK.curNode?.token
                                 sendAmount = Number(new BigNumber(value))
                                 showValue = IotaSDK.client.utils.fromWei(String(sendAmount), 'ether')
-
-                                let [gasPrice, gasLimit] = await Promise.all([
-                                    IotaSDK.client.eth.getGasPrice(),
-                                    IotaSDK.getDefaultGasLimit(
-                                        curWallet.address,
-                                        taggedData ? address : '',
-                                        IotaSDK.getNumberStr(sendAmount || 0)
-                                    )
-                                ])
-                                if (IotaSDK.curNode?.isTest) {
-                                    gasPrice = IotaSDK.getNumberStr(gasPrice * 10)
-                                    gasLimit = IotaSDK.getNumberStr(gasLimit * 10)
-                                }
-                                const gasPriceWei = gasPrice
-                                gasLimit = gasLimit || 21000
-                                let totalWei = new BigNumber(gasPrice).times(gasLimit)
-                                totalWei = IotaSDK.getNumberStr(totalWei)
-                                const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
-                                gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
-                                const total = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'gwei')
-                                setGasInfo({
-                                    gasLimit,
-                                    gasPrice,
-                                    gasPriceWei,
-                                    total,
-                                    totalEth
-                                })
-
                                 // contract
                                 if (taggedData) {
                                     contract = address
@@ -394,12 +366,59 @@ export const DappDialog = () => {
                                             .div(BigNumber(10).pow(decimals))
                                             .valueOf()
                                     } catch (error) {}
-                                    setInit(true)
                                     Toast.hideLoading()
                                 } else {
-                                    setInit(true)
                                 }
                                 showUnit = curToken
+                                Toast.showLoading()
+                                let [gasPrice, gasLimit] = await Promise.all([
+                                    IotaSDK.client.eth.getGasPrice(),
+                                    IotaSDK.getDefaultGasLimit(
+                                        curWallet.address,
+                                        taggedData ? address : '',
+                                        IotaSDK.getNumberStr(sendAmount || 0),
+                                        taggedData
+                                    )
+                                ])
+                                if (taggedData) {
+                                    if (IotaSDK.curNode?.contractGasPriceRate) {
+                                        gasPrice = IotaSDK.getNumberStr(
+                                            parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate)
+                                        )
+                                    }
+                                    if (IotaSDK.curNode?.contractGasLimitRate) {
+                                        gasLimit = IotaSDK.getNumberStr(
+                                            parseInt(gasLimit * IotaSDK.curNode?.contractGasLimitRate)
+                                        )
+                                    }
+                                } else {
+                                    if (IotaSDK.curNode?.gasPriceRate) {
+                                        gasPrice = IotaSDK.getNumberStr(
+                                            parseInt(gasPrice * IotaSDK.curNode?.gasPriceRate)
+                                        )
+                                    }
+                                    if (IotaSDK.curNode?.gasLimitRate) {
+                                        gasLimit = IotaSDK.getNumberStr(
+                                            parseInt(gasLimit * IotaSDK.curNode?.gasLimitRate)
+                                        )
+                                    }
+                                }
+                                const gasPriceWei = gasPrice
+                                gasLimit = gasLimit || 21000
+                                let totalWei = new BigNumber(gasPrice).times(gasLimit)
+                                totalWei = IotaSDK.getNumberStr(totalWei)
+                                const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
+                                gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
+                                const total = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'gwei')
+                                setGasInfo({
+                                    gasLimit,
+                                    gasPrice,
+                                    gasPriceWei,
+                                    total,
+                                    totalEth
+                                })
+                                setInit(true)
+                                Toast.hideLoading()
                             } else {
                                 if (IotaSDK.checkSMR(toNetId || curNodeId)) {
                                     if (nftId) {

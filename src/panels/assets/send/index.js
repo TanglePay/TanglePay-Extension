@@ -67,9 +67,20 @@ export const AssetsSend = () => {
                 eth.getGasPrice(),
                 IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount)
             ]).then(([gasPrice, gas]) => {
-                if (IotaSDK.curNode?.isTest) {
-                    gasPrice = IotaSDK.getNumberStr(gasPrice * 10)
-                    gas = IotaSDK.getNumberStr(gas * 10)
+                if (assets?.contract) {
+                    if (IotaSDK.curNode?.contractGasPriceRate) {
+                        gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate))
+                    }
+                    if (IotaSDK.curNode?.contractGasLimitRate) {
+                        gas = IotaSDK.getNumberStr(parseInt(gas * IotaSDK.curNode?.contractGasLimitRate))
+                    }
+                } else {
+                    if (IotaSDK.curNode?.gasPriceRate) {
+                        gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.gasPriceRate))
+                    }
+                    if (IotaSDK.curNode?.gasLimitRate) {
+                        gas = IotaSDK.getNumberStr(parseInt(gas * IotaSDK.curNode?.gasLimitRate))
+                    }
                 }
                 // let gasLimit = gasInfo.gasLimit || gas
                 let gasLimit = gas
