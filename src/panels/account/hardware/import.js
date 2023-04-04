@@ -178,7 +178,7 @@ export const AccountHardwareImport = () => {
                                 onClick={async () => {
                                     const selectList = list.filter((e) => e.hasSelect)
                                     if (selectList.length == 0) {
-                                        return Toast.show(I18n.t('请选择需要导入的账户'))
+                                        return Toast.show('Please select the account that needs to be imported.')
                                     }
                                     const addressList = await Promise.all(
                                         selectList.map((e) => {
