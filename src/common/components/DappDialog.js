@@ -305,7 +305,7 @@ export const DappDialog = () => {
                                 unit = unit || 'wei'
                                 let curToken = IotaSDK.curNode?.token
                                 sendAmount = Number(new BigNumber(value))
-                                showValue = IotaSDK.client.utils.fromWei(String(sendAmount), 'ether')
+                                showValue = IotaSDK.client.utils.fromWei(IotaSDK.getNumberStr(sendAmount), 'ether')
                                 // contract
                                 if (taggedData) {
                                     contract = address
@@ -338,7 +338,7 @@ export const DappDialog = () => {
                                                 0
                                             )
                                             gasFee = IotaSDK.client.utils.fromWei(
-                                                BigNumber(gasPrice).valueOf(),
+                                                IotaSDK.getNumberStr(BigNumber(gasPrice).valueOf()),
                                                 'ether'
                                             )
                                             gasFee = `${gasFee} ${IotaSDK.curNode.token}`
@@ -406,10 +406,10 @@ export const DappDialog = () => {
                                 const gasPriceWei = gasPrice
                                 gasLimit = gasLimit || 21000
                                 let totalWei = new BigNumber(gasPrice).times(gasLimit)
-                                totalWei = IotaSDK.getNumberStr(totalWei)
-                                const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
+                                totalWei = IotaSDK.getNumberStr(totalWei.valueOf())
+                                const totalEth = IotaSDK.client.utils.fromWei(totalWei, 'ether')
                                 gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
-                                const total = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'gwei')
+                                const total = IotaSDK.client.utils.fromWei(totalWei, 'gwei')
                                 setGasInfo({
                                     gasLimit,
                                     gasPrice,
