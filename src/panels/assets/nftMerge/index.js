@@ -55,7 +55,7 @@ export const AssetsNftMerge = () => {
     const [selectList, setSelectList] = useState([])
     const isDisabled = selectList.length != selectCount
     useEffect(() => {
-        if (isRequestNft) {
+        if (!isRequestNft) {
             Toast.showLoading()
         } else {
             Toast.hideLoading()
