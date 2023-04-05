@@ -304,7 +304,8 @@ export const DappDialog = () => {
                                 Toast.showLoading()
                                 unit = unit || 'wei'
                                 let curToken = IotaSDK.curNode?.token
-                                sendAmount = Number(new BigNumber(value))
+                                sendAmount = Number(new BigNumber(value || 0))
+                                sendAmount = sendAmount || 0
                                 showValue = IotaSDK.client.utils.fromWei(IotaSDK.getNumberStr(sendAmount), 'ether')
                                 // contract
                                 if (taggedData) {
