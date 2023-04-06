@@ -6,13 +6,13 @@ import * as Yup from 'yup'
 import { useCreateCheck } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
 import { useLocation } from 'react-router-dom'
-import { useGetNodeWallet, useChangeNode, useAddWallet } from '@tangle-pay/store/common'
+import { useGetNodeWallet, useChangeNode, useSelectWallet } from '@tangle-pay/store/common'
 
 export const AccountHardwareImport = () => {
     const changeNode = useChangeNode()
     const pageSize = 5
     let params = useLocation()
-    const addWallet = useAddWallet()
+    const selectWallet = useSelectWallet()
     params = Base.handlerParams(params.search)
     const nodes = IotaSDK.nodes.filter((e) => e.type == params.type)
     const [list, setList] = useState([])
@@ -81,6 +81,7 @@ export const AccountHardwareImport = () => {
                         <div className='pt24 fz18 fw600'>Select an Account</div>
                         <div>
                             {showList.map((e) => {
+                                console.log(e)
                                 const hasSelect = list.find((d) => d.address == e.address && d.hasSelect)
                                 const borderColor = e.hasImport ? '#ccc' : hasSelect ? '#3671EE' : '#ccc'
                                 const background = e.hasImport ? '#ccc' : hasSelect ? '#3671EE' : 'transparent'
@@ -95,7 +96,7 @@ export const AccountHardwareImport = () => {
                                             const getList = (arr) => {
                                                 const newList = [...arr]
                                                 const i = newList.findIndex((d) => d.address == e.address)
-                                                newList[i] = { ...e, hasSelect: !e.hasSelect }
+                                                newList[i] = { ...e, hasSelect: !hasSelect }
                                                 return newList
                                             }
                                             setList((list) => {
@@ -124,7 +125,19 @@ export const AccountHardwareImport = () => {
                                             )}
                                             {IotaSDK.curNode.token}
                                         </div>
-                                        <SvgIcon name='share' className='cP' size={16} />
+                                        {e.hasImport ? (
+                                            <SvgIcon
+                                                name='share'
+                                                className='cP press'
+                                                onClick={() => {
+                                                    selectWallet(e.id)
+                                                    Base.replace('/main')
+                                                }}
+                                                size={16}
+                                            />
+                                        ) : (
+                                            <div style={{ width: 16 }}></div>
+                                        )}
                                     </div>
                                 )
                             })}

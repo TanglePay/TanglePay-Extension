@@ -1893,6 +1893,7 @@
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
 "@iota/crypto.js-next@npm:@iota/crypto.js@next", "@iota/crypto.js@2.0.0-rc.1":
+  name "@iota/crypto.js-next"
   version "2.0.0-rc.1"
   resolved "https://registry.npmjs.org/@iota/crypto.js/-/crypto.js-2.0.0-rc.1.tgz#73d0640145af6abdc6275afe8313206136c9c8f7"
   integrity sha512-gidDFvbIcthVIaxqntffUCFHHNZNhu1e3zjwt6yaYLeuqJcc2AXPv/UF8Lz9Mfkw9aSM8xVUwo8/uYDkvs2eOQ==
@@ -1909,6 +1910,7 @@
     big-integer "^1.6.51"
 
 "@iota/iota.js-next@npm:@iota/iota.js@next", "@iota/iota.js@2.0.0-rc.3":
+  name "@iota/iota.js-next"
   version "2.0.0-rc.3"
   resolved "https://registry.npmjs.org/@iota/iota.js/-/iota.js-2.0.0-rc.3.tgz#226399f5eb305b726826f3055d0add42a4bdc764"
   integrity sha512-lrnmFDmI3vWscJAGzka2VOpi+x/kH1xMwvLgPOQ2WlyKOouLv/gmjc6S0K3TYCxKPRgw6DsVYMkFsK4GXXV5BA==
@@ -11646,10 +11648,10 @@ tailwindcss@^3.0.2:
     resolve "^1.22.1"
     sucrase "^3.29.0"
 
-tanglepay@^2.4.7:
-  version "2.4.7"
-  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-2.4.7.tgz#540400fd28681d4408eb67958d0d31d4c28d19dc"
-  integrity sha512-w3cguv0bwEvW05cvaI1So012qY7zwcNCm3gb8a/3Zqjn0QAhvuo94wXZP4nTBpnkkKaulm2KF5JZC7fxhQbPeQ==
+tanglepay@^2.4.8:
+  version "2.4.8"
+  resolved "https://registry.yarnpkg.com/tanglepay/-/tanglepay-2.4.8.tgz#a8c07977d17ad5c24fd9dc80cdeca838730fdd87"
+  integrity sha512-hvpUIXf8xGpV07qj3SGZGMf7uv+HyvU9MbV7+z0atKK/gkCt5yIi6tWI2agK1gYq08mivDmWgMFWC2niWrIDkQ==
 
 tapable@^1.0.0:
   version "1.1.3"
