@@ -147,9 +147,9 @@ export const AssetsNav = ({ hasChangeNode }) => {
                         <div
                             onClick={() => {
                                 Base.push(
-                                    `${curNode.explorer}/${IotaSDK.checkSMR(curWallet.nodeId) ? 'addr' : 'address'}/${
-                                        curWallet.address
-                                    }`
+                                    `${curNode.explorer}/${
+                                        IotaSDK.checkWeb3Node(curWallet.nodeId) ? 'address' : 'addr'
+                                    }/${curWallet.address}`
                                 )
                             }}
                             className='flex ac ph15 press'

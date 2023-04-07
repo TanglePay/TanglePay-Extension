@@ -37,10 +37,12 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
     const nodes = JSON.parse(JSON.stringify(IotaSDK.nodes))
     nodes.forEach((e) => {
         if (IotaSDK.checkWeb3Node(e.id)) {
-            if (!list.find((d) => d.type == e.type)) {
-                list.push({ ...e })
+            if (!e.isHideInAdd) {
+                if (!list.find((d) => d.type == e.type)) {
+                    list.push({ ...e })
+                }
+                evmName.push(e.name)
             }
-            evmName.push(e.name)
         } else {
             list.push({ ...e })
         }
@@ -110,7 +112,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 className='pv24 flex c press'>
                                 <div className='fz18'>{I18n.t('account.intoTitle1')}</div>
                             </div>
-                            {(curNode?.type == 1 || curNode?.type == 3) && (
+                            {/* {(curNode?.type == 1 || curNode?.type == 3) && (
                                 <div
                                     onClick={() => {
                                         // hide()
@@ -120,7 +122,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                     className='pv24 flex c border-t press'>
                                     <div className='fz18'>{I18n.t('account.intoTitle2')}</div>
                                 </div>
-                            )}
+                            )} */}
                             {curNode?.type == 2 && (
                                 <div
                                     onClick={() => {
@@ -133,6 +135,22 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 </div>
                             )}
                         </div>
+                        {curNode?.type == 2 && (
+                            <>
+                                <div className='fz16 cS mv16'>{I18n.t('account.hardwareWallet')}</div>
+                                <div className='bgW radius10'>
+                                    <div
+                                        onClick={() => {
+                                            hide()
+                                            Base.openInTab('/account/hardware/into')
+                                        }}
+                                        style={{ height: 72 }}
+                                        className='pv24 flex c border-t press'>
+                                        <div className='fz18'>{I18n.t('account.hardwareWallet')}</div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </>
                 )}
             </div>

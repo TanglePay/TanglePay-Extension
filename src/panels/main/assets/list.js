@@ -14,6 +14,7 @@ export const CoinList = () => {
     const [needRestake] = useStore('staking.needRestake')
     const [statedAmount] = useStore('staking.statedAmount')
     let [assetsList] = useStore('common.assetsList')
+    const [curWallet] = useGetNodeWallet()
     const [unlockConditions] = useStore('common.unlockConditions')
     // const curLegal = useGetLegal()
     const contractList = IotaSDK.curNode?.contractList || []
@@ -26,6 +27,7 @@ export const CoinList = () => {
     //     return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
     // })
     const isSMRNode = IotaSDK.checkSMR(IotaSDK.curNode?.id)
+    const isLedger = curWallet.type == 'ledger'
     return (
         <div>
             {assetsList.map((e) => {
@@ -45,7 +47,11 @@ export const CoinList = () => {
                                         logoUrl: e.logoUrl
                                     })
                                 } else {
-                                    Base.push('assets/send', { currency: e.name, id: e.tokenId || e.contract || '' })
+                                    const func = isLedger ? 'openInTab' : 'push'
+                                    Base[func]('assets/send', {
+                                        currency: e.name,
+                                        id: e.tokenId || e.contract || ''
+                                    })
                                 }
                             }}>
                             <img
@@ -73,7 +79,11 @@ export const CoinList = () => {
                         </div>
                         <div
                             onClick={() => {
-                                Base.push('assets/send', { currency: e.name, id: e.tokenId || e.contract || '' })
+                                const func = isLedger ? 'openInTab' : 'push'
+                                Base[func]('assets/send', {
+                                    currency: e.name,
+                                    id: e.tokenId || e.contract || ''
+                                })
                             }}
                             style={{ height: itemH }}
                             className='border-b flex flex1 row ac jsb'>

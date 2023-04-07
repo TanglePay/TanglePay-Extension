@@ -95,6 +95,7 @@ export const AccountIntoPrivateKey = () => {
                                         placeholder={I18n.t('account.intoRePasswordTips')}
                                         onChange={handleChange('rePassword')}
                                         value={values.rePassword}
+                                        maxLength={20}
                                     />
                                 </Form.Item>
                             </Form>
