@@ -17,6 +17,7 @@ export const UserEditWallet = () => {
         setContentW(document.getElementById('app').offsetWidth)
     }, [])
     const curNode = IotaSDK.nodes.find((d) => d.id == curEdit.nodeId)
+    const isLedger = curEdit.type == 'ledger'
     return (
         <div>
             <Nav title={I18n.t('user.manage')} />
@@ -73,17 +74,19 @@ export const UserEditWallet = () => {
                         <SvgIcon name='right' size={15} className='cB' />
                     </div>
                 ) : null}
-                <div
-                    onClick={() => {
-                        Base.push('/user/walletPassword', {
-                            ...curEdit
-                        })
-                    }}
-                    className='press ph16 pv20 flex row jsb ac border-b'>
-                    <div className='fz16'>{I18n.t('user.resetPassword')}</div>
-                    <SvgIcon name='right' size={15} className='cB' />
-                </div>
-                {curNode?.type == 2 && (
+                {!isLedger ? (
+                    <div
+                        onClick={() => {
+                            Base.push('/user/walletPassword', {
+                                ...curEdit
+                            })
+                        }}
+                        className='press ph16 pv20 flex row jsb ac border-b'>
+                        <div className='fz16'>{I18n.t('user.resetPassword')}</div>
+                        <SvgIcon name='right' size={15} className='cB' />
+                    </div>
+                ) : null}
+                {curNode?.type == 2 && !isLedger ? (
                     <div
                         onClick={() => {
                             Base.push('/user/privateKey', {
@@ -94,7 +97,7 @@ export const UserEditWallet = () => {
                         <div className='fz16'>{I18n.t('account.exportKey')}</div>
                         <SvgIcon name='right' size={15} className='cB' />
                     </div>
-                )}
+                ) : null}
                 <div
                     onClick={() => {
                         // setOpenRemove(true)

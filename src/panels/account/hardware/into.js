@@ -1,27 +1,26 @@
 import React, { useRef } from 'react'
-import { Base, I18n } from '@tangle-pay/common'
+import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import { Form, Input, Button } from 'antd-mobile'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
-import { useCreateCheck } from '@tangle-pay/store/common'
+import { useCreateCheck, useAddWallet } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
-
 const schema = Yup.object().shape({
     name: Yup.string().required(),
-    password: Yup.string().required(),
-    rePassword: Yup.string().required(),
     agree: Yup.bool().isTrue().required()
 })
-export const AccountRegister = () => {
-    const [, setRegisterInfo] = useStore('common.registerInfo')
+export const AccountHardwareInto = () => {
     const form = useRef()
+    const addWallet = useAddWallet()
     useCreateCheck((name) => {
-        form.current.setFieldValue('name', name)
+        if (!IotaSDK.checkWeb3Node(IotaSDK.curNode?.id)) {
+            form.current.setFieldValue('name', name)
+        }
     })
     return (
         <div className='page'>
-            <Nav title={I18n.t('account.createTitle')} />
+            <Nav title={I18n.t('account.connectLedger')} />
             <div>
                 <Formik
                     innerRef={form}
@@ -32,16 +31,39 @@ export const AccountRegister = () => {
                     validateOnChange={false}
                     validateOnMount={false}
                     validationSchema={schema}
-                    onSubmit={(values) => {
-                        const { password, rePassword } = values
-                        if (!Base.checkPassword(password)) {
-                            return Toast.error(I18n.t('account.intoPasswordTips'))
+                    onSubmit={async (values) => {
+                        try {
+                            const curNodeId = IotaSDK.curNode?.id
+                            const isIota = IotaSDK.checkIota(curNodeId)
+                            const isShimmer = IotaSDK.checkSMR(curNodeId)
+                            if (isIota || isShimmer) {
+                                Toast.showLoading()
+                                const [{ address, path }] = await IotaSDK.getHardwareAddressInIota(
+                                    curNodeId,
+                                    0,
+                                    true,
+                                    1
+                                )
+                                const info = await IotaSDK.importHardware({
+                                    address: address,
+                                    name: values.name,
+                                    publicKey: '',
+                                    path: path,
+                                    type: 'ledger'
+                                })
+                                addWallet(info)
+                                Toast.hideLoading()
+                                Base.replace('/main')
+                            } else if (IotaSDK.checkWeb3Node(curNodeId)) {
+                                await IotaSDK.checkHardwareConnect()
+                                Base.push('/account/hardware/import', {
+                                    name: values.name,
+                                    type: IotaSDK.curNode?.type
+                                })
+                            }
+                        } catch (error) {
+                            Toast.show(String(error))
                         }
-                        if (password !== rePassword) {
-                            return Toast.error(I18n.t('account.checkPasswrod'))
-                        }
-                        setRegisterInfo(values)
-                        Base.push('/account/backup')
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
                         <div className='ph16 pt8'>
@@ -53,27 +75,6 @@ export const AccountRegister = () => {
                                         placeholder={I18n.t('account.intoNameTips')}
                                         onChange={handleChange('name')}
                                         value={values.name}
-                                    />
-                                </Form.Item>
-                                <Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz18 mb10'>{I18n.t('account.passwordOptional')}</div>
-                                    <Input
-                                        className='pt4'
-                                        type='password'
-                                        placeholder={I18n.t('account.intoPasswordTips')}
-                                        onChange={handleChange('password')}
-                                        value={values.password}
-                                        maxLength={20}
-                                    />
-                                </Form.Item>
-                                <Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
-                                    <Input
-                                        type='password'
-                                        className='pt4'
-                                        placeholder={I18n.t('account.intoRePasswordTips')}
-                                        onChange={handleChange('rePassword')}
-                                        value={values.rePassword}
-                                        maxLength={20}
                                     />
                                 </Form.Item>
                                 <div
@@ -116,7 +117,7 @@ export const AccountRegister = () => {
                                 </div>
                                 <div style={{ marginTop: 100 }}>
                                     <Button size='large' color='primary' block onClick={handleSubmit}>
-                                        {I18n.t('account.createTitle')}
+                                        {I18n.t('account.connectLedger')}
                                     </Button>
                                 </div>
                             </Form>

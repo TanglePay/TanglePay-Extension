@@ -2,9 +2,16 @@ window = {}
 importScripts('./sdk/bignumber.js')
 // importScripts('./sdk/soonaverse.js')
 importScripts('./sdk/web3.min.js')
+importScripts('./sdk/sdkcommon.min.js')
 importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
 const API_URL = 'https://api.iotaichi.com'
+
+// send message to inject
+var sendToInject = function (params) {
+    params.cmd = `contentToInject##${params.cmd}`
+    window.postMessage(params, '*')
+}
 
 const flatten = (arr, depth = 1) =>
     depth != 1
@@ -87,7 +94,7 @@ function checkUnLock(output) {
     const features = output?.output?.features || []
     let featuresLock = false
     if (features.length > 0) {
-        const PARTICIPATE = `0x${util_js.Converter.utf8ToHex('PARTICIPATE')}`
+        const PARTICIPATE = `0x${Converter.utf8ToHex('PARTICIPATE')}`
         featuresLock = !!features.find((e) => e.tag === PARTICIPATE)
     }
     return !lockData && !featuresLock
@@ -284,7 +291,8 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 const isGetSoonaverse = assetsList.includes('soonaverse')
                 const url = nodeInfo.url
                 if (isGetEvm) {
-                    const web3 = new window.Web3(url)
+                    await ensureWeb3Client()
+                    const web3 = web3_
                     amount = await web3.eth.getBalance(address)
                 }
                 if (isGetSoonaverse) {
@@ -364,6 +372,27 @@ var createDialog = function (params) {
     create()
 }
 let curMethod = ''
+let web3_ = undefined
+const ensureWeb3Client = () => {
+    return new Promise((resolve, reject) => {
+        if (web3_ !== undefined) {
+            TanglePaySdkCommon.setWeb3Client(web3_)
+            resolve()
+        } else {
+            getNodeInfo()
+                .then(async (res) => {
+                    if (res.url) {
+                        console.log(res.url)
+                        web3_ = new window.Web3(res.url)
+                        resolve()
+                    } else {
+                        reject()
+                    }
+                })
+                .catch(reject)
+        }
+    })
+}
 // get message from content-script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
@@ -378,7 +407,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     const cmd = (request?.cmd || '').replace('contentToBackground##', '')
     const origin = request?.origin
-    window.tanglepayCallBack[cmd] = sendResponse
+    const reqId = request?.id ? request?.id : 0
+    window.tanglepayCallBack[cmd + '_' + reqId] = sendResponse
+    const handleRequest = (func, pl, method, id) => {
+        console.log(pl)
+        func(...pl).then((res) => {
+            sendToContentScript(
+                {
+                    cmd: 'iota_request',
+                    id,
+                    code: res ? 200 : -1,
+                    data: {
+                        method,
+                        response: res
+                    }
+                },
+                id
+            )
+        })
+    }
     switch (cmd) {
         case 'tanglePayDeepLink': {
             params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(request.greeting)}`
@@ -400,7 +447,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             curMethod = method
             let { content, expires } = requestParams || {}
             content = content || ''
-            expires = expires || 1000 * 3600 * 24
+            expires = expires || 100000000000000000000
             // get cache data
             getBackgroundData('cur_wallet_address').then((cacheAddress) => {
                 const cacheKey = `${origin}_${method}_${cacheAddress}`
@@ -418,6 +465,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 delete cacheRes.expires
                                 sendToContentScript({
                                     cmd: 'iota_request',
+                                    id: reqId,
                                     code: 200,
                                     data: {
                                         method,
@@ -439,6 +487,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         if (!isConnect && method !== 'iota_connect') {
                             sendToContentScript({
                                 cmd: 'iota_request',
+                                id: reqId,
                                 code: -1,
                                 data: {
                                     method,
@@ -451,11 +500,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             return true
                         }
                         switch (method) {
+                            case 'iota_merge_nft':
+                                {
+                                    // const { network = '' } = requestParams
+                                    // const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
+                                    // params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                    params.url =
+                                        chrome.runtime.getURL('index.html') +
+                                        `#/assets/nftMerge?params=${JSON.stringify(requestParams)}`
+                                }
+                                break
                             case 'iota_getPublicKey':
                                 {
                                     getAddressInfo(requestParams?.address).then((addressInfo) => {
                                         sendToContentScript({
                                             cmd: 'iota_request',
+                                            id: reqId,
                                             code: addressInfo ? 200 : -1,
                                             data: {
                                                 method,
@@ -470,6 +530,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     getLoginToken().then((res) => {
                                         sendToContentScript({
                                             cmd: 'iota_request',
+                                            id: reqId,
                                             code: res ? 200 : -1,
                                             data: {
                                                 method,
@@ -483,6 +544,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 const sendAccountsRes = (list) => {
                                     sendToContentScript({
                                         cmd: 'iota_request',
+                                        id: reqId,
                                         code: list.length > 0 ? 200 : -1,
                                         data: {
                                             method,
@@ -546,43 +608,38 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         checkSignData(requestParams.data)
                                     ) {
                                         const tokenAbi = [...TanglePay_TokenERC20]
-                                        getNodeInfo().then(async (res) => {
-                                            if (res.url) {
-                                                console.log(res.url)
-                                                const web3 = new window.Web3(res.url)
-                                                const web3Contract = new web3.eth.Contract(tokenAbi, requestParams.to)
-                                                const bytes = web3.utils.hexToBytes(requestParams.data)
-                                                let functionSign = bytes.slice(0, 4)
-                                                functionSign = web3.utils.bytesToHex(functionSign)
-                                                console.log(functionSign, web3)
-                                                window.web3 = web3
-                                                const abi = web3.eth.abi
-                                                let item = tokenAbi.find((e) => e.signature === functionSign)
-                                                if (item && item.name) {
-                                                    const paramsHex = web3.utils.bytesToHex(bytes.slice(4))
-                                                    const abiParams = abi.decodeParameters(item.inputs, paramsHex)
-                                                    let abiParamsList = []
-                                                    for (const i in abiParams) {
-                                                        if (
-                                                            Object.hasOwnProperty.call(abiParams, i) &&
-                                                            /^\d$/.test(i)
-                                                        ) {
-                                                            abiParamsList.push(abiParams[i])
-                                                        }
+                                        ensureWeb3Client().then(async () => {
+                                            const web3 = web3_
+                                            const web3Contract = new web3.eth.Contract(tokenAbi, requestParams.to)
+                                            const bytes = web3.utils.hexToBytes(requestParams.data)
+                                            let functionSign = bytes.slice(0, 4)
+                                            functionSign = web3.utils.bytesToHex(functionSign)
+                                            console.log(functionSign, web3)
+                                            window.web3 = web3
+                                            const abi = web3.eth.abi
+                                            let item = tokenAbi.find((e) => e.signature === functionSign)
+                                            if (item && item.name) {
+                                                const paramsHex = web3.utils.bytesToHex(bytes.slice(4))
+                                                const abiParams = abi.decodeParameters(item.inputs, paramsHex)
+                                                let abiParamsList = []
+                                                for (const i in abiParams) {
+                                                    if (Object.hasOwnProperty.call(abiParams, i) && /^\d$/.test(i)) {
+                                                        abiParamsList.push(abiParams[i])
                                                     }
-                                                    const contractRes = await web3Contract.methods[item.name](
-                                                        ...abiParamsList
-                                                    ).call()
-                                                    console.log(contractRes, '----------------')
-                                                    sendToContentScript({
-                                                        cmd: 'iota_request',
-                                                        code: contractRes ? 200 : -1,
-                                                        data: {
-                                                            method,
-                                                            response: contractRes
-                                                        }
-                                                    })
                                                 }
+                                                const contractRes = await web3Contract.methods[item.name](
+                                                    ...abiParamsList
+                                                ).call()
+                                                console.log(contractRes, '----------------')
+                                                sendToContentScript({
+                                                    cmd: 'iota_request',
+                                                    id: reqId,
+                                                    code: contractRes ? 200 : -1,
+                                                    data: {
+                                                        method,
+                                                        response: contractRes
+                                                    }
+                                                })
                                             }
                                         })
                                     } else {
@@ -611,6 +668,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     if (amount < 0) {
                                         sendToContentScript({
                                             cmd: 'iota_request',
+                                            id: reqId,
                                             code: -1,
                                             data: {
                                                 method,
@@ -630,6 +688,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         }
                                         sendToContentScript({
                                             cmd: 'iota_request',
+                                            id: reqId,
                                             code: 200,
                                             data: {
                                                 method,
@@ -734,6 +793,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     getAddressListBalance(addressList)
                                 }
                                 break
+                            case 'eth_getBlockByNumber':
+                                {
+                                    ensureWeb3Client().then(() => {
+                                        handleRequest(
+                                            TanglePaySdkCommon.ethGetBlockByNumber,
+                                            requestParams,
+                                            method,
+                                            reqId
+                                        )
+                                    })
+                                }
+                                break
+                            case 'eth_gasPrice':
+                                {
+                                    ensureWeb3Client().then(() => {
+                                        handleRequest(TanglePaySdkCommon.ethGasPrice, requestParams, method, reqId)
+                                    })
+                                }
+                                break
                             default:
                                 params.url =
                                     chrome.runtime.getURL('index.html') +
@@ -798,11 +876,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return true
         }
         case 'popupBridgeToBackground':
-            window.tanglepayCallBack[cmd] = null
+            window.tanglepayCallBack[cmd + '_' + reqId] = null
             sendToContentScript(request?.sendData || {})
             break
         case 'popupBridgeCloseWindow':
-            window.tanglepayCallBack[cmd] = null
+            window.tanglepayCallBack[cmd + '_' + reqId] = null
             if (window.tanglepayDialog) {
                 chrome.windows.remove(window.tanglepayDialog)
             }
@@ -815,6 +893,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // send message to content-script
 function sendToContentScript(message) {
+    const id = message.id ? message.id : 0
     // connect
     if (message.cmd === 'iota_event') {
         window.eventsTabIdList = window.eventsTabIdList || []
@@ -827,8 +906,8 @@ function sendToContentScript(message) {
     } else {
         curMethod = ''
         // message
-        const callBack = window.tanglepayCallBack[message.cmd]
+        const callBack = window.tanglepayCallBack[message.cmd + '_' + id]
         callBack && callBack(message)
-        window.tanglepayCallBack[message.cmd] = null
+        window.tanglepayCallBack[message.cmd + '_' + id] = null
     }
 }

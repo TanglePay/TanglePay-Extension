@@ -28,6 +28,7 @@ export const DappDialog = () => {
     const [curNodeId] = useStore('common.curNodeId')
     const changeNode = useChangeNode()
     const [gasInfo, setGasInfo] = useState({})
+    const isLedger = curWallet.type == 'ledger'
     const show = () => {
         // requestAnimationFrame(() => {
         setShow(true)
@@ -68,9 +69,11 @@ export const DappDialog = () => {
     }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
-            const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
-            if (!isPassword) {
-                return Toast.error(I18n.t('assets.passwordError'))
+            if (!isLedger) {
+                const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                if (!isPassword) {
+                    return Toast.error(I18n.t('assets.passwordError'))
+                }
             }
         }
         let messageId = ''
@@ -139,7 +142,7 @@ export const DappDialog = () => {
                             tag,
                             nftId,
                             gas: gasInfo.gasLimit,
-                            gasPrice: gasInfo.gasPrice
+                            gasPrice: gasInfo.gasPriceWei
                         })
                         if (!res) {
                             throw I18n.t('user.nodeError')
@@ -275,7 +278,7 @@ export const DappDialog = () => {
                     case 'eth_sendTransaction':
                     case 'send':
                         {
-                            value = parseFloat(value) || 0
+                            value = BigNumber(value || 0).valueOf()
                             if (nftId) {
                                 value = 1
                             }
@@ -301,25 +304,9 @@ export const DappDialog = () => {
                                 Toast.showLoading()
                                 unit = unit || 'wei'
                                 let curToken = IotaSDK.curNode?.token
-                                sendAmount = Number(new BigNumber(value))
-                                showValue = IotaSDK.client.utils.fromWei(String(sendAmount), 'ether')
-
-                                let [gasPrice, gasLimit] = await Promise.all([
-                                    IotaSDK.client.eth.getGasPrice(),
-                                    IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? address : '')
-                                ])
-                                gasLimit = gasLimit || 21000
-                                let totalWei = new BigNumber(gasPrice).times(gasLimit)
-                                const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
-                                gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
-                                const total = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'gwei')
-                                setGasInfo({
-                                    gasLimit,
-                                    gasPrice,
-                                    total,
-                                    totalEth
-                                })
-
+                                sendAmount = Number(new BigNumber(value || 0))
+                                sendAmount = sendAmount || 0
+                                showValue = IotaSDK.client.utils.fromWei(IotaSDK.getNumberStr(sendAmount), 'ether')
                                 // contract
                                 if (taggedData) {
                                     contract = address
@@ -352,7 +339,7 @@ export const DappDialog = () => {
                                                 0
                                             )
                                             gasFee = IotaSDK.client.utils.fromWei(
-                                                BigNumber(gasPrice).valueOf(),
+                                                IotaSDK.getNumberStr(BigNumber(gasPrice).valueOf()),
                                                 'ether'
                                             )
                                             gasFee = `${gasFee} ${IotaSDK.curNode.token}`
@@ -364,9 +351,15 @@ export const DappDialog = () => {
                                     }
                                     contractAmount = Number(new BigNumber(contractAmount))
                                     try {
-                                        curToken =
-                                            (await web3Contract.methods.symbol().call()) || IotaSDK.curNode?.token
-                                        const decimals = await web3Contract.methods.decimals().call()
+                                        if (web3Contract?.methods?.symbol) {
+                                            curToken = await web3Contract.methods.symbol().call()
+                                        } else {
+                                            curToken = IotaSDK.curNode?.token
+                                        }
+                                        let decimals = 0
+                                        if (web3Contract?.methods?.decimals) {
+                                            decimals = await web3Contract.methods.decimals().call()
+                                        }
                                         if (isErc20) {
                                             IotaSDK.importContract(contract, curToken)
                                         }
@@ -374,12 +367,59 @@ export const DappDialog = () => {
                                             .div(BigNumber(10).pow(decimals))
                                             .valueOf()
                                     } catch (error) {}
-                                    setInit(true)
                                     Toast.hideLoading()
                                 } else {
-                                    setInit(true)
                                 }
                                 showUnit = curToken
+                                Toast.showLoading()
+                                let [gasPrice, gasLimit] = await Promise.all([
+                                    IotaSDK.client.eth.getGasPrice(),
+                                    IotaSDK.getDefaultGasLimit(
+                                        curWallet.address,
+                                        taggedData ? address : '',
+                                        IotaSDK.getNumberStr(sendAmount || 0),
+                                        taggedData
+                                    )
+                                ])
+                                if (taggedData) {
+                                    if (IotaSDK.curNode?.contractGasPriceRate) {
+                                        gasPrice = IotaSDK.getNumberStr(
+                                            parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate)
+                                        )
+                                    }
+                                    if (IotaSDK.curNode?.contractGasLimitRate) {
+                                        gasLimit = IotaSDK.getNumberStr(
+                                            parseInt(gasLimit * IotaSDK.curNode?.contractGasLimitRate)
+                                        )
+                                    }
+                                } else {
+                                    if (IotaSDK.curNode?.gasPriceRate) {
+                                        gasPrice = IotaSDK.getNumberStr(
+                                            parseInt(gasPrice * IotaSDK.curNode?.gasPriceRate)
+                                        )
+                                    }
+                                    if (IotaSDK.curNode?.gasLimitRate) {
+                                        gasLimit = IotaSDK.getNumberStr(
+                                            parseInt(gasLimit * IotaSDK.curNode?.gasLimitRate)
+                                        )
+                                    }
+                                }
+                                const gasPriceWei = gasPrice
+                                gasLimit = gasLimit || 21000
+                                let totalWei = new BigNumber(gasPrice).times(gasLimit)
+                                totalWei = IotaSDK.getNumberStr(totalWei.valueOf())
+                                const totalEth = IotaSDK.client.utils.fromWei(totalWei, 'ether')
+                                gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
+                                const total = IotaSDK.client.utils.fromWei(totalWei, 'gwei')
+                                setGasInfo({
+                                    gasLimit,
+                                    gasPrice,
+                                    gasPriceWei,
+                                    total,
+                                    totalEth
+                                })
+                                setInit(true)
+                                Toast.hideLoading()
                             } else {
                                 if (IotaSDK.checkSMR(toNetId || curNodeId)) {
                                     if (nftId) {
@@ -389,23 +429,29 @@ export const DappDialog = () => {
                                         setInit(false)
                                         Toast.showLoading()
                                         if (IotaSDK?.IndexerPluginClient?.nft) {
-                                            let nftInfo = await IotaSDK.IndexerPluginClient.nft(nftId)
-                                            if (nftInfo?.items?.[0]) {
-                                                nftInfo = await IotaSDK.client.output(nftInfo?.items?.[0])
+                                            unit = []
+                                            const getNftInfo = async (curNftId) => {
+                                                let nftInfo = await IotaSDK.IndexerPluginClient.nft(curNftId)
+                                                if (nftInfo?.items?.[0]) {
+                                                    nftInfo = await IotaSDK.client.output(nftInfo?.items?.[0])
 
-                                                let info = (nftInfo?.output?.immutableFeatures || []).find((d) => {
-                                                    return d.type == 2
-                                                })
-                                                if (info && info.data) {
-                                                    try {
-                                                        info = IotaSDK.hexToUtf8(info.data)
-                                                        info = JSON.parse(info)
-                                                        unit = info.name
-                                                    } catch (error) {
-                                                        console.log(error)
+                                                    let info = (nftInfo?.output?.immutableFeatures || []).find((d) => {
+                                                        return d.type == 2
+                                                    })
+                                                    if (info && info.data) {
+                                                        try {
+                                                            info = IotaSDK.hexToUtf8(info.data)
+                                                            info = JSON.parse(info)
+                                                            unit.push(info.name)
+                                                        } catch (error) {
+                                                            console.log(error)
+                                                        }
                                                     }
                                                 }
                                             }
+                                            const nfts = nftId.split(',')
+                                            await Promise.all(nfts.map((e) => getNftInfo(e)))
+                                            unit = unit.join(' , ')
                                         }
                                         showUnit = unit
                                         setInit(true)
@@ -649,7 +695,7 @@ export const DappDialog = () => {
                                 </div>
                             </Form.Item>
                         ) : null}
-                        {dappData.type !== 'iota_connect' && (
+                        {dappData.type !== 'iota_connect' && !isLedger ? (
                             <Form.Item className='pl0'>
                                 <Input
                                     type='password'
@@ -657,7 +703,7 @@ export const DappDialog = () => {
                                     placeholder={I18n.t('assets.passwordTips')}
                                 />
                             </Form.Item>
-                        )}
+                        ) : null}
                         <div className='flex row jsb ac mt25'>
                             <Button
                                 onClick={() => {

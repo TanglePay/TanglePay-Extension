@@ -207,6 +207,9 @@ export default {
             })
         }
     },
+    async iota_merge_nft() {
+        Base.push('assets/nftMerge')
+    },
     sendToContentScript(cmd, { method, response, code = 200 }) {
         // V2
         // const bg = window.chrome?.extension?.getBackgroundPage()

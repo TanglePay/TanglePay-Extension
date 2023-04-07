@@ -4,7 +4,7 @@ import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
-import { useGetNodeWallet } from '@tangle-pay/store/common'
+import { useGetNodeWallet, useGetAssetsList } from '@tangle-pay/store/common'
 import { Nav, Toast } from '@/common'
 import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
@@ -12,12 +12,12 @@ import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 import { GasDialog } from '@/common/components/gasDialog'
 // import { SendFailDialog } from '@/common/components/sendFailDialog'
 
-const schema = Yup.object().shape({
+const schema = {
     // currency: Yup.string().required(),
     receiver: Yup.string().required(),
     amount: Yup.number().positive().required(),
     password: Yup.string().required()
-})
+}
 export const AssetsSend = () => {
     const gasDialog = useRef()
     // const sendFailDialog = useRef()
@@ -33,6 +33,7 @@ export const AssetsSend = () => {
     const nftImg = params?.nftImg
     currency = currency || assetsList[0]?.name
     const form = useRef()
+    const [inputAmount, setInputAmount] = useState('')
     const [curWallet] = useGetNodeWallet()
     let assets = assetsList.find((e) => e.name === currency) || {}
     if (assetsId) {
@@ -56,24 +57,56 @@ export const AssetsSend = () => {
     const [gasInfo, setGasInfo] = useState({})
     useEffect(() => {
         if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+            const amount = parseFloat(inputAmount) || 0
+            let decimal = Math.pow(10, assets.decimal)
+            let sendAmount = Number(BigNumber(amount).times(decimal))
+            sendAmount = IotaSDK.getNumberStr(sendAmount || 0)
             const eth = IotaSDK.client.eth
-            Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract)]).then(
-                ([gasPrice, gas]) => {
-                    let gasLimit = gasInfo.gasLimit || gas
-                    let totalWei = new BigNumber(gasPrice).times(gasLimit)
-                    const totalEth = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'ether')
-                    gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
-                    const total = IotaSDK.client.utils.fromWei(totalWei.valueOf(), 'gwei')
-                    setGasInfo({
-                        gasLimit,
-                        gasPrice,
-                        total,
-                        totalEth
-                    })
+            console.log(sendAmount)
+            Promise.all([
+                eth.getGasPrice(),
+                IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount)
+            ]).then(([gasPrice, gas]) => {
+                if (assets?.contract) {
+                    if (IotaSDK.curNode?.contractGasPriceRate) {
+                        gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate))
+                    }
+                    if (IotaSDK.curNode?.contractGasLimitRate) {
+                        gas = IotaSDK.getNumberStr(parseInt(gas * IotaSDK.curNode?.contractGasLimitRate))
+                    }
+                } else {
+                    if (IotaSDK.curNode?.gasPriceRate) {
+                        gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.gasPriceRate))
+                    }
+                    if (IotaSDK.curNode?.gasLimitRate) {
+                        gas = IotaSDK.getNumberStr(parseInt(gas * IotaSDK.curNode?.gasLimitRate))
+                    }
                 }
-            )
+                // let gasLimit = gasInfo.gasLimit || gas
+                let gasLimit = gas
+                let totalWei = new BigNumber(gasPrice).times(gasLimit)
+                totalWei = IotaSDK.getNumberStr(totalWei.valueOf())
+                const totalEth = IotaSDK.client.utils.fromWei(totalWei, 'ether')
+                const gasPriceWei = gasPrice
+                gasPrice = IotaSDK.client.utils.fromWei(gasPrice, 'gwei')
+                const total = IotaSDK.client.utils.fromWei(totalWei, 'gwei')
+                setGasInfo({
+                    gasLimit,
+                    gasPrice,
+                    gasPriceWei,
+                    total,
+                    totalEth
+                })
+            })
         }
-    }, [curWallet.nodeId, assets?.contract])
+    }, [curWallet.nodeId, assets?.contract, inputAmount, assets.decimal])
+    useGetAssetsList(curWallet)
+    const isLedger = curWallet.type == 'ledger'
+    if (isLedger) {
+        schema.password = Yup.string().optional()
+    } else {
+        schema.password = Yup.string().required()
+    }
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
@@ -84,12 +117,14 @@ export const AssetsSend = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={schema}
+                    validationSchema={Yup.object().shape(schema)}
                     onSubmit={async (values) => {
                         let { password, amount, receiver } = values
-                        const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
-                        if (!isPassword) {
-                            return Toast.error(I18n.t('assets.passwordError'))
+                        if (!isLedger) {
+                            const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                            if (!isPassword) {
+                                return Toast.error(I18n.t('assets.passwordError'))
+                            }
                         }
                         amount = parseFloat(amount) || 0
                         let decimal = Math.pow(10, assets.decimal)
@@ -136,12 +171,16 @@ export const AssetsSend = () => {
                                 mainBalance,
                                 nftId,
                                 gas: gasInfo.gasLimit,
-                                gasPrice: gasInfo.gasPrice
+                                gasPrice: gasInfo.gasPriceWei
                             })
                             if (res) {
                                 // Toast.hideLoading()
                                 // Toast.success(I18n.t('assets.sendSucc'))
-                                Base.goBack()
+                                if (isLedger) {
+                                    Base.replace('/main')
+                                } else {
+                                    Base.goBack()
+                                }
                             }
                         } catch (error) {
                             Toast.hideLoading()
@@ -216,6 +255,7 @@ export const AssetsSend = () => {
                                                         str = String(Math.pow(10, -precision))
                                                     }
                                                     setFieldValue('amount', str)
+                                                    setInputAmount(str)
                                                 }}
                                             />
                                             <div className='fz16 cS'>
@@ -253,16 +293,18 @@ export const AssetsSend = () => {
                                         </div>
                                     </Form.Item>
                                 ) : null}
-                                <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
-                                    <Input
-                                        type='password'
-                                        className='pl0 pv4'
-                                        placeholder={I18n.t('assets.passwordTips')}
-                                        onChange={handleChange('password')}
-                                        value={values.password}
-                                    />
-                                </Form.Item>
+                                {!isLedger ? (
+                                    <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
+                                        <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
+                                        <Input
+                                            type='password'
+                                            className='pl0 pv4'
+                                            placeholder={I18n.t('assets.passwordTips')}
+                                            onChange={handleChange('password')}
+                                            value={values.password}
+                                        />
+                                    </Form.Item>
+                                ) : null}
                                 <div className='pb30' style={{ marginTop: 48 }}>
                                     <Button color='primary' size='large' block onClick={handleSubmit}>
                                         {I18n.t('assets.confirm')}

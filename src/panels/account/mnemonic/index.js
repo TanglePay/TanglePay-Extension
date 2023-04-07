@@ -37,9 +37,11 @@ export const AccountMnemonic = () => {
                                 key={`${e}_${i}`}
                                 className={`flex c pr ${i >= 3 && 'border-t'} ${i % 3 !== 2 && 'border-r'}`}
                                 style={{ width: '33.33%', height: 35 }}>
-                                {/* <div className='pa fz16' style={{ left: 6, top: 4 }}>
-                                    {i + 1}
-                                </div> */}
+                                {i < 4 ? (
+                                    <div className='pa fz16 cP' style={{ left: 6, top: 4 }}>
+                                        {i + 1}
+                                    </div>
+                                ) : null}
                                 <div className='fz18 fw600 tc'>{e}</div>
                             </div>
                         )
