@@ -135,22 +135,20 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 </div>
                             )}
                         </div>
-                        {curNode?.type == 2 && (
-                            <>
-                                <div className='fz16 cS mv16'>{I18n.t('account.hardwareWallet')}</div>
-                                <div className='bgW radius10'>
-                                    <div
-                                        onClick={() => {
-                                            hide()
-                                            Base.openInTab('/account/hardware/into')
-                                        }}
-                                        style={{ height: 72 }}
-                                        className='pv24 flex c border-t press'>
-                                        <div className='fz18'>{I18n.t('account.hardwareWallet')}</div>
-                                    </div>
+                        <>
+                            <div className='fz16 cS mv16'>{I18n.t('account.hardwareWallet')}</div>
+                            <div className='bgW radius10'>
+                                <div
+                                    onClick={() => {
+                                        hide()
+                                        Base.openInTab('/account/hardware/into')
+                                    }}
+                                    style={{ height: 72 }}
+                                    className='pv24 flex c border-t press'>
+                                    <div className='fz18'>{I18n.t('account.hardwareWallet')}</div>
                                 </div>
-                            </>
-                        )}
+                            </div>
+                        </>
                     </>
                 )}
             </div>

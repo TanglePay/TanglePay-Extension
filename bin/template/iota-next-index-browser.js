@@ -4359,20 +4359,30 @@
      * @param taggedData Optional tagged data to associate with the transaction.
      * @param taggedData.tag Optional tag.
      * @param taggedData.data Optional data.
+     * @param signatureFunc signature by hardware
      * @returns The id of the block created and the remainder address if one was needed.
      */
-    async function sendAdvanced(client, inputsAndSignatureKeyPairs, outputs, taggedData) {
+    async function sendAdvanced(
+        client,
+        inputsAndSignatureKeyPairs,
+        outputs,
+        taggedData,
+        signatureFunc,
+        getHardwareBip32Path
+    ) {
         const [isCanSend, tips] = verifySMRSendParams(inputsAndSignatureKeyPairs, outputs)
         if (!isCanSend) {
             throw tips
         }
         const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
         const protocolInfo = await localClient.protocolInfo()
-        const transactionPayload = buildTransactionPayload(
+        const transactionPayload = await buildTransactionPayload(
             protocolInfo.networkId,
             inputsAndSignatureKeyPairs,
             outputs,
-            taggedData
+            taggedData,
+            signatureFunc,
+            getHardwareBip32Path
         )
         const block = {
             protocolVersion: DEFAULT_PROTOCOL_VERSION,
@@ -4394,15 +4404,31 @@
      * @param taggedData Optional tagged data to associate with the transaction.
      * @param taggedData.tag Optional tag.
      * @param taggedData.data Optional index data.
+     * @param ledger sign
      * @returns The transaction payload.
      */
-    function buildTransactionPayload(networkId, inputsAndSignatureKeyPairs, outputs, taggedData) {
+    async function buildTransactionPayload(
+        networkId,
+        inputsAndSignatureKeyPairs,
+        outputs,
+        taggedData,
+        signatureFunc,
+        getHardwareBip32Path
+    ) {
         if (!inputsAndSignatureKeyPairs || inputsAndSignatureKeyPairs.length === 0) {
             throw new Error('You must specify some inputs')
         }
         if (!outputs || outputs.length === 0) {
             throw new Error('You must specify some outputs')
         }
+        const hardwarePathList = []
+        inputsAndSignatureKeyPairs.forEach((e) => {
+            const input = e.input || {}
+            hardwarePathList.push(input.hardwarePath)
+            if (input.hasOwnProperty('hardwarePath')) {
+                delete e.input.hardwarePath
+            }
+        })
         let localTagHex
         let localDataHex
         if (taggedData === null || taggedData === void 0 ? void 0 : taggedData.tag) {
@@ -4476,10 +4502,11 @@
             inputsCommitmentHasher.update(crypto_js.Blake2b.sum256(input.consumingOutputBytes))
         }
         const inputsCommitment = util_js.Converter.bytesToHex(inputsCommitmentHasher.final(), true)
+        const inputs = inputsAndSignatureKeyPairsSerialized.map((i) => i.input)
         const transactionEssence = {
             type: TRANSACTION_ESSENCE_TYPE,
             networkId,
-            inputs: inputsAndSignatureKeyPairsSerialized.map((i) => i.input),
+            inputs,
             inputsCommitment,
             outputs: outputsWithSerialization.map((o) => o.output),
             payload:
@@ -4493,33 +4520,51 @@
         }
         const binaryEssence = new util_js.WriteStream()
         serializeTransactionEssence(binaryEssence, transactionEssence)
+        if (getHardwareBip32Path) {
+            for (let i = 0; i < inputs.length; i++) {
+                const pathArr = getHardwareBip32Path(hardwarePathList[i])
+                binaryEssence.writeUInt32('bip32_index', pathArr[3])
+                binaryEssence.writeUInt32('bip32_change', pathArr[4])
+            }
+        }
         const essenceFinal = binaryEssence.finalBytes()
         const essenceHash = crypto_js.Blake2b.sum256(essenceFinal)
+       
         // Create the unlocks
-        const unlocks = []
-        const addressToUnlock = {}
-        for (const input of inputsAndSignatureKeyPairsSerialized) {
-            const hexInputAddressPublic = util_js.Converter.bytesToHex(input.addressKeyPair.publicKey, true)
-            if (addressToUnlock[hexInputAddressPublic]) {
-                unlocks.push({
-                    type: REFERENCE_UNLOCK_TYPE,
-                    reference: addressToUnlock[hexInputAddressPublic].unlockIndex
-                })
-            } else {
-                unlocks.push({
-                    type: SIGNATURE_UNLOCK_TYPE,
-                    signature: {
-                        type: ED25519_SIGNATURE_TYPE,
-                        publicKey: hexInputAddressPublic,
-                        signature: util_js.Converter.bytesToHex(
-                            crypto_js.Ed25519.sign(input.addressKeyPair.privateKey, essenceHash),
-                            true
-                        )
+        let unlocks = []
+        if (signatureFunc) {
+            unlocks = await signatureFunc(essenceFinal,inputs)
+        }else{
+            const addressToUnlock = {}
+            const localSignatureFunc = (input, essenceHash) => {
+                return util_js.Converter.bytesToHex(
+                    crypto_js.Ed25519.sign(input.addressKeyPair.privateKey, essenceHash),
+                    true
+                )
+            }
+            for (const input of inputsAndSignatureKeyPairsSerialized) {
+                let hexInputAddressPublic = ''
+                if (input.addressKeyPair?.publicKey) {
+                    hexInputAddressPublic = util_js.Converter.bytesToHex(input.addressKeyPair?.publicKey || '', true)
+                }
+                if (addressToUnlock[hexInputAddressPublic]) {
+                    unlocks.push({
+                        type: REFERENCE_UNLOCK_TYPE,
+                        reference: addressToUnlock[hexInputAddressPublic].unlockIndex
+                    })
+                } else {
+                    unlocks.push({
+                        type: SIGNATURE_UNLOCK_TYPE,
+                        signature: {
+                            type: ED25519_SIGNATURE_TYPE,
+                            publicKey: hexInputAddressPublic,
+                            signature:localSignatureFunc(input, essenceHash)
+                        }
+                    })
+                    addressToUnlock[hexInputAddressPublic] = {
+                        keyPair: input.addressKeyPair,
+                        unlockIndex: unlocks.length - 1
                     }
-                })
-                addressToUnlock[hexInputAddressPublic] = {
-                    keyPair: input.addressKeyPair,
-                    unlockIndex: unlocks.length - 1
                 }
             }
         }
@@ -4580,9 +4625,21 @@
      * @param addressOptions Optional address configuration for balance address lookups.
      * @param addressOptions.startIndex The start index for the wallet count address, defaults to 0.
      * @param addressOptions.zeroCount The number of addresses with 0 balance during lookup before aborting.
+     * @param genAddressFunc get address from hardware
+     * @param signatureFunc signature by hardware
      * @returns The id of the block created and the contructed block.
      */
-    async function sendMultiple(client, seed, accountIndex, outputs, taggedData, addressOptions) {
+    async function sendMultiple(
+        client,
+        seed,
+        accountIndex,
+        outputs,
+        taggedData,
+        addressOptions,
+        genAddressFunc,
+        signatureFunc,
+        getHardwareBip32Path
+    ) {
         var _a
         const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
         const protocolInfo = await localClient.protocolInfo()
@@ -4612,7 +4669,10 @@
             generateBip44Address,
             hexOutputs,
             taggedData,
-            addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.zeroCount
+            addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.zeroCount,
+            genAddressFunc,
+            signatureFunc,
+            getHardwareBip32Path
         )
     }
     /**
@@ -4665,6 +4725,8 @@
      * @param taggedData.tag Optional tag.
      * @param taggedData.data Optional data.
      * @param zeroCount The number of addresses with 0 balance during lookup before aborting.
+     * @param genAddressFunc get address from hardware
+     * @param signatureFunc signature by hardware
      * @returns The id of the block created and the contructed block.
      */
     async function sendWithAddressGenerator(
@@ -4674,7 +4736,10 @@
         nextAddressPath,
         outputs,
         taggedData,
-        zeroCount
+        zeroCount,
+        genAddressFunc,
+        signatureFunc,
+        getHardwareBip32Path
     ) {
         const inputsAndKeys = await calculateInputs(
             client,
@@ -4682,7 +4747,8 @@
             initialAddressState,
             nextAddressPath,
             outputs,
-            zeroCount
+            zeroCount,
+            genAddressFunc
         )
 
         const [isCanSend, tips] = verifySMRSendParams(inputsAndKeys, outputs)
@@ -4690,7 +4756,14 @@
             throw tips
         }
 
-        const response = await sendAdvanced(client, inputsAndKeys, outputs, taggedData)
+        const response = await sendAdvanced(
+            client,
+            inputsAndKeys,
+            outputs,
+            taggedData,
+            signatureFunc,
+            getHardwareBip32Path
+        )
         return {
             blockId: response.blockId,
             block: response.block
@@ -4706,11 +4779,18 @@
      * @param zeroCount Abort when the number of zero balances is exceeded.
      * @returns The id of the block created and the contructed block.
      */
-    async function calculateInputs(client, seed, initialAddressState, nextAddressPath, outputs, zeroCount = 5) {
+    async function calculateInputs(
+        client,
+        seed,
+        initialAddressState,
+        nextAddressPath,
+        outputs,
+        zeroCount = 5,
+        genAddressFunc
+    ) {
         const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
         const protocolInfo = await localClient.protocolInfo()
         const clientInfo = await localClient.info()
-        console.log(clientInfo, protocolInfo)
         let requiredBalance = bigInt__default['default'](0)
         for (const output of outputs) {
             requiredBalance = requiredBalance.plus(output.amount)
@@ -4721,13 +4801,22 @@
         let zeroBalance = 0
         let minBalance = 0
         do {
-            const path = nextAddressPath(initialAddressState)
-            const addressSeed = seed.generateSeedFromPath(new crypto_js.Bip32Path(path))
-            const addressKeyPair = addressSeed.keyPair()
-            const ed25519Address = new Ed25519Address(addressKeyPair.publicKey)
-            const addressBytes = ed25519Address.toAddress()
+            let addressBech32 = ''
+            let hardwarePath = ''
+            let addressKeyPair = null
             const indexerPlugin = new IndexerPluginClient(client)
-            const addressBech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, addressBytes, protocolInfo.bech32Hrp)
+            if (!genAddressFunc) {
+                const path = nextAddressPath(initialAddressState)
+                const addressSeed = seed.generateSeedFromPath(new crypto_js.Bip32Path(path))
+                addressKeyPair = addressSeed.keyPair()
+                const ed25519Address = new Ed25519Address(addressKeyPair.publicKey)
+                const addressBytes = ed25519Address.toAddress()
+                addressBech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, addressBytes, protocolInfo.bech32Hrp)
+            } else {
+                const hardwareAddressRes = await genAddressFunc(initialAddressState.addressIndex)
+                addressBech32 = hardwareAddressRes.address
+                hardwarePath = hardwareAddressRes.path
+            }
             const addressOutputIds = await indexerPlugin.outputs({
                 addressBech32
             })
@@ -4768,14 +4857,19 @@
                             const input = {
                                 type: UTXO_INPUT_TYPE,
                                 transactionId: addressOutput.metadata.transactionId,
-                                transactionOutputIndex: addressOutput.metadata.outputIndex
+                                transactionOutputIndex: addressOutput.metadata.outputIndex,
+                                hardwarePath
                             }
-                            inputsAndSignatureKeyPairs.push({
+                            const inputData = {
                                 input,
-                                addressKeyPair,
                                 consumingOutput: addressOutput.output
-                            })
-                            if (consumedBalance >= requiredBalance) {
+                            }
+                            if (addressKeyPair) {
+                                inputData.addressKeyPair = addressKeyPair
+                            }
+                            inputsAndSignatureKeyPairs.push(inputData)
+                            const isGreaterOrEquals = consumedBalance.greaterOrEquals(requiredBalance)
+                            if (isGreaterOrEquals) {
                                 // We didn't use all the balance from the last input
                                 // so return the rest to the same address.
                                 if (
@@ -4797,10 +4891,8 @@
                                         })
                                     }
                                 }
-                                if (
-                                    consumedBalance == requiredBalance ||
-                                    consumedBalance.minus(requiredBalance).greaterOrEquals(minBalance)
-                                ) {
+                                const minus = consumedBalance.minus(requiredBalance)
+                                if (minus.equals(0) || minus.greaterOrEquals(minBalance)) {
                                     finished = true
                                 }
                             }
