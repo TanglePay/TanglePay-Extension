@@ -4533,7 +4533,7 @@
         // Create the unlocks
         let unlocks = []
         if (signatureFunc) {
-            unlocks = await signatureFunc(essenceFinal,inputs)
+            unlocks = await signatureFunc(essenceFinal,inputs,outputsWithSerialization.map((o) => o.output))
         }else{
             const addressToUnlock = {}
             const localSignatureFunc = (input, essenceHash) => {

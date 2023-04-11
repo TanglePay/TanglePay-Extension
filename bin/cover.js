@@ -4,6 +4,10 @@ const temPath = path.join(__dirname, './template/iota-next-index-browser.js')
 const toPath = path.join(__dirname, '../node_modules/@iota/iota.js-next/dist/cjs/index-browser.js')
 fs.copyFileSync(temPath, toPath)
 
+const temIotaPath = path.join(__dirname, './template/iota-index-browser.js')
+const toIotaPath = path.join(__dirname, '../node_modules/@iota/iota.js/dist/cjs/index-browser.js')
+fs.copyFileSync(temIotaPath, toIotaPath)
+
 const temIotaPPath = path.join(__dirname, './template/iota-package.json')
 const toIotaPPath = path.join(__dirname, '../node_modules/@iota/iota.js/package.json')
 fs.copyFileSync(temIotaPPath, toIotaPPath)
