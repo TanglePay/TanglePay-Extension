@@ -36,9 +36,7 @@ const AmountCon = ({ amountList }) => {
                                         borderColor: e.borderColor,
                                         backgroundColor: '#e2e4e4'
                                     }}>
-                                    <div
-                                        className='tc fz16 cB fw500'
-                                        style={{ minWidth: 70, opacity: e.btnDis ? 0.5 : 1 }}>
+                                    <div className='tc fz16 cB fw500' style={{ minWidth: 70, opacity: e.btnDis ? 0.5 : 1 }}>
                                         {e.btnStr}
                                     </div>
                                 </Button>
@@ -118,8 +116,11 @@ const UnParticipate = ({ statedTokens, unStakeTokens, handleStaking, uncomingTok
 
 // Commencing && staked
 const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, endedList }) => {
+    const [curWallet] = useGetNodeWallet()
     const handleStake = (tokens) => {
-        Base.push('/staking/add', { tokens: JSON.stringify(tokens), amount: statedAmount, type: 4 })
+        const isLedger = curWallet.type === 'ledger'
+        const func = isLedger ? 'openInTab' : 'push'
+        Base[func]('/staking/add', { tokens: JSON.stringify(tokens), amount: statedAmount, type: 4 })
     }
     const stakingTokenList = statedTokens.filter((e) => !endedList.find((d) => d.id === e.eventId))
     const uList = uncomingTokens.filter((e) => !statedTokens.find((d) => d.eventId === e.eventId))
@@ -145,11 +146,7 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
                             <div className='fz16 cS mb10'>{I18n.t('staking.available')}</div>
                         </div>
                         <div className='mb5 ml20'>
-                            <Button
-                                style={{ '--border-radius': '20px' }}
-                                color='primary'
-                                size='middle'
-                                onClick={() => handleStake(unStakeTokens)}>
+                            <Button style={{ '--border-radius': '20px' }} color='primary' size='middle' onClick={() => handleStake(unStakeTokens)}>
                                 <div className='tc fz16 fw500' style={{ minWidth: 90 }}>
                                     {I18n.t('staking.stake')}
                                 </div>
@@ -166,11 +163,7 @@ const Staked = ({ statedTokens, unStakeTokens, uncomingTokens, statedAmount, end
                             <div className='fz16 cS mb10'>{I18n.t('staking.soon')}</div>
                         </div>
                         <div className='mb5 ml20'>
-                            <Button
-                                style={{ '--border-radius': '20px' }}
-                                onClick={() => handleStake(uList)}
-                                color='primary'
-                                size='middle'>
+                            <Button style={{ '--border-radius': '20px' }} onClick={() => handleStake(uList)} color='primary' size='middle'>
                                 <div className='tc fz16 fw500' style={{ minWidth: 70 }}>
                                     {I18n.t('staking.preStake')}
                                 </div>
@@ -201,6 +194,7 @@ const Ended = ({ statedTokens, unStakeTokens }) => {
     )
 }
 export const StatusCon = () => {
+    const [curWallet] = useGetNodeWallet()
     const [{ filter, rewards }] = useStore('staking.config')
     //status: 0->Ended  1->Upcoming ，2->Commencing
     // const [eventInfo, setEventInfo] = useGetParticipationEvents()
@@ -274,10 +268,14 @@ export const StatusCon = () => {
         if (available < 1 && type != 3) {
             return Toast.error(I18n.t('staking.noAvailableTips'))
         }
-        Base.push('/staking/add', { tokens: JSON.stringify(tokens), type })
+        const isLedger = curWallet.type === 'ledger'
+        const func = isLedger ? 'openInTab' : 'push'
+        Base[func]('/staking/add', { tokens: JSON.stringify(tokens), type })
     }
     const handleUnstake = () => {
-        Base.push('/staking/add', { tokens: JSON.stringify(statedTokens), type: 3 })
+        const isLedger = curWallet.type === 'ledger'
+        const func = isLedger ? 'openInTab' : 'push'
+        Base[func]('/staking/add', { tokens: JSON.stringify(statedTokens), type: 3 })
     }
 
     let AirdropsItem = [Ended, Upcoming, UnParticipate, Staked][eventInfo.status || 0]
@@ -293,8 +291,7 @@ export const StatusCon = () => {
             amount: available,
             statusStr: I18n.t('staking.available'),
             borderColor: '#d0d1d2',
-            btnDis:
-                eventInfo.status == 0 || unEndedStakeTokens.length == 0 || dayjs(commenceTime * 1000).isAfter(dayjs()) // end
+            btnDis: eventInfo.status == 0 || unEndedStakeTokens.length == 0 || dayjs(commenceTime * 1000).isAfter(dayjs()) // end
         }
     ]
     if (status === 3) {

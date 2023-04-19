@@ -6,6 +6,7 @@ import { useStore } from '@tangle-pay/store'
 import { CoinList, ActivityList, RewardsList, CollectiblesList } from './list'
 import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
+import { useGetNftList } from '@tangle-pay/store/nft'
 import './index.less'
 
 const initAsssetsTab = ['stake', 'soonaverse', 'contract']
@@ -18,6 +19,9 @@ export const Assets = ({ tabKey }) => {
     const [isRequestHis] = useStore('common.isRequestHis')
     const [unlockConditions] = useStore('common.unlockConditions')
     const [lockedList] = useStore('common.lockedList')
+    const [nftUnlockList] = useStore('nft.unlockList')
+    const [nftLockList] = useStore('nft.lockList')
+    useGetNftList()
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
     const [, refreshAssets] = useStore('common.forceRequest')
     const [curWallet] = useGetNodeWallet()
@@ -62,12 +66,7 @@ export const Assets = ({ tabKey }) => {
                                 <div className='fz16 cW'>
                                     {I18n.t('assets.myAssets')}({curLegal.unit || ''})
                                 </div>
-                                <SvgIcon
-                                    name={isShowAssets ? 'eye_1' : 'eye_0'}
-                                    size={24}
-                                    className='ml10 press cW'
-                                    onClick={() => setShowAssets(!isShowAssets)}
-                                />
+                                <SvgIcon name={isShowAssets ? 'eye_1' : 'eye_0'} size={24} className='ml10 press cW' onClick={() => setShowAssets(!isShowAssets)} />
                             </div>
                             <div className='ph16 mb15'>
                                 <div className='cW fz20'>{isShowAssets ? totalAssets.assets || '0.00' : '****'}</div>
@@ -95,29 +94,25 @@ export const Assets = ({ tabKey }) => {
                         <div className='w100 flex row ac jsb'>
                             <div className='flex row ac'>
                                 <div onClick={() => setTab(0)} className='flex c mr24 press' style={{ height: 60 }}>
-                                    <div className={`${curTab === 0 ? 'cP' : 'cB'} fz16`}>
-                                        {I18n.t('assets.assets')}
-                                    </div>
+                                    <div className={`${curTab === 0 ? 'cP' : 'cB'} fz16`}>{I18n.t('assets.assets')}</div>
                                 </div>
                                 {assetsTab.includes('soonaverse') && (
                                     <div onClick={() => setTab(1)} className='press flex c mr24' style={{ height: 60 }}>
-                                        <div className={`${curTab === 1 ? 'cP' : 'cB'} fz16`}>
-                                            {I18n.t('nft.collectibles')}
-                                        </div>
+                                        <div className={`${curTab === 1 ? 'cP' : 'cB'} fz16`}>{I18n.t('nft.collectibles')}</div>
                                     </div>
                                 )}
-                                {unlockConditions.length > 0 || lockedList.length > 0 ? (
+                                {unlockConditions.length > 0 || lockedList.length > 0 || nftUnlockList.length > 0 || nftLockList.length > 0 ? (
                                     <div
                                         onClick={() => {
                                             Base.push('/assets/tradingList')
                                         }}
                                         className='cW fz16 ph5 flex c press'
                                         style={{
-                                            background: unlockConditions.length == 0 ? '#3671ee' : '#D53554',
+                                            background: unlockConditions.length == 0 && nftUnlockList.length == 0 ? '#3671ee' : '#D53554',
                                             borderRadius: 4,
                                             height: 18
                                         }}>
-                                        {unlockConditions.length + lockedList.length}
+                                        {unlockConditions.length + lockedList.length + nftUnlockList.length + nftLockList.length}
                                     </div>
                                 ) : null}
                             </div>
@@ -138,9 +133,7 @@ export const Assets = ({ tabKey }) => {
                                         {!isRequestAssets ? (
                                             <div className='ph30 pv24 flex c row'>
                                                 <Loading color='gray' />
-                                                <span className='flex cS fz16 pl10'>
-                                                    {I18n.t('assets.requestAssets')}
-                                                </span>
+                                                <span className='flex cS fz16 pl10'>{I18n.t('assets.requestAssets')}</span>
                                             </div>
                                         ) : null}
                                     </div>

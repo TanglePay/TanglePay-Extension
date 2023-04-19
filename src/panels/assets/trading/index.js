@@ -20,8 +20,12 @@ export const AssetsTrading = () => {
     params = Base.handlerParams(params.search)
     const id = params.id
     const [unlockConditions] = useStore('common.unlockConditions')
-    const { onDismiss, onAccept } = useHandleUnlocalConditions()
-    const curInfo = unlockConditions.find((e) => e.blockId == id) || {}
+    const [nftUnlockList] = useStore('nft.unlockList')
+    const { onDismiss, onDismissNft, onAccept, onAcceptNft } = useHandleUnlocalConditions()
+    let curInfo = unlockConditions.find((e) => e.blockId == id)
+    if (!curInfo) {
+        curInfo = nftUnlockList.find((e) => e.nftId == id) || {}
+    }
     return (
         <div className='page assets-trading'>
             <Nav title={I18n.t('assets.tradingTitle')} />
@@ -40,20 +44,18 @@ export const AssetsTrading = () => {
                                 top: 0,
                                 zIndex: 0
                             }}
-                            src={curInfo.logoUrl}
+                            src={curInfo.logoUrl || curInfo.thumbnailImage || curInfo.media}
                             alt=''
                             onError={(e) => {
                                 e.target.style.opacity = 0
                             }}
                         />
-                        <div
-                            className='border bgP flex c cW fw600 fz24'
-                            style={{ width: 32, height: 32, borderRadius: 32 }}>
-                            {String(curInfo.token).toLocaleUpperCase()[0]}
+                        <div className='border bgP flex c cW fw600 fz24' style={{ width: 32, height: 32, borderRadius: 32 }}>
+                            {String(curInfo.token || curInfo.name).toLocaleUpperCase()[0]}
                         </div>
                     </div>
-                    <div className='cP fz16 fw600 ml20 mr24'>
-                        {curInfo.token}: {curInfo.amountStr}
+                    <div className='cP fz16 fw600 ml20 mr24 ellipsis' style={{ width: 100 }}>
+                        {curInfo.nftId ? curInfo.name : `${curInfo.token}: ${curInfo.amountStr}`}
                     </div>
                     <div className='fz16 fw400 ellipsis'>
                         {I18n.t('assets.tradingFrom')} {Base.handleAddress(curInfo.unlockAddress)}
@@ -84,9 +86,7 @@ export const AssetsTrading = () => {
                             <div className='fz16 fw400'>{I18n.t('assets.tokenID')}</div>
                         </div>
                         <div className='pb10'>
-                            <CopyToClipboard
-                                text={curInfo.assetsId}
-                                onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                            <CopyToClipboard text={curInfo.assetsId} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
                                 <div className='fz16 fw400 press' style={{ wordBreak: 'break-all' }}>
                                     {curInfo.assetsId}
                                 </div>
@@ -110,11 +110,26 @@ export const AssetsTrading = () => {
                             }
                             try {
                                 Toast.showLoading()
-                                await onAccept({
+                                const info = {
                                     ...curInfo,
                                     curWallet: { ...curWallet, password }
-                                })
-                                onDismiss(curInfo.blockId)
+                                }
+                                if (info.nftId) {
+                                    await onAcceptNft({
+                                        ...curInfo,
+                                        curWallet: { ...curWallet, password }
+                                    })
+                                } else {
+                                    await onAccept({
+                                        ...curInfo,
+                                        curWallet: { ...curWallet, password }
+                                    })
+                                }
+                                if (curInfo.nftId) {
+                                    onDismissNft(curInfo.nftId)
+                                } else {
+                                    onDismiss(curInfo.blockId)
+                                }
                                 Toast.hideLoading()
                                 Toast.show(I18n.t('assets.acceptSucc'))
                                 IotaSDK.refreshAssets()
@@ -125,9 +140,7 @@ export const AssetsTrading = () => {
                             } catch (error) {
                                 Toast.hideLoading()
                                 error = String(error)
-                                if (
-                                    error.includes('There are not enough funds in the inputs for the required balance')
-                                ) {
+                                if (error.includes('There are not enough funds in the inputs for the required balance')) {
                                     error = I18n.t('assets.unlockError')
                                 }
                                 Toast.show(error)
@@ -138,9 +151,7 @@ export const AssetsTrading = () => {
                             <div>
                                 <Form>
                                     <Form.Item className={`mb16 pl0 border-b ${errors.password && 'form-error'}`}>
-                                        <div className='fz16 mb16'>
-                                            {I18n.t('account.showKeyInputPassword').replace(/{name}/, curWallet.name)}
-                                        </div>
+                                        <div className='fz16 mb16'>{I18n.t('account.showKeyInputPassword').replace(/{name}/, curWallet.name)}</div>
                                         <Input
                                             className='fz16'
                                             type='password'
