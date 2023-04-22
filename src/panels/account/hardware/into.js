@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
 import { Form, Input, Button } from 'antd-mobile'
@@ -12,6 +12,7 @@ const schema = Yup.object().shape({
 })
 export const AccountHardwareInto = () => {
     const form = useRef()
+    const [isLoading, setLoading] = useState(false)
     const addWallet = useAddWallet()
     useCreateCheck((name) => {
         if (!IotaSDK.checkWeb3Node(IotaSDK.curNode?.id)) {
@@ -33,17 +34,16 @@ export const AccountHardwareInto = () => {
                     validationSchema={schema}
                     onSubmit={async (values) => {
                         try {
+                            if (isLoading) {
+                                return
+                            }
+                            setLoading(true)
                             const curNodeId = IotaSDK.curNode?.id
                             const isIota = IotaSDK.checkIota(curNodeId)
                             const isShimmer = IotaSDK.checkSMR(curNodeId)
                             if (isIota || isShimmer) {
                                 Toast.showLoading()
-                                const [{ address, path }] = await IotaSDK.getHardwareAddressInIota(
-                                    curNodeId,
-                                    0,
-                                    true,
-                                    1
-                                )
+                                const [{ address, path }] = await IotaSDK.getHardwareAddressInIota(curNodeId, 0, true, 1)
                                 const info = await IotaSDK.importHardware({
                                     address: address,
                                     name: values.name,
@@ -61,7 +61,9 @@ export const AccountHardwareInto = () => {
                                     type: IotaSDK.curNode?.type
                                 })
                             }
+                            setLoading(false)
                         } catch (error) {
+                            setLoading(false)
                             Toast.show(String(error))
                         }
                     }}>
@@ -70,26 +72,15 @@ export const AccountHardwareInto = () => {
                             <Form>
                                 <Form.Item className={`mt5 pl0 ${errors.name && 'form-error'}`}>
                                     <div className='fz18 mb10'>{I18n.t('account.intoName')}</div>
-                                    <Input
-                                        className='pt4'
-                                        placeholder={I18n.t('account.intoNameTips')}
-                                        onChange={handleChange('name')}
-                                        value={values.name}
-                                    />
+                                    <Input className='pt4' placeholder={I18n.t('account.intoNameTips')} onChange={handleChange('name')} value={values.name} />
                                 </Form.Item>
                                 <div
                                     className='flex row as pl0 mt20'
                                     onClick={() => {
                                         setFieldValue('agree', !values.agree)
                                     }}>
-                                    <SvgIcon
-                                        size={15}
-                                        className={`mr8 fz20 ${values.agree ? 'cP' : 'cB'}`}
-                                        name={values.agree ? 'checkbox_1' : 'checkbox_0'}
-                                    />
-                                    <div
-                                        className={`fz16 tl ${!errors.agree ? 'cB' : 'cR'}`}
-                                        style={{ lineHeight: '22px' }}>
+                                    <SvgIcon size={15} className={`mr8 fz20 ${values.agree ? 'cP' : 'cB'}`} name={values.agree ? 'checkbox_1' : 'checkbox_0'} />
+                                    <div className={`fz16 tl ${!errors.agree ? 'cB' : 'cR'}`} style={{ lineHeight: '22px' }}>
                                         {I18n.t('account.intoAgree')
                                             .split('##')
                                             .filter((e) => !!e)
@@ -99,11 +90,7 @@ export const AccountHardwareInto = () => {
                                                         onClick={(e) => {
                                                             e.stopPropagation()
                                                             e.preventDefault()
-                                                            Base.push(
-                                                                i === 1
-                                                                    ? 'https://tanglepay.com/terms.html'
-                                                                    : 'https://tanglepay.com/policy.html'
-                                                            )
+                                                            Base.push(i === 1 ? 'https://tanglepay.com/terms.html' : 'https://tanglepay.com/policy.html')
                                                         }}
                                                         key={i}
                                                         className='cP press'>

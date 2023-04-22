@@ -3,7 +3,7 @@ import { Nav, SvgIcon, NoData } from '@/common'
 import { Base, I18n } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { Button, Dialog } from 'antd-mobile'
-import { useHandleUnlocalConditions } from '@tangle-pay/store/common'
+import { useHandleUnlocalConditions, useGetNodeWallet } from '@tangle-pay/store/common'
 import './index.less'
 
 const Item = (item) => {
@@ -80,8 +80,10 @@ const Item = (item) => {
                     <Button
                         color='primary'
                         onClick={() => {
-                            Base.push('/assets/trading', {
-                                id: item.id
+                            const func = item.isLedger ? 'openInTab' : 'push'
+                            Base[func]('/assets/trading', {
+                                id: item.id,
+                                isLedger: item.isLedger ? 1 : 0
                             })
                         }}>
                         {I18n.t('shimmer.accept')}
@@ -142,18 +144,18 @@ export const AssetsTradingList = () => {
     const [lockedList] = useStore('common.lockedList')
     const [nftUnlockList] = useStore('nft.unlockList')
     const [nftLockList] = useStore('nft.lockList')
-    console.log(nftUnlockList)
-    console.log(nftLockList)
+    const [curWallet] = useGetNodeWallet()
+    const isLedger = curWallet.type == 'ledger'
     return (
         <div className='page assets-trading'>
             <Nav title={I18n.t('assets.tradingList')} />
             {unlockConditions.length > 0 || lockedList.length > 0 || nftUnlockList.length > 0 || nftLockList.length > 0 ? (
                 <div>
                     {unlockConditions.map((e, i) => {
-                        return <Item {...e} key={e.blockId} id={e.blockId} />
+                        return <Item isLedger={isLedger} {...e} key={e.blockId} id={e.blockId} />
                     })}
                     {nftUnlockList.map((e, i) => {
-                        return <Item {...e} key={e.nftId} id={e.nftId} logoUrl={e.thumbnailImage || e.media} />
+                        return <Item isLedger={isLedger} {...e} key={e.nftId} id={e.nftId} logoUrl={e.thumbnailImage || e.media} />
                     })}
                     {lockedList.map((e, i) => {
                         return <LockedItem {...e} key={e.blockId} />

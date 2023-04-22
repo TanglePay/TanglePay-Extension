@@ -4241,15 +4241,35 @@
                     : undefined
         }
         const binaryEssence = new util_js.WriteStream()
+        let binaryEssenceToken = null
         serializeTransactionEssence(binaryEssence, transactionEssence)
         if (getHardwareBip32Path) {
-            for (let i = 0; i < inputs.length; i++) {
-                const pathArr = getHardwareBip32Path(hardwarePathList[i])
-                binaryEssence.writeUInt32('bip32_index', pathArr[3])
-                binaryEssence.writeUInt32('bip32_change', pathArr[4])
+            // token
+            if (outputs.find((a) => a.nativeTokens?.length > 0 || a.nftId)) {
+                binaryEssenceToken = new util_js.WriteStream()
+                let final = binaryEssence.finalBytes()
+                final = crypto_js.Blake2b.sum256(final)
+                binaryEssenceToken.writeBytes('essence_hash', final.length, final)
+                binaryEssenceToken.writeUInt16('inputs_count', hardwarePathList.length)
+                for (let i = 0; i < inputs.length; i++) {
+                    const pathArr = getHardwareBip32Path(hardwarePathList[i])
+                    binaryEssenceToken.writeUInt32('bip32_index', pathArr[3])
+                    binaryEssenceToken.writeUInt32('bip32_change', pathArr[4])
+                }
+            } else {
+                for (let i = 0; i < inputs.length; i++) {
+                    const pathArr = getHardwareBip32Path(hardwarePathList[i])
+                    binaryEssence.writeUInt32('bip32_index', pathArr[3])
+                    binaryEssence.writeUInt32('bip32_change', pathArr[4])
+                }
             }
         }
-        const essenceFinal = binaryEssence.finalBytes()
+        let essenceFinal
+        if (binaryEssenceToken) {
+            essenceFinal = binaryEssenceToken.finalBytes()
+        } else {
+            essenceFinal = binaryEssence.finalBytes()
+        }
         const essenceHash = crypto_js.Blake2b.sum256(essenceFinal)
 
         // Create the unlocks
