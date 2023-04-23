@@ -1,7 +1,12 @@
 //Auto generated script via bin_createPanel. Don't edit it manually.
 import { Main } from './main'
+import { UnlockScreen } from './account/unlock'
 import { AccountLogin } from './account/login'
 import { AccountRegister } from './account/register'
+import { AccountRegisterPin } from './account/register/pin'
+import { AccountResetPin } from './account/pin/reset'
+import { AccountSetPin } from './account/pin/set'
+import { UnlockScreen } from './account/unlock'
 import { AccountInto } from './account/into'
 import { AccountBackup } from './account/backup'
 import { AccountMnemonic } from './account/mnemonic'
@@ -39,6 +44,18 @@ import { AssetsNftMerge } from './assets/nftMerge'
 import { AccountHardwareInto } from './account/hardware/into'
 import { AccountHardwareImport } from './account/hardware/import'
 export const panelsList = [
+    { 
+        path: 'unlock', 
+        component: UnlockScreen 
+    },
+    { 
+        path: 'account/pin/set', 
+        component: AccountSetPin 
+    },
+    { 
+        path: 'account/pin/reset', 
+        component: AccountResetPin 
+    },
     {
         path: 'account/hardware/import',
         component: AccountHardwareImport
@@ -186,6 +203,14 @@ export const panelsList = [
     {
         path: 'account/register',
         component: AccountRegister
+    },
+    {
+        path: 'account/registerPin',
+        component: AccountRegisterPin
+    },
+    { 
+        path: 'unlock', 
+        component: UnlockScreen
     },
     {
         path: 'account/login',

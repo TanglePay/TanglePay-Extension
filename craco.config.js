@@ -9,6 +9,8 @@ module.exports = {
             '@': pathResolve('src'),
             '@tangle-pay/common': 'tanglepay/lib/browser/common',
             '@tangle-pay/store': 'tanglepay/lib/browser/store',
+            '@tangle-pay/domain': 'tanglepay/lib/browser/domain',
+            //'@tangle-pay/viewmodel': 'tanglepay/lib/browser/viewmodel',
             '@tangle-pay/assets': 'tanglepay/lib/browser/assets'
         },
         configure: (config) => {

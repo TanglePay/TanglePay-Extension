@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input, Button } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 import { Nav, Toast } from '@/common'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { context, checkIsWalletPasswordEnabled } from '@tangle-pay/domain'
 
 export const PrivateKey = () => {
     let params = useLocation()
@@ -15,6 +16,18 @@ export const PrivateKey = () => {
     const [_, walletsList] = useGetNodeWallet()
     const curEdit = walletsList.find((e) => e.id === id) || {}
     const name = curEdit.name || ''
+
+    useEffect(async () => {
+        const func = async () => {
+            const isEnabled = await checkIsWalletPasswordEnabled(curEdit.id)
+            if (isEnabled && context.state.isPinSet) {
+                const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, context.state.pin)
+                setKeyStr(privateKeyStr.replace(/^0x/, ''))
+            }
+        }
+        func()
+    }, [])
+
     return (
         <div>
             <Nav title={name} />
