@@ -30,7 +30,7 @@ export const AccountSetPin = () => {
             }
             await setPin(newPin);
             Toast.success(I18n.t('account.pinResetSuccess'));
-            Base.push('/user/setting');
+            Base.push('/main');
           }}
         >
           {({ handleChange, handleSubmit, values, errors }) => (

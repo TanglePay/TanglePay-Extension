@@ -29,14 +29,14 @@ const PinInputView = ({ errorMessage, onSubmit }) => {
           onChange={v=>{console.log(v); pinValueRef.current = v}}
           onComplete={handleCompleted}
           autoFocus
-          style={{ height:'27.7px', padding: '10px' }}
-          inputStyle={{ width:'40px', borderBottom: '1px solid silver',borderTop: 'none',
+          style={{ height:'45.7px', padding: '10px' }}
+          inputStyle={{ width:'40px', height:'27.7px', borderBottom: '1px solid silver',borderTop: 'none',
           borderLeft: 'none',
           borderRight: 'none', }}
           inputFocusStyle={{ borderBottom: '1px solid gray' }}
         />
-        <h3 className='cR'>{errorMessage}</h3>
-        <div className='w100' style={{marginTop:'43.4px'}}>
+        <div className='cR' style={{height:'18px'}}>{errorMessage}</div>
+        <div className='w100' style={{marginTop:'8.4px'}}>
             <Button color='primary' size='large' block onClick={()=>{
               handleCompleted(pinValueRef.current).catch(e=>console.log(e))
             }}>
