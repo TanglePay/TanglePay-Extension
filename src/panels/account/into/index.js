@@ -7,6 +7,7 @@ import * as Yup from 'yup'
 import { useCreateCheck } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 import { Nav, SvgIcon, Toast } from '@/common'
+import { context } from '@tangle-pay/domain'
 import './index.less'
 import { ExpDialog } from './expDialog'
 
@@ -50,7 +51,7 @@ export const AccountInto = () => {
                         
                         //import mnenomics
                         if (type === 1) {
-                            if (useContext.state.isPinSet) {
+                            if (context.state.isPinSet) {
                                 const { password, rePassword } = values
                                 if (!Base.checkPassword(password)) {
                                     return Toast.error(I18n.t('account.intoPasswordTips'))
