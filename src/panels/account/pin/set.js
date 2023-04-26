@@ -3,7 +3,7 @@ import React from 'react';
 import { Formik } from 'formik';
 import { Form, Input, Button } from 'antd-mobile';
 import * as Yup from 'yup';
-import { Nav } from '@/common';
+import { Nav, Toast } from '@/common';
 import { Base, I18n } from '@tangle-pay/common'
 
 const schema = Yup.object().shape({
@@ -22,10 +22,14 @@ export const AccountSetPin = () => {
           validateOnChange={false}
           validateOnMount={false}
           validationSchema={schema}
-          onSubmit={(values) => {
+          onSubmit={async (values) => {
             const { newPin, retypedPin } = values;
-            // Add your logic for setting the new PIN here
-            console.log(newPin, retypedPin);
+            if (newPin !== retypedPin) {
+              return Toast.error(I18n.t('account.pinMismatch'));
+            }
+            await setPin(newPin);
+            Toast.success(I18n.t('account.pinResetSuccess'));
+            Base.push('/user/setting');
           }}
         >
           {({ handleChange, handleSubmit, values, errors }) => (
