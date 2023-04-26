@@ -9,11 +9,17 @@ import { useLocation } from 'react-router-dom'
 import { Nav, SvgIcon, Toast } from '@/common'
 import './index.less'
 import { ExpDialog } from './expDialog'
+
 const schema = Yup.object().shape({
     mnemonic: Yup.string().required(),
     name: Yup.string().required(),
     password: Yup.string().required(),
     rePassword: Yup.string().required(),
+    agree: Yup.bool().isTrue().required()
+})
+const schemaNopassword = Yup.object().shape({
+    mnemonic: Yup.string().required(),
+    name: Yup.string().required(),
     agree: Yup.bool().isTrue().required()
 })
 export const AccountInto = () => {
@@ -39,16 +45,19 @@ export const AccountInto = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={schema}
+                    validationSchema={context.state.isPinSet ? schema:schemaNopassword}
                     onSubmit={async (values) => {
+                        
                         //import mnenomics
                         if (type === 1) {
-                            const { password, rePassword } = values
-                            if (!Base.checkPassword(password)) {
-                                return Toast.error(I18n.t('account.intoPasswordTips'))
-                            }
-                            if (password !== rePassword) {
-                                return Toast.error(I18n.t('account.checkPasswrod'))
+                            if (useContext.state.isPinSet) {
+                                const { password, rePassword } = values
+                                if (!Base.checkPassword(password)) {
+                                    return Toast.error(I18n.t('account.intoPasswordTips'))
+                                }
+                                if (password !== rePassword) {
+                                    return Toast.error(I18n.t('account.checkPasswrod'))
+                                }
                             }
                             const res = await IotaSDK.importMnemonic({
                                 ...values
@@ -64,6 +73,7 @@ export const AccountInto = () => {
                                 Base.replace('/main')
                             }
                         }
+                    
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
                         <div className='p16 pt12 flex column jsb'>
@@ -115,6 +125,7 @@ export const AccountInto = () => {
                                         value={values.name}
                                     />
                                 </Form.Item>
+                                { context.state.isPinSet && (
                                 <Form.Item className={`mt16 pl0 ${errors.password && 'form-error'}`}>
                                     <div className='fz16 mb10'>
                                         {I18n.t(type === 1 ? 'account.intoPassword' : 'account.intoFilePassword')}
@@ -129,7 +140,7 @@ export const AccountInto = () => {
                                         value={values.password}
                                         maxLength={20}
                                     />
-                                </Form.Item>
+                                </Form.Item>)}
                                 {type === 1 && (
                                     <Form.Item className={`pl0 mb5 ${errors.rePassword && 'form-error'}`}>
                                         <Input

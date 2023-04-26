@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
+import { context } from '@tangle-pay/domain'
 import { useStore } from '@tangle-pay/store'
 import { Nav, SvgIcon, Toast } from '@/common'
 import { Switch } from 'antd-mobile'
@@ -34,6 +35,14 @@ export const UserSetting = () => {
             label: 'Advanced',
             onClick: () => {
                 Base.push('/user/advanced')
+            },
+            size: 22
+        },
+        {
+            icon: 'advanced',
+            label: 'PIN Reset',
+            onClick: () => {
+                Base.push(context.state.isPinSet ? '/account/pin/reset' : '/account/pin/set')
             },
             size: 22
         }
@@ -72,6 +81,7 @@ export const UserSetting = () => {
             <div>
                 <div>
                     {list.map((e, i) => {
+                        console.log(i,e);
                         return (
                             <div
                                 onClick={e.onClick ? e.onClick : null}

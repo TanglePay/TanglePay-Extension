@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
+import { context, checkIsWalletPasswordEnabled } from '@tangle-pay/domain'
 import { Form, Input, Button, Dialog } from 'antd-mobile'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
@@ -12,11 +13,19 @@ const schema = {
     // amount: Yup.number().positive().required(),
     password: Yup.string().required()
 }
+const schemaNopassword = Yup.object().shape({
+})
 export const StakingAdd = () => {
     const [assetsList] = useStore('common.assetsList')
     const [currency] = useState('IOTA')
     const [curWallet] = useGetNodeWallet()
     useGetAssetsList(curWallet)
+    const [isWalletPasswordEnabled, setIsWalletPasswordEnabled] = useState(false)
+    useEffect(() => {
+        checkIsWalletPasswordEnabled(curWallet.id).then((res) => {
+            setIsWalletPasswordEnabled(res)
+        })
+    }, [])
     let params = useLocation()
     params = Base.handlerParams(params.search)
     let { tokens, type } = params
@@ -37,7 +46,7 @@ export const StakingAdd = () => {
         titleKey = 'staking.unstake'
     }
     const isLedger = curWallet.type == 'ledger'
-    if (isLedger) {
+    if (isLedger || !isWalletPasswordEnabled) {
         schema.password = Yup.string().optional()
     } else {
         schema.password = Yup.string().required()
@@ -56,14 +65,17 @@ export const StakingAdd = () => {
                     validateOnMount={false}
                     validationSchema={Yup.object().shape(schema)}
                     onSubmit={async (values) => {
-                        const { password } = values
-                        try {
-                            if (!isLedger) {
-                                const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
-                                if (!isPassword) {
-                                    return Toast.error(I18n.t('assets.passwordError'))
-                                }
+                        let password = values.password
+                        if (!isLedger && isWalletPasswordEnabled) {
+                            password = values.password
+                            const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                            if (!isPassword) {
+                                return Toast.error(I18n.t('assets.passwordError'))
                             }
+                        } else {
+                            password = context.state.pin
+                        }
+                        try{
                             if (available <= 0) {
                                 return Toast.error(I18n.t('assets.balanceError'))
                             }
@@ -116,7 +128,7 @@ export const StakingAdd = () => {
                     {({ handleChange, handleSubmit, values, errors }) => (
                         <div className='ph16 pv24'>
                             <Form>
-                                {!isLedger ? (
+                                {!isLedger && isWalletPasswordEnabled ? (
                                     <>
                                         <div className='fz16 mb10'>{I18n.t('assets.password')}</div>
                                         <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>

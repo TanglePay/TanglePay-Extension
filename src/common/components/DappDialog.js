@@ -9,6 +9,7 @@ import Bridge from '@/common/bridge'
 import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 import { Unit } from '@iota/unit-converter'
 import { GasDialog } from '@/common/components/gasDialog'
+import { checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
 export const DappDialog = () => {
     const gasDialog = useRef()
@@ -29,6 +30,13 @@ export const DappDialog = () => {
     const changeNode = useChangeNode()
     const [gasInfo, setGasInfo] = useState({})
     const isLedger = curWallet.type == 'ledger'
+    const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(true)
+
+    useEffect(() => {
+        checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
+            setIsWalletPassowrdEnabled(res)
+        })
+    }, [curWallet.id])
     const show = () => {
         // requestAnimationFrame(() => {
         setShow(true)
@@ -69,7 +77,7 @@ export const DappDialog = () => {
     }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
-            if (!isLedger) {
+            if (!isLedger && !isWalletPassowrdEnabled) {
                 const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
                 if (!isPassword) {
                     return Toast.error(I18n.t('assets.passwordError'))
@@ -695,7 +703,7 @@ export const DappDialog = () => {
                                 </div>
                             </Form.Item>
                         ) : null}
-                        {dappData.type !== 'iota_connect' && !isLedger ? (
+                        {dappData.type !== 'iota_connect' && !isLedger && !isWalletPassowrdEnabled ? (
                             <Form.Item className='pl0'>
                                 <Input
                                     type='password'

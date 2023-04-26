@@ -7,6 +7,7 @@ import { CoinList, ActivityList, RewardsList, CollectiblesList } from './list'
 import { useGetNodeWallet, useGetAssetsList, useGetLegal } from '@tangle-pay/store/common'
 import { useGetEventsConfig } from '@tangle-pay/store/staking'
 import { useGetNftList } from '@tangle-pay/store/nft'
+import { isNewWalletFlow } from '@tangle-pay/domain'
 import './index.less'
 
 const initAsssetsTab = ['stake', 'soonaverse', 'contract']
@@ -32,7 +33,11 @@ export const Assets = ({ tabKey }) => {
     const curLegal = useGetLegal()
     const checkPush = (path) => {
         if (!curWallet.address) {
-            Base.push('/account/register')
+            if (isNewWalletFlow()) {
+                 Base.push('/account/registerPin')
+            } else {
+                Base.push('/account/register')
+            }
             return
         }
         Base.push(path)
