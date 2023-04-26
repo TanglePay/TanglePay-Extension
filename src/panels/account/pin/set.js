@@ -5,6 +5,7 @@ import { Form, Input, Button } from 'antd-mobile';
 import * as Yup from 'yup';
 import { Nav, Toast } from '@/common';
 import { Base, I18n } from '@tangle-pay/common'
+import { setPin } from '@tangle-pay/domain'
 
 const schema = Yup.object().shape({
   newPin: Yup.string().required(),
