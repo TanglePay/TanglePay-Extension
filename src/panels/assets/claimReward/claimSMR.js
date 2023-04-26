@@ -8,7 +8,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useAddWallet } from '@tangle-pay/store/common'
 import { useStore } from '@tangle-pay/store'
-import { context, checkIsWalletPasswordEnabled } from '@tangle-pay/domain'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
 const schema = Yup.object().shape({
     password: Yup.string().required()
@@ -27,7 +27,7 @@ export const ClaimSMR = () => {
     const [contentW, setContentW] = useState(375)
     const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(false)
     useEffect(() => {
-        checkIsWalletPasswordEnabled().then((res) => {
+        checkWalletIsPasswordEnabled().then((res) => {
             setIsWalletPassowrdEnabled(res)
         })
         setContentW(document.getElementById('app').offsetWidth)

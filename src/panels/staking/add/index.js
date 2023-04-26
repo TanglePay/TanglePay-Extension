@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
-import { context, checkIsWalletPasswordEnabled } from '@tangle-pay/domain'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 import { Form, Input, Button, Dialog } from 'antd-mobile'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
@@ -20,7 +20,7 @@ export const StakingAdd = () => {
     const [curWallet] = useGetNodeWallet()
     const [isWalletPasswordEnabled, setIsWalletPasswordEnabled] = useState(false)
     useEffect(() => {
-        checkIsWalletPasswordEnabled(curWallet.id).then((res) => {
+        checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
             setIsWalletPasswordEnabled(res)
         })
     }, [])
