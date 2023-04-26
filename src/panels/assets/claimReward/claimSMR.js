@@ -27,7 +27,7 @@ export const ClaimSMR = () => {
     const [contentW, setContentW] = useState(375)
     const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(false)
     useEffect(() => {
-        checkWalletIsPasswordEnabled().then((res) => {
+        checkWalletIsPasswordEnabled(curEdit.id).then((res) => {
             setIsWalletPassowrdEnabled(res)
         })
         setContentW(document.getElementById('app').offsetWidth)
