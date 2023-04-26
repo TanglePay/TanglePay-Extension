@@ -1,9 +1,9 @@
 // SetPin.js
 import React from 'react';
 import { Formik } from 'formik';
-import { Form, Input, Button } from 'antd-mobile';
+import { Form, Button } from 'antd-mobile';
 import * as Yup from 'yup';
-import { Nav, Toast } from '@/common';
+import { Nav, Toast, MaskedInput } from '@/common';
 import { Base, I18n } from '@tangle-pay/common'
 import { setPin } from '@tangle-pay/domain'
 
@@ -38,7 +38,7 @@ export const AccountSetPin = () => {
               <Form>
                 <Form.Item className={`mt5 pl0 ${errors.newPin && 'form-error'}`}>
                   <div className="fz18 mb10">{I18n.t('account.newPin')}</div>
-                  <Input
+                  <MaskedInput
                     className="pt4"
                     placeholder={I18n.t('account.enterNewPin')}
                     onChange={handleChange('newPin')}
@@ -47,7 +47,7 @@ export const AccountSetPin = () => {
                 </Form.Item>
                 <Form.Item className={`pl0 ${errors.retypedPin && 'form-error'}`}>
                   <div className="fz18 mb10">{I18n.t('account.retypePin')}</div>
-                  <Input
+                  <MaskedInput
                     className="pt4"
                     placeholder={I18n.t('account.retypeNewPin')}
                     onChange={handleChange('retypedPin')}
