@@ -10,6 +10,7 @@ import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
 import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 import { GasDialog } from '@/common/components/gasDialog'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 // import { SendFailDialog } from '@/common/components/sendFailDialog'
 
 const schema = {
@@ -23,6 +24,7 @@ export const AssetsSend = () => {
     // const sendFailDialog = useRef()
     // const timeHandler = useRef()
     // const [statedAmount] = useStore('staking.statedAmount')
+    
     useGetParticipationEvents()
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
@@ -55,6 +57,12 @@ export const AssetsSend = () => {
     //     }
     // }, [])
     const [gasInfo, setGasInfo] = useState({})
+    const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(false)
+    useEffect(() => {
+        checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
+            setIsWalletPassowrdEnabled(res)
+        })
+    }, [])
     useEffect(() => {
         if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
             const amount = parseFloat(inputAmount) || 0
@@ -102,7 +110,7 @@ export const AssetsSend = () => {
     }, [curWallet.nodeId, assets?.contract, inputAmount, assets.decimal])
     useGetAssetsList(curWallet)
     const isLedger = curWallet.type == 'ledger'
-    if (isLedger) {
+    if (isLedger && !isWalletPassowrdEnabled) {
         schema.password = Yup.string().optional()
     } else {
         schema.password = Yup.string().required()
@@ -120,6 +128,9 @@ export const AssetsSend = () => {
                     validationSchema={Yup.object().shape(schema)}
                     onSubmit={async (values) => {
                         let { password, amount, receiver } = values
+                        if (!isWalletPassowrdEnabled) {
+                            password = context.state.pin
+                        }
                         if (!isLedger) {
                             const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
                             if (!isPassword) {
@@ -293,7 +304,7 @@ export const AssetsSend = () => {
                                         </div>
                                     </Form.Item>
                                 ) : null}
-                                {!isLedger ? (
+                                {!isLedger && isWalletPassowrdEnabled ? (
                                     <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
                                         <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
                                         <Input
