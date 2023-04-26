@@ -40,7 +40,7 @@ export const UserSetting = () => {
         },
         {
             icon: 'pin',
-            label: context.state.isPinSet ? 'PIN Reset' : 'PIN Set',
+            label: context.state.isPinSet ? I18n.t('account.resetPinTitle') : I18n.t('account.setPinButton'),
             onClick: () => {
                 Base.push(context.state.isPinSet ? '/account/pin/reset' : '/account/pin/set')
             },
