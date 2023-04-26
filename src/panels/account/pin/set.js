@@ -1,10 +1,11 @@
 // SetPin.js
 import React from 'react';
 import { Formik } from 'formik';
-import { Form, Input, Button } from 'antd-mobile';
+import { Form, Button } from 'antd-mobile';
 import * as Yup from 'yup';
-import { Nav } from '@/common';
+import { Nav, Toast, MaskedInput } from '@/common';
 import { Base, I18n } from '@tangle-pay/common'
+import { setPin } from '@tangle-pay/domain'
 
 const schema = Yup.object().shape({
   newPin: Yup.string().required(),
@@ -22,10 +23,14 @@ export const AccountSetPin = () => {
           validateOnChange={false}
           validateOnMount={false}
           validationSchema={schema}
-          onSubmit={(values) => {
+          onSubmit={async (values) => {
             const { newPin, retypedPin } = values;
-            // Add your logic for setting the new PIN here
-            console.log(newPin, retypedPin);
+            if (newPin !== retypedPin) {
+              return Toast.error(I18n.t('account.pinMismatch'));
+            }
+            await setPin(newPin);
+            Toast.success(I18n.t('account.pinResetSuccess'));
+            Base.push('/main');
           }}
         >
           {({ handleChange, handleSubmit, values, errors }) => (
@@ -33,7 +38,7 @@ export const AccountSetPin = () => {
               <Form>
                 <Form.Item className={`mt5 pl0 ${errors.newPin && 'form-error'}`}>
                   <div className="fz18 mb10">{I18n.t('account.newPin')}</div>
-                  <Input
+                  <MaskedInput
                     className="pt4"
                     placeholder={I18n.t('account.enterNewPin')}
                     onChange={handleChange('newPin')}
@@ -42,7 +47,7 @@ export const AccountSetPin = () => {
                 </Form.Item>
                 <Form.Item className={`pl0 ${errors.retypedPin && 'form-error'}`}>
                   <div className="fz18 mb10">{I18n.t('account.retypePin')}</div>
-                  <Input
+                  <MaskedInput
                     className="pt4"
                     placeholder={I18n.t('account.retypeNewPin')}
                     onChange={handleChange('retypedPin')}
