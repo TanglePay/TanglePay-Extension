@@ -3,8 +3,7 @@
         ? factory(exports, require('@iota/crypto.js-next'), require('@iota/util.js-next'), require('big-integer'))
         : typeof define === 'function' && define.amd
         ? define(['exports', '@iota/crypto-next.js', '@iota/util.js-next', 'big-integer'], factory)
-        : ((global = typeof globalThis !== 'undefined' ? globalThis : global || self),
-          factory((global.Iota = {}), global.IotaCrypto, global.IotaUtil, global.bigInt))
+        : ((global = typeof globalThis !== 'undefined' ? globalThis : global || self), factory((global.Iota = {}), global.IotaCrypto, global.IotaUtil, global.bigInt))
 })(this, function (exports, crypto_js, util_js, bigInt) {
     'use strict'
 
@@ -132,9 +131,7 @@
      */
     function deserializeAliasAddress(readStream) {
         if (!readStream.hasRemaining(MIN_ALIAS_ADDRESS_LENGTH)) {
-            throw new Error(
-                `Alias address data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ALIAS_ADDRESS_LENGTH}`
-            )
+            throw new Error(`Alias address data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ALIAS_ADDRESS_LENGTH}`)
         }
         const type = readStream.readUInt8('aliasAddress.type')
         if (type !== ALIAS_ADDRESS_TYPE) {
@@ -167,9 +164,7 @@
      */
     function deserializeEd25519Address(readStream) {
         if (!readStream.hasRemaining(MIN_ED25519_ADDRESS_LENGTH)) {
-            throw new Error(
-                `Ed25519 address data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ED25519_ADDRESS_LENGTH}`
-            )
+            throw new Error(`Ed25519 address data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ED25519_ADDRESS_LENGTH}`)
         }
         const type = readStream.readUInt8('ed25519Address.type')
         if (type !== ED25519_ADDRESS_TYPE) {
@@ -210,9 +205,7 @@
      */
     function deserializeNftAddress(readStream) {
         if (!readStream.hasRemaining(MIN_NFT_ADDRESS_LENGTH)) {
-            throw new Error(
-                `NFT address data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_NFT_ADDRESS_LENGTH}`
-            )
+            throw new Error(`NFT address data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_NFT_ADDRESS_LENGTH}`)
         }
         const type = readStream.readUInt8('nftAddress.type')
         if (type !== NFT_ADDRESS_TYPE) {
@@ -245,9 +238,7 @@
      */
     function deserializeAddress(readStream) {
         if (!readStream.hasRemaining(MIN_ADDRESS_LENGTH)) {
-            throw new Error(
-                `Address data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ADDRESS_LENGTH}`
-            )
+            throw new Error(`Address data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ADDRESS_LENGTH}`)
         }
         const type = readStream.readUInt8('address.type', false)
         let address
@@ -310,9 +301,7 @@
      */
     function deserializeIssuerFeature(readStream) {
         if (!readStream.hasRemaining(MIN_ISSUER_FEATURE_LENGTH)) {
-            throw new Error(
-                `Issuer Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ISSUER_FEATURE_LENGTH}`
-            )
+            throw new Error(`Issuer Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ISSUER_FEATURE_LENGTH}`)
         }
         const type = readStream.readUInt8('issuerFeature.type')
         if (type !== ISSUER_FEATURE_TYPE) {
@@ -346,9 +335,7 @@
      */
     function deserializeMetadataFeature(readStream) {
         if (!readStream.hasRemaining(MIN_METADATA_FEATURE_LENGTH)) {
-            throw new Error(
-                `Metadata Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_METADATA_FEATURE_LENGTH}`
-            )
+            throw new Error(`Metadata Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_METADATA_FEATURE_LENGTH}`)
         }
         const type = readStream.readUInt8('metadataFeature.type')
         if (type !== METADATA_FEATURE_TYPE) {
@@ -384,9 +371,7 @@
      */
     function deserializeSenderFeature(readStream) {
         if (!readStream.hasRemaining(MIN_SENDER_FEATURE_LENGTH)) {
-            throw new Error(
-                `Sender Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_SENDER_FEATURE_LENGTH}`
-            )
+            throw new Error(`Sender Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_SENDER_FEATURE_LENGTH}`)
         }
         const type = readStream.readUInt8('senderFeature.type')
         if (type !== SENDER_FEATURE_TYPE) {
@@ -422,9 +407,7 @@
      */
     function deserializeTagFeature(readStream) {
         if (!readStream.hasRemaining(MIN_TAG_FEATURE_LENGTH)) {
-            throw new Error(
-                `Tag Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TAG_FEATURE_LENGTH}`
-            )
+            throw new Error(`Tag Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TAG_FEATURE_LENGTH}`)
         }
         const type = readStream.readUInt8('tagFeature.type')
         if (type !== TAG_FEATURE_TYPE) {
@@ -456,12 +439,7 @@
     /**
      * The minimum length of a feature binary representation.
      */
-    const MIN_FEATURE_LENGTH = Math.min(
-        MIN_SENDER_FEATURE_LENGTH,
-        MIN_ISSUER_FEATURE_LENGTH,
-        MIN_METADATA_FEATURE_LENGTH,
-        MIN_TAG_FEATURE_LENGTH
-    )
+    const MIN_FEATURE_LENGTH = Math.min(MIN_SENDER_FEATURE_LENGTH, MIN_ISSUER_FEATURE_LENGTH, MIN_METADATA_FEATURE_LENGTH, MIN_TAG_FEATURE_LENGTH)
     /**
      * Deserialize the feature from binary.
      * @param readStream The stream to read the data from.
@@ -482,10 +460,7 @@
      */
     function serializeFeatures(writeStream, objects) {
         var _a
-        writeStream.writeUInt8(
-            'features.numFeatures',
-            (_a = objects === null || objects === void 0 ? void 0 : objects.length) !== null && _a !== void 0 ? _a : 0
-        )
+        writeStream.writeUInt8('features.numFeatures', (_a = objects === null || objects === void 0 ? void 0 : objects.length) !== null && _a !== void 0 ? _a : 0)
         if (!objects) {
             return
         }
@@ -500,9 +475,7 @@
      */
     function deserializeFeature(readStream) {
         if (!readStream.hasRemaining(MIN_FEATURE_LENGTH)) {
-            throw new Error(
-                `Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_FEATURE_LENGTH}`
-            )
+            throw new Error(`Feature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_FEATURE_LENGTH}`)
         }
         const type = readStream.readUInt8('feature.type', false)
         let input
@@ -587,9 +560,7 @@
      */
     function deserializeMigratedFunds(readStream) {
         if (!readStream.hasRemaining(MIN_MIGRATED_FUNDS_LENGTH)) {
-            throw new Error(
-                `Migrated funds data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_MIGRATED_FUNDS_LENGTH}`
-            )
+            throw new Error(`Migrated funds data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_MIGRATED_FUNDS_LENGTH}`)
         }
         const tailTransactionHash = readStream.readFixedHex('migratedFunds.tailTransactionHash', TAIL_HASH_LENGTH)
         const address = deserializeAddress(readStream)
@@ -632,9 +603,7 @@
      */
     function deserializeTreasuryInput(readStream) {
         if (!readStream.hasRemaining(MIN_TREASURY_INPUT_LENGTH)) {
-            throw new Error(
-                `Treasury Input data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TREASURY_INPUT_LENGTH}`
-            )
+            throw new Error(`Treasury Input data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TREASURY_INPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('treasuryInput.type')
         if (type !== TREASURY_INPUT_TYPE) {
@@ -667,9 +636,7 @@
      */
     function deserializeUTXOInput(readStream) {
         if (!readStream.hasRemaining(MIN_UTXO_INPUT_LENGTH)) {
-            throw new Error(
-                `UTXO Input data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_UTXO_INPUT_LENGTH}`
-            )
+            throw new Error(`UTXO Input data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_UTXO_INPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('utxoInput.type')
         if (type !== UTXO_INPUT_TYPE) {
@@ -743,9 +710,7 @@
      */
     function deserializeInput(readStream) {
         if (!readStream.hasRemaining(MIN_INPUT_LENGTH)) {
-            throw new Error(
-                `Input data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_INPUT_LENGTH}`
-            )
+            throw new Error(`Input data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_INPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('input.type', false)
         let input
@@ -872,9 +837,7 @@
      */
     function deserializeReceiptMilestoneOption(readStream) {
         if (!readStream.hasRemaining(MIN_RECEIPT_MILESTONE_OPTION_LENGTH)) {
-            throw new Error(
-                `Receipt Milestone Option data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_RECEIPT_MILESTONE_OPTION_LENGTH}`
-            )
+            throw new Error(`Receipt Milestone Option data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_RECEIPT_MILESTONE_OPTION_LENGTH}`)
         }
         const type = readStream.readUInt8('receiptMilestoneOption.type')
         if (type !== RECEIPT_MILESTONE_OPTION_TYPE) {
@@ -884,11 +847,7 @@
         const final = readStream.readBoolean('receiptMilestoneOption.final')
         const funds = deserializeFunds(readStream)
         const treasuryTransactionPayload = deserializePayload(readStream)
-        if (
-            (treasuryTransactionPayload === null || treasuryTransactionPayload === void 0
-                ? void 0
-                : treasuryTransactionPayload.type) !== TREASURY_TRANSACTION_PAYLOAD_TYPE
-        ) {
+        if ((treasuryTransactionPayload === null || treasuryTransactionPayload === void 0 ? void 0 : treasuryTransactionPayload.type) !== TREASURY_TRANSACTION_PAYLOAD_TYPE) {
             throw new Error(`receiptMilestoneOption can only contain treasury payloads ${type}`)
         }
         return {
@@ -915,10 +874,7 @@
     /**
      * The minimum length of a milestone option binary representation.
      */
-    const MIN_MILESTONE_OPTION_LENGTH = Math.min(
-        MIN_RECEIPT_MILESTONE_OPTION_LENGTH,
-        MIN_PROTOCOL_PARAMS_MILESTONE_OPTION_LENGTH
-    )
+    const MIN_MILESTONE_OPTION_LENGTH = Math.min(MIN_RECEIPT_MILESTONE_OPTION_LENGTH, MIN_PROTOCOL_PARAMS_MILESTONE_OPTION_LENGTH)
     /**
      * Deserialize the milestone options from binary.
      * @param readStream The stream to read the data from.
@@ -950,9 +906,7 @@
      */
     function deserializeMilestoneOption(readStream) {
         if (!readStream.hasRemaining(MIN_MILESTONE_OPTION_LENGTH)) {
-            throw new Error(
-                `Milestone option data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_MILESTONE_OPTION_LENGTH}`
-            )
+            throw new Error(`Milestone option data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_MILESTONE_OPTION_LENGTH}`)
         }
         const type = readStream.readUInt8('milestoneOption.type', false)
         let option
@@ -989,8 +943,7 @@
     /**
      * The minimum length of an ed25519 signature binary representation.
      */
-    const MIN_ED25519_SIGNATURE_LENGTH =
-        SMALL_TYPE_LENGTH + crypto_js.Ed25519.SIGNATURE_SIZE + crypto_js.Ed25519.PUBLIC_KEY_SIZE
+    const MIN_ED25519_SIGNATURE_LENGTH = SMALL_TYPE_LENGTH + crypto_js.Ed25519.SIGNATURE_SIZE + crypto_js.Ed25519.PUBLIC_KEY_SIZE
     /**
      * Deserialize the Ed25519 signature from binary.
      * @param readStream The stream to read the data from.
@@ -998,9 +951,7 @@
      */
     function deserializeEd25519Signature(readStream) {
         if (!readStream.hasRemaining(MIN_ED25519_SIGNATURE_LENGTH)) {
-            throw new Error(
-                `Ed25519 signature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ED25519_SIGNATURE_LENGTH}`
-            )
+            throw new Error(`Ed25519 signature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ED25519_SIGNATURE_LENGTH}`)
         }
         const type = readStream.readUInt8('ed25519Signature.type')
         if (type !== ED25519_SIGNATURE_TYPE) {
@@ -1036,9 +987,7 @@
      */
     function deserializeSignature(readStream) {
         if (!readStream.hasRemaining(MIN_SIGNATURE_LENGTH)) {
-            throw new Error(
-                `Signature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_SIGNATURE_LENGTH}`
-            )
+            throw new Error(`Signature data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_SIGNATURE_LENGTH}`)
         }
         const type = readStream.readUInt8('signature.type', false)
         let signature
@@ -1084,9 +1033,7 @@
      */
     function deserializeMilestonePayload(readStream) {
         if (!readStream.hasRemaining(MIN_MILESTONE_PAYLOAD_LENGTH)) {
-            throw new Error(
-                `Milestone Payload data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_MILESTONE_PAYLOAD_LENGTH}`
-            )
+            throw new Error(`Milestone Payload data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_MILESTONE_PAYLOAD_LENGTH}`)
         }
         const type = readStream.readUInt32('payloadMilestone.type')
         if (type !== MILESTONE_PAYLOAD_TYPE) {
@@ -1150,14 +1097,10 @@
         writeStream.writeUInt8('payloadMilesone.protocolVersion', object.protocolVersion)
         writeStream.writeFixedHex('payloadMilestone.previousMilestoneId', BLOCK_ID_LENGTH, object.previousMilestoneId)
         if (object.parents.length < MIN_NUMBER_PARENTS) {
-            throw new Error(
-                `A minimum of ${MIN_NUMBER_PARENTS} parents is allowed, you provided ${object.parents.length}`
-            )
+            throw new Error(`A minimum of ${MIN_NUMBER_PARENTS} parents is allowed, you provided ${object.parents.length}`)
         }
         if (object.parents.length > MAX_NUMBER_PARENTS) {
-            throw new Error(
-                `A maximum of ${MAX_NUMBER_PARENTS} parents is allowed, you provided ${object.parents.length}`
-            )
+            throw new Error(`A maximum of ${MAX_NUMBER_PARENTS} parents is allowed, you provided ${object.parents.length}`)
         }
         if (new Set(object.parents).size !== object.parents.length) {
             throw new Error('The milestone parents must be unique')
@@ -1170,11 +1113,7 @@
             }
             writeStream.writeFixedHex(`payloadMilestone.parentBlockId${i + 1}`, BLOCK_ID_LENGTH, object.parents[i])
         }
-        writeStream.writeFixedHex(
-            'payloadMilestone.inclusionMerkleRoot',
-            MERKLE_PROOF_LENGTH,
-            object.inclusionMerkleRoot
-        )
+        writeStream.writeFixedHex('payloadMilestone.inclusionMerkleRoot', MERKLE_PROOF_LENGTH, object.inclusionMerkleRoot)
         writeStream.writeFixedHex('payloadMilestone.appliedMerkleRoot', MERKLE_PROOF_LENGTH, object.appliedMerkleRoot)
         if (object.metadata) {
             const metadata = util_js.HexHelper.stripPrefix(object.metadata)
@@ -1211,9 +1150,7 @@
      */
     function deserializeTaggedDataPayload(readStream) {
         if (!readStream.hasRemaining(MIN_TAGGED_DATA_PAYLOAD_LENGTH)) {
-            throw new Error(
-                `Tagged Data Payload data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TAGGED_DATA_PAYLOAD_LENGTH}`
-            )
+            throw new Error(`Tagged Data Payload data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TAGGED_DATA_PAYLOAD_LENGTH}`)
         }
         const type = readStream.readUInt32('payloadTaggedData.type')
         if (type !== TAGGED_DATA_PAYLOAD_TYPE) {
@@ -1242,9 +1179,7 @@
      */
     function serializeTaggedDataPayload(writeStream, object) {
         if (object.tag && object.tag.length / 2 > MAX_TAG_LENGTH) {
-            throw new Error(
-                `The tag length is ${object.tag.length / 2}, which exceeds the maximum size of ${MAX_TAG_LENGTH}`
-            )
+            throw new Error(`The tag length is ${object.tag.length / 2}, which exceeds the maximum size of ${MAX_TAG_LENGTH}`)
         }
         writeStream.writeUInt32('payloadTaggedData.type', object.type)
         if (object.tag) {
@@ -1339,10 +1274,7 @@
      */
     function serializeNativeTokens(writeStream, object) {
         var _a
-        writeStream.writeUInt8(
-            'nativeTokens.numNativeTokens',
-            (_a = object === null || object === void 0 ? void 0 : object.length) !== null && _a !== void 0 ? _a : 0
-        )
+        writeStream.writeUInt8('nativeTokens.numNativeTokens', (_a = object === null || object === void 0 ? void 0 : object.length) !== null && _a !== void 0 ? _a : 0)
         if (!object) {
             return
         }
@@ -1419,9 +1351,7 @@
      */
     function deserializeAddressUnlockCondition(readStream) {
         if (!readStream.hasRemaining(MIN_ADDRESS_UNLOCK_CONDITION_LENGTH)) {
-            throw new Error(
-                `Address unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ADDRESS_UNLOCK_CONDITION_LENGTH}`
-            )
+            throw new Error(`Address unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ADDRESS_UNLOCK_CONDITION_LENGTH}`)
         }
         const type = readStream.readUInt8('addressUnlockCondition.type')
         if (type !== ADDRESS_UNLOCK_CONDITION_TYPE) {
@@ -1454,9 +1384,7 @@
      */
     function deserializeExpirationUnlockCondition(readStream) {
         if (!readStream.hasRemaining(MIN_EXPIRATION_UNLOCK_CONDITION_LENGTH)) {
-            throw new Error(
-                `Expiration unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_EXPIRATION_UNLOCK_CONDITION_LENGTH}`
-            )
+            throw new Error(`Expiration unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_EXPIRATION_UNLOCK_CONDITION_LENGTH}`)
         }
         const type = readStream.readUInt8('expirationUnlockCondition.type')
         if (type !== EXPIRATION_UNLOCK_CONDITION_TYPE) {
@@ -1528,9 +1456,7 @@
      */
     function deserializeTimelockUnlockCondition(readStream) {
         if (!readStream.hasRemaining(MIN_TIMELOCK_UNLOCK_CONDITION_LENGTH)) {
-            throw new Error(
-                `Timelock unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TIMELOCK_UNLOCK_CONDITION_LENGTH}`
-            )
+            throw new Error(`Timelock unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TIMELOCK_UNLOCK_CONDITION_LENGTH}`)
         }
         const type = readStream.readUInt8('timelockUnlockCondition.type')
         if (type !== TIMELOCK_UNLOCK_CONDITION_TYPE) {
@@ -1564,9 +1490,7 @@
      */
     function deserializeGovernorAddressUnlockCondition(readStream) {
         if (!readStream.hasRemaining(MIN_GOVERNOR_ADDRESS_UNLOCK_CONDITION_LENGTH)) {
-            throw new Error(
-                `Governor unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_GOVERNOR_ADDRESS_UNLOCK_CONDITION_LENGTH}`
-            )
+            throw new Error(`Governor unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_GOVERNOR_ADDRESS_UNLOCK_CONDITION_LENGTH}`)
         }
         const type = readStream.readUInt8('governorUnlockCondition.type')
         if (type !== GOVERNOR_ADDRESS_UNLOCK_CONDITION_TYPE) {
@@ -1708,9 +1632,7 @@
      */
     function deserializeUnlockCondition(readStream) {
         if (!readStream.hasRemaining(MIN_UNLOCK_CONDITION_LENGTH)) {
-            throw new Error(
-                `Unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_UNLOCK_CONDITION_LENGTH}`
-            )
+            throw new Error(`Unlock condition data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_UNLOCK_CONDITION_LENGTH}`)
         }
         const type = readStream.readUInt8('unlockCondition.type', false)
         let input
@@ -1780,9 +1702,7 @@
      */
     function deserializeAliasOutput(readStream) {
         if (!readStream.hasRemaining(MIN_ALIAS_OUTPUT_LENGTH)) {
-            throw new Error(
-                `Alias Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ALIAS_OUTPUT_LENGTH}`
-            )
+            throw new Error(`Alias Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ALIAS_OUTPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('aliasOutput.type')
         if (type !== ALIAS_OUTPUT_TYPE) {
@@ -1793,10 +1713,7 @@
         const aliasId = readStream.readFixedHex('aliasOutput.aliasId', ALIAS_ID_LENGTH)
         const stateIndex = readStream.readUInt32('aliasOutput.stateIndex')
         const stateMetadataLength = readStream.readUInt16('aliasOutput.stateMetadataLength')
-        const stateMetadata =
-            stateMetadataLength > 0
-                ? readStream.readFixedHex('aliasOutput.stateMetadata', stateMetadataLength)
-                : undefined
+        const stateMetadata = stateMetadataLength > 0 ? readStream.readFixedHex('aliasOutput.stateMetadata', stateMetadataLength) : undefined
         const foundryCounter = readStream.readUInt32('aliasOutput.foundryCounter')
         const unlockConditions = deserializeUnlockConditions(readStream)
         const features = deserializeFeatures(readStream)
@@ -1857,9 +1774,7 @@
      */
     function deserializeBasicOutput(readStream) {
         if (!readStream.hasRemaining(MIN_BASIC_OUTPUT_LENGTH)) {
-            throw new Error(
-                `Basic Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_BASIC_OUTPUT_LENGTH}`
-            )
+            throw new Error(`Basic Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_BASIC_OUTPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('basicOutput.type')
         if (type !== BASIC_OUTPUT_TYPE) {
@@ -1910,9 +1825,7 @@
      */
     function deserializeSimpleTokenScheme(readStream) {
         if (!readStream.hasRemaining(MIN_SIMPLE_TOKEN_SCHEME_LENGTH)) {
-            throw new Error(
-                `Simple Token Scheme data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_SIMPLE_TOKEN_SCHEME_LENGTH}`
-            )
+            throw new Error(`Simple Token Scheme data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_SIMPLE_TOKEN_SCHEME_LENGTH}`)
         }
         const type = readStream.readUInt8('simpleTokenScheme.type')
         if (type !== SIMPLE_TOKEN_SCHEME_TYPE) {
@@ -1951,9 +1864,7 @@
      */
     function deserializeTokenScheme(readStream) {
         if (!readStream.hasRemaining(MIN_TOKEN_SCHEME_LENGTH)) {
-            throw new Error(
-                `Token Scheme data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TOKEN_SCHEME_LENGTH}`
-            )
+            throw new Error(`Token Scheme data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TOKEN_SCHEME_LENGTH}`)
         }
         const type = readStream.readUInt8('tokenScheme.type', false)
         let tokenScheme
@@ -1996,9 +1907,7 @@
      */
     function deserializeFoundryOutput(readStream) {
         if (!readStream.hasRemaining(MIN_FOUNDRY_OUTPUT_LENGTH)) {
-            throw new Error(
-                `Foundry Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_FOUNDRY_OUTPUT_LENGTH}`
-            )
+            throw new Error(`Foundry Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_FOUNDRY_OUTPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('foundryOutput.type')
         if (type !== FOUNDRY_OUTPUT_TYPE) {
@@ -2056,9 +1965,7 @@
      */
     function deserializeNftOutput(readStream) {
         if (!readStream.hasRemaining(MIN_NFT_OUTPUT_LENGTH)) {
-            throw new Error(
-                `NFT Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_NFT_OUTPUT_LENGTH}`
-            )
+            throw new Error(`NFT Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_NFT_OUTPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('nftOutput.type')
         if (type !== NFT_OUTPUT_TYPE) {
@@ -2108,9 +2015,7 @@
      */
     function deserializeTreasuryOutput(readStream) {
         if (!readStream.hasRemaining(MIN_TREASURY_OUTPUT_LENGTH)) {
-            throw new Error(
-                `Treasury Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TREASURY_OUTPUT_LENGTH}`
-            )
+            throw new Error(`Treasury Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TREASURY_OUTPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('treasuryOutput.type')
         if (type !== TREASURY_OUTPUT_TYPE) {
@@ -2135,13 +2040,7 @@
     /**
      * The minimum length of an output binary representation.
      */
-    const MIN_OUTPUT_LENGTH = Math.min(
-        MIN_TREASURY_OUTPUT_LENGTH,
-        MIN_FOUNDRY_OUTPUT_LENGTH,
-        MIN_BASIC_OUTPUT_LENGTH,
-        MIN_NFT_OUTPUT_LENGTH,
-        MIN_ALIAS_OUTPUT_LENGTH
-    )
+    const MIN_OUTPUT_LENGTH = Math.min(MIN_TREASURY_OUTPUT_LENGTH, MIN_FOUNDRY_OUTPUT_LENGTH, MIN_BASIC_OUTPUT_LENGTH, MIN_NFT_OUTPUT_LENGTH, MIN_ALIAS_OUTPUT_LENGTH)
     /**
      * The minimum number of outputs.
      */
@@ -2180,24 +2079,13 @@
         let nativeTokenCount = 0
         for (let i = 0; i < objects.length; i++) {
             serializeOutput(writeStream, objects[i])
-            if (
-                objects[i].type === BASIC_OUTPUT_TYPE ||
-                objects[i].type === ALIAS_OUTPUT_TYPE ||
-                objects[i].type === FOUNDRY_OUTPUT_TYPE ||
-                objects[i].type === NFT_OUTPUT_TYPE
-            ) {
+            if (objects[i].type === BASIC_OUTPUT_TYPE || objects[i].type === ALIAS_OUTPUT_TYPE || objects[i].type === FOUNDRY_OUTPUT_TYPE || objects[i].type === NFT_OUTPUT_TYPE) {
                 const common = objects[i]
-                nativeTokenCount +=
-                    (_b = (_a = common.nativeTokens) === null || _a === void 0 ? void 0 : _a.length) !== null &&
-                    _b !== void 0
-                        ? _b
-                        : 0
+                nativeTokenCount += (_b = (_a = common.nativeTokens) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0
             }
         }
         if (nativeTokenCount > MAX_NATIVE_TOKEN_COUNT) {
-            throw new Error(
-                `The maximum number of native tokens is ${MAX_NATIVE_TOKEN_COUNT}, you have provided ${nativeTokenCount}`
-            )
+            throw new Error(`The maximum number of native tokens is ${MAX_NATIVE_TOKEN_COUNT}, you have provided ${nativeTokenCount}`)
         }
     }
     /**
@@ -2207,9 +2095,7 @@
      */
     function deserializeOutput(readStream) {
         if (!readStream.hasRemaining(MIN_OUTPUT_LENGTH)) {
-            throw new Error(
-                `Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_OUTPUT_LENGTH}`
-            )
+            throw new Error(`Output data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_OUTPUT_LENGTH}`)
         }
         const type = readStream.readUInt8('output.type', false)
         let output
@@ -2266,9 +2152,7 @@
      */
     function deserializeTransactionEssence(readStream) {
         if (!readStream.hasRemaining(MIN_TRANSACTION_ESSENCE_LENGTH)) {
-            throw new Error(
-                `Transaction essence data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TRANSACTION_ESSENCE_LENGTH}`
-            )
+            throw new Error(`Transaction essence data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TRANSACTION_ESSENCE_LENGTH}`)
         }
         const type = readStream.readUInt8('transactionEssence.type')
         if (type !== TRANSACTION_ESSENCE_TYPE) {
@@ -2304,21 +2188,14 @@
     function serializeTransactionEssence(writeStream, object) {
         var _a
         writeStream.writeUInt8('transactionEssence.type', object.type)
-        writeStream.writeUInt64(
-            'transactionEssence.networkId',
-            bigInt__default['default']((_a = object.networkId) !== null && _a !== void 0 ? _a : '0')
-        )
+        writeStream.writeUInt64('transactionEssence.networkId', bigInt__default['default']((_a = object.networkId) !== null && _a !== void 0 ? _a : '0'))
         for (const input of object.inputs) {
             if (input.type !== UTXO_INPUT_TYPE) {
                 throw new Error('Transaction essence can only contain UTXO Inputs')
             }
         }
         serializeInputs(writeStream, object.inputs)
-        writeStream.writeFixedHex(
-            'transactionEssence.inputsCommitment',
-            INPUTS_COMMITMENT_SIZE,
-            object.inputsCommitment
-        )
+        writeStream.writeFixedHex('transactionEssence.inputsCommitment', INPUTS_COMMITMENT_SIZE, object.inputsCommitment)
         serializeOutputs(writeStream, object.outputs)
         serializePayload(writeStream, object.payload)
     }
@@ -2354,9 +2231,7 @@
      */
     function deserializeAliasUnlock(readStream) {
         if (!readStream.hasRemaining(MIN_ALIAS_UNLOCK_LENGTH)) {
-            throw new Error(
-                `Alias Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ALIAS_UNLOCK_LENGTH}`
-            )
+            throw new Error(`Alias Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_ALIAS_UNLOCK_LENGTH}`)
         }
         const type = readStream.readUInt8('aliasUnlock.type')
         if (type !== ALIAS_UNLOCK_TYPE) {
@@ -2389,9 +2264,7 @@
      */
     function deserializeNftUnlock(readStream) {
         if (!readStream.hasRemaining(MIN_NFT_UNLOCK_LENGTH)) {
-            throw new Error(
-                `Nft Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_NFT_UNLOCK_LENGTH}`
-            )
+            throw new Error(`Nft Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_NFT_UNLOCK_LENGTH}`)
         }
         const type = readStream.readUInt8('nftUnlock.type')
         if (type !== NFT_UNLOCK_TYPE) {
@@ -2424,9 +2297,7 @@
      */
     function deserializeReferenceUnlock(readStream) {
         if (!readStream.hasRemaining(MIN_REFERENCE_UNLOCK_LENGTH)) {
-            throw new Error(
-                `Reference Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_REFERENCE_UNLOCK_LENGTH}`
-            )
+            throw new Error(`Reference Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_REFERENCE_UNLOCK_LENGTH}`)
         }
         const type = readStream.readUInt8('referenceUnlock.type')
         if (type !== REFERENCE_UNLOCK_TYPE) {
@@ -2459,9 +2330,7 @@
      */
     function deserializeSignatureUnlock(readStream) {
         if (!readStream.hasRemaining(MIN_SIGNATURE_UNLOCK_LENGTH)) {
-            throw new Error(
-                `Signature Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_SIGNATURE_UNLOCK_LENGTH}`
-            )
+            throw new Error(`Signature Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_SIGNATURE_UNLOCK_LENGTH}`)
         }
         const type = readStream.readUInt8('signatureUnlock.type')
         if (type !== SIGNATURE_UNLOCK_TYPE) {
@@ -2486,12 +2355,7 @@
     /**
      * The minimum length of an unlock binary representation.
      */
-    const MIN_UNLOCK_LENGTH = Math.min(
-        MIN_SIGNATURE_UNLOCK_LENGTH,
-        MIN_REFERENCE_UNLOCK_LENGTH,
-        MIN_ALIAS_UNLOCK_LENGTH,
-        MIN_NFT_UNLOCK_LENGTH
-    )
+    const MIN_UNLOCK_LENGTH = Math.min(MIN_SIGNATURE_UNLOCK_LENGTH, MIN_REFERENCE_UNLOCK_LENGTH, MIN_ALIAS_UNLOCK_LENGTH, MIN_NFT_UNLOCK_LENGTH)
     /**
      * Deserialize the unlocks from binary.
      * @param readStream The stream to read the data from.
@@ -2523,9 +2387,7 @@
      */
     function deserializeUnlock(readStream) {
         if (!readStream.hasRemaining(MIN_UNLOCK_LENGTH)) {
-            throw new Error(
-                `Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_UNLOCK_LENGTH}`
-            )
+            throw new Error(`Unlock data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_UNLOCK_LENGTH}`)
         }
         const type = readStream.readUInt8('unlock.type', false)
         let unlock
@@ -2574,9 +2436,7 @@
      */
     function deserializeTransactionPayload(readStream) {
         if (!readStream.hasRemaining(MIN_TRANSACTION_PAYLOAD_LENGTH)) {
-            throw new Error(
-                `Transaction Payload data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TRANSACTION_PAYLOAD_LENGTH}`
-            )
+            throw new Error(`Transaction Payload data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TRANSACTION_PAYLOAD_LENGTH}`)
         }
         const type = readStream.readUInt32('payloadTransaction.type')
         if (type !== TRANSACTION_PAYLOAD_TYPE) {
@@ -2623,9 +2483,7 @@
      */
     function deserializeTreasuryTransactionPayload(readStream) {
         if (!readStream.hasRemaining(MIN_TREASURY_TRANSACTION_PAYLOAD_LENGTH)) {
-            throw new Error(
-                `Treasury Transaction Payload data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TREASURY_TRANSACTION_PAYLOAD_LENGTH}`
-            )
+            throw new Error(`Treasury Transaction Payload data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_TREASURY_TRANSACTION_PAYLOAD_LENGTH}`)
         }
         const type = readStream.readUInt32('payloadTreasuryTransaction.type')
         if (type !== TREASURY_TRANSACTION_PAYLOAD_TYPE) {
@@ -2653,12 +2511,7 @@
     /**
      * The minimum length of a payload binary representation.
      */
-    const MIN_PAYLOAD_LENGTH = Math.min(
-        MIN_TRANSACTION_PAYLOAD_LENGTH,
-        MIN_MILESTONE_PAYLOAD_LENGTH,
-        MIN_TAGGED_DATA_PAYLOAD_LENGTH,
-        MIN_TREASURY_TRANSACTION_PAYLOAD_LENGTH
-    )
+    const MIN_PAYLOAD_LENGTH = Math.min(MIN_TRANSACTION_PAYLOAD_LENGTH, MIN_MILESTONE_PAYLOAD_LENGTH, MIN_TAGGED_DATA_PAYLOAD_LENGTH, MIN_TREASURY_TRANSACTION_PAYLOAD_LENGTH)
     /**
      * Deserialize the payload from binary.
      * @param readStream The stream to read the data from.
@@ -2742,9 +2595,7 @@
      */
     function deserializeBlock(readStream) {
         if (!readStream.hasRemaining(MIN_BLOCK_LENGTH)) {
-            throw new Error(
-                `Block data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_BLOCK_LENGTH}`
-            )
+            throw new Error(`Block data is ${readStream.length()} in length which is less than the minimimum size required of ${MIN_BLOCK_LENGTH}`)
         }
         const protocolVersion = readStream.readUInt8('block.protocolVersion')
         const numParents = readStream.readUInt8('block.numParents')
@@ -2776,14 +2627,8 @@
      */
     function serializeBlock(writeStream, object) {
         var _a, _b, _c, _d
-        writeStream.writeUInt8(
-            'block.protocolVersion',
-            (_a = object.protocolVersion) !== null && _a !== void 0 ? _a : DEFAULT_PROTOCOL_VERSION
-        )
-        const numParents =
-            (_c = (_b = object.parents) === null || _b === void 0 ? void 0 : _b.length) !== null && _c !== void 0
-                ? _c
-                : 0
+        writeStream.writeUInt8('block.protocolVersion', (_a = object.protocolVersion) !== null && _a !== void 0 ? _a : DEFAULT_PROTOCOL_VERSION)
+        const numParents = (_c = (_b = object.parents) === null || _b === void 0 ? void 0 : _b.length) !== null && _c !== void 0 ? _c : 0
         writeStream.writeUInt8('block.numParents', numParents)
         if (object.parents) {
             if (numParents > MAX_NUMBER_PARENTS) {
@@ -2800,19 +2645,11 @@
                 writeStream.writeFixedHex(`block.parentBlockId${i + 1}`, BLOCK_ID_LENGTH, object.parents[i])
             }
         }
-        if (
-            object.payload &&
-            object.payload.type !== TRANSACTION_PAYLOAD_TYPE &&
-            object.payload.type !== MILESTONE_PAYLOAD_TYPE &&
-            object.payload.type !== TAGGED_DATA_PAYLOAD_TYPE
-        ) {
+        if (object.payload && object.payload.type !== TRANSACTION_PAYLOAD_TYPE && object.payload.type !== MILESTONE_PAYLOAD_TYPE && object.payload.type !== TAGGED_DATA_PAYLOAD_TYPE) {
             throw new Error('Blocks can only contain transaction, milestone or tagged data payloads')
         }
         serializePayload(writeStream, object.payload)
-        writeStream.writeUInt64(
-            'block.nonce',
-            bigInt__default['default']((_d = object.nonce) !== null && _d !== void 0 ? _d : '0')
-        )
+        writeStream.writeUInt64('block.nonce', bigInt__default['default']((_d = object.nonce) !== null && _d !== void 0 ? _d : '0'))
     }
 
     // Copyright 2020 IOTA Stiftung
@@ -2852,29 +2689,21 @@
                 throw new Error('The endpoint can not be empty')
             }
             this._endpoint = endpoint.replace(/\/+$/, '')
-            this._basePath =
-                (_a = options === null || options === void 0 ? void 0 : options.basePath) !== null && _a !== void 0
-                    ? _a
-                    : '/api/'
+            this._basePath = (_a = options === null || options === void 0 ? void 0 : options.basePath) !== null && _a !== void 0 ? _a : '/api/'
             this._coreApiPath = `${this._basePath}core/v2/`
             this._powProvider = options === null || options === void 0 ? void 0 : options.powProvider
             this._timeout = options === null || options === void 0 ? void 0 : options.timeout
             this._userName = options === null || options === void 0 ? void 0 : options.userName
             this._password = options === null || options === void 0 ? void 0 : options.password
             this._headers = options === null || options === void 0 ? void 0 : options.headers
-            this._protocolVersion =
-                (_b = options === null || options === void 0 ? void 0 : options.protocolVersion) !== null &&
-                _b !== void 0
-                    ? _b
-                    : DEFAULT_PROTOCOL_VERSION
+            this._protocolVersion = (_b = options === null || options === void 0 ? void 0 : options.protocolVersion) !== null && _b !== void 0 ? _b : DEFAULT_PROTOCOL_VERSION
             if (this._userName && this._password && !this._endpoint.startsWith('https')) {
                 throw new Error('Basic authentication requires the endpoint to be https')
             }
             if (
                 this._userName &&
                 this._password &&
-                (((_c = this._headers) === null || _c === void 0 ? void 0 : _c.authorization) ||
-                    ((_d = this._headers) === null || _d === void 0 ? void 0 : _d.Authorization))
+                (((_c = this._headers) === null || _c === void 0 ? void 0 : _c.authorization) || ((_d = this._headers) === null || _d === void 0 ? void 0 : _d.Authorization))
             ) {
                 throw new Error('You can not supply both user/pass and authorization header')
             }
@@ -2957,19 +2786,14 @@
                 if (this._protocol === undefined) {
                     await this.populateProtocolInfoCache()
                 }
-                minPowScore =
-                    (_b = (_a = this._protocol) === null || _a === void 0 ? void 0 : _a.minPowScore) !== null &&
-                    _b !== void 0
-                        ? _b
-                        : 0
+                minPowScore = (_b = (_a = this._protocol) === null || _a === void 0 ? void 0 : _a.minPowScore) !== null && _b !== void 0 ? _b : 0
                 if (!blockPartial.parents || blockPartial.parents.length === 0) {
                     const tips = await this.tips()
                     blockPartial.parents = tips.tips
                 }
             }
             const block = {
-                protocolVersion:
-                    (_c = blockPartial.protocolVersion) !== null && _c !== void 0 ? _c : DEFAULT_PROTOCOL_VERSION,
+                protocolVersion: (_c = blockPartial.protocolVersion) !== null && _c !== void 0 ? _c : DEFAULT_PROTOCOL_VERSION,
                 parents: (_d = blockPartial.parents) !== null && _d !== void 0 ? _d : [],
                 payload: blockPartial.payload,
                 nonce: (_e = blockPartial.nonce) !== null && _e !== void 0 ? _e : '0'
@@ -2978,9 +2802,7 @@
             serializeBlock(writeStream, block)
             const blockBytes = writeStream.finalBytes()
             if (blockBytes.length > MAX_BLOCK_LENGTH) {
-                throw new Error(
-                    `The block length is ${blockBytes.length}, which exceeds the maximum size of ${MAX_BLOCK_LENGTH}`
-                )
+                throw new Error(`The block length is ${blockBytes.length}, which exceeds the maximum size of ${MAX_BLOCK_LENGTH}`)
             }
             if (this._powProvider) {
                 const nonce = await this._powProvider.pow(blockBytes, minPowScore)
@@ -2997,22 +2819,14 @@
         async blockSubmitRaw(block) {
             var _a, _b
             if (block.length > MAX_BLOCK_LENGTH) {
-                throw new Error(
-                    `The block length is ${block.length}, which exceeds the maximum size of ${MAX_BLOCK_LENGTH}`
-                )
+                throw new Error(`The block length is ${block.length}, which exceeds the maximum size of ${MAX_BLOCK_LENGTH}`)
             }
             block[0] = this._protocolVersion
             if (this._powProvider && crypto_js.ArrayHelper.equal(block.slice(-8), SingleNodeClient.NONCE_ZERO)) {
                 if (this._protocol === undefined) {
                     await this.populateProtocolInfoCache()
                 }
-                const nonce = await this._powProvider.pow(
-                    block,
-                    (_b = (_a = this._protocol) === null || _a === void 0 ? void 0 : _a.minPowScore) !== null &&
-                        _b !== void 0
-                        ? _b
-                        : 0
-                )
+                const nonce = await this._powProvider.pow(block, (_b = (_a = this._protocol) === null || _a === void 0 ? void 0 : _a.minPowScore) !== null && _b !== void 0 ? _b : 0)
                 util_js.BigIntHelper.write8(bigInt__default['default'](nonce), block, block.length - 8)
             }
             const response = await this.fetchBinary(this._coreApiPath, 'post', 'blocks', block)
@@ -3119,11 +2933,7 @@
          * @returns The stored receipts.
          */
         async receipts(migratedAt) {
-            return this.fetchJson(
-                this._coreApiPath,
-                'get',
-                `receipts${migratedAt !== undefined ? `/${migratedAt}` : ''}`
-            )
+            return this.fetchJson(this._coreApiPath, 'get', `receipts${migratedAt !== undefined ? `/${migratedAt}` : ''}`)
         }
         /**
          * Get the list of peers.
@@ -3182,12 +2992,7 @@
          * @returns The response object.
          */
         async pluginFetch(basePluginPath, method, methodPath, queryParams, request) {
-            return this.fetchJson(
-                this._basePath,
-                method,
-                `${basePluginPath}${methodPath}${this.combineQueryParams(queryParams)}`,
-                request
-            )
+            return this.fetchJson(this._basePath, method, `${basePluginPath}${methodPath}${this.combineQueryParams(queryParams)}`, request)
         }
         /**
          * Perform a request and just return the status.
@@ -3206,9 +3011,7 @@
         async populateProtocolInfoCache() {
             if (this._protocol === undefined) {
                 const info = await this.info()
-                const networkIdBytes = crypto_js.Blake2b.sum256(
-                    util_js.Converter.utf8ToBytes(info.protocol.networkName)
-                )
+                const networkIdBytes = crypto_js.Blake2b.sum256(util_js.Converter.utf8ToBytes(info.protocol.networkName))
                 this._protocol = {
                     networkName: info.protocol.networkName,
                     networkId: util_js.BigIntHelper.read8(networkIdBytes, 0).toString(),
@@ -3227,12 +3030,7 @@
          * @internal
          */
         async fetchJson(basePath, method, route, requestData) {
-            const response = await this.fetchWithTimeout(
-                method,
-                `${basePath}${route}`,
-                { 'Content-Type': 'application/json' },
-                requestData ? JSON.stringify(requestData) : undefined
-            )
+            const response = await this.fetchWithTimeout(method, `${basePath}${route}`, { 'Content-Type': 'application/json' }, requestData ? JSON.stringify(requestData) : undefined)
             let errorMessage
             let errorCode
             if (response.ok) {
@@ -3291,12 +3089,7 @@
          */
         async fetchBinary(basePath, method, route, requestData) {
             var _a, _b, _c
-            const response = await this.fetchWithTimeout(
-                method,
-                `${basePath}${route}`,
-                { Accept: 'application/vnd.iota.serializer-v1' },
-                requestData
-            )
+            const response = await this.fetchWithTimeout(method, `${basePath}${route}`, { Accept: 'application/vnd.iota.serializer-v1' }, requestData)
             let responseData
             if (response.ok) {
                 if (method === 'get') {
@@ -3311,19 +3104,12 @@
                 responseData = await response.json()
             }
             throw new ClientError(
-                (_b =
-                    (_a = responseData === null || responseData === void 0 ? void 0 : responseData.error) === null ||
-                    _a === void 0
-                        ? void 0
-                        : _a.message) !== null && _b !== void 0
+                (_b = (_a = responseData === null || responseData === void 0 ? void 0 : responseData.error) === null || _a === void 0 ? void 0 : _a.message) !== null && _b !== void 0
                     ? _b
                     : response.statusText,
                 route,
                 response.status,
-                (_c = responseData === null || responseData === void 0 ? void 0 : responseData.error) === null ||
-                _c === void 0
-                    ? void 0
-                    : _c.code
+                (_c = responseData === null || responseData === void 0 ? void 0 : responseData.error) === null || _c === void 0 ? void 0 : _c.code
             )
         }
         /**
@@ -3358,9 +3144,7 @@
                 }
             }
             if (this._userName && this._password) {
-                const userPass = util_js.Converter.bytesToBase64(
-                    util_js.Converter.utf8ToBytes(`${this._userName}:${this._password}`)
-                )
+                const userPass = util_js.Converter.bytesToBase64(util_js.Converter.utf8ToBytes(`${this._userName}:${this._password}`))
                 finalHeaders.Authorization = `Basic ${userPass}`
             }
             try {
@@ -3409,11 +3193,7 @@
         constructor(client, options) {
             var _a
             this._client = typeof client === 'string' ? new SingleNodeClient(client) : client
-            this._basePluginPath =
-                (_a = options === null || options === void 0 ? void 0 : options.basePluginPath) !== null &&
-                _a !== void 0
-                    ? _a
-                    : 'indexer/v1/'
+            this._basePluginPath = (_a = options === null || options === void 0 ? void 0 : options.basePluginPath) !== null && _a !== void 0 ? _a : 'indexer/v1/'
         }
         /**
          * Find outputs using filter options.
@@ -3862,9 +3642,7 @@
             for (const id in tokens) {
                 inputTokenStr += `| ${Number(tokens[id])} ${id.slice(0, 8)}`
             }
-            tips = `Invalid transaction, total assets in outputs ${Number(
-                outputSMR
-            )} SMR ${outputTokenStr} must be equal to the inputs ${Number(inputSMR)} SMR ${inputTokenStr}.`
+            tips = `Invalid transaction, total assets in outputs ${Number(outputSMR)} SMR ${outputTokenStr} must be equal to the inputs ${Number(inputSMR)} SMR ${inputTokenStr}.`
         }
         return [!isError, tips]
     }
@@ -3937,21 +3715,11 @@
                     }
                     if (nativeTokenOutput.length > 0) {
                         for (const token of nativeTokenOutput) {
-                            nativeTokens[token.id] =
-                                (_a = nativeTokens[token.id]) !== null && _a !== void 0
-                                    ? _a
-                                    : bigInt__default['default'](0)
-                            nativeTokens[token.id] = nativeTokens[token.id].add(
-                                util_js.HexHelper.toBigInt256(token.amount)
-                            )
+                            nativeTokens[token.id] = (_a = nativeTokens[token.id]) !== null && _a !== void 0 ? _a : bigInt__default['default'](0)
+                            nativeTokens[token.id] = nativeTokens[token.id].add(util_js.HexHelper.toBigInt256(token.amount))
                             if (isUnLock) {
-                                availableNativeTokens[token.id] =
-                                    (_a = availableNativeTokens[token.id]) !== null && _a !== void 0
-                                        ? _a
-                                        : bigInt__default['default'](0)
-                                availableNativeTokens[token.id] = availableNativeTokens[token.id].add(
-                                    util_js.HexHelper.toBigInt256(token.amount)
-                                )
+                                availableNativeTokens[token.id] = (_a = availableNativeTokens[token.id]) !== null && _a !== void 0 ? _a : bigInt__default['default'](0)
+                                availableNativeTokens[token.id] = availableNativeTokens[token.id].add(util_js.HexHelper.toBigInt256(token.amount))
                             }
                         }
                     }
@@ -4044,9 +3812,7 @@
             const decoded = crypto_js.Bech32.decode(bech32Text)
             if (decoded) {
                 if (decoded.humanReadablePart !== humanReadablePart) {
-                    throw new Error(
-                        `The hrp part of the address should be ${humanReadablePart}, it is ${decoded.humanReadablePart}`
-                    )
+                    throw new Error(`The hrp part of the address should be ${humanReadablePart}, it is ${decoded.humanReadablePart}`)
                 }
                 if (decoded.data.length === 0) {
                     throw new Error('The data part of the address should be at least length 1, it is 0')
@@ -4132,11 +3898,7 @@
             seed,
             {
                 accountIndex,
-                addressIndex:
-                    (_a = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.startIndex) !==
-                        null && _a !== void 0
-                        ? _a
-                        : 0,
+                addressIndex: (_a = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.startIndex) !== null && _a !== void 0 ? _a : 0,
                 isInternal: false
             },
             generateBip44Address,
@@ -4155,26 +3917,12 @@
      * @param addressOptions.requiredCount The max number of addresses to find.
      * @returns All the unspent addresses.
      */
-    async function getUnspentAddressesWithAddressGenerator(
-        client,
-        seed,
-        initialAddressState,
-        nextAddressPath,
-        addressOptions
-    ) {
+    async function getUnspentAddressesWithAddressGenerator(client, seed, initialAddressState, nextAddressPath, addressOptions) {
         var _a, _b
         const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
         const protocolInfo = await localClient.protocolInfo()
-        const localRequiredLimit =
-            (_a = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.requiredCount) !==
-                null && _a !== void 0
-                ? _a
-                : Number.MAX_SAFE_INTEGER
-        const localZeroCount =
-            (_b = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.zeroCount) !== null &&
-            _b !== void 0
-                ? _b
-                : 20
+        const localRequiredLimit = (_a = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.requiredCount) !== null && _a !== void 0 ? _a : Number.MAX_SAFE_INTEGER
+        const localZeroCount = (_b = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.zeroCount) !== null && _b !== void 0 ? _b : 20
         let finished = false
         const allUnspent = []
         let zeroBalance = 0
@@ -4359,21 +4107,17 @@
      * @param taggedData Optional tagged data to associate with the transaction.
      * @param taggedData.tag Optional tag.
      * @param taggedData.data Optional data.
+     * @param signatureFunc signature by hardware
      * @returns The id of the block created and the remainder address if one was needed.
      */
-    async function sendAdvanced(client, inputsAndSignatureKeyPairs, outputs, taggedData) {
+    async function sendAdvanced(client, inputsAndSignatureKeyPairs, outputs, taggedData, signatureFunc, getHardwareBip32Path) {
         const [isCanSend, tips] = verifySMRSendParams(inputsAndSignatureKeyPairs, outputs)
         if (!isCanSend) {
             throw tips
         }
         const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
         const protocolInfo = await localClient.protocolInfo()
-        const transactionPayload = buildTransactionPayload(
-            protocolInfo.networkId,
-            inputsAndSignatureKeyPairs,
-            outputs,
-            taggedData
-        )
+        const transactionPayload = await buildTransactionPayload(protocolInfo.networkId, inputsAndSignatureKeyPairs, outputs, taggedData, signatureFunc, getHardwareBip32Path)
         const block = {
             protocolVersion: DEFAULT_PROTOCOL_VERSION,
             parents: [],
@@ -4394,15 +4138,25 @@
      * @param taggedData Optional tagged data to associate with the transaction.
      * @param taggedData.tag Optional tag.
      * @param taggedData.data Optional index data.
+     * @param ledger sign
      * @returns The transaction payload.
      */
-    function buildTransactionPayload(networkId, inputsAndSignatureKeyPairs, outputs, taggedData) {
+    async function buildTransactionPayload(networkId, inputsAndSignatureKeyPairs, outputs, taggedData, signatureFunc, getHardwareBip32Path) {
         if (!inputsAndSignatureKeyPairs || inputsAndSignatureKeyPairs.length === 0) {
             throw new Error('You must specify some inputs')
         }
         if (!outputs || outputs.length === 0) {
             throw new Error('You must specify some outputs')
         }
+        const hardwarePathList = []
+        inputsAndSignatureKeyPairs.forEach((e) => {
+            const input = e.input || {}
+            hardwarePathList.push(input.hardwarePath)
+            if (input.hasOwnProperty('hardwarePath')) {
+                delete e.input.hardwarePath
+            }
+        })
+        console.log(inputsAndSignatureKeyPairs, '_____________', outputs)
         let localTagHex
         let localDataHex
         if (taggedData === null || taggedData === void 0 ? void 0 : taggedData.tag) {
@@ -4412,17 +4166,11 @@
                     : util_js.Converter.bytesToHex(taggedData.tag, true)
             // Length is -2 becuase we have added the 0x prefix
             if ((localTagHex.length - 2) / 2 > MAX_TAG_LENGTH) {
-                throw new Error(
-                    `The tag length is ${localTagHex.length / 2}, which exceeds the maximum size of ${MAX_TAG_LENGTH}`
-                )
+                throw new Error(`The tag length is ${localTagHex.length / 2}, which exceeds the maximum size of ${MAX_TAG_LENGTH}`)
             }
         }
         if (taggedData === null || taggedData === void 0 ? void 0 : taggedData.data) {
-            localDataHex = util_js.HexHelper.addPrefix(
-                typeof taggedData.data === 'string'
-                    ? util_js.Converter.utf8ToHex(taggedData.data, true)
-                    : util_js.Converter.bytesToHex(taggedData.data, true)
-            )
+            localDataHex = util_js.HexHelper.addPrefix(typeof taggedData.data === 'string' ? util_js.Converter.utf8ToHex(taggedData.data, true) : util_js.Converter.bytesToHex(taggedData.data, true))
         }
         const outputsWithSerialization = []
         for (const output of outputs) {
@@ -4476,10 +4224,11 @@
             inputsCommitmentHasher.update(crypto_js.Blake2b.sum256(input.consumingOutputBytes))
         }
         const inputsCommitment = util_js.Converter.bytesToHex(inputsCommitmentHasher.final(), true)
+        const inputs = inputsAndSignatureKeyPairsSerialized.map((i) => i.input)
         const transactionEssence = {
             type: TRANSACTION_ESSENCE_TYPE,
             networkId,
-            inputs: inputsAndSignatureKeyPairsSerialized.map((i) => i.input),
+            inputs,
             inputsCommitment,
             outputs: outputsWithSerialization.map((o) => o.output),
             payload:
@@ -4492,34 +4241,73 @@
                     : undefined
         }
         const binaryEssence = new util_js.WriteStream()
+        let binaryEssenceToken = null
         serializeTransactionEssence(binaryEssence, transactionEssence)
-        const essenceFinal = binaryEssence.finalBytes()
-        const essenceHash = crypto_js.Blake2b.sum256(essenceFinal)
-        // Create the unlocks
-        const unlocks = []
-        const addressToUnlock = {}
-        for (const input of inputsAndSignatureKeyPairsSerialized) {
-            const hexInputAddressPublic = util_js.Converter.bytesToHex(input.addressKeyPair.publicKey, true)
-            if (addressToUnlock[hexInputAddressPublic]) {
-                unlocks.push({
-                    type: REFERENCE_UNLOCK_TYPE,
-                    reference: addressToUnlock[hexInputAddressPublic].unlockIndex
-                })
+        if (getHardwareBip32Path) {
+            // token
+            if (outputs.find((a) => a.nativeTokens?.length > 0 || a.nftId)) {
+                binaryEssenceToken = new util_js.WriteStream()
+                let final = binaryEssence.finalBytes()
+                final = crypto_js.Blake2b.sum256(final)
+                binaryEssenceToken.writeBytes('essence_hash', final.length, final)
+                binaryEssenceToken.writeUInt16('inputs_count', hardwarePathList.length)
+                for (let i = 0; i < inputs.length; i++) {
+                    const pathArr = getHardwareBip32Path(hardwarePathList[i])
+                    binaryEssenceToken.writeUInt32('bip32_index', pathArr[3])
+                    binaryEssenceToken.writeUInt32('bip32_change', pathArr[4])
+                }
             } else {
-                unlocks.push({
-                    type: SIGNATURE_UNLOCK_TYPE,
-                    signature: {
-                        type: ED25519_SIGNATURE_TYPE,
-                        publicKey: hexInputAddressPublic,
-                        signature: util_js.Converter.bytesToHex(
-                            crypto_js.Ed25519.sign(input.addressKeyPair.privateKey, essenceHash),
-                            true
-                        )
+                for (let i = 0; i < inputs.length; i++) {
+                    const pathArr = getHardwareBip32Path(hardwarePathList[i])
+                    binaryEssence.writeUInt32('bip32_index', pathArr[3])
+                    binaryEssence.writeUInt32('bip32_change', pathArr[4])
+                }
+            }
+        }
+        let essenceFinal
+        if (binaryEssenceToken) {
+            essenceFinal = binaryEssenceToken.finalBytes()
+        } else {
+            essenceFinal = binaryEssence.finalBytes()
+        }
+        const essenceHash = crypto_js.Blake2b.sum256(essenceFinal)
+
+        // Create the unlocks
+        let unlocks = []
+        if (signatureFunc) {
+            unlocks = await signatureFunc(
+                essenceFinal,
+                inputs,
+                outputsWithSerialization.map((o) => o.output)
+            )
+        } else {
+            const addressToUnlock = {}
+            const localSignatureFunc = (input, essenceHash) => {
+                return util_js.Converter.bytesToHex(crypto_js.Ed25519.sign(input.addressKeyPair.privateKey, essenceHash), true)
+            }
+            for (const input of inputsAndSignatureKeyPairsSerialized) {
+                let hexInputAddressPublic = ''
+                if (input.addressKeyPair?.publicKey) {
+                    hexInputAddressPublic = util_js.Converter.bytesToHex(input.addressKeyPair?.publicKey || '', true)
+                }
+                if (addressToUnlock[hexInputAddressPublic]) {
+                    unlocks.push({
+                        type: REFERENCE_UNLOCK_TYPE,
+                        reference: addressToUnlock[hexInputAddressPublic].unlockIndex
+                    })
+                } else {
+                    unlocks.push({
+                        type: SIGNATURE_UNLOCK_TYPE,
+                        signature: {
+                            type: ED25519_SIGNATURE_TYPE,
+                            publicKey: hexInputAddressPublic,
+                            signature: localSignatureFunc(input, essenceHash)
+                        }
+                    })
+                    addressToUnlock[hexInputAddressPublic] = {
+                        keyPair: input.addressKeyPair,
+                        unlockIndex: unlocks.length - 1
                     }
-                })
-                addressToUnlock[hexInputAddressPublic] = {
-                    keyPair: input.addressKeyPair,
-                    unlockIndex: unlocks.length - 1
                 }
             }
         }
@@ -4580,9 +4368,11 @@
      * @param addressOptions Optional address configuration for balance address lookups.
      * @param addressOptions.startIndex The start index for the wallet count address, defaults to 0.
      * @param addressOptions.zeroCount The number of addresses with 0 balance during lookup before aborting.
+     * @param genAddressFunc get address from hardware
+     * @param signatureFunc signature by hardware
      * @returns The id of the block created and the contructed block.
      */
-    async function sendMultiple(client, seed, accountIndex, outputs, taggedData, addressOptions) {
+    async function sendMultiple(client, seed, accountIndex, outputs, taggedData, addressOptions, genAddressFunc, signatureFunc, getHardwareBip32Path) {
         var _a
         const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
         const protocolInfo = await localClient.protocolInfo()
@@ -4602,17 +4392,16 @@
             seed,
             {
                 accountIndex,
-                addressIndex:
-                    (_a = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.startIndex) !==
-                        null && _a !== void 0
-                        ? _a
-                        : 0,
+                addressIndex: (_a = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.startIndex) !== null && _a !== void 0 ? _a : 0,
                 isInternal: false
             },
             generateBip44Address,
             hexOutputs,
             taggedData,
-            addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.zeroCount
+            addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.zeroCount,
+            genAddressFunc,
+            signatureFunc,
+            getHardwareBip32Path
         )
     }
     /**
@@ -4641,11 +4430,7 @@
             seed,
             {
                 accountIndex,
-                addressIndex:
-                    (_a = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.startIndex) !==
-                        null && _a !== void 0
-                        ? _a
-                        : 0,
+                addressIndex: (_a = addressOptions === null || addressOptions === void 0 ? void 0 : addressOptions.startIndex) !== null && _a !== void 0 ? _a : 0,
                 isInternal: false
             },
             generateBip44Address,
@@ -4665,32 +4450,19 @@
      * @param taggedData.tag Optional tag.
      * @param taggedData.data Optional data.
      * @param zeroCount The number of addresses with 0 balance during lookup before aborting.
+     * @param genAddressFunc get address from hardware
+     * @param signatureFunc signature by hardware
      * @returns The id of the block created and the contructed block.
      */
-    async function sendWithAddressGenerator(
-        client,
-        seed,
-        initialAddressState,
-        nextAddressPath,
-        outputs,
-        taggedData,
-        zeroCount
-    ) {
-        const inputsAndKeys = await calculateInputs(
-            client,
-            seed,
-            initialAddressState,
-            nextAddressPath,
-            outputs,
-            zeroCount
-        )
+    async function sendWithAddressGenerator(client, seed, initialAddressState, nextAddressPath, outputs, taggedData, zeroCount, genAddressFunc, signatureFunc, getHardwareBip32Path) {
+        const inputsAndKeys = await calculateInputs(client, seed, initialAddressState, nextAddressPath, outputs, zeroCount, genAddressFunc)
 
         const [isCanSend, tips] = verifySMRSendParams(inputsAndKeys, outputs)
         if (!isCanSend) {
             throw tips
         }
 
-        const response = await sendAdvanced(client, inputsAndKeys, outputs, taggedData)
+        const response = await sendAdvanced(client, inputsAndKeys, outputs, taggedData, signatureFunc, getHardwareBip32Path)
         return {
             blockId: response.blockId,
             block: response.block
@@ -4706,11 +4478,10 @@
      * @param zeroCount Abort when the number of zero balances is exceeded.
      * @returns The id of the block created and the contructed block.
      */
-    async function calculateInputs(client, seed, initialAddressState, nextAddressPath, outputs, zeroCount = 5) {
+    async function calculateInputs(client, seed, initialAddressState, nextAddressPath, outputs, zeroCount = 5, genAddressFunc) {
         const localClient = typeof client === 'string' ? new SingleNodeClient(client) : client
         const protocolInfo = await localClient.protocolInfo()
         const clientInfo = await localClient.info()
-        console.log(clientInfo, protocolInfo)
         let requiredBalance = bigInt__default['default'](0)
         for (const output of outputs) {
             requiredBalance = requiredBalance.plus(output.amount)
@@ -4721,13 +4492,22 @@
         let zeroBalance = 0
         let minBalance = 0
         do {
-            const path = nextAddressPath(initialAddressState)
-            const addressSeed = seed.generateSeedFromPath(new crypto_js.Bip32Path(path))
-            const addressKeyPair = addressSeed.keyPair()
-            const ed25519Address = new Ed25519Address(addressKeyPair.publicKey)
-            const addressBytes = ed25519Address.toAddress()
+            let addressBech32 = ''
+            let hardwarePath = ''
+            let addressKeyPair = null
             const indexerPlugin = new IndexerPluginClient(client)
-            const addressBech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, addressBytes, protocolInfo.bech32Hrp)
+            if (!genAddressFunc) {
+                const path = nextAddressPath(initialAddressState)
+                const addressSeed = seed.generateSeedFromPath(new crypto_js.Bip32Path(path))
+                addressKeyPair = addressSeed.keyPair()
+                const ed25519Address = new Ed25519Address(addressKeyPair.publicKey)
+                const addressBytes = ed25519Address.toAddress()
+                addressBech32 = Bech32Helper.toBech32(ED25519_ADDRESS_TYPE, addressBytes, protocolInfo.bech32Hrp)
+            } else {
+                const hardwareAddressRes = await genAddressFunc(initialAddressState.addressIndex)
+                addressBech32 = hardwareAddressRes.address
+                hardwarePath = hardwareAddressRes.path
+            }
             const addressOutputIds = await indexerPlugin.outputs({
                 addressBech32
             })
@@ -4768,28 +4548,24 @@
                             const input = {
                                 type: UTXO_INPUT_TYPE,
                                 transactionId: addressOutput.metadata.transactionId,
-                                transactionOutputIndex: addressOutput.metadata.outputIndex
+                                transactionOutputIndex: addressOutput.metadata.outputIndex,
+                                hardwarePath
                             }
-                            inputsAndSignatureKeyPairs.push({
+                            const inputData = {
                                 input,
-                                addressKeyPair,
                                 consumingOutput: addressOutput.output
-                            })
-                            if (consumedBalance >= requiredBalance) {
+                            }
+                            if (addressKeyPair) {
+                                inputData.addressKeyPair = addressKeyPair
+                            }
+                            inputsAndSignatureKeyPairs.push(inputData)
+                            const isGreaterOrEquals = consumedBalance.greaterOrEquals(requiredBalance)
+                            if (isGreaterOrEquals) {
                                 // We didn't use all the balance from the last input
                                 // so return the rest to the same address.
-                                if (
-                                    consumedBalance.minus(requiredBalance).greater(0) &&
-                                    addressOutput.output.type === BASIC_OUTPUT_TYPE
-                                ) {
-                                    const addressUnlockCondition = addressOutput.output.unlockConditions.find(
-                                        (u) => u.type === ADDRESS_UNLOCK_CONDITION_TYPE
-                                    )
-                                    if (
-                                        addressUnlockCondition &&
-                                        addressUnlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE &&
-                                        addressUnlockCondition.address.type === ED25519_ADDRESS_TYPE
-                                    ) {
+                                if (consumedBalance.minus(requiredBalance).greater(0) && addressOutput.output.type === BASIC_OUTPUT_TYPE) {
+                                    const addressUnlockCondition = addressOutput.output.unlockConditions.find((u) => u.type === ADDRESS_UNLOCK_CONDITION_TYPE)
+                                    if (addressUnlockCondition && addressUnlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE && addressUnlockCondition.address.type === ED25519_ADDRESS_TYPE) {
                                         outputs.push({
                                             amount: consumedBalance.minus(requiredBalance),
                                             address: addressUnlockCondition.address.pubKeyHash,
@@ -4797,10 +4573,8 @@
                                         })
                                     }
                                 }
-                                if (
-                                    consumedBalance == requiredBalance ||
-                                    consumedBalance.minus(requiredBalance).greaterOrEquals(minBalance)
-                                ) {
+                                const minus = consumedBalance.minus(requiredBalance)
+                                if (minus.equals(0) || minus.greaterOrEquals(minBalance)) {
                                     finished = true
                                 }
                             }
@@ -4828,23 +4602,14 @@
         let localTagHex
         let localDataHex
         if (tag) {
-            localTagHex =
-                typeof tag === 'string'
-                    ? util_js.Converter.utf8ToHex(tag, true)
-                    : util_js.Converter.bytesToHex(tag, true)
+            localTagHex = typeof tag === 'string' ? util_js.Converter.utf8ToHex(tag, true) : util_js.Converter.bytesToHex(tag, true)
             // Length is -2 becuase we have added the 0x prefix
             if ((localTagHex.length - 2) / 2 > MAX_TAG_LENGTH) {
-                throw new Error(
-                    `The tag length is ${localTagHex.length / 2}, which exceeds the maximum size of ${MAX_TAG_LENGTH}`
-                )
+                throw new Error(`The tag length is ${localTagHex.length / 2}, which exceeds the maximum size of ${MAX_TAG_LENGTH}`)
             }
         }
         if (data) {
-            localDataHex = util_js.HexHelper.addPrefix(
-                typeof data === 'string'
-                    ? util_js.Converter.utf8ToHex(data, true)
-                    : util_js.Converter.bytesToHex(data, true)
-            )
+            localDataHex = util_js.HexHelper.addPrefix(typeof data === 'string' ? util_js.Converter.utf8ToHex(data, true) : util_js.Converter.bytesToHex(data, true))
         }
         const taggedDataPayload =
             localTagHex && localDataHex
@@ -4883,8 +4648,7 @@
         /**
          * The referenced UTXO was already spent while confirming this milestone.
          */
-        ConflictReason[(ConflictReason['inputUTXOAlreadySpentInThisMilestone'] = 2)] =
-            'inputUTXOAlreadySpentInThisMilestone'
+        ConflictReason[(ConflictReason['inputUTXOAlreadySpentInThisMilestone'] = 2)] = 'inputUTXOAlreadySpentInThisMilestone'
         /**
          * The referenced UTXO cannot be found.
          */
@@ -5050,19 +4814,16 @@
     const CONFLICT_REASON_STRINGS = {
         [exports.ConflictReason.none]: 'Not conflicting',
         [exports.ConflictReason.inputUTXOAlreadySpent]: 'The referenced UTXO was already spent',
-        [exports.ConflictReason.inputUTXOAlreadySpentInThisMilestone]:
-            'The referenced UTXO was already spent while confirming this milestone',
+        [exports.ConflictReason.inputUTXOAlreadySpentInThisMilestone]: 'The referenced UTXO was already spent while confirming this milestone',
         [exports.ConflictReason.inputUTXONotFound]: 'The referenced UTXO cannot be found',
         [exports.ConflictReason.inputOutputSumMismatch]: 'The sum of the inputs and output values does not match',
         [exports.ConflictReason.invalidSignature]: 'The unlock signature is invalid',
         [exports.ConflictReason.invalidTimelock]: 'The configured timelock is not yet expired',
         [exports.ConflictReason.invalidNativeTokens]: 'The native tokens are invalid',
-        [exports.ConflictReason.returnAmountMismatch]:
-            'The return amount in a transaction is not fulfilled by the output side',
+        [exports.ConflictReason.returnAmountMismatch]: 'The return amount in a transaction is not fulfilled by the output side',
         [exports.ConflictReason.invalidInputUnlock]: 'The input unlock is invalid',
         [exports.ConflictReason.invalidInputsCommitment]: 'The inputs commitment is invalid',
-        [exports.ConflictReason.invalidSender]:
-            'The output contains a Sender with an ident (address) which is not unlocked',
+        [exports.ConflictReason.invalidSender]: 'The output contains a Sender with an ident (address) which is not unlocked',
         [exports.ConflictReason.invalidChainState]: 'The chain state transition is invalid',
         [exports.ConflictReason.semanticValidationFailed]: 'The semantic validation failed'
     }
@@ -5764,10 +5525,7 @@
             const outputBytes = writeStream.finalBytes()
             const offset =
                 rentStructure.vByteFactorKey * TransactionHelper.OUTPUT_ID_LENGTH +
-                rentStructure.vByteFactorData *
-                    (BLOCK_ID_LENGTH +
-                        TransactionHelper.CONFIRMED_MILESTONE_INDEX_LENGTH +
-                        TransactionHelper.CONFIRMED_UINIX_TIMESTAMP_LENGTH)
+                rentStructure.vByteFactorData * (BLOCK_ID_LENGTH + TransactionHelper.CONFIRMED_MILESTONE_INDEX_LENGTH + TransactionHelper.CONFIRMED_UINIX_TIMESTAMP_LENGTH)
             const vByteSize = rentStructure.vByteFactorData * outputBytes.length + offset
             return rentStructure.vByteCost * vByteSize
         }
@@ -5853,9 +5611,7 @@
             if (!value) {
                 return '0'
             }
-            return magnitude === ''
-                ? `${value}`
-                : `${UnitsHelper.convertUnits(value, '', magnitude).toFixed(decimalPlaces)} ${magnitude}`
+            return magnitude === '' ? `${value}` : `${UnitsHelper.convertUnits(value, '', magnitude).toFixed(decimalPlaces)} ${magnitude}`
         }
         /**
          * Format the value in the best units.
@@ -5902,8 +5658,7 @@
                 return Number(value)
             }
             const multiplier = value < 0 ? -1 : 1
-            const scaledValue =
-                (Math.abs(Number(value)) * UnitsHelper.MAGNITUDE_MAP[from].val) / UnitsHelper.MAGNITUDE_MAP[to].val
+            const scaledValue = (Math.abs(Number(value)) * UnitsHelper.MAGNITUDE_MAP[from].val) / UnitsHelper.MAGNITUDE_MAP[to].val
             const numDecimals = UnitsHelper.MAGNITUDE_MAP[to].dp
             // We cant use toFixed to just convert the new value to a string with
             // fixed decimal places as it will round, which we don't want

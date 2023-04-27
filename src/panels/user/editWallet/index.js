@@ -2,18 +2,31 @@ import React, { useEffect, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { NameDialog } from './nameDialog'
+import { EnablePasswordDialog } from './enablePasswordDialog'
+import { DisablePasswordDialog } from './disablePasswordDialog'
+import { Switch } from 'antd-mobile'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
+import { checkWalletIsPasswordEnabled, context } from '@tangle-pay/domain';
 
 export const UserEditWallet = () => {
     // let params = useLocation()
     const [contentW, setContentW] = useState(375)
     // const [isOpenRemove, setOpenRemove] = useState(false)
     const [curEdit] = useGetNodeWallet()
+    const [passwordEnabled, setPasswordEnabled] = useState(false)
     const name = curEdit.name || ''
     const dialogRef = useRef()
+    const enableDialogRef = useRef()
+    const disableDialogRef = useRef()
     // const removeWallet = useRemoveWallet()
+    const syncIsPasswordEnabled = async () => {
+        const res = await checkWalletIsPasswordEnabled(curEdit.id)
+        setPasswordEnabled(res)
+    }
     useEffect(() => {
+        console.log('curEdit', curEdit)
+        syncIsPasswordEnabled().catch(e=>console.log(e))
         setContentW(document.getElementById('app').offsetWidth)
     }, [])
     const curNode = IotaSDK.nodes.find((d) => d.id == curEdit.nodeId)
@@ -76,14 +89,26 @@ export const UserEditWallet = () => {
                 ) : null}
                 {!isLedger ? (
                     <div
-                        onClick={() => {
-                            Base.push('/user/walletPassword', {
-                                ...curEdit
-                            })
-                        }}
-                        className='press ph16 pv20 flex row jsb ac border-b'>
-                        <div className='fz16'>{I18n.t('user.resetPassword')}</div>
-                        <SvgIcon name='right' size={15} className='cB' />
+                    onClick={(e)=>console.log(e)}
+                    key={10}
+                    className={`press flex row ac jsb p16 border-b`}>
+                        <div className='fz16'>{I18n.t('account.toggleWalletPassword')}</div>
+                        <div>
+                            
+                        <Switch key={10} checked={passwordEnabled} onChange={(e) => {
+                            if (e) {
+                                enableDialogRef.current.show(syncIsPasswordEnabled)
+                            } else {
+                                if (context.state.isPinSet) {
+                                disableDialogRef.current.show(syncIsPasswordEnabled)
+                                } else {
+                                    Toast.error(I18n.t('account.needPinToTurnoffPassword'))
+                                }
+                            }
+                            // Base.setLocalData('common.isNoRestake', e ? 0 : 1)
+                        }} />
+                            
+                        </div>
                     </div>
                 ) : null}
                 {curNode?.type == 2 && !isLedger ? (
@@ -109,6 +134,8 @@ export const UserEditWallet = () => {
                 </div>
             </div>
             <NameDialog dialogRef={dialogRef} data={{ ...curEdit }} />
+            <EnablePasswordDialog dialogRef={enableDialogRef} data={{ ...curEdit }} />
+            <DisablePasswordDialog dialogRef={disableDialogRef} data={{ ...curEdit }} />
             {/* {isOpenRemove && (
                 <Mask
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}

@@ -3,13 +3,13 @@ import { Nav, SvgIcon, NoData } from '@/common'
 import { Base, I18n } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { Button, Dialog } from 'antd-mobile'
-import { useHandleUnlocalConditions } from '@tangle-pay/store/common'
+import { useHandleUnlocalConditions, useGetNodeWallet } from '@tangle-pay/store/common'
 import './index.less'
 
 const Item = (item) => {
-    const { onDismiss } = useHandleUnlocalConditions()
+    const { onDismiss, onDismissNft } = useHandleUnlocalConditions()
     const toggleDom = (e, icon) => {
-        const dom = document.getElementById(`action_${item.i}`)
+        const dom = document.getElementById(`action_${item.id}`)
         const classList = dom.classList
         if (icon && !classList.contains('move-show')) {
             classList.add('move-show')
@@ -22,7 +22,7 @@ const Item = (item) => {
         }
     }
     return (
-        <div className='border-b' id={`action_${item.i}`} onClick={toggleDom} style={{ overflow: 'hidden' }}>
+        <div className='border-b' id={`action_${item.id}`} onClick={toggleDom} style={{ overflow: 'hidden' }}>
             <div style={{ height: 72 }} className='w100 flex ac row'>
                 <div className='flex c pr' style={{ height: 72, width: 80 }}>
                     <img
@@ -34,18 +34,16 @@ const Item = (item) => {
                             e.target.style.opacity = 0
                         }}
                     />
-                    <div
-                        className='border bgP flex c cW fw600 fz24'
-                        style={{ width: 32, height: 32, borderRadius: 32 }}>
-                        {String(item.token).toLocaleUpperCase()[0]}
+                    <div className='border bgP flex c cW fw600 fz24' style={{ width: 32, height: 32, borderRadius: 32 }}>
+                        {String(item.token || item.name).toLocaleUpperCase()[0]}
                     </div>
                 </div>
                 <div className='flex ac flex1 border-b' style={{ height: 72 }}>
-                    <div style={{ width: 100 }} className='cP fz16 fw600'>
-                        {item.token}: {item.amountStr}
+                    <div style={{ width: 100 }} className='cP fz16 fw600 ellipsis'>
+                        {item.nftId ? item.name : `${item.token}: ${item.amountStr}`}
                     </div>
                     <div style={{ width: 130 }}>
-                        <div className='fz16 fw400 ellipsis mb4'>{item.blockId}</div>
+                        <div className='fz16 fw400 ellipsis mb4'>{item.id}</div>
                         <div className='fz16 fw400 ellipsis'>
                             {I18n.t('assets.tradingFrom')} {Base.handleAddress(item.unlockAddress)}
                         </div>
@@ -59,13 +57,7 @@ const Item = (item) => {
                     </div>
                     <div className='fz16 fw400'>{item.timeStr}</div>
                 </div>
-                <SvgIcon
-                    onClick={(e) => toggleDom(e, true)}
-                    className='cP press add-icon'
-                    style={{ width: 24, height: 24 }}
-                    size='24'
-                    name='add'
-                />
+                <SvgIcon onClick={(e) => toggleDom(e, true)} className='cP press add-icon' style={{ width: 24, height: 24 }} size='24' name='add' />
                 <div className='flex ac adm-swipe-action-actions' style={{ right: -180, position: 'absolute' }}>
                     <Button
                         color='default'
@@ -75,7 +67,11 @@ const Item = (item) => {
                                 cancelText: I18n.t('apps.cancel'),
                                 confirmText: I18n.t('apps.execute'),
                                 onConfirm: () => {
-                                    onDismiss(item.blockId)
+                                    if (item.nftId) {
+                                        onDismissNft(item.id)
+                                    } else {
+                                        onDismiss(item.id)
+                                    }
                                 }
                             })
                         }}>
@@ -84,8 +80,10 @@ const Item = (item) => {
                     <Button
                         color='primary'
                         onClick={() => {
-                            Base.push('/assets/trading', {
-                                id: item.blockId
+                            const func = item.isLedger ? 'openInTab' : 'push'
+                            Base[func]('/assets/trading', {
+                                id: item.id,
+                                isLedger: item.isLedger ? 1 : 0
                             })
                         }}>
                         {I18n.t('shimmer.accept')}
@@ -110,15 +108,13 @@ const LockedItem = (item) => {
                             e.target.style.opacity = 0
                         }}
                     />
-                    <div
-                        className='border bgP flex c cW fw600 fz24'
-                        style={{ width: 32, height: 32, borderRadius: 32 }}>
-                        {String(item.token).toLocaleUpperCase()[0]}
+                    <div className='border bgP flex c cW fw600 fz24' style={{ width: 32, height: 32, borderRadius: 32 }}>
+                        {String(item.token || item.name).toLocaleUpperCase()[0]}
                     </div>
                 </div>
                 <div className='flex ac flex1 border-b' style={{ height: 72 }}>
                     <div style={{ width: 100 }} className='cP fz16 fw600'>
-                        {item.token}: {item.amountStr}
+                        {item.nftId ? item.name : `${item.token}: ${item.amountStr}`}
                     </div>
                     <div style={{ width: 130 }}>
                         <div className='fz16 fw400 ellipsis mb4'>{item.blockId}</div>
@@ -146,16 +142,26 @@ const LockedItem = (item) => {
 export const AssetsTradingList = () => {
     const [unlockConditions] = useStore('common.unlockConditions')
     const [lockedList] = useStore('common.lockedList')
+    const [nftUnlockList] = useStore('nft.unlockList')
+    const [nftLockList] = useStore('nft.lockList')
+    const [curWallet] = useGetNodeWallet()
+    const isLedger = curWallet.type == 'ledger'
     return (
         <div className='page assets-trading'>
             <Nav title={I18n.t('assets.tradingList')} />
-            {unlockConditions.length > 0 || lockedList.length > 0 ? (
+            {unlockConditions.length > 0 || lockedList.length > 0 || nftUnlockList.length > 0 || nftLockList.length > 0 ? (
                 <div>
                     {unlockConditions.map((e, i) => {
-                        return <Item {...e} key={e.blockId} i={i} />
+                        return <Item isLedger={isLedger} {...e} key={e.blockId} id={e.blockId} />
+                    })}
+                    {nftUnlockList.map((e, i) => {
+                        return <Item isLedger={isLedger} {...e} key={e.nftId} id={e.nftId} logoUrl={e.thumbnailImage || e.media} />
                     })}
                     {lockedList.map((e, i) => {
                         return <LockedItem {...e} key={e.blockId} />
+                    })}
+                    {nftLockList.map((e, i) => {
+                        return <LockedItem {...e} key={e.nftId} logoUrl={e.thumbnailImage || e.media} />
                     })}
                 </div>
             ) : (

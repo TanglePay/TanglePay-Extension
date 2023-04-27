@@ -4,6 +4,7 @@ import { Base, I18n } from '@tangle-pay/common'
 import * as Yup from 'yup'
 import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import dayjs from 'dayjs'
 
 const schema = Yup.object().shape({
     password: Yup.string().required()
@@ -13,9 +14,9 @@ export const NftDetail = () => {
     let params = useLocation()
     params = Base.handlerParams(params.search)
     params = JSON.parse(params.nft)
-    let { thumbnailImage, media, attributes, properties } = params
-
+    let { thumbnailImage, media, attributes, properties, lockTime, isUnlock } = params
     attributes = attributes?.props || attributes || properties || {}
+    console.log(params)
     let propsList = []
     for (const i in attributes) {
         if (Object.hasOwnProperty.call(attributes, i)) {
@@ -74,9 +75,7 @@ export const NftDetail = () => {
                             {params.nftId ? (
                                 <div className='mb8 bgS radius10 ph12 pv10'>
                                     <div className='fz16 fw400 mb4'>NFT ID</div>
-                                    <CopyToClipboard
-                                        text={params.nftId}
-                                        onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                                    <CopyToClipboard text={params.nftId} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
                                         <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
                                             {params.nftId}
                                         </div>
@@ -85,9 +84,7 @@ export const NftDetail = () => {
                             ) : null}
                             <div className='mb8 bgS radius10 ph12 pv10'>
                                 <div className='fz16 fw400 mb4'>URI</div>
-                                <CopyToClipboard
-                                    text={params.uri || params.ipfsMedia}
-                                    onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                                <CopyToClipboard text={params.uri || params.ipfsMedia} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
                                     <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
                                         {params.uri || params.ipfsMedia}
                                     </div>
@@ -96,13 +93,19 @@ export const NftDetail = () => {
                             {params.collectionId ? (
                                 <div className='mb8 bgS radius10 ph12 pv10'>
                                     <div className='fz16 fw400 mb4'>{I18n.t('assets.collectionID')}</div>
-                                    <CopyToClipboard
-                                        text={params.collectionId}
-                                        onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                                    <CopyToClipboard text={params.collectionId} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
                                         <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
                                             {params.collectionId}
                                         </div>
                                     </CopyToClipboard>
+                                </div>
+                            ) : null}
+                            {!isUnlock && lockTime ? (
+                                <div className='mb8 bgS radius10 ph12 pv10'>
+                                    <div className='fz16 fw400 mb4'>{I18n.t('assets.unlockTime')}</div>
+                                    <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
+                                        {dayjs(lockTime * 1000).format('YYYY-MM-DD HH:mm:ss')}
+                                    </div>
                                 </div>
                             ) : null}
                         </div>
@@ -124,7 +127,9 @@ export const NftDetail = () => {
                                 return (
                                     <div key={i} className='bgS radius10 p12 mr8 mb8'>
                                         <div className='cS fz16 fw600'>{e.label}</div>
-                                        <div className='mt4 fz16 fw600'>{e.value}</div>
+                                        <div className='mt4 fz16 fw600' style={{ wordBreak: 'break-all' }}>
+                                            {e.value}
+                                        </div>
                                     </div>
                                 )
                             })}

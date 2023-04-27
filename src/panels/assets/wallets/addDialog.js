@@ -4,6 +4,7 @@ import { Toast } from '@/common'
 import { useChangeNode } from '@tangle-pay/store/common'
 import { I18n, Base, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
+import { isNewWalletFlow } from '@tangle-pay/domain'
 
 export const AddDialog = ({ dialogRef, nodeId }) => {
     const [isShow, setShow] = useState(false)
@@ -83,7 +84,11 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                             <div
                                 onClick={() => {
                                     hide()
-                                    Base.push('/account/register')
+                                    if (isNewWalletFlow()) {
+                                        Base.push('/account/registerPin')
+                                    } else {
+                                        Base.push('/account/register')
+                                    }
                                 }}
                                 style={{ height: 72 }}
                                 className='pv24 flex c press'>
@@ -135,22 +140,20 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 </div>
                             )}
                         </div>
-                        {curNode?.type == 2 && (
-                            <>
-                                <div className='fz16 cS mv16'>{I18n.t('account.hardwareWallet')}</div>
-                                <div className='bgW radius10'>
-                                    <div
-                                        onClick={() => {
-                                            hide()
-                                            Base.openInTab('/account/hardware/into')
-                                        }}
-                                        style={{ height: 72 }}
-                                        className='pv24 flex c border-t press'>
-                                        <div className='fz18'>{I18n.t('account.hardwareWallet')}</div>
-                                    </div>
+                        <>
+                            <div className='fz16 cS mv16'>{I18n.t('account.hardwareWallet')}</div>
+                            <div className='bgW radius10'>
+                                <div
+                                    onClick={() => {
+                                        hide()
+                                        Base.openInTab('/account/hardware/into')
+                                    }}
+                                    style={{ height: 72 }}
+                                    className='pv24 flex c border-t press'>
+                                    <div className='fz18'>{I18n.t('account.hardwareWallet')}</div>
                                 </div>
-                            </>
-                        )}
+                            </div>
+                        </>
                     </>
                 )}
             </div>
