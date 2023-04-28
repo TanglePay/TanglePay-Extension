@@ -20,7 +20,7 @@ export const PrivateKey = () => {
     useEffect(async () => {
         const func = async () => {
             const isEnabled = await checkWalletIsPasswordEnabled(curEdit.id)
-            if (isEnabled && context.state.isPinSet) {
+            if (!isEnabled && context.state.isPinSet) {
                 const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, context.state.pin)
                 setKeyStr(privateKeyStr.replace(/^0x/, ''))
             }
