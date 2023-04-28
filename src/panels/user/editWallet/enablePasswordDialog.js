@@ -1,6 +1,6 @@
 import React, { useState, useImperativeHandle, useEffect, useRef } from 'react';
 import { Button, Mask, Form, Input } from 'antd-mobile';
-import { I18n } from '@tangle-pay/common';
+import { I18n, Base } from '@tangle-pay/common';
 import { useEditWallet } from '@tangle-pay/store/common'
 import { Formik } from 'formik';
 import { Toast } from '@/common'
@@ -56,8 +56,12 @@ export const EnablePasswordDialog = ({ dialogRef, data }) => {
           })}
           onSubmit={async (values, {resetForm}) => {
             // Add your logic for changing the wallet password here
+            
             if (values.newPassword !== values.retypePassword) {
                 return Toast.errors(I18n.t('account.passwordMismatch'));
+            }
+            if (!Base.checkPassword(values.newPassword)) {
+              return Toast.error(I18n.t('account.intoPasswordTips'))
             }
             editWallet(data.id, {...data, password: values.retypePassword,oldPassword: context.state.pin}, true)
             await markWalletPasswordEnabled(data.id);

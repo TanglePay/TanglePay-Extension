@@ -210,6 +210,30 @@ export default {
     async iota_merge_nft() {
         Base.push('assets/nftMerge')
     },
+    sendToContentScriptSetData(key,value) {
+        const sendMessage = window.chrome?.runtime?.sendMessage
+        if (sendMessage) {
+            sendMessage({
+                cmd: `contentToBackground##bgDataSet`,
+                sendData: {key,value}
+            })
+        }
+    },
+    async sendToContentScriptGetData(key) {
+        const sendMessage = window.chrome?.runtime?.sendMessage
+        if (sendMessage) {
+            try {
+                const value = await sendMessage({
+                    cmd: `contentToBackground##bgDataGet`,
+                    sendData: {key}
+                })
+                console.log('sendToContentScriptGetData',value)
+            } catch (error) {
+                console.log('sendToContentScriptGetData error',error)
+
+            }
+        }
+    },
     sendToContentScript(cmd, { method, response, code = 200 }) {
         // V2
         // const bg = window.chrome?.extension?.getBackgroundPage()

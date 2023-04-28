@@ -4,9 +4,9 @@ import { Base, Trace, I18n, IotaSDK } from '@tangle-pay/common'
 import { useChangeNode } from '@tangle-pay/store/common'
 import { HashRouter, Route, Redirect } from 'react-router-dom'
 import { StoreContext, useStoreReducer } from '@tangle-pay/store'
-import { context, ensureInited, getIsUnlocked, init as pinInit, markWalletPasswordEnabled, isNewWalletFlow } from '@tangle-pay/domain'
+import { context, ensureInited, getIsUnlocked, init as pinInit, markWalletPasswordEnabled, isNewWalletFlow, setStorageFacade } from '@tangle-pay/domain'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
-import { PasswordDialog } from '@/common'
+import { PasswordDialog, StorageFacade } from '@/common'
 import { CacheSwitch, CacheRoute } from 'react-router-cache-route'
 import { Toast } from '@/common'
 import { DappDialog } from '@/common/components/DappDialog'
@@ -91,6 +91,7 @@ const App = () => {
     const init = async () => {
         Trace.login()
         Toast.showLoading()
+        
         // await IotaSDK.getNodes()
         IotaSDK.getNodes(async () => {
             await getLocalInfo()
@@ -101,6 +102,7 @@ const App = () => {
         })
     }
     useEffect(() => {
+        setStorageFacade(StorageFacade)
         Base.globalInit({
             store,
             dispatch,

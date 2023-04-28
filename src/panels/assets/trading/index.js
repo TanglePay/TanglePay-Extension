@@ -9,6 +9,7 @@ import { useGetAssetsList, useGetNodeWallet, useHandleUnlocalConditions } from '
 import { useGetNftList } from '@tangle-pay/store/nft'
 import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
 // const schema = Yup.object().shape({
 //     password: Yup.string().required()
@@ -26,13 +27,19 @@ export const AssetsTrading = () => {
     const [nftUnlockList] = useStore('nft.unlockList')
     useGetNftList()
     useGetAssetsList(curWallet)
+    const [isWalletPasswordEnabled, setIsWalletPasswordEnabled] = useState(false)
+    useEffect(() => {
+        checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
+            setIsWalletPasswordEnabled(res)
+        })
+    }, [])
     const { onDismiss, onDismissNft, onAccept, onAcceptNft } = useHandleUnlocalConditions()
     let curInfo = unlockConditions.find((e) => e.blockId == id)
     if (!curInfo) {
         curInfo = nftUnlockList.find((e) => e.nftId == id) || {}
     }
     const isLedger = params.isLedger == 1
-    if (isLedger) {
+    if (isLedger || !isWalletPasswordEnabled) {
         schema.password = Yup.string().optional()
     } else {
         schema.password = Yup.string().required()
@@ -117,7 +124,10 @@ export const AssetsTrading = () => {
                         validateOnMount={false}
                         validationSchema={Yup.object().shape(schema)}
                         onSubmit={async (values) => {
-                            const { password } = values
+                            let { password } = values
+                            if (!isWalletPasswordEnabled) {
+                                password = context.state.pin
+                            }
                             if (!isLedger) {
                                 const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
                                 if (!isPassword) {
@@ -169,7 +179,7 @@ export const AssetsTrading = () => {
                         }}>
                         {({ handleChange, handleSubmit, values, errors }) => (
                             <div>
-                                {!isLedger ? (
+                                {isWalletPasswordEnabled && !isLedger ? (
                                     <Form>
                                         <Form.Item className={`mb16 pl0 border-b ${errors.password && 'form-error'}`}>
                                             <div className='fz16 mb16'>{I18n.t('account.showKeyInputPassword').replace(/{name}/, curWallet.name)}</div>

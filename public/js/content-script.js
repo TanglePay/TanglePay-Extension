@@ -44,6 +44,8 @@ window.addEventListener(
         switch (cmd) {
             case 'tanglePayDeepLink':
             case 'getTanglePayInfo':
+            case 'bgDataGet':
+            case 'bgDataSet':
             case 'iota_request':
                 sendToBackground({ ...e.data, cmd })
                 break
