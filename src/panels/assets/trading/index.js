@@ -8,11 +8,12 @@ import * as Yup from 'yup'
 import { useGetNodeWallet, useHandleUnlocalConditions } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 const schema = Yup.object().shape({
     password: Yup.string().required()
 })
-
+const schemaNopassword = Yup.object().shape({
+})
 export const AssetsTrading = () => {
     const form = useRef()
     const [curWallet] = useGetNodeWallet()
@@ -22,6 +23,12 @@ export const AssetsTrading = () => {
     const [unlockConditions] = useStore('common.unlockConditions')
     const { onDismiss, onAccept } = useHandleUnlocalConditions()
     const curInfo = unlockConditions.find((e) => e.blockId == id) || {}
+    const [isWalletPasswordEnabled, setIsWalletPasswordEnabled] = useState(false)
+    useEffect(() => {
+        checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
+            setIsWalletPasswordEnabled(res)
+        })
+    }, [])
     return (
         <div className='page assets-trading'>
             <Nav title={I18n.t('assets.tradingTitle')} />
@@ -101,9 +108,12 @@ export const AssetsTrading = () => {
                         validateOnBlur={false}
                         validateOnChange={false}
                         validateOnMount={false}
-                        validationSchema={schema}
+                        validationSchema={isWalletPasswordEnabled ? schema : schemaNopassword}
                         onSubmit={async (values) => {
-                            const { password } = values
+                            let { password } = values
+                            if (!isWalletPasswordEnabled) {
+                                password = context.state.pin
+                            }
                             const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
                             if (!isPassword) {
                                 return Toast.error(I18n.t('assets.passwordError'))
@@ -137,6 +147,7 @@ export const AssetsTrading = () => {
                         {({ handleChange, handleSubmit, values, errors }) => (
                             <div>
                                 <Form>
+                                    {isWalletPasswordEnabled ? (
                                     <Form.Item className={`mb16 pl0 border-b ${errors.password && 'form-error'}`}>
                                         <div className='fz16 mb16'>
                                             {I18n.t('account.showKeyInputPassword').replace(/{name}/, curWallet.name)}
@@ -149,10 +160,10 @@ export const AssetsTrading = () => {
                                             value={values.password}
                                             maxLength={20}
                                         />
-                                    </Form.Item>
+                                    </Form.Item>):null}
                                 </Form>
                                 <div className='flex row ac jsb' style={{ marginTop: 50 }}>
-                                    <Button onClick={handleSubmit} disabled={!values.password} color='primary' block>
+                                    <Button onClick={handleSubmit} disabled={!values.password && isWalletPasswordEnabled} color='primary' block>
                                         {I18n.t('shimmer.accept')}
                                     </Button>
                                 </div>
