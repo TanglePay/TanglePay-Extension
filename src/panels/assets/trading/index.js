@@ -9,6 +9,7 @@ import { useGetAssetsList, useGetNodeWallet, useHandleUnlocalConditions } from '
 import { useGetNftList } from '@tangle-pay/store/nft'
 import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
 // const schema = Yup.object().shape({
 //     password: Yup.string().required()
