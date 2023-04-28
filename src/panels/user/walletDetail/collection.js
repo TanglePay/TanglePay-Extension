@@ -12,6 +12,7 @@ export const WalletCollection = () => {
     const [contentW, setContentW] = useState(375)
     const [password, setPassword] = useState('')
     const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(false)
+    const isLedger = curWallet.type == 'ledger'
     useEffect(() => {
         checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
             setIsWalletPassowrdEnabled(res)
@@ -59,22 +60,28 @@ export const WalletCollection = () => {
                             <div className='fz16 cS mr24'>{I18n.t('account.pendingNum')}</div>
                             <div className='fz18 cP fw600'>{totalNum}</div>
                         </div>
-                        {isWalletPassowrdEnabled ? (<>
+                        {isWalletPassowrdEnabled && !isLedger ? (
+                            <>
                                 <div className='fz16 mt24'>{I18n.t('assets.passwordTips')}</div>
                                 <Input type='password' value={password} onChange={setPassword} className='border-b pv10' />
-                            </>) : null}
+                            </>
+                        ) : null}
                         <Button
                             onClick={async () => {
-                                if (isWalletPassowrdEnabled) {
-                                    const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
+                                let walletPassword = password
+                                if (!isWalletPassowrdEnabled) {
+                                    walletPassword = context.state.pin
+                                }
+                                if (!isLedger) {
+                                    const isPassword = await IotaSDK.checkPassword(curWallet.seed, walletPassword)
                                     if (!isPassword) {
                                         return Toast.error(I18n.t('assets.passwordError'))
                                     }
                                 }
-                                start({ ...curWallet, password:isWalletPassowrdEnabled?password:context.state.pin }, setList)
+                                start({ ...curWallet, password: walletPassword }, setList)
                                 setShow(true)
                             }}
-                            disabled={!password && isWalletPassowrdEnabled }
+                            disabled={!password && isWalletPassowrdEnabled && !isLedger}
                             className='mt40 mb16'
                             block
                             color='primary'>
@@ -84,10 +91,7 @@ export const WalletCollection = () => {
                 </div>
             </div>
             {isShow ? (
-                <Mask
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    visible={isShow}
-                    opacity={0.5}>
+                <Mask style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} visible={isShow} opacity={0.5}>
                     <div
                         className='bgW'
                         style={{

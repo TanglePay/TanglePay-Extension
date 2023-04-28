@@ -22,6 +22,7 @@ export const WalletDetail = () => {
             Toast.hideLoading()
         }
     }, [loading])
+    const isLedger = curWallet.type == 'ledger'
     return (
         <div>
             {/* <AssetsNav /> */}
@@ -74,9 +75,7 @@ export const WalletDetail = () => {
                         {list.map((e, i) => {
                             return (
                                 <div key={i} style={{ height: 26 }} className='flex ac jsb mb8 fz16'>
-                                    <div className='flex1'>
-                                        {(e.address || '').replace(/(^.{8})(.+)(.{4}$)/, '$1...$3')}
-                                    </div>
+                                    <div className='flex1'>{(e.address || '').replace(/(^.{8})(.+)(.{4}$)/, '$1...$3')}</div>
                                     <div className='flex1 tr'>{e.outputIds.length}</div>
                                     <div className='flex1 tr'>{numeral(e.balanceMIOTA).format('0,0.0000')}</div>
                                 </div>
@@ -98,7 +97,8 @@ export const WalletDetail = () => {
                 {/* {totalInfo?.outputIds?.length >= 3 ? ( */}
                 <Button
                     onClick={() => {
-                        Base.push('/user/WalletCollection')
+                        const func = isLedger ? 'openInTab' : 'push'
+                        Base[func]('/user/WalletCollection')
                     }}
                     className='mb16'
                     block
