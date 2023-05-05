@@ -9,12 +9,13 @@ import Bridge from '@/common/bridge'
 import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 import { Unit } from '@iota/unit-converter'
 import { GasDialog } from '@/common/components/gasDialog'
-import { checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
 export const DappDialog = () => {
     const gasDialog = useRef()
     const [isShow, setShow] = useState(false)
     const [isRequestAssets] = useStore('common.isRequestAssets')
+    const [canShowDappDialog] = useStore('common.canShowDappDialog')
     useGetParticipationEvents()
     const [init, setInit] = useState(false)
     const [contentH, setContenth] = useState(600)
@@ -36,8 +37,9 @@ export const DappDialog = () => {
     useEffect(() => {
         checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
             setIsWalletPassowrdEnabled(res)
+            setPassword(context.state.pin)
         })
-    }, [curWallet.id])
+    }, [curWallet.id, canShowDappDialog])
     const show = () => {
         // requestAnimationFrame(() => {
         setShow(true)
@@ -65,7 +67,7 @@ export const DappDialog = () => {
     const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
-            if (!isLedger && !isWalletPassowrdEnabled) {
+            if (!isLedger) {
                 const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
                 if (!isPassword) {
                     return Toast.error(I18n.t('assets.passwordError'))
@@ -578,15 +580,17 @@ export const DappDialog = () => {
         }
     }, [dappData.type, isRequestAssets])
     useEffect(() => {
-        const params = Base.handlerParams(window.location.search)
-        const url = params.url
-        if (checkDeepLink(url)) {
-            setInit(false)
-            show()
-            setDeepLink(url)
+        if (canShowDappDialog) {
+            const params = Base.handlerParams(window.location.search)
+            const url = params.url
+            if (checkDeepLink(url)) {
+                setInit(false)
+                show()
+                setDeepLink(url)
+            }
+            setContenth(document.getElementById('app').offsetHeight)
         }
-        setContenth(document.getElementById('app').offsetHeight)
-    }, [])
+    }, [canShowDappDialog])
     return (
         <Mask className='dapp-dialog' color='white' visible={isShow}>
             <div className='flex c column w100' style={{ height: contentH }}>
@@ -634,7 +638,7 @@ export const DappDialog = () => {
                                 </div>
                             </Form.Item>
                         ) : null}
-                        {dappData.type !== 'iota_connect' && !isLedger && !isWalletPassowrdEnabled ? (
+                        {dappData.type !== 'iota_connect' && !isLedger && isWalletPassowrdEnabled ? (
                             <Form.Item className='pl0'>
                                 <Input type='password' onChange={setPassword} placeholder={I18n.t('assets.passwordTips')} />
                             </Form.Item>
