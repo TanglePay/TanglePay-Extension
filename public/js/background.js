@@ -13,10 +13,7 @@ var sendToInject = function (params) {
     window.postMessage(params, '*')
 }
 
-const flatten = (arr, depth = 1) =>
-    depth != 1
-        ? arr.reduce((a, v) => a.concat(Array.isArray(v) ? flatten(v, depth - 1) : v), [])
-        : arr.reduce((a, v) => a.concat(v), [])
+const flatten = (arr, depth = 1) => (depth != 1 ? arr.reduce((a, v) => a.concat(Array.isArray(v) ? flatten(v, depth - 1) : v), []) : arr.reduce((a, v) => a.concat(v), []))
 
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
@@ -26,7 +23,7 @@ const getLocalStorage = async (key) => {
         })
     })
 }
-const setLocalStorage =  (key, value) => {
+const setLocalStorage = (key, value) => {
     chrome.storage.local.set({
         [key]: value
     })
@@ -116,9 +113,7 @@ const getShimmerBalance = async (nodeUrl, address) => {
     const response = await fetch(`${nodeUrl}/api/indexer/v1/outputs/basic?address=${address}`).then((res) => res.json())
     let total = BigNumber(0)
     let nativeTokens = {}
-    const localOutputDatas = await Promise.all(
-        response.items.map((outputId) => fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json()))
-    )
+    const localOutputDatas = await Promise.all(response.items.map((outputId) => fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json())))
     for (const [index, outputId] of response.items.entries()) {
         const output = localOutputDatas[index]
         if (!output.metadata.isSpent) {
@@ -229,28 +224,20 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                     amount = res?.balance || 0
                     nativeTokens = res?.nativeTokens || []
                 } else {
-                    const res = await fetch(`${nodeInfo.explorerApiUrl}/search/${nodeInfo.network}/${address}`).then(
-                        (res) => res.json()
-                    )
+                    const res = await fetch(`${nodeInfo.explorerApiUrl}/search/${nodeInfo.network}/${address}`).then((res) => res.json())
                     amount = res?.address?.balance || 0
                 }
             }
             if (isGetStakingSmr || isGetStakingAsmb) {
-                const res = await fetch(`${nodeInfo.url}/api/plugins/participation/addresses/${address}`).then((res) =>
-                    res.json()
-                )
+                const res = await fetch(`${nodeInfo.url}/api/plugins/participation/addresses/${address}`).then((res) => res.json())
                 otherRes = res?.data?.rewards || {}
             }
             if (isGetSoonaverse) {
                 if (nodeInfo.type == 1) {
-                    let iotaMemberIds = await fetch(
-                        `https://soonaverse.com/api/getMany?collection=member&fieldName=validatedAddress.iota&fieldValue=${address}`
-                    ).then((res) => res.json())
+                    let iotaMemberIds = await fetch(`https://soonaverse.com/api/getMany?collection=member&fieldName=validatedAddress.iota&fieldValue=${address}`).then((res) => res.json())
                     let res = await Promise.all(
                         iotaMemberIds.map((e) => {
-                            return fetch(
-                                `https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${e.uid}`
-                            )
+                            return fetch(`https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${e.uid}`)
                                 .then((res) => res.json())
                                 .catch(() => [])
                         })
@@ -258,9 +245,7 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                     res = flatten(res)
                     collectibles = res
                 } else if (nodeInfo.type == 3) {
-                    let shimmerNftOutputIds = await fetch(
-                        `${nodeInfo.url}/api/indexer/v1/outputs/nft?address=${address}`
-                    ).then((res) => res.json())
+                    let shimmerNftOutputIds = await fetch(`${nodeInfo.url}/api/indexer/v1/outputs/nft?address=${address}`).then((res) => res.json())
                     shimmerNftOutputIds = shimmerNftOutputIds.items
 
                     const nftInfos = await Promise.all(
@@ -300,13 +285,9 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                     amount = await web3.eth.getBalance(address)
                 }
                 if (isGetSoonaverse) {
-                    let ethMemberIds = await fetch(
-                        `https://soonaverse.com/api/getById?collection=member&uid=${address}`
-                    ).then((res) => res.json())
+                    let ethMemberIds = await fetch(`https://soonaverse.com/api/getById?collection=member&uid=${address}`).then((res) => res.json())
                     if (ethMemberIds && ethMemberIds.uid) {
-                        let list = await fetch(
-                            `https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${ethMemberIds.uid}`
-                        )
+                        let list = await fetch(`https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${ethMemberIds.uid}`)
                             .then((res) => res.json())
                             .catch(() => [])
                         collectibles = list
@@ -362,8 +343,10 @@ chrome.windows.onRemoved.addListener((id) => {
 // create a dialog
 var createDialog = function (params) {
     function create() {
-        chrome.windows.create(params, (w) => {
-            window.tanglepayDialog = w.id
+        chrome.windows.getCurrent().then((res) => {
+            chrome.windows.create({ ...params, left: res.left + params.left, top: res.top + params.top }, (w) => {
+                window.tanglepayDialog = w.id
+            })
         })
     }
     if (window.tanglepayDialog) {
@@ -410,17 +393,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     const cmd = (request?.cmd || '').replace('contentToBackground##', '')
-    if (['bgDataSet','bgDataGet'].includes(cmd)) {
+    if (['bgDataSet', 'bgDataGet'].includes(cmd)) {
         switch (cmd) {
             case 'bgDataSet':
                 {
-                    const { key, value } = request.sendData;
+                    const { key, value } = request.sendData
                     setLocalStorage(key, value)
                 }
-            break
+                break
             case 'bgDataGet':
                 {
-                    const { key } = request.sendData;
+                    const { key } = request.sendData
                     getLocalStorage(key).then((res) => {
                         if (res) {
                             sendResponse({
@@ -433,7 +416,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         }
                     })
                 }
-            break
+                break
         }
     } else {
         const origin = request?.origin
@@ -472,7 +455,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     })
                 }
                 break
-                
+
             case 'iota_request': {
                 const { method, params: requestParams } = request.greeting
                 curMethod = method
@@ -483,426 +466,372 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 getBackgroundData('cur_wallet_address').then((cacheAddress) => {
                     const cacheKey = `${origin}_${method}_${cacheAddress}`
                     const connectCacheKey = `${origin}_iota_connect_${cacheAddress}`
-                    Promise.all([getBackgroundData(cacheKey), getBackgroundData(connectCacheKey)]).then(
-                        ([cacheRes, connectCacheRes]) => {
-                            let isConnect = false
-                            if (
-                                connectCacheRes &&
-                                connectCacheRes?.expires &&
-                                connectCacheRes?.expires > new Date().getTime()
-                            ) {
-                                isConnect = true
-                                if (cacheRes) {
-                                    delete cacheRes.expires
-                                    sendToContentScript({
-                                        cmd: 'iota_request',
-                                        id: reqId,
-                                        code: 200,
-                                        data: {
-                                            method,
-                                            response: cacheRes
-                                        }
-                                    })
-                                    if (method === 'iota_connect') {
-                                        setBackgroundData(connectCacheKey, {
-                                            ...connectCacheRes,
-                                            expires: expires + new Date().getTime()
-                                        })
-                                    }
-                                    if (window.tanglepayDialog) {
-                                        chrome.windows.remove(window.tanglepayDialog)
-                                    }
-                                    return true
-                                }
-                            }
-                            if (!isConnect && method !== 'iota_connect') {
+                    Promise.all([getBackgroundData(cacheKey), getBackgroundData(connectCacheKey)]).then(([cacheRes, connectCacheRes]) => {
+                        let isConnect = false
+                        if (connectCacheRes && connectCacheRes?.expires && connectCacheRes?.expires > new Date().getTime()) {
+                            isConnect = true
+                            if (cacheRes) {
+                                delete cacheRes.expires
                                 sendToContentScript({
                                     cmd: 'iota_request',
                                     id: reqId,
-                                    code: -1,
+                                    code: 200,
                                     data: {
                                         method,
-                                        response: {
-                                            msg: 'not authorized',
-                                            status: 2
-                                        }
+                                        response: cacheRes
                                     }
                                 })
+                                if (method === 'iota_connect') {
+                                    setBackgroundData(connectCacheKey, {
+                                        ...connectCacheRes,
+                                        expires: expires + new Date().getTime()
+                                    })
+                                }
+                                if (window.tanglepayDialog) {
+                                    chrome.windows.remove(window.tanglepayDialog)
+                                }
                                 return true
                             }
-                            switch (method) {
-                                case 'iota_merge_nft':
-                                    {
-                                        // const { network = '' } = requestParams
-                                        // const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
-                                        // params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-                                        params.url =
-                                            chrome.runtime.getURL('index.html') +
-                                            `#/assets/nftMerge?params=${JSON.stringify(requestParams)}`
+                        }
+                        if (!isConnect && method !== 'iota_connect') {
+                            sendToContentScript({
+                                cmd: 'iota_request',
+                                id: reqId,
+                                code: -1,
+                                data: {
+                                    method,
+                                    response: {
+                                        msg: 'not authorized',
+                                        status: 2
                                     }
-                                    break
-                                case 'iota_getPublicKey':
-                                    {
-                                        getAddressInfo(requestParams?.address).then((addressInfo) => {
-                                            sendToContentScript({
-                                                cmd: 'iota_request',
-                                                id: reqId,
-                                                code: addressInfo ? 200 : -1,
-                                                data: {
-                                                    method,
-                                                    response: addressInfo ? addressInfo?.publicKey : ''
-                                                }
-                                            })
-                                        })
-                                    }
-                                    break
-                                case 'get_login_token':
-                                    {
-                                        getLoginToken().then((res) => {
-                                            sendToContentScript({
-                                                cmd: 'iota_request',
-                                                id: reqId,
-                                                code: res ? 200 : -1,
-                                                data: {
-                                                    method,
-                                                    response: res || ''
-                                                }
-                                            })
-                                        })
-                                    }
-                                    break
-                                case 'iota_accounts':
-                                    const sendAccountsRes = (list) => {
+                                }
+                            })
+                            return true
+                        }
+                        switch (method) {
+                            case 'iota_merge_nft':
+                                {
+                                    // const { network = '' } = requestParams
+                                    // const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
+                                    // params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                    params.url = chrome.runtime.getURL('index.html') + `#/assets/nftMerge?params=${JSON.stringify(requestParams)}`
+                                }
+                                break
+                            case 'iota_getPublicKey':
+                                {
+                                    getAddressInfo(requestParams?.address).then((addressInfo) => {
                                         sendToContentScript({
                                             cmd: 'iota_request',
                                             id: reqId,
-                                            code: list.length > 0 ? 200 : -1,
+                                            code: addressInfo ? 200 : -1,
                                             data: {
                                                 method,
-                                                response: list
+                                                response: addressInfo ? addressInfo?.publicKey : ''
+                                            }
+                                        })
+                                    })
+                                }
+                                break
+                            case 'get_login_token':
+                                {
+                                    getLoginToken().then((res) => {
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            id: reqId,
+                                            code: res ? 200 : -1,
+                                            data: {
+                                                method,
+                                                response: res || ''
+                                            }
+                                        })
+                                    })
+                                }
+                                break
+                            case 'iota_accounts':
+                                const sendAccountsRes = (list) => {
+                                    sendToContentScript({
+                                        cmd: 'iota_request',
+                                        id: reqId,
+                                        code: list.length > 0 ? 200 : -1,
+                                        data: {
+                                            method,
+                                            response: list
+                                        }
+                                    })
+                                }
+                                getAddressInfo(requestParams?.address).then((addressInfo) => {
+                                    if (!addressInfo) {
+                                        sendAccountsRes([])
+                                    } else {
+                                        getValidAddresses(addressInfo.addres).then((list) => {
+                                            sendAccountsRes(list)
+                                        })
+                                    }
+                                })
+                                break
+                            case 'iota_sendTransaction':
+                            case 'eth_sendTransaction':
+                                {
+                                    const setWindowData = () => {
+                                        const { to, value, unit = '', network = '', merchant = '', item_desc = '', data = '', assetId = '', nftId = '', tag = '', gas = '' } = requestParams
+                                        const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}&gas=${gas}`
+                                        params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                    }
+
+                                    const checkSignData = (data) => {
+                                        let isCall = false
+                                        ;['0xdd62ed3e', '0x70a08231', '0x313ce567', '0xa0712d68', '0x07546172', '0x06fdde03', '0x95d89b41', '0x18160ddd'].forEach((e) => {
+                                            if (RegExp(`^${e}`).test(data)) {
+                                                isCall = true
+                                            }
+                                        })
+                                        return isCall
+                                    }
+                                    if (method === 'eth_sendTransaction' && requestParams.data && checkSignData(requestParams.data)) {
+                                        const tokenAbi = [...TanglePay_TokenERC20]
+                                        ensureWeb3Client().then(async () => {
+                                            const web3 = web3_
+                                            const web3Contract = new web3.eth.Contract(tokenAbi, requestParams.to)
+                                            const bytes = web3.utils.hexToBytes(requestParams.data)
+                                            let functionSign = bytes.slice(0, 4)
+                                            functionSign = web3.utils.bytesToHex(functionSign)
+                                            console.log(functionSign, web3)
+                                            window.web3 = web3
+                                            const abi = web3.eth.abi
+                                            let item = tokenAbi.find((e) => e.signature === functionSign)
+                                            if (item && item.name) {
+                                                const paramsHex = web3.utils.bytesToHex(bytes.slice(4))
+                                                const abiParams = abi.decodeParameters(item.inputs, paramsHex)
+                                                let abiParamsList = []
+                                                for (const i in abiParams) {
+                                                    if (Object.hasOwnProperty.call(abiParams, i) && /^\d$/.test(i)) {
+                                                        abiParamsList.push(abiParams[i])
+                                                    }
+                                                }
+                                                const contractRes = await web3Contract.methods[item.name](...abiParamsList).call()
+                                                console.log(contractRes, '----------------')
+                                                sendToContentScript({
+                                                    cmd: 'iota_request',
+                                                    id: reqId,
+                                                    code: contractRes ? 200 : -1,
+                                                    data: {
+                                                        method,
+                                                        response: contractRes
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    } else {
+                                        setWindowData()
+                                    }
+                                }
+                                break
+                            case 'iota_changeAccount':
+                                {
+                                    const { network = '' } = requestParams
+                                    const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
+                                    params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                }
+                                break
+                            case 'iota_sign':
+                            case 'iota_connect':
+                                {
+                                    const url = `tanglepay://${method}?origin=${origin}&content=${content}&expires=${expires}`
+                                    params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                }
+                                break
+                            case 'iota_getBalance':
+                            case 'eth_getBalance':
+                                const { addressList, assetsList } = requestParams
+                                const sendBalanceRes = ({ amount, others, collectibles, nativeTokens }) => {
+                                    if (amount < 0) {
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            id: reqId,
+                                            code: -1,
+                                            data: {
+                                                method,
+                                                response: {
+                                                    msg: 'address is error',
+                                                    status: 100
+                                                }
+                                            }
+                                        })
+                                    } else {
+                                        const assetsData = {
+                                            amount,
+                                            collectibles: [],
+                                            others: others || [],
+                                            collectibles: collectibles || [],
+                                            nativeTokens: nativeTokens || []
+                                        }
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            id: reqId,
+                                            code: 200,
+                                            data: {
+                                                method,
+                                                response: assetsData
                                             }
                                         })
                                     }
-                                    getAddressInfo(requestParams?.address).then((addressInfo) => {
-                                        if (!addressInfo) {
-                                            sendAccountsRes([])
+                                }
+                                const getAddressListBalance = (addressList) => {
+                                    getBalanceNodeMatch(method, addressList).then((nodeInfo) => {
+                                        if (!nodeInfo || addressList.length === 0) {
+                                            sendBalanceRes({
+                                                amount: -1
+                                            })
                                         } else {
-                                            getValidAddresses(addressInfo.addres).then((list) => {
-                                                sendAccountsRes(list)
-                                            })
-                                        }
-                                    })
-                                    break
-                                case 'iota_sendTransaction':
-                                case 'eth_sendTransaction':
-                                    {
-                                        const setWindowData = () => {
-                                            const {
-                                                to,
-                                                value,
-                                                unit = '',
-                                                network = '',
-                                                merchant = '',
-                                                item_desc = '',
-                                                data = '',
-                                                assetId = '',
-                                                nftId = '',
-                                                tag = '',
-                                                gas = ''
-                                            } = requestParams
-                                            const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}&gas=${gas}`
-                                            params.url =
-                                                chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-                                        }
-
-                                        const checkSignData = (data) => {
-                                            let isCall = false
-                                            ;[
-                                                '0xdd62ed3e',
-                                                '0x70a08231',
-                                                '0x313ce567',
-                                                '0xa0712d68',
-                                                '0x07546172',
-                                                '0x06fdde03',
-                                                '0x95d89b41',
-                                                '0x18160ddd'
-                                            ].forEach((e) => {
-                                                if (RegExp(`^${e}`).test(data)) {
-                                                    isCall = true
-                                                }
-                                            })
-                                            return isCall
-                                        }
-                                        if (
-                                            method === 'eth_sendTransaction' &&
-                                            requestParams.data &&
-                                            checkSignData(requestParams.data)
-                                        ) {
-                                            const tokenAbi = [...TanglePay_TokenERC20]
-                                            ensureWeb3Client().then(async () => {
-                                                const web3 = web3_
-                                                const web3Contract = new web3.eth.Contract(tokenAbi, requestParams.to)
-                                                const bytes = web3.utils.hexToBytes(requestParams.data)
-                                                let functionSign = bytes.slice(0, 4)
-                                                functionSign = web3.utils.bytesToHex(functionSign)
-                                                console.log(functionSign, web3)
-                                                window.web3 = web3
-                                                const abi = web3.eth.abi
-                                                let item = tokenAbi.find((e) => e.signature === functionSign)
-                                                if (item && item.name) {
-                                                    const paramsHex = web3.utils.bytesToHex(bytes.slice(4))
-                                                    const abiParams = abi.decodeParameters(item.inputs, paramsHex)
-                                                    let abiParamsList = []
-                                                    for (const i in abiParams) {
-                                                        if (Object.hasOwnProperty.call(abiParams, i) && /^\d$/.test(i)) {
-                                                            abiParamsList.push(abiParams[i])
+                                            Promise.all(addressList.map((e) => getBalanceInfo(e, nodeInfo, assetsList))).then((res) => {
+                                                let balance = new BigNumber(0)
+                                                let others = {}
+                                                let collectibles = []
+                                                let nativeTokens = {}
+                                                res.forEach((e) => {
+                                                    const { amount, otherRes } = e
+                                                    balance = balance.plus(amount || 0)
+                                                    collectibles = [...collectibles, ...e.collectibles]
+                                                    for (const tokenId in e.nativeTokens) {
+                                                        const amount = e.nativeTokens[tokenId]
+                                                        if (nativeTokens[tokenId]) {
+                                                            nativeTokens[tokenId] = nativeTokens[tokenId].plus(amount)
+                                                        } else {
+                                                            nativeTokens[tokenId] = amount
                                                         }
                                                     }
-                                                    const contractRes = await web3Contract.methods[item.name](
-                                                        ...abiParamsList
-                                                    ).call()
-                                                    console.log(contractRes, '----------------')
-                                                    sendToContentScript({
-                                                        cmd: 'iota_request',
-                                                        id: reqId,
-                                                        code: contractRes ? 200 : -1,
-                                                        data: {
-                                                            method,
-                                                            response: contractRes
+                                                    for (const i in otherRes) {
+                                                        const { amount, minimumReached, symbol } = otherRes[i]
+                                                        others[symbol] = others[symbol] || {
+                                                            amount: new BigNumber(0),
+                                                            symbol,
+                                                            icon: `https://api.iotaichi.com/icon/${symbol.replace(/^micro/, '')}.png`
                                                         }
-                                                    })
-                                                }
-                                            })
-                                        } else {
-                                            setWindowData()
-                                        }
-                                    }
-                                    break
-                                case 'iota_changeAccount':
-                                    {
-                                        const { network = '' } = requestParams
-                                        const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
-                                        params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-                                    }
-                                    break
-                                case 'iota_sign':
-                                case 'iota_connect':
-                                    {
-                                        const url = `tanglepay://${method}?origin=${origin}&content=${content}&expires=${expires}`
-                                        params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-                                    }
-                                    break
-                                case 'iota_getBalance':
-                                case 'eth_getBalance':
-                                    const { addressList, assetsList } = requestParams
-                                    const sendBalanceRes = ({ amount, others, collectibles, nativeTokens }) => {
-                                        if (amount < 0) {
-                                            sendToContentScript({
-                                                cmd: 'iota_request',
-                                                id: reqId,
-                                                code: -1,
-                                                data: {
-                                                    method,
-                                                    response: {
-                                                        msg: 'address is error',
-                                                        status: 100
+                                                        if (minimumReached) {
+                                                            others[symbol].amount = others[symbol].amount.plus(amount)
+                                                        }
                                                     }
-                                                }
-                                            })
-                                        } else {
-                                            const assetsData = {
-                                                amount,
-                                                collectibles: [],
-                                                others: others || [],
-                                                collectibles: collectibles || [],
-                                                nativeTokens: nativeTokens || []
-                                            }
-                                            sendToContentScript({
-                                                cmd: 'iota_request',
-                                                id: reqId,
-                                                code: 200,
-                                                data: {
-                                                    method,
-                                                    response: assetsData
-                                                }
-                                            })
-                                        }
-                                    }
-                                    const getAddressListBalance = (addressList) => {
-                                        getBalanceNodeMatch(method, addressList).then((nodeInfo) => {
-                                            if (!nodeInfo || addressList.length === 0) {
-                                                sendBalanceRes({
-                                                    amount: -1
                                                 })
-                                            } else {
-                                                Promise.all(
-                                                    addressList.map((e) => getBalanceInfo(e, nodeInfo, assetsList))
-                                                ).then((res) => {
-                                                    let balance = new BigNumber(0)
-                                                    let others = {}
-                                                    let collectibles = []
-                                                    let nativeTokens = {}
-                                                    res.forEach((e) => {
-                                                        const { amount, otherRes } = e
-                                                        balance = balance.plus(amount || 0)
-                                                        collectibles = [...collectibles, ...e.collectibles]
-                                                        for (const tokenId in e.nativeTokens) {
-                                                            const amount = e.nativeTokens[tokenId]
-                                                            if (nativeTokens[tokenId]) {
-                                                                nativeTokens[tokenId] = nativeTokens[tokenId].plus(amount)
-                                                            } else {
-                                                                nativeTokens[tokenId] = amount
-                                                            }
-                                                        }
-                                                        for (const i in otherRes) {
-                                                            const { amount, minimumReached, symbol } = otherRes[i]
-                                                            others[symbol] = others[symbol] || {
-                                                                amount: new BigNumber(0),
-                                                                symbol,
-                                                                icon: `https://api.iotaichi.com/icon/${symbol.replace(
-                                                                    /^micro/,
-                                                                    ''
-                                                                )}.png`
-                                                            }
-                                                            if (minimumReached) {
-                                                                others[symbol].amount = others[symbol].amount.plus(amount)
-                                                            }
-                                                        }
+                                                for (const i in others) {
+                                                    others[i].amount = Number(others[i].amount)
+                                                }
+                                                let nativeTokensList = []
+                                                for (const tokenId in nativeTokens) {
+                                                    const amount = nativeTokens[tokenId]
+                                                    nativeTokensList.push({
+                                                        id: tokenId,
+                                                        amount: Number(amount)
                                                     })
-                                                    for (const i in others) {
-                                                        others[i].amount = Number(others[i].amount)
-                                                    }
-                                                    let nativeTokensList = []
-                                                    for (const tokenId in nativeTokens) {
-                                                        const amount = nativeTokens[tokenId]
-                                                        nativeTokensList.push({
-                                                            id: tokenId,
-                                                            amount: Number(amount)
+                                                }
+                                                if (nativeTokensList.length > 0) {
+                                                    Promise.all(
+                                                        nativeTokensList.map((e) => {
+                                                            return getFoundry(nodeInfo.url, e.id)
                                                         })
-                                                    }
-                                                    if (nativeTokensList.length > 0) {
-                                                        Promise.all(
-                                                            nativeTokensList.map((e) => {
-                                                                return getFoundry(nodeInfo.url, e.id)
-                                                            })
-                                                        ).then((tokensRes) => {
-                                                            nativeTokensList.forEach((e, i) => {
-                                                                let info = tokensRes[i]?.output?.immutableFeatures.find(
-                                                                    (e) => !!e.data
-                                                                )
-                                                                if (info) {
-                                                                    e.info = Converter.hexToUtf8(
-                                                                        info.data.replace(/^0x/, '')
-                                                                    )
-                                                                    e.info = JSON.parse(e.info)
-                                                                }
-                                                            })
-                                                            sendBalanceRes({
-                                                                amount: Number(balance),
-                                                                others: Object.values(others),
-                                                                collectibles,
-                                                                nativeTokens: nativeTokensList
-                                                            })
+                                                    ).then((tokensRes) => {
+                                                        nativeTokensList.forEach((e, i) => {
+                                                            let info = tokensRes[i]?.output?.immutableFeatures.find((e) => !!e.data)
+                                                            if (info) {
+                                                                e.info = Converter.hexToUtf8(info.data.replace(/^0x/, ''))
+                                                                e.info = JSON.parse(e.info)
+                                                            }
                                                         })
-                                                    } else {
                                                         sendBalanceRes({
                                                             amount: Number(balance),
                                                             others: Object.values(others),
                                                             collectibles,
                                                             nativeTokens: nativeTokensList
                                                         })
-                                                    }
-                                                })
-                                            }
-                                        })
-                                    }
-                                    if (addressList.length === 0) {
-                                        getValidAddresses().then((list) => {
-                                            getAddressListBalance(list)
-                                        })
-                                    } else {
-                                        getAddressListBalance(addressList)
-                                    }
-                                    break
-                                case 'eth_getBlockByNumber':
-                                    {
-                                        ensureWeb3Client().then(() => {
-                                            handleRequest(
-                                                TanglePaySdkCommon.ethGetBlockByNumber,
-                                                requestParams,
-                                                method,
-                                                reqId
-                                            )
-                                        })
-                                    }
-                                    break
-                                case 'eth_gasPrice':
-                                    {
-                                        ensureWeb3Client().then(() => {
-                                            handleRequest(TanglePaySdkCommon.ethGasPrice, requestParams, method, reqId)
-                                        })
-                                    }
-                                    break
-                                default:
-                                    params.url =
-                                        chrome.runtime.getURL('index.html') +
-                                        `?cmd=iota_request&origin=${encodeURIComponent(
-                                            origin
-                                        )}&method=${method}&params=${encodeURIComponent(
-                                            JSON.stringify(request.greeting.params)
-                                        )}`
-                                    break
-                            }
-                            if (!params.url) {
-                                return true
-                            }
-                            if (window.tanglepayDialog) {
-                                // chrome.windows.getAll(null,res=>{
-                                //     const curView = res.find(e=>e.id === window.tanglepayDialog);
-                                //     if(curView){
-                                //         curView.Bridge.connect(params.url)
-                                //     }
-                                chrome.windows.update(window.tanglepayDialog, {
-                                    focused: true,
-                                    url: params.url
-                                })
-                                // })
-                            } else {
-                                // const popupList = chrome.extension.getViews({ type: 'popup' })
-                                // if (popupList?.length > 0 && popupList[0].Bridge) {
-                                //     if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
-                                //         popupList[0].location.href = params.url
-                                //     } else {
-                                //         popupList[0].Bridge.connect(params.url)
-                                //     }
-                                // } else {
-                                createDialog(params)
-                                // }
-                            }
-                            // if (window.tanglepayDialog) {
-                            //     chrome.windows.getAll(null,res=>{
-                            //         const curView = res.find(e=>e.id === window.tanglepayDialog);
-                            //         if(curView){
-                            //             curView.Bridge.connect(params.url)
-                            //         }
-                            //         chrome.windows.update(window.tanglepayDialog, {
-                            //             focused: true
-                            //         })
-                            //     })
-                            // } else {
-                            //     const popupList = chrome.extension.getViews({ type: 'popup' })
-                            //     if (popupList?.length > 0 && popupList[0].Bridge) {
-                            //         if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
-                            //             popupList[0].location.href = params.url
-                            //         } else {
-                            //             popupList[0].Bridge.connect(params.url)
-                            //         }
-                            //     } else {
-                            //         createDialog(params)
+                                                    })
+                                                } else {
+                                                    sendBalanceRes({
+                                                        amount: Number(balance),
+                                                        others: Object.values(others),
+                                                        collectibles,
+                                                        nativeTokens: nativeTokensList
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                                if (addressList.length === 0) {
+                                    getValidAddresses().then((list) => {
+                                        getAddressListBalance(list)
+                                    })
+                                } else {
+                                    getAddressListBalance(addressList)
+                                }
+                                break
+                            case 'eth_getBlockByNumber':
+                                {
+                                    ensureWeb3Client().then(() => {
+                                        handleRequest(TanglePaySdkCommon.ethGetBlockByNumber, requestParams, method, reqId)
+                                    })
+                                }
+                                break
+                            case 'eth_gasPrice':
+                                {
+                                    ensureWeb3Client().then(() => {
+                                        handleRequest(TanglePaySdkCommon.ethGasPrice, requestParams, method, reqId)
+                                    })
+                                }
+                                break
+                            default:
+                                params.url =
+                                    chrome.runtime.getURL('index.html') +
+                                    `?cmd=iota_request&origin=${encodeURIComponent(origin)}&method=${method}&params=${encodeURIComponent(JSON.stringify(request.greeting.params))}`
+                                break
+                        }
+                        if (!params.url) {
+                            return true
+                        }
+                        if (window.tanglepayDialog) {
+                            // chrome.windows.getAll(null,res=>{
+                            //     const curView = res.find(e=>e.id === window.tanglepayDialog);
+                            //     if(curView){
+                            //         curView.Bridge.connect(params.url)
                             //     }
+                            chrome.windows.update(window.tanglepayDialog, {
+                                focused: true,
+                                url: params.url
+                            })
+                            // })
+                        } else {
+                            // const popupList = chrome.extension.getViews({ type: 'popup' })
+                            // if (popupList?.length > 0 && popupList[0].Bridge) {
+                            //     if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
+                            //         popupList[0].location.href = params.url
+                            //     } else {
+                            //         popupList[0].Bridge.connect(params.url)
+                            //     }
+                            // } else {
+                            createDialog(params)
                             // }
                         }
-                    )
+                        // if (window.tanglepayDialog) {
+                        //     chrome.windows.getAll(null,res=>{
+                        //         const curView = res.find(e=>e.id === window.tanglepayDialog);
+                        //         if(curView){
+                        //             curView.Bridge.connect(params.url)
+                        //         }
+                        //         chrome.windows.update(window.tanglepayDialog, {
+                        //             focused: true
+                        //         })
+                        //     })
+                        // } else {
+                        //     const popupList = chrome.extension.getViews({ type: 'popup' })
+                        //     if (popupList?.length > 0 && popupList[0].Bridge) {
+                        //         if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
+                        //             popupList[0].location.href = params.url
+                        //         } else {
+                        //             popupList[0].Bridge.connect(params.url)
+                        //         }
+                        //     } else {
+                        //         createDialog(params)
+                        //     }
+                        // }
+                    })
                 })
                 return true
             }
