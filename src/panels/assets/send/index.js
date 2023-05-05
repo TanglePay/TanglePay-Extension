@@ -24,7 +24,7 @@ export const AssetsSend = () => {
     // const sendFailDialog = useRef()
     // const timeHandler = useRef()
     // const [statedAmount] = useStore('staking.statedAmount')
-    
+
     useGetParticipationEvents()
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
@@ -71,10 +71,7 @@ export const AssetsSend = () => {
             sendAmount = IotaSDK.getNumberStr(sendAmount || 0)
             const eth = IotaSDK.client.eth
             console.log(sendAmount)
-            Promise.all([
-                eth.getGasPrice(),
-                IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount)
-            ]).then(([gasPrice, gas]) => {
+            Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount)]).then(([gasPrice, gas]) => {
                 if (assets?.contract) {
                     if (IotaSDK.curNode?.contractGasPriceRate) {
                         gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate))
@@ -280,14 +277,10 @@ export const AssetsSend = () => {
                                         <div className='flex row ac jsb pv10 mt5'>
                                             <div className='fz18'>{I18n.t('assets.estimateGasFee')}</div>
                                             <div className='flex row ac'>
-                                                <div
-                                                    className='cS fz16 fw400 tr mr4 ellipsis'
-                                                    style={{ maxWidth: 136 }}>
+                                                <div className='cS fz16 fw400 tr mr4 ellipsis' style={{ maxWidth: 136 }}>
                                                     {gasInfo.totalEth}
                                                 </div>
-                                                {gasInfo.totalEth ? (
-                                                    <div className='cS fz16 fw400 tr mr8'>{IotaSDK.curNode?.token}</div>
-                                                ) : null}
+                                                {gasInfo.totalEth ? <div className='cS fz16 fw400 tr mr8'>{IotaSDK.curNode?.token}</div> : null}
                                                 <div
                                                     className='press cP fz16 fw400'
                                                     onClick={() => {
@@ -307,13 +300,7 @@ export const AssetsSend = () => {
                                 {!isLedger && isWalletPassowrdEnabled ? (
                                     <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
                                         <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
-                                        <Input
-                                            type='password'
-                                            className='pl0 pv4'
-                                            placeholder={I18n.t('assets.passwordTips')}
-                                            onChange={handleChange('password')}
-                                            value={values.password}
-                                        />
+                                        <Input type='password' className='pl0 pv4' placeholder={I18n.t('assets.passwordTips')} onChange={handleChange('password')} value={values.password} />
                                     </Form.Item>
                                 ) : null}
                                 <div className='pb30' style={{ marginTop: 48 }}>

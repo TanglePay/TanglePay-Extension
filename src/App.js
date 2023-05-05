@@ -35,6 +35,10 @@ const getFirstScreen = async (store) => {
     if (context.state.isPinSet && !getIsUnlocked()) {
         return '/unlock'
     } else {
+        Base.globalDispatch({
+            type: 'common.canShowDappDialog',
+            data: true
+        })
         return store.common.walletsList.length > 0 ? '/main' : '/account/changeNode'
     }
 }
@@ -44,9 +48,9 @@ const ensureExistingUserWalletStatus = async () => {
     const list = await IotaSDK.getWalletList()
     const tasks = []
     for (const wallet of list) {
-        const { id, type } = wallet;
+        const { id, type } = wallet
         if (type === 'ledger') {
-            continue;
+            continue
         }
         tasks.push(markWalletPasswordEnabled(id))
     }
@@ -57,7 +61,7 @@ const ensureExistingUserWalletStatus = async () => {
 }
 
 const App = () => {
-    const [firstScreen,setFirstScreen] = useState('/')
+    const [firstScreen, setFirstScreen] = useState('/')
     const [store, dispatch] = useStoreReducer()
     const changeNode = useChangeNode()
     const [sceneList, setSceneList] = useState([])
@@ -69,7 +73,7 @@ const App = () => {
             switch (e) {
                 case 'common.walletsList':
                     IotaSDK.getWalletList().then((list) => {
-                        if (list.length == 0) pinInit(0).catch(e=>console.log(e));
+                        if (list.length == 0) pinInit(0).catch((e) => console.log(e))
                         dispatch({ type: e, data: list })
                     })
                     break
@@ -91,7 +95,7 @@ const App = () => {
     const init = async () => {
         Trace.login()
         Toast.showLoading()
-        
+
         // await IotaSDK.getNodes()
         IotaSDK.getNodes(async () => {
             await getLocalInfo()
