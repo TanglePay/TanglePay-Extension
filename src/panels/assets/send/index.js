@@ -13,12 +13,15 @@ import { GasDialog } from '@/common/components/gasDialog'
 import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 // import { SendFailDialog } from '@/common/components/sendFailDialog'
 
-const schema = {
-    // currency: Yup.string().required(),
+const schema = Yup.object().shape({
     receiver: Yup.string().required(),
     amount: Yup.number().positive().required(),
     password: Yup.string().required()
-}
+})
+const schemaNopassword = Yup.object().shape({
+    receiver: Yup.string().required(),
+    amount: Yup.number().positive().required(),
+})
 export const AssetsSend = () => {
     const gasDialog = useRef()
     // const sendFailDialog = useRef()
@@ -60,6 +63,7 @@ export const AssetsSend = () => {
     const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(false)
     useEffect(() => {
         checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
+            console.log('isWalletPassowrdEnabled', res)
             setIsWalletPassowrdEnabled(res)
         })
     }, [])
@@ -107,11 +111,7 @@ export const AssetsSend = () => {
     }, [curWallet.nodeId, assets?.contract, inputAmount, assets.decimal])
     useGetAssetsList(curWallet)
     const isLedger = curWallet.type == 'ledger'
-    if (isLedger && !isWalletPassowrdEnabled) {
-        schema.password = Yup.string().optional()
-    } else {
-        schema.password = Yup.string().required()
-    }
+
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
@@ -122,7 +122,7 @@ export const AssetsSend = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={Yup.object().shape(schema)}
+                    validationSchema={(isLedger || !isWalletPassowrdEnabled) ? schemaNopassword : schema}
                     onSubmit={async (values) => {
                         let { password, amount, receiver } = values
                         if (!isWalletPassowrdEnabled) {

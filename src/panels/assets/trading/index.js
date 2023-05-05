@@ -14,9 +14,10 @@ import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 // const schema = Yup.object().shape({
 //     password: Yup.string().required()
 // })
-const schema = {
+const schema = Yup.object().shape({
     password: Yup.string().required()
-}
+})
+const schemaNopassword = Yup.object().shape({})
 export const AssetsTrading = () => {
     const form = useRef()
     const [curWallet] = useGetNodeWallet()
@@ -39,11 +40,6 @@ export const AssetsTrading = () => {
         curInfo = nftUnlockList.find((e) => e.nftId == id) || {}
     }
     const isLedger = params.isLedger == 1
-    if (isLedger || !isWalletPasswordEnabled) {
-        schema.password = Yup.string().optional()
-    } else {
-        schema.password = Yup.string().required()
-    }
     useEffect(() => {
         curInfo ? Toast.hideLoading() : Toast.showLoading()
     }, curInfo)
@@ -122,7 +118,7 @@ export const AssetsTrading = () => {
                         validateOnBlur={false}
                         validateOnChange={false}
                         validateOnMount={false}
-                        validationSchema={Yup.object().shape(schema)}
+                        validationSchema={isLedger || !isWalletPasswordEnabled ? schemaNopassword : schema}
                         onSubmit={async (values) => {
                             let { password } = values
                             if (!isWalletPasswordEnabled) {
