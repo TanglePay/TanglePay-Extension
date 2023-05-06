@@ -118,7 +118,7 @@ export const AssetsTrading = () => {
                         validateOnBlur={false}
                         validateOnChange={false}
                         validateOnMount={false}
-                        validationSchema={isLedger || !isWalletPasswordEnabled ? schemaNopassword : schema}
+                        validationSchema={(isLedger || !isWalletPasswordEnabled) ? schemaNopassword : schema}
                         onSubmit={async (values) => {
                             let { password } = values
                             if (!isWalletPasswordEnabled) {
@@ -191,7 +191,7 @@ export const AssetsTrading = () => {
                                     </Form>
                                 ) : null}
                                 <div className='flex row ac jsb' style={{ marginTop: 50 }}>
-                                    <Button onClick={handleSubmit} disabled={!values.password && !isLedger} color='primary' block>
+                                    <Button onClick={handleSubmit} disabled={!values.password && isWalletPasswordEnabled && !isLedger} color='primary' block>
                                         {I18n.t('shimmer.accept')}
                                     </Button>
                                 </div>

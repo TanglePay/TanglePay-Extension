@@ -26,13 +26,22 @@ const AnimatedSwitch = (props) => {
         />
     )
 }
+const sleepTmp = async (timeout = 3000) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve()
+        }, timeout)
+    })
+}
 const getFirstScreen = async (store) => {
     await ensureInited()
     const isNewUser = await isNewWalletFlow()
     if (!isNewUser) {
         await ensureExistingUserWalletStatus()
     }
+    console.log('getFirstScreen', context.state, getIsUnlocked())
     if (context.state.isPinSet && !getIsUnlocked()) {
+        Base.push('/unlock')
         return '/unlock'
     } else {
         Base.globalDispatch({
@@ -102,7 +111,9 @@ const App = () => {
             await initChangeNode()
             Toast.hideLoading()
             setSceneList(panelsList)
-            setFirstScreen(await getFirstScreen(store))
+            const firstScreen = await getFirstScreen(store)
+            console.log('firstScreen', firstScreen)
+            setFirstScreen(firstScreen)
         })
     }
     useEffect(() => {

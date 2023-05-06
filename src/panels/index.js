@@ -42,6 +42,7 @@ import { ImportToken } from './assets/importToken/index'
 import { AssetsNftMerge } from './assets/nftMerge'
 import { AccountHardwareInto } from './account/hardware/into'
 import { AccountHardwareImport } from './account/hardware/import'
+import { AccountIntoPin } from './account/into/pin'
 export const panelsList = [
     { 
         path: 'account/pin/set', 
@@ -194,6 +195,10 @@ export const panelsList = [
     {
         path: 'account/into',
         component: AccountInto
+    },
+    {
+        path: 'account/intopin',
+        component: AccountIntoPin
     },
     {
         path: 'account/register',

@@ -111,7 +111,11 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                             <div
                                 onClick={() => {
                                     hide()
-                                    Base.push('/account/into', { type: 1 })
+                                    if (isNewWalletFlow()) {
+                                        Base.push('/account/intopin', { type: 1 })
+                                    } else {
+                                        Base.push('/account/into', { type: 1 })
+                                    }
                                 }}
                                 style={{ height: 72 }}
                                 className='pv24 flex c press'>

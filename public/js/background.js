@@ -405,16 +405,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 {
                     const { key } = request.sendData
                     getLocalStorage(key).then((res) => {
-                        if (res) {
-                            sendResponse({
-                                cmd: cmd,
-                                data: {
-                                    payload: res
-                                }
-                            })
-                            return true
-                        }
+                        sendResponse({
+                            cmd: cmd,
+                            data: {
+                                payload: res ?? ''
+                            }
+                        })
                     })
+                    return true
                 }
                 break
         }
