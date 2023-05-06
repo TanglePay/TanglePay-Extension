@@ -1,19 +1,38 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
+import { context, setPin } from '@tangle-pay/domain'
 import { Form, Input, Button } from 'antd-mobile'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
 import { useCreateCheck, useAddWallet } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
-const schema = Yup.object().shape({
-    name: Yup.string().required(),
-    agree: Yup.bool().isTrue().required()
-})
+const getSchema = (shouldShowPin) => {
+    if (shouldShowPin) {
+        return Yup.object().shape({
+            name: Yup.string().required(),
+            password: Yup.string().required(),
+            rePassword: Yup.string().required(),
+            agree: Yup.bool().isTrue().required()
+        })
+    } else {
+        return Yup.object().shape({
+            name: Yup.string().required(),
+            agree: Yup.bool().isTrue().required()
+        })
+    }
+}
 export const AccountHardwareInto = () => {
     const form = useRef()
     const [isLoading, setLoading] = useState(false)
     const addWallet = useAddWallet()
+    const [shouldShowPin, setShouldShowPin] = useState(false)
+
+    useEffect(() => {
+        console.log(context)
+        setShouldShowPin(context.state.walletCount == 0 || !context.state.isPinSet)
+    }, [])
+
     useCreateCheck((name) => {
         if (!IotaSDK.checkWeb3Node(IotaSDK.curNode?.id)) {
             form.current.setFieldValue('name', name)
@@ -31,11 +50,21 @@ export const AccountHardwareInto = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={schema}
+                    validationSchema={getSchema(shouldShowPin)}
                     onSubmit={async (values) => {
                         try {
                             if (isLoading) {
                                 return
+                            }
+                            const { password, rePassword } = values
+                            if (shouldShowPin) {
+                                if (!Base.checkPin(password)) {
+                                    return Toast.error(I18n.t('account.intoPinTips'))
+                                }
+                                if (password !== rePassword) {
+                                    return Toast.error(I18n.t('account.checkPin'))
+                                }
+                                await setPin(password)
                             }
                             setLoading(true)
                             const curNodeId = IotaSDK.curNode?.id
@@ -61,6 +90,7 @@ export const AccountHardwareInto = () => {
                                     type: IotaSDK.curNode?.type
                                 })
                             }
+                            
                             setLoading(false)
                         } catch (error) {
                             setLoading(false)
@@ -74,6 +104,29 @@ export const AccountHardwareInto = () => {
                                     <div className='fz18 mb10'>{I18n.t('account.intoName')}</div>
                                     <Input className='pt4' placeholder={I18n.t('account.intoNameTips')} onChange={handleChange('name')} value={values.name} />
                                 </Form.Item>
+                                {shouldShowPin &&
+                                (<Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
+                                    <div className='fz18 mb10'>{I18n.t('account.intoPin')}</div>
+                                    <Input
+                                        className='pt4'
+                                        type='password'
+                                        placeholder={I18n.t('account.intoPinTips')}
+                                        onChange={handleChange('password')}
+                                        value={values.password}
+                                        maxLength={20}
+                                    />
+                                </Form.Item>)}
+                                {shouldShowPin &&
+                                (<Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
+                                    <Input
+                                        type='password'
+                                        className='pt4'
+                                        placeholder={I18n.t('account.intoRePin')}
+                                        onChange={handleChange('rePassword')}
+                                        value={values.rePassword}
+                                        maxLength={20}
+                                    />
+                                </Form.Item>)}
                                 <div
                                     className='flex row as pl0 mt20'
                                     onClick={() => {
