@@ -228,9 +228,10 @@ export default {
                     sendData: {key}
                 })
                 console.log('sendToContentScriptGetData',value)
+                // return value.data.payload;
             } catch (error) {
                 console.log('sendToContentScriptGetData error',error)
-
+                // return null;
             }
         }
     },

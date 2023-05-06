@@ -13,6 +13,9 @@ import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 const schema = Yup.object().shape({
     password: Yup.string().required()
 })
+const schemaNopassword = Yup.object().shape({
+
+})
 export const ClaimSMR = () => {
     const form = useRef()
     const [isShow, setShow] = useState(false)
@@ -52,7 +55,7 @@ export const ClaimSMR = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={schema}
+                    validationSchema={isWalletPassowrdEnabled ? schema : schemaNopassword}
                     onSubmit={async (values) => {
                         let password = ''
                         if (isWalletPassowrdEnabled) {
@@ -101,7 +104,7 @@ export const ClaimSMR = () => {
                                 )}
                             </Form>
                             <div className='flex row ac jsb' style={{ marginTop: 100 }}>
-                                <Button onClick={handleSubmit} disabled={!values.password} color='primary' block>
+                                <Button onClick={handleSubmit} disabled={!values.password && isWalletPassowrdEnabled} color='primary' block>
                                     {I18n.t('shimmer.claim')}
                                 </Button>
                             </div>

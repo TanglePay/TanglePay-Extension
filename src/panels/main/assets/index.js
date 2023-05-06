@@ -106,7 +106,7 @@ export const Assets = ({ tabKey }) => {
                                         <div className={`${curTab === 1 ? 'cP' : 'cB'} fz16`}>{I18n.t('nft.collectibles')}</div>
                                     </div>
                                 )}
-                                {unlockConditions.length > 0 || lockedList.length > 0 || nftUnlockList.length > 0 || nftLockList.length > 0 ? (
+                                {unlockConditions?.length > 0 || lockedList?.length > 0 || nftUnlockList?.length > 0 || nftLockList?.length > 0 ? (
                                     <div
                                         onClick={() => {
                                             Base.push('/assets/tradingList')

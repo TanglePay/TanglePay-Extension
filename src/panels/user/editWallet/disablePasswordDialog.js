@@ -52,10 +52,13 @@ export const DisablePasswordDialog = ({ dialogRef, data }) => {
           })}
           onSubmit={async (values, {resetForm}) => {
             // Disable wallet password logic here
+            console.log('wallet data', data)
+            console.log('form values', values)
             const isPassword = await IotaSDK.checkPassword(data.seed, values.currentPassword)
-            if (isPassword) {
-                return Toast.error(I18n.t('account.invalidPassword'));
+            if (!isPassword) {
+                return Toast.error(I18n.t('account.passwordError'));
             }
+            
             editWallet(data.id, {...data, password: context.state.pin, oldPassword: values.currentPassword}, true)
             await markWalletPasswordDisabled(data.id);
             Toast.success(I18n.t('account.passwordDisabled'))
