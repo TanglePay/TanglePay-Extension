@@ -46,7 +46,9 @@ export const DisablePasswordDialog = ({ dialogRef, data }) => {
           initialValues={{
             currentPassword: '',
           }}
-          isValidating={true}
+          validateOnBlur={false}
+          validateOnChange={false}
+          validateOnMount={false}
           validationSchema={Yup.object().shape({
             currentPassword: Yup.string().required(),
           })}
@@ -67,9 +69,10 @@ export const DisablePasswordDialog = ({ dialogRef, data }) => {
           }}>
           {({ handleChange, handleSubmit, values, errors, resetForm }) => (
             <Form>
-              <div className="mb10 fz18 fw600">{I18n.t('account.enterCurrentPassword')}</div>
+              <div className="mb10 fz18 fw600">{I18n.t('account.disableWalletPassword')}</div>
               <Form.Item className={`pl0 ${errors.currentPassword && 'form-error'}`}>
                 <Input
+                  type='password'
                   className="password-input"
                   placeholder={I18n.t('account.enterCurrentPassword')}
                   onChange={handleChange('currentPassword')}

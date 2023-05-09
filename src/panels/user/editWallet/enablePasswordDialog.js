@@ -47,7 +47,9 @@ export const EnablePasswordDialog = ({ dialogRef, data }) => {
             newPassword: '',
             retypePassword: ''
           }}
-          isValidating={true}
+          validateOnBlur={false}
+          validateOnChange={false}
+          validateOnMount={false}
           validationSchema={Yup.object().shape({
             newPassword: Yup.string().required(),
             retypePassword: Yup.string()
@@ -80,6 +82,7 @@ export const EnablePasswordDialog = ({ dialogRef, data }) => {
               <div className='mb10 fz18 fw600'>{I18n.t('account.walletPasswordTitle')}</div>
               <Form.Item className={`pl0 ${errors.newPassword && 'form-error'}`}>
                 <Input
+                  type='password'
                   className='new-password-input'
                   placeholder={I18n.t('account.enterNewPassword')}
                   onChange={handleChange('newPassword')}
@@ -88,6 +91,7 @@ export const EnablePasswordDialog = ({ dialogRef, data }) => {
               </Form.Item>
               <Form.Item className={`pl0 ${errors.retypePassword && 'form-error'}`}>
                 <Input
+                  type='password'
                   className='retype-password-input'
                   placeholder={I18n.t('account.retypeNewPassword')}
                   onChange={handleChange('retypePassword')}

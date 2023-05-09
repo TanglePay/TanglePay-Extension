@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
-import { context, setPin } from '@tangle-pay/domain'
+import { context, setPin, init } from '@tangle-pay/domain'
 import { Form, Input, Button } from 'antd-mobile'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
@@ -29,8 +29,12 @@ export const AccountHardwareInto = () => {
     const [shouldShowPin, setShouldShowPin] = useState(false)
 
     useEffect(() => {
-        console.log(context)
-        setShouldShowPin(context.state.walletCount == 0 || !context.state.isPinSet)
+        const fn = async () => {
+            await init();
+            console.log(context)
+            setShouldShowPin(context.state.walletCount == 0 && !context.state.isPinSet)
+        }
+        fn()
     }, [])
 
     useCreateCheck((name) => {
