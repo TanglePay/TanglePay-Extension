@@ -25,6 +25,9 @@ export const AccountSetPin = () => {
           validationSchema={schema}
           onSubmit={async (values) => {
             const { newPin, retypedPin } = values;
+            if (!Base.checkPin(newPin)) {
+              return Toast.error(I18n.t('account.intoPinTips'))
+            }
             if (newPin !== retypedPin) {
               return Toast.error(I18n.t('account.pinMismatch'));
             }
@@ -37,7 +40,7 @@ export const AccountSetPin = () => {
             <div className="ph16 pt8">
               <Form>
                 <Form.Item className={`mt5 pl0 ${errors.newPin && 'form-error'}`}>
-                  <div className="fz18 mb10">{I18n.t('account.newPin')}</div>
+                  <div className="fz18 mb10">{I18n.t('account.setPinTitle')}</div>
                   <MaskedInput
                     className="pt4"
                     placeholder={I18n.t('account.intoPinTips')}
