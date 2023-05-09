@@ -1,18 +1,16 @@
 // PinInputView.js
 import React, { useRef } from 'react';
 import { I18n } from '@tangle-pay/common';
-import PinInput from 'react-pin-input';
+import {MaskedInput} from '@/common'
 import { Button } from 'antd-mobile';
 import { default as logo_nobg } from '@tangle-pay/assets/images/logo_nobg.png'
 import './PinInputView.less';
 const PinInputView = ({ errorMessage, onSubmit }) => {
-  const pin = useRef();
-  const pinValueRef = useRef();
+  const [pinValue,setPinValue] = React.useState('')
   const handleCompleted = async (value) => {
     const isSuccess = await onSubmit(value);
     if (!isSuccess) {
-      pin.current.clear();
-      pin.current.focus();
+      setPinValue('')
     }
   };
 
@@ -22,23 +20,16 @@ const PinInputView = ({ errorMessage, onSubmit }) => {
       <div className="flex column jc as btUnlock" style={{marginTop:'114px'}}>
         <div className='fz32'>{I18n.t('account.welcomeBack')}</div>
         <div className='fz14' style={{marginTop:'18.5px'}}>{I18n.t('account.typeYourPin')}</div>
-        <PinInput
-          ref={pin}
-          length={6}
-          secret
-          onChange={v=>{console.log(v); pinValueRef.current = v}}
-          onComplete={handleCompleted}
-          autoFocus
-          style={{ height:'45.7px', padding: '10px' }}
-          inputStyle={{ width:'40px', height:'27.7px', borderBottom: '1px solid silver',borderTop: 'none',
-          borderLeft: 'none',
-          borderRight: 'none', }}
-          inputFocusStyle={{ borderBottom: '1px solid gray' }}
+        <MaskedInput
+          style={{borderBottom:'1px solid #E5E5E5',fontSize:'12px'}}
+          onChange={setPinValue}
+          value={pinValue}
+          maxLength={20}
         />
         <div className='cR' style={{height:'18px'}}>{errorMessage}</div>
         <div className='w100' style={{marginTop:'8.4px'}}>
             <Button color='primary' size='large' block onClick={()=>{
-              handleCompleted(pinValueRef.current).catch(e=>console.log(e))
+              handleCompleted(pinValue).catch(e=>console.log(e))
             }}>
               {I18n.t('assets.confirm')}
             </Button>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
@@ -6,6 +6,7 @@ import { useAddWallet } from '@tangle-pay/store/common'
 import * as Yup from 'yup'
 import { useCreateCheck } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
+import { isNewWalletFlow, context, setPin } from '@tangle-pay/domain'
 import './index.less'
 const schema = Yup.object().shape({
     privateKey: Yup.string().required(),
@@ -14,8 +15,19 @@ const schema = Yup.object().shape({
     rePassword: Yup.string().required(),
     agree: Yup.bool().isTrue().required()
 })
+const schemaNopassword = Yup.object().shape({
+    privateKey: Yup.string().required(),
+    name: Yup.string().required(),
+    agree: Yup.bool().isTrue().required()
+})
 export const AccountIntoPrivateKey = () => {
     const form = useRef()
+    const [shouldShowPassword, setShouldShowPassword] = useState(false)
+    const [shouldShowPin, setShouldShowPin] = useState(false)
+    useEffect(() => {
+        setShouldShowPin(context.state.walletCount == 0 || !context.state.isPinSet)
+        setShouldShowPassword(!isNewWalletFlow())
+    }, [])
     useCreateCheck((name) => {
         form.current.setFieldValue('name', name)
     })
@@ -32,14 +44,27 @@ export const AccountIntoPrivateKey = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={schema}
+                    validationSchema={shouldShowPin || shouldShowPassword ? schema : schemaNopassword}
                     onSubmit={async (values) => {
                         const { password, rePassword } = values
-                        if (!Base.checkPassword(password)) {
-                            return Toast.error(I18n.t('account.intoPasswordTips'))
-                        }
-                        if (password !== rePassword) {
-                            return Toast.error(I18n.t('account.checkPasswrod'))
+                        if (shouldShowPassword) {
+                            if (!Base.checkPassword(password)) {
+                                return Toast.error(I18n.t('account.intoPasswordTips'))
+                            }
+                            if (password !== rePassword) {
+                                return Toast.error(I18n.t('account.checkPasswrod'))
+                            }
+                        } else if (shouldShowPin) {
+                            if (!Base.checkPin(password)) {
+                                return Toast.error(I18n.t('account.intoPinTips'))
+                            }
+                            if (password !== rePassword) {
+                                return Toast.error(I18n.t('account.checkPin'))
+                            }
+                            await setPin(password)
+                        } else {
+                            values.password = context.state.pin
+                            values.rePassword = context.state.pin
                         }
                         const res = await IotaSDK.importPrivateKey({
                             ...values
@@ -77,6 +102,7 @@ export const AccountIntoPrivateKey = () => {
                                         value={values.name}
                                     />
                                 </Form.Item>
+                                {shouldShowPassword && (
                                 <Form.Item className={`mt16 pl0 ${errors.password && 'form-error'}`}>
                                     <div className='fz16 mb10'>{I18n.t('account.intoPassword')}</div>
                                     <Input
@@ -88,6 +114,8 @@ export const AccountIntoPrivateKey = () => {
                                         maxLength={20}
                                     />
                                 </Form.Item>
+                                )}
+                                {shouldShowPassword && (
                                 <Form.Item className={`pl0 mb5 ${errors.rePassword && 'form-error'}`}>
                                     <Input
                                         className='pv4'
@@ -98,6 +126,30 @@ export const AccountIntoPrivateKey = () => {
                                         maxLength={20}
                                     />
                                 </Form.Item>
+                                )}
+                                {shouldShowPin &&
+                                (<Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
+                                    <div className='fz18 mb10'>{I18n.t('account.intoPin')}</div>
+                                    <Input
+                                        className='pt4'
+                                        type='password'
+                                        placeholder={I18n.t('account.intoPinTips')}
+                                        onChange={handleChange('password')}
+                                        value={values.password}
+                                        maxLength={20}
+                                    />
+                                </Form.Item>)}
+                                {shouldShowPin &&
+                                (<Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
+                                    <Input
+                                        type='password'
+                                        className='pt4'
+                                        placeholder={I18n.t('account.intoRePin')}
+                                        onChange={handleChange('rePassword')}
+                                        value={values.rePassword}
+                                        maxLength={20}
+                                    />
+                                </Form.Item>)}
                             </Form>
                             <div
                                 className='flex row as pl0 mt30 mb20'

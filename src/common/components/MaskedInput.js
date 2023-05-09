@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input } from 'antd-mobile';
 
-export const MaskedInput = ({ value, onChange, ...props }) => {
+export const MaskedInput = ({ maxLength, value, onChange, ...props }) => {
   const maskedValue = value? value.replace(/./g, '*') : value;
 
   const handleInputChange = (e) => {
@@ -13,7 +13,7 @@ export const MaskedInput = ({ value, onChange, ...props }) => {
     } else {
         neoValue = neoValue.slice(0, masked.length);
     }
-    const inputValue = neoValue.replace(/[^\d]/g, '').slice(0, 6);
+    const inputValue = neoValue.slice(0, maxLength);
     console.log('unmasked value', inputValue);
     onChange(inputValue);
   };
@@ -22,7 +22,7 @@ export const MaskedInput = ({ value, onChange, ...props }) => {
     <Input
       {...props}
       type="tel"
-      maxLength={6}
+      maxLength={maxLength}
       value={maskedValue}
       onChange={handleInputChange}
     />

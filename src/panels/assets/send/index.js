@@ -5,7 +5,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
 import { useGetNodeWallet, useGetAssetsList } from '@tangle-pay/store/common'
-import { Nav, Toast } from '@/common'
+import { Nav, Toast, ConfirmDialog } from '@/common'
 import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
 import { useGetParticipationEvents } from '@tangle-pay/store/staking'
@@ -24,6 +24,8 @@ const schemaNopassword = Yup.object().shape({
 })
 export const AssetsSend = () => {
     const gasDialog = useRef()
+    const confirmDialog = useRef()
+    const [waitPs,setWaitPs] = useState()
     // const sendFailDialog = useRef()
     // const timeHandler = useRef()
     // const [statedAmount] = useStore('staking.statedAmount')
@@ -124,6 +126,8 @@ export const AssetsSend = () => {
                     validateOnMount={false}
                     validationSchema={(isLedger || !isWalletPassowrdEnabled) ? schemaNopassword : schema}
                     onSubmit={async (values) => {
+
+                        
                         let { password, amount, receiver } = values
                         if (!isWalletPassowrdEnabled) {
                             password = context.state.pin
@@ -132,6 +136,18 @@ export const AssetsSend = () => {
                             const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
                             if (!isPassword) {
                                 return Toast.error(I18n.t('assets.passwordError'))
+                            }
+                        }
+                        if (!isWalletPassowrdEnabled) {
+                            const wait = new Promise((resolve, reject) => {
+                                setWaitPs({resolve, reject})
+                            })
+                            confirmDialog.current.show(receiver)
+                            console.log(waitPs)
+                            try {
+                            await wait;
+                            } catch (error) {
+                                return Toast.error(I18n.t('assets.cancelSend'))
                             }
                         }
                         amount = parseFloat(amount) || 0
@@ -153,6 +169,10 @@ export const AssetsSend = () => {
                                 return Toast.error(I18n.t('assets.residueBelow1Tips'))
                             }
                         }
+                        // confirm box
+                        
+
+
                         Toast.showLoading()
                         const tokenId = assets?.tokenId
                         try {
@@ -314,6 +334,7 @@ export const AssetsSend = () => {
                 </Formik>
             </div>
             <GasDialog dialogRef={gasDialog} />
+            <ConfirmDialog dialogRef={confirmDialog} text={I18n.t('assets.sentTo')} promise={waitPs} />
             {/* <SendFailDialog dialogRef={sendFailDialog} /> */}
         </div>
     )

@@ -40,18 +40,20 @@ export const AccountSetPin = () => {
                   <div className="fz18 mb10">{I18n.t('account.newPin')}</div>
                   <MaskedInput
                     className="pt4"
-                    placeholder={I18n.t('account.enterNewPin')}
+                    placeholder={I18n.t('account.intoPinTips')}
                     onChange={handleChange('newPin')}
                     value={values.newPin}
+                    maxLength={20}
                   />
                 </Form.Item>
                 <Form.Item className={`pl0 ${errors.retypedPin && 'form-error'}`}>
                   <div className="fz18 mb10">{I18n.t('account.retypePin')}</div>
                   <MaskedInput
                     className="pt4"
-                    placeholder={I18n.t('account.retypeNewPin')}
+                    placeholder={I18n.t('account.intoRePin')}
                     onChange={handleChange('retypedPin')}
                     value={values.retypedPin}
+                    maxLength={20}
                   />
                 </Form.Item>
                 <div style={{ marginTop: 100 }}>

@@ -49,13 +49,13 @@ export const AccountIntoPin = () => {
                         
                         //import mnenomics
                         if (type === 1) {
+                            const { password, rePassword } = values
                             if (shouldShowPin) {
-                                const { password, rePassword } = values
                                 if (!Base.checkPin(password)) {
-                                    return Toast.error(I18n.t('account.intoPasswordTips'))
+                                    return Toast.error(I18n.t('account.intoPinTips'))
                                 }
                                 if (password !== rePassword) {
-                                    return Toast.error(I18n.t('account.checkPasswrod'))
+                                    return Toast.error(I18n.t('account.checkPin'))
                                 }
                                 await setPin(password)
                             } else {

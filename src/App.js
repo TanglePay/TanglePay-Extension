@@ -48,7 +48,7 @@ const getFirstScreen = async (store) => {
             type: 'common.canShowDappDialog',
             data: true
         })
-        return store.common.walletsList.length > 0 ? '/main' : '/account/changeNode'
+        return context.state.walletCount > 0 ? '/main' : '/account/changeNode'
     }
 }
 const ensureExistingUserWalletStatus = async () => {

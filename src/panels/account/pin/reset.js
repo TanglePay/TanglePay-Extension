@@ -47,6 +47,7 @@ export const AccountResetPin = () => {
                     placeholder={I18n.t('account.enterOldPin')}
                     onChange={handleChange('oldPin')}
                     value={values.oldPin}
+                    maxLength={20}
                   />
                 </Form.Item>
                 <Form.Item className={`mt10 pl0 ${errors.newPin && 'form-error'}`}>
@@ -56,6 +57,7 @@ export const AccountResetPin = () => {
                     placeholder={I18n.t('account.enterNewPin')}
                     onChange={handleChange('newPin')}
                     value={values.newPin}
+                    maxLength={20}
                   />
                 </Form.Item>
                 <Form.Item className={`pl0 ${errors.retypedPin && 'form-error'}`}>
@@ -64,6 +66,7 @@ export const AccountResetPin = () => {
                     placeholder={I18n.t('account.retypeNewPin')}
                     onChange={handleChange('retypedPin')}
                     value={values.retypedPin}
+                    maxLength={20}
                   />
                 </Form.Item>
                 <div style={{ marginTop: 100 }}>
