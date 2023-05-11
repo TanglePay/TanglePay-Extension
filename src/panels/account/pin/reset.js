@@ -4,7 +4,8 @@ import { Form,  Button } from 'antd-mobile';
 import * as Yup from 'yup';
 import { Nav, Toast, MaskedInput } from '@/common';
 import { Base, I18n } from '@tangle-pay/common'
-import { context, checkPin, setPin } from '@tangle-pay/domain'
+import { context, checkPin, resetPin } from '@tangle-pay/domain'
+import { useEditWallet } from '@tangle-pay/store/common'
 
 const schema = Yup.object().shape({
   oldPin: Yup.string().required(),
@@ -13,6 +14,8 @@ const schema = Yup.object().shape({
 });
 
 export const AccountResetPin = () => {
+  const editWallet = useEditWallet();
+
   return (
     <div className="page">
       <Nav title={I18n.t('account.resetPinTitle')} />
@@ -25,16 +28,17 @@ export const AccountResetPin = () => {
           validationSchema={schema}
           onSubmit={async (values) => {
             const { oldPin, newPin, retypedPin } = values;
-            if (!await checkPin(oldPin)) {
-              return Toast.error(I18n.t('account.invalidOldPin'));
-            }
+            
             if (!Base.checkPin(newPin)) {
               return Toast.error(I18n.t('account.intoPinTips'))
             }
             if (newPin !== retypedPin) {
               return Toast.error(I18n.t('account.pinMismatch'));
             }
-            await setPin(newPin);
+            if (!await checkPin(oldPin)) {
+              return Toast.error(I18n.t('account.invalidOldPin'));
+            }
+            await resetPin(oldPin,newPin, editWallet);
             Toast.success(I18n.t('account.pinResetSuccess'));
             Base.push('/main');
           }}

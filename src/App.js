@@ -26,13 +26,7 @@ const AnimatedSwitch = (props) => {
         />
     )
 }
-const sleepTmp = async (timeout = 3000) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve()
-        }, timeout)
-    })
-}
+
 const getFirstScreen = async (store) => {
     await ensureInited()
     const isNewUser = await isNewWalletFlow()
