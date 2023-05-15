@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 import { Nav, Toast } from '@/common'
 import { useStore } from '@tangle-pay/store'
 import { useAddWallet } from '@tangle-pay/store/common'
+import {  markWalletPasswordEnabled } from '@tangle-pay/domain';
 import './index.less'
 
 const VerifyItem = ({ setNext, index, word, err, isTop, isLast, addWallet }) => {
@@ -16,6 +17,9 @@ const VerifyItem = ({ setNext, index, word, err, isTop, isLast, addWallet }) => 
                 try {
                     Toast.showLoading()
                     const res = await IotaSDK.importMnemonic(registerInfo)
+                    if (registerInfo.passwordIsPassword) {
+						await markWalletPasswordEnabled(res.id);
+					}
                     addWallet(res)
                     setRegisterInfo({})
                     Toast.hideLoading()

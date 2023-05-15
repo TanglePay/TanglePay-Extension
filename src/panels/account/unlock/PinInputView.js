@@ -1,8 +1,7 @@
 // PinInputView.js
 import React, { useRef } from 'react';
 import { I18n } from '@tangle-pay/common';
-import {MaskedInput} from '@/common'
-import { Button } from 'antd-mobile';
+import { Button,Input } from 'antd-mobile';
 import { default as logo_nobg } from '@tangle-pay/assets/images/logo_nobg.png'
 import './PinInputView.less';
 const PinInputView = ({ errorMessage, onSubmit }) => {
@@ -20,7 +19,8 @@ const PinInputView = ({ errorMessage, onSubmit }) => {
       <div className="flex column jc as btUnlock" style={{marginTop:'114px'}}>
         <div className='fz32'>{I18n.t('account.welcomeBack')}</div>
         <div className='fz14' style={{marginTop:'18.5px'}}>{I18n.t('account.typeYourPin')}</div>
-        <MaskedInput
+        <Input
+          type='password'
           style={{borderBottom:'1px solid #E5E5E5',fontSize:'12px'}}
           onChange={setPinValue}
           value={pinValue}

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Formik } from 'formik';
-import { Form,  Button } from 'antd-mobile';
+import { Form,  Button, Input } from 'antd-mobile';
 import * as Yup from 'yup';
-import { Nav, Toast, MaskedInput } from '@/common';
+import { Nav, Toast } from '@/common';
 import { Base, I18n } from '@tangle-pay/common'
 import { context, checkPin, resetPin } from '@tangle-pay/domain'
 import { useEditWallet } from '@tangle-pay/store/common'
@@ -48,7 +48,8 @@ export const AccountResetPin = () => {
               <Form>
                 <Form.Item className={`mt5 pl0 ${errors.oldPin && 'form-error'}`}>
                   <div className="fz18 mb10">{I18n.t('account.oldPin')}</div>
-                  <MaskedInput
+                  <Input
+                    type='password'
                     className="pt4"
                     placeholder={I18n.t('account.enterOldPin')}
                     onChange={handleChange('oldPin')}
@@ -58,7 +59,8 @@ export const AccountResetPin = () => {
                 </Form.Item>
                 <Form.Item className={`mt10 pl0 ${errors.newPin && 'form-error'}`}>
                   <div className="fz18 mb10">{I18n.t('account.newPin')}</div>
-                  <MaskedInput
+                  <Input
+                    type='password'
                     className="pt4"
                     placeholder={I18n.t('account.enterNewPin')}
                     onChange={handleChange('newPin')}
@@ -67,7 +69,8 @@ export const AccountResetPin = () => {
                   />
                 </Form.Item>
                 <Form.Item className={`pl0 ${errors.retypedPin && 'form-error'}`}>
-                  <MaskedInput
+                  <Input
+                    type='password'
                     className="pt4"
                     placeholder={I18n.t('account.retypeNewPin')}
                     onChange={handleChange('retypedPin')}

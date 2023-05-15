@@ -80,23 +80,26 @@ export const EnablePasswordDialog = ({ dialogRef, data }) => {
           {({ handleChange, handleSubmit, values, errors }) => (
             <Form>
               <div className='mb10 fz18 fw600'>{I18n.t('account.walletPasswordTitle')}</div>
-              <Form.Item className={`pl0 ${errors.newPassword && 'form-error'}`}>
-                <Input
-                  type='password'
-                  className='new-password-input'
-                  placeholder={I18n.t('account.enterNewPassword')}
-                  onChange={handleChange('newPassword')}
-                  value={values.newPassword}
-                />
+              <Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
+                  <div className='fz18 mb10'>{I18n.t('account.passwordOptional')}</div>
+                  <Input
+                      className='pt4'
+                      type='password'
+                      placeholder={I18n.t('account.intoPasswordTips')}
+                      onChange={handleChange('newPassword')}
+                      value={values.newPassword}
+                      maxLength={20}
+                  />
               </Form.Item>
-              <Form.Item className={`pl0 ${errors.retypePassword && 'form-error'}`}>
-                <Input
-                  type='password'
-                  className='retype-password-input'
-                  placeholder={I18n.t('account.retypeNewPassword')}
-                  onChange={handleChange('retypePassword')}
-                  value={values.retypePassword}
-                />
+              <Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
+                  <Input
+                      type='password'
+                      className='pt4'
+                      placeholder={I18n.t('account.intoRePasswordTips')}
+                      onChange={handleChange('retypePassword')}
+                      value={values.retypePassword}
+                      maxLength={20}
+                  />
               </Form.Item>
               <div className='mt24'>
                 <Button color='primary' size='large' block onClick={handleSubmit}>
