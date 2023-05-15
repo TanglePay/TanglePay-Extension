@@ -6,7 +6,7 @@ import { useAddWallet } from '@tangle-pay/store/common'
 import * as Yup from 'yup'
 import { useCreateCheck } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
-import { isNewWalletFlow, context, setPin } from '@tangle-pay/domain'
+import { isNewWalletFlow, context, setPin, markWalletPasswordEnabled } from '@tangle-pay/domain'
 import './index.less'
 const schema = Yup.object().shape({
     privateKey: Yup.string().required(),
@@ -69,6 +69,9 @@ export const AccountIntoPrivateKey = () => {
                         const res = await IotaSDK.importPrivateKey({
                             ...values
                         })
+                        if (shouldShowPassword) {
+							await markWalletPasswordEnabled(res.id);
+						}
                         addWallet({
                             ...res
                         })
