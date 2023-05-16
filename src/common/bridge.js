@@ -29,7 +29,7 @@ export default {
         const curWallet = (list || []).find((e) => e.isSelected)
         return curWallet
     },
-    async iota_connect(origin, expires) {
+    async iota_connect(origin, expires, reqId = 0) {
         const curWallet = await this.getCurWallet()
         if (curWallet.address) {
             const key = `${origin}_iota_connect_${curWallet.address}_${curWallet.nodeId}`
@@ -43,33 +43,33 @@ export default {
             this.cacheBgData(key, { ...obj, expires: new Date().getTime() + parseInt(expires || 0) })
             this.sendMessage('iota_connect', {
                 ...obj
-            })
+            },reqId)
 
             Trace.dappConnect(origin.replace(/.+\/\//, ''), curWallet.address, curWallet.nodeId, IotaSDK.curNode.token)
         }
     },
-    async iota_sign(origin, expires, content, password) {
+    async iota_sign(origin, expires, content, password, reqId = 0) {
         const curWallet = await this.getCurWallet()
         const res = await IotaSDK.iota_sign({ ...curWallet, password }, content)
         if (res) {
-            this.sendMessage('iota_sign', res)
+            this.sendMessage('iota_sign', res, reqId)
         } else {
             this.sendErrorMessage('iota_sign', {
                 msg: 'fail'
             })
         }
     },
-    async iota_getPublicKey(origin, expires) {
+    async iota_getPublicKey(origin, expires, reqId = 0) {
         try {
             const curWallet = await this.getCurWallet()
-            this.sendMessage('iota_getPublicKey', curWallet.publicKey)
+            this.sendMessage('iota_getPublicKey', curWallet.publicKey, reqId)
         } catch (error) {
             this.sendErrorMessage('iota_getPublicKey', {
                 msg: error.toString()
             })
         }
     },
-    async eth_getBalance(origin, { assetsList, addressList }) {
+    async eth_getBalance(origin, { assetsList, addressList }, reqId = 0) {
         Toast.showLoading()
         try {
             // iota
@@ -92,7 +92,7 @@ export default {
             const key = `${origin}_eth_getBalance_${curWallet?.address}_${curWallet?.nodeId}`
             // this.cacheBgData(key, assetsData)
             Toast.hideLoading()
-            this.sendMessage('eth_getBalance', assetsData)
+            this.sendMessage('eth_getBalance', assetsData, reqId)
         } catch (error) {
             Toast.hideLoading()
             this.sendErrorMessage('eth_getBalance', {
@@ -100,7 +100,7 @@ export default {
             })
         }
     },
-    async iota_getBalance(origin, { assetsList, addressList }) {
+    async iota_getBalance(origin, { assetsList, addressList }, reqId) {
         Toast.showLoading()
         try {
             // iota
@@ -163,7 +163,7 @@ export default {
             // this.cacheBgData(key, assetsData)
 
             Toast.hideLoading()
-            this.sendMessage('iota_getBalance', assetsData)
+            this.sendMessage('iota_getBalance', assetsData, reqId)
         } catch (error) {
             Toast.hideLoading()
             this.sendErrorMessage('iota_getBalance', {
@@ -171,7 +171,7 @@ export default {
             })
         }
     },
-    async iota_accounts(origin) {
+    async iota_accounts(origin, reqId = 0) {
         Toast.showLoading()
         try {
             const curWallet = await this.getCurWallet()
@@ -191,12 +191,12 @@ export default {
                 const key = `${origin}_iota_accounts_${curWallet?.address}_${curWallet?.nodeId}`
                 this.cacheBgData(key, addressList)
 
-                this.sendMessage('iota_accounts', addressList)
+                this.sendMessage('iota_accounts', addressList, reqId)
             } else {
                 this.sendErrorMessage('iota_accounts', {
                     msg: 'Wallet not authorized',
                     status: 2
-                })
+                }, reqId)
             }
             Toast.hideLoading()
         } catch (error) {
@@ -204,7 +204,7 @@ export default {
             this.sendErrorMessage('iota_accounts', {
                 msg: error.toString(),
                 status: 3
-            })
+            }, reqId)
         }
     },
     async iota_merge_nft() {
@@ -235,7 +235,7 @@ export default {
             }
         }
     },
-    sendToContentScript(cmd, { method, response, code = 200 }) {
+    sendToContentScript(cmd, { method, response, code = 200 }, reqId = 0) {
         // V2
         // const bg = window.chrome?.extension?.getBackgroundPage()
         // if (bg) {
@@ -253,8 +253,10 @@ export default {
         if (sendMessage) {
             sendMessage({
                 cmd: `contentToBackground##popupBridgeToBackground`,
+                id: reqId,
                 sendData: {
                     cmd,
+                    id:reqId,
                     code,
                     data: {
                         method,
@@ -279,12 +281,12 @@ export default {
         // V3
         Base.setLocalData(key, cacheData)
     },
-    sendMessage(method, response) {
-        this.sendToContentScript('iota_request', { method, response })
+    sendMessage(method, response, reqId = 0) {
+        this.sendToContentScript('iota_request', { method, response }, reqId)
         this.closeWindow()
     },
-    sendErrorMessage(method, response) {
-        this.sendToContentScript('iota_request', { method, response, code: -1 })
+    sendErrorMessage(method, response, reqId = 0) {
+        this.sendToContentScript('iota_request', { method, response, code: -1 }, reqId)
         this.closeWindow()
     },
     closeWindow() {

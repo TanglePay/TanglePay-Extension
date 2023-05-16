@@ -49,7 +49,7 @@ export const DappDialog = () => {
         setShow(false)
         Toast.hideLoading()
     }
-    const onHandleCancel = async ({ type }) => {
+    const onHandleCancel = async ({ type, reqId }) => {
         switch (type) {
             case 'iota_sign':
             case 'iota_connect':
@@ -57,14 +57,14 @@ export const DappDialog = () => {
             case 'eth_sendTransaction':
                 Bridge.sendErrorMessage(type, {
                     msg: 'cancel'
-                })
+                },reqId)
                 break
 
             default:
                 break
         }
     }
-    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId }) => {
+    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
             if (!isLedger) {
@@ -146,14 +146,14 @@ export const DappDialog = () => {
                         messageId = res.messageId
                         // Toast.hideLoading()
                         if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
-                            Bridge.sendMessage(type, res)
+                            Bridge.sendMessage(type, res, reqId)
                         } else {
                             // Toast.success(I18n.t('assets.sendSucc'))
                         }
                     } catch (error) {
                         Toast.hideLoading()
                         if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
-                            Bridge.sendErrorMessage(type, String(error))
+                            Bridge.sendErrorMessage(type, String(error), reqId)
                         } else {
                             Toast.error(String(error))
                             // Toast.error(
@@ -181,7 +181,7 @@ export const DappDialog = () => {
                 break
             case 'iota_getPublicKey':
                 {
-                    await Bridge.iota_getPublicKey(origin, expires)
+                    await Bridge.iota_getPublicKey(origin, expires, reqId)
                 }
                 break
             case 'iota_changeAccount':
@@ -191,18 +191,18 @@ export const DappDialog = () => {
                         address: curWallet.address,
                         nodeId: curWallet.nodeId,
                         network: IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.network
-                    })
+                    },reqId)
                     Toast.hideLoading()
                 }
                 break
             case 'iota_connect':
                 {
-                    await Bridge.iota_connect(origin, expires)
+                    await Bridge.iota_connect(origin, expires, reqId)
                 }
                 break
             case 'iota_sign':
                 {
-                    await Bridge.iota_sign(origin, expires, content, password)
+                    await Bridge.iota_sign(origin, expires, content, password, reqId)
                 }
                 break
             default:
@@ -229,7 +229,7 @@ export const DappDialog = () => {
         for (const i in res) {
             res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
         }
-        let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '' } = res
+        let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
         let toNetId
         if (network) {
             await IotaSDK.getNodes()
@@ -469,7 +469,8 @@ export const DappDialog = () => {
                                 nftId,
                                 abiFunc,
                                 abiParams,
-                                gas
+                                gas,
+                                reqId
                             })
                             show()
                         }
@@ -492,7 +493,8 @@ export const DappDialog = () => {
                                 texts,
                                 return_url,
                                 type,
-                                content
+                                content,
+                                reqId
                             })
                             show()
                         }
@@ -505,13 +507,13 @@ export const DappDialog = () => {
                             //     type
                             // })
                             // show()
-                            onExecute({ type })
+                            onExecute({ type, reqId })
                         }
                         break
                     case 'iota_changeAccount': {
                         //sdk change account
                         Toast.showLoading()
-                        onExecute({ type })
+                        onExecute({ type, reqId })
                         break
                     }
                     case 'iota_connect': // sdk connect
@@ -530,7 +532,8 @@ export const DappDialog = () => {
                                 return_url,
                                 type,
                                 origin,
-                                expires
+                                expires,
+                                reqId
                             })
                             show()
                         }
@@ -555,7 +558,8 @@ export const DappDialog = () => {
                                 type,
                                 content,
                                 origin,
-                                expires
+                                expires, 
+                                reqId
                             })
                             show()
                         }
