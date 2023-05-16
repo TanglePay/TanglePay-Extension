@@ -572,7 +572,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 {
                                     const setWindowData = () => {
                                         const { to, value, unit = '', network = '', merchant = '', item_desc = '', data = '', assetId = '', nftId = '', tag = '', gas = '' } = requestParams
-                                        const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}&gas=${gas}`
+                                        const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}&gas=${gas}&reqId=${reqId}`
                                         params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                     }
 
@@ -627,14 +627,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_changeAccount':
                                 {
                                     const { network = '' } = requestParams
-                                    const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
+                                    const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}&reqId=${reqId}`
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
                             case 'iota_sign':
                             case 'iota_connect':
                                 {
-                                    const url = `tanglepay://${method}?origin=${origin}&content=${content}&expires=${expires}`
+                                    const url = `tanglepay://${method}?origin=${origin}&content=${content}&expires=${expires}&reqId=${reqId}`
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
@@ -834,7 +834,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 return true
             }
             case 'popupBridgeToBackground':
-                window.tanglepayCallBack[cmd + '_' + reqId] = null
+                // window.tanglepayCallBack[cmd + '_' + reqId] = null
                 sendToContentScript(request?.sendData || {})
                 break
             case 'popupBridgeCloseWindow':
