@@ -7,7 +7,7 @@ import * as Yup from 'yup'
 import { useCreateCheck } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 import { Nav, SvgIcon, Toast } from '@/common'
-import { context, setPin } from '@tangle-pay/domain'
+import { context, setPin, shouldShowSetPin } from '@tangle-pay/domain'
 import './index.less'
 import { ExpDialog } from './expDialog'
 
@@ -26,7 +26,7 @@ export const AccountIntoPin = () => {
     const [shouldShowPin, setShouldShowPin ] = useState( true )
     useEffect(() => {
         console.log(context)
-        setShouldShowPin(context.state.walletCount == 0 || !context.state.isPinSet)
+        setShouldShowPin(shouldShowSetPin())
     }, [])
     useCreateCheck((name) => {
         form.current.setFieldValue('name', name)
