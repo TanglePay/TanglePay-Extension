@@ -2,6 +2,10 @@
 import { Main } from './main'
 import { AccountLogin } from './account/login'
 import { AccountRegister } from './account/register'
+import { AccountRegisterPin } from './account/register/pin'
+import { AccountResetPin } from './account/pin/reset'
+import { AccountSetPin } from './account/pin/set'
+import { UnlockScreen } from './account/unlock'
 import { AccountInto } from './account/into'
 import { AccountBackup } from './account/backup'
 import { AccountMnemonic } from './account/mnemonic'
@@ -38,7 +42,16 @@ import { ImportToken } from './assets/importToken/index'
 import { AssetsNftMerge } from './assets/nftMerge'
 import { AccountHardwareInto } from './account/hardware/into'
 import { AccountHardwareImport } from './account/hardware/import'
+import { AccountIntoPin } from './account/into/pin'
 export const panelsList = [
+    { 
+        path: 'account/pin/set', 
+        component: AccountSetPin 
+    },
+    { 
+        path: 'account/pin/reset', 
+        component: AccountResetPin 
+    },
     {
         path: 'account/hardware/import',
         component: AccountHardwareImport
@@ -184,8 +197,20 @@ export const panelsList = [
         component: AccountInto
     },
     {
+        path: 'account/intopin',
+        component: AccountIntoPin
+    },
+    {
         path: 'account/register',
         component: AccountRegister
+    },
+    {
+        path: 'account/registerPin',
+        component: AccountRegisterPin
+    },
+    { 
+        path: 'unlock', 
+        component: UnlockScreen
     },
     {
         path: 'account/login',

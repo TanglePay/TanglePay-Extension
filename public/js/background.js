@@ -13,10 +13,7 @@ var sendToInject = function (params) {
     window.postMessage(params, '*')
 }
 
-const flatten = (arr, depth = 1) =>
-    depth != 1
-        ? arr.reduce((a, v) => a.concat(Array.isArray(v) ? flatten(v, depth - 1) : v), [])
-        : arr.reduce((a, v) => a.concat(v), [])
+const flatten = (arr, depth = 1) => (depth != 1 ? arr.reduce((a, v) => a.concat(Array.isArray(v) ? flatten(v, depth - 1) : v), []) : arr.reduce((a, v) => a.concat(v), []))
 
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
@@ -26,7 +23,11 @@ const getLocalStorage = async (key) => {
         })
     })
 }
-
+const setLocalStorage = (key, value) => {
+    chrome.storage.local.set({
+        [key]: value
+    })
+}
 const getFoundry = async (nodeUrl, id) => {
     const localTokensConfig = (await getLocalStorage('shimmer.sdk.tokensConfig')) || {}
     if (localTokensConfig[id]) {
@@ -112,9 +113,7 @@ const getShimmerBalance = async (nodeUrl, address) => {
     const response = await fetch(`${nodeUrl}/api/indexer/v1/outputs/basic?address=${address}`).then((res) => res.json())
     let total = BigNumber(0)
     let nativeTokens = {}
-    const localOutputDatas = await Promise.all(
-        response.items.map((outputId) => fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json()))
-    )
+    const localOutputDatas = await Promise.all(response.items.map((outputId) => fetch(`${nodeUrl}/api/core/v2/outputs/${outputId}`).then((res) => res.json())))
     for (const [index, outputId] of response.items.entries()) {
         const output = localOutputDatas[index]
         if (!output.metadata.isSpent) {
@@ -225,28 +224,20 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                     amount = res?.balance || 0
                     nativeTokens = res?.nativeTokens || []
                 } else {
-                    const res = await fetch(`${nodeInfo.explorerApiUrl}/search/${nodeInfo.network}/${address}`).then(
-                        (res) => res.json()
-                    )
+                    const res = await fetch(`${nodeInfo.explorerApiUrl}/search/${nodeInfo.network}/${address}`).then((res) => res.json())
                     amount = res?.address?.balance || 0
                 }
             }
             if (isGetStakingSmr || isGetStakingAsmb) {
-                const res = await fetch(`${nodeInfo.url}/api/plugins/participation/addresses/${address}`).then((res) =>
-                    res.json()
-                )
+                const res = await fetch(`${nodeInfo.url}/api/plugins/participation/addresses/${address}`).then((res) => res.json())
                 otherRes = res?.data?.rewards || {}
             }
             if (isGetSoonaverse) {
                 if (nodeInfo.type == 1) {
-                    let iotaMemberIds = await fetch(
-                        `https://soonaverse.com/api/getMany?collection=member&fieldName=validatedAddress.iota&fieldValue=${address}`
-                    ).then((res) => res.json())
+                    let iotaMemberIds = await fetch(`https://soonaverse.com/api/getMany?collection=member&fieldName=validatedAddress.iota&fieldValue=${address}`).then((res) => res.json())
                     let res = await Promise.all(
                         iotaMemberIds.map((e) => {
-                            return fetch(
-                                `https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${e.uid}`
-                            )
+                            return fetch(`https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${e.uid}`)
                                 .then((res) => res.json())
                                 .catch(() => [])
                         })
@@ -254,9 +245,7 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                     res = flatten(res)
                     collectibles = res
                 } else if (nodeInfo.type == 3) {
-                    let shimmerNftOutputIds = await fetch(
-                        `${nodeInfo.url}/api/indexer/v1/outputs/nft?address=${address}`
-                    ).then((res) => res.json())
+                    let shimmerNftOutputIds = await fetch(`${nodeInfo.url}/api/indexer/v1/outputs/nft?address=${address}`).then((res) => res.json())
                     shimmerNftOutputIds = shimmerNftOutputIds.items
 
                     const nftInfos = await Promise.all(
@@ -296,13 +285,9 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                     amount = await web3.eth.getBalance(address)
                 }
                 if (isGetSoonaverse) {
-                    let ethMemberIds = await fetch(
-                        `https://soonaverse.com/api/getById?collection=member&uid=${address}`
-                    ).then((res) => res.json())
+                    let ethMemberIds = await fetch(`https://soonaverse.com/api/getById?collection=member&uid=${address}`).then((res) => res.json())
                     if (ethMemberIds && ethMemberIds.uid) {
-                        let list = await fetch(
-                            `https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${ethMemberIds.uid}`
-                        )
+                        let list = await fetch(`https://soonaverse.com/api/getMany?collection=nft&fieldName=owner&fieldValue=${ethMemberIds.uid}`)
                             .then((res) => res.json())
                             .catch(() => [])
                         collectibles = list
@@ -358,8 +343,10 @@ chrome.windows.onRemoved.addListener((id) => {
 // create a dialog
 var createDialog = function (params) {
     function create() {
-        chrome.windows.create(params, (w) => {
-            window.tanglepayDialog = w.id
+        chrome.windows.getCurrent().then((res) => {
+            chrome.windows.create({ ...params, left: res.left + params.left, top: res.top + params.top }, (w) => {
+                window.tanglepayDialog = w.id
+            })
         })
     }
     if (window.tanglepayDialog) {
@@ -406,60 +393,80 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     const cmd = (request?.cmd || '').replace('contentToBackground##', '')
-    const origin = request?.origin
-    const reqId = request?.id ? request?.id : 0
-    window.tanglepayCallBack[cmd + '_' + reqId] = sendResponse
-    const handleRequest = (func, pl, method, id) => {
-        console.log(pl)
-        func(...pl).then((res) => {
-            sendToContentScript(
+    if (['bgDataSet', 'bgDataGet'].includes(cmd)) {
+        switch (cmd) {
+            case 'bgDataSet':
                 {
-                    cmd: 'iota_request',
-                    id,
-                    code: res ? 200 : -1,
-                    data: {
-                        method,
-                        response: res
-                    }
-                },
-                id
-            )
-        })
-    }
-    switch (cmd) {
-        case 'tanglePayDeepLink': {
-            params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(request.greeting)}`
-            createDialog(params)
-            return true
+                    const { key, value } = request.sendData
+                    setLocalStorage(key, value)
+                }
+                break
+            case 'bgDataGet':
+                {
+                    const { key } = request.sendData
+                    getLocalStorage(key).then((res) => {
+                        sendResponse({
+                            cmd: cmd,
+                            data: {
+                                payload: res ?? ''
+                            }
+                        })
+                    })
+                    return true
+                }
+                break
         }
-        case 'getTanglePayInfo':
-            {
-                sendResponse({
-                    cmd: cmd,
-                    data: {
-                        version: chrome?.runtime?.getManifest()?.version
-                    }
-                })
+    } else {
+        const origin = request?.origin
+        const reqId = request?.id ? request?.id : 0
+        window.tanglepayCallBack[cmd + '_' + reqId] = sendResponse
+        const handleRequest = (func, pl, method, id) => {
+            console.log(pl)
+            func(...pl).then((res) => {
+                sendToContentScript(
+                    {
+                        cmd: 'iota_request',
+                        id,
+                        code: res ? 200 : -1,
+                        data: {
+                            method,
+                            response: res
+                        }
+                    },
+                    id
+                )
+            })
+        }
+        switch (cmd) {
+            case 'tanglePayDeepLink': {
+                params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(request.greeting)}`
+                createDialog(params)
+                return true
             }
-            break
-        case 'iota_request': {
-            const { method, params: requestParams } = request.greeting
-            curMethod = method
-            let { content, expires } = requestParams || {}
-            content = content || ''
-            expires = expires || 100000000000000000000
-            // get cache data
-            getBackgroundData('cur_wallet_address').then((cacheAddress) => {
-                const cacheKey = `${origin}_${method}_${cacheAddress}`
-                const connectCacheKey = `${origin}_iota_connect_${cacheAddress}`
-                Promise.all([getBackgroundData(cacheKey), getBackgroundData(connectCacheKey)]).then(
-                    ([cacheRes, connectCacheRes]) => {
+            case 'getTanglePayInfo':
+                {
+                    sendResponse({
+                        cmd: cmd,
+                        data: {
+                            version: chrome?.runtime?.getManifest()?.version
+                        }
+                    })
+                }
+                break
+
+            case 'iota_request': {
+                const { method, params: requestParams } = request.greeting
+                curMethod = method
+                let { content, expires } = requestParams || {}
+                content = content || ''
+                expires = expires || 100000000000000000000
+                // get cache data
+                getBackgroundData('cur_wallet_address').then((cacheAddress) => {
+                    const cacheKey = `${origin}_${method}_${cacheAddress}`
+                    const connectCacheKey = `${origin}_iota_connect_${cacheAddress}`
+                    Promise.all([getBackgroundData(cacheKey), getBackgroundData(connectCacheKey)]).then(([cacheRes, connectCacheRes]) => {
                         let isConnect = false
-                        if (
-                            connectCacheRes &&
-                            connectCacheRes?.expires &&
-                            connectCacheRes?.expires > new Date().getTime()
-                        ) {
+                        if (connectCacheRes && connectCacheRes?.expires && connectCacheRes?.expires > new Date().getTime()) {
                             isConnect = true
                             if (cacheRes) {
                                 delete cacheRes.expires
@@ -505,9 +512,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     // const { network = '' } = requestParams
                                     // const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
                                     // params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-                                    params.url =
-                                        chrome.runtime.getURL('index.html') +
-                                        `#/assets/nftMerge?params=${JSON.stringify(requestParams)}`
+                                    params.url = chrome.runtime.getURL('index.html') + `#/assets/nftMerge?params=${JSON.stringify(requestParams)}`
                                 }
                                 break
                             case 'iota_getPublicKey':
@@ -566,47 +571,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'eth_sendTransaction':
                                 {
                                     const setWindowData = () => {
-                                        const {
-                                            to,
-                                            value,
-                                            unit = '',
-                                            network = '',
-                                            merchant = '',
-                                            item_desc = '',
-                                            data = '',
-                                            assetId = '',
-                                            nftId = '',
-                                            tag = '',
-                                            gas = ''
-                                        } = requestParams
-                                        const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}&gas=${gas}`
-                                        params.url =
-                                            chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                        const { to, value, unit = '', network = '', merchant = '', item_desc = '', data = '', assetId = '', nftId = '', tag = '', gas = '' } = requestParams
+                                        const url = `tanglepay://${method}/${to}?origin=${origin}&expires=${expires}&value=${value}&unit=${unit}&network=${network}&merchant=${merchant}&item_desc=${item_desc}&tag=${tag}&taggedData=${data}&assetId=${assetId}&nftId=${nftId}&gas=${gas}&reqId=${reqId}`
+                                        params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                     }
 
                                     const checkSignData = (data) => {
                                         let isCall = false
-                                        ;[
-                                            '0xdd62ed3e',
-                                            '0x70a08231',
-                                            '0x313ce567',
-                                            '0xa0712d68',
-                                            '0x07546172',
-                                            '0x06fdde03',
-                                            '0x95d89b41',
-                                            '0x18160ddd'
-                                        ].forEach((e) => {
+                                        ;['0xdd62ed3e', '0x70a08231', '0x313ce567', '0xa0712d68', '0x07546172', '0x06fdde03', '0x95d89b41', '0x18160ddd'].forEach((e) => {
                                             if (RegExp(`^${e}`).test(data)) {
                                                 isCall = true
                                             }
                                         })
                                         return isCall
                                     }
-                                    if (
-                                        method === 'eth_sendTransaction' &&
-                                        requestParams.data &&
-                                        checkSignData(requestParams.data)
-                                    ) {
+                                    if (method === 'eth_sendTransaction' && requestParams.data && checkSignData(requestParams.data)) {
                                         const tokenAbi = [...TanglePay_TokenERC20]
                                         ensureWeb3Client().then(async () => {
                                             const web3 = web3_
@@ -627,9 +606,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                         abiParamsList.push(abiParams[i])
                                                     }
                                                 }
-                                                const contractRes = await web3Contract.methods[item.name](
-                                                    ...abiParamsList
-                                                ).call()
+                                                const contractRes = await web3Contract.methods[item.name](...abiParamsList).call()
                                                 console.log(contractRes, '----------------')
                                                 sendToContentScript({
                                                     cmd: 'iota_request',
@@ -650,14 +627,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_changeAccount':
                                 {
                                     const { network = '' } = requestParams
-                                    const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}`
+                                    const url = `tanglepay://${method}?origin=${origin}&network=${network}&expires=${expires}&reqId=${reqId}`
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
                             case 'iota_sign':
                             case 'iota_connect':
                                 {
-                                    const url = `tanglepay://${method}?origin=${origin}&content=${content}&expires=${expires}`
+                                    const url = `tanglepay://${method}?origin=${origin}&content=${content}&expires=${expires}&reqId=${reqId}`
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
@@ -704,9 +681,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                 amount: -1
                                             })
                                         } else {
-                                            Promise.all(
-                                                addressList.map((e) => getBalanceInfo(e, nodeInfo, assetsList))
-                                            ).then((res) => {
+                                            Promise.all(addressList.map((e) => getBalanceInfo(e, nodeInfo, assetsList))).then((res) => {
                                                 let balance = new BigNumber(0)
                                                 let others = {}
                                                 let collectibles = []
@@ -728,10 +703,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                         others[symbol] = others[symbol] || {
                                                             amount: new BigNumber(0),
                                                             symbol,
-                                                            icon: `https://api.iotaichi.com/icon/${symbol.replace(
-                                                                /^micro/,
-                                                                ''
-                                                            )}.png`
+                                                            icon: `https://api.iotaichi.com/icon/${symbol.replace(/^micro/, '')}.png`
                                                         }
                                                         if (minimumReached) {
                                                             others[symbol].amount = others[symbol].amount.plus(amount)
@@ -756,13 +728,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                         })
                                                     ).then((tokensRes) => {
                                                         nativeTokensList.forEach((e, i) => {
-                                                            let info = tokensRes[i]?.output?.immutableFeatures.find(
-                                                                (e) => !!e.data
-                                                            )
+                                                            let info = tokensRes[i]?.output?.immutableFeatures.find((e) => !!e.data)
                                                             if (info) {
-                                                                e.info = Converter.hexToUtf8(
-                                                                    info.data.replace(/^0x/, '')
-                                                                )
+                                                                e.info = Converter.hexToUtf8(info.data.replace(/^0x/, ''))
                                                                 e.info = JSON.parse(e.info)
                                                             }
                                                         })
@@ -796,12 +764,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'eth_getBlockByNumber':
                                 {
                                     ensureWeb3Client().then(() => {
-                                        handleRequest(
-                                            TanglePaySdkCommon.ethGetBlockByNumber,
-                                            requestParams,
-                                            method,
-                                            reqId
-                                        )
+                                        handleRequest(TanglePaySdkCommon.ethGetBlockByNumber, requestParams, method, reqId)
                                     })
                                 }
                                 break
@@ -815,11 +778,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             default:
                                 params.url =
                                     chrome.runtime.getURL('index.html') +
-                                    `?cmd=iota_request&origin=${encodeURIComponent(
-                                        origin
-                                    )}&method=${method}&params=${encodeURIComponent(
-                                        JSON.stringify(request.greeting.params)
-                                    )}`
+                                    `?cmd=iota_request&origin=${encodeURIComponent(origin)}&method=${method}&params=${encodeURIComponent(JSON.stringify(request.greeting.params))}`
                                 break
                         }
                         if (!params.url) {
@@ -870,24 +829,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         //         createDialog(params)
                         //     }
                         // }
-                    }
-                )
-            })
-            return true
-        }
-        case 'popupBridgeToBackground':
-            window.tanglepayCallBack[cmd + '_' + reqId] = null
-            sendToContentScript(request?.sendData || {})
-            break
-        case 'popupBridgeCloseWindow':
-            window.tanglepayCallBack[cmd + '_' + reqId] = null
-            if (window.tanglepayDialog) {
-                chrome.windows.remove(window.tanglepayDialog)
+                    })
+                })
+                return true
             }
-            break
-        default:
-            sendResponse({ success: 'ok' })
-            break
+            case 'popupBridgeToBackground':
+                // window.tanglepayCallBack[cmd + '_' + reqId] = null
+                sendToContentScript(request?.sendData || {})
+                break
+            case 'popupBridgeCloseWindow':
+                window.tanglepayCallBack[cmd + '_' + reqId] = null
+                if (window.tanglepayDialog) {
+                    chrome.windows.remove(window.tanglepayDialog)
+                }
+                break
+            default:
+                sendResponse({ success: 'ok' })
+                break
+        }
     }
 })
 

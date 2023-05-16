@@ -4,6 +4,7 @@ import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { Nav, SvgIcon, Toast } from '@/common'
 import { useAddWallet } from '@tangle-pay/store/common'
+import { markWalletPasswordEnabled } from '@tangle-pay/domain';
 
 export const AccountMnemonic = () => {
     const [registerInfo, setRegisterInfo] = useStore('common.registerInfo')
@@ -98,6 +99,9 @@ export const AccountMnemonic = () => {
                             }
                             Toast.showLoading()
                             const res = await IotaSDK.importMnemonic(registerInfo)
+                            if (registerInfo.passwordIsPassword) {
+								await markWalletPasswordEnabled(res.id);
+							}
                             addWallet(res)
                             setRegisterInfo({})
                             Toast.hideLoading()

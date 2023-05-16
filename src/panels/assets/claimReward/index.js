@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useGetNodeWallet, useChangeNode } from '@tangle-pay/store/common'
 import { Nav, NoData, SvgIcon, Toast } from '@/common'
-
+import { isNewWalletFlow } from '@tangle-pay/domain'
 const contentH = document.body.offsetHeight
 export const ClaimReward = () => {
     let [, walletsList] = useGetNodeWallet()
@@ -68,7 +68,8 @@ export const ClaimReward = () => {
                                         onClick={async () => {
                                             if (i == 1) {
                                                 await changeNode(IotaSDK.IOTA_NODE_ID)
-                                                Base.push('/account/into', { type: 1, from: 'smr' })
+                                                const url = isNewWalletFlow() ? '/account/intopin' : '/account/into'
+                                                Base.push(url, { type: 1, from: 'smr' })
                                             }
                                         }}>
                                         {e}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Mask, Form, Input } from 'antd-mobile'
 import { I18n, IotaSDK, Base } from '@tangle-pay/common'
-import { useGetNodeWallet, useChangeNode } from '@tangle-pay/store/common'
+import { useGetNodeWallet, useGetAssetsList, useChangeNode } from '@tangle-pay/store/common'
 import { useStore } from '@tangle-pay/store'
 import BigNumber from 'bignumber.js'
 import { Toast } from './Toast'
@@ -9,11 +9,13 @@ import Bridge from '@/common/bridge'
 import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 import { Unit } from '@iota/unit-converter'
 import { GasDialog } from '@/common/components/gasDialog'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
 export const DappDialog = () => {
     const gasDialog = useRef()
     const [isShow, setShow] = useState(false)
     const [isRequestAssets] = useStore('common.isRequestAssets')
+    const [canShowDappDialog] = useStore('common.canShowDappDialog')
     useGetParticipationEvents()
     const [init, setInit] = useState(false)
     const [contentH, setContenth] = useState(600)
@@ -24,11 +26,20 @@ export const DappDialog = () => {
     const [deepLink, setDeepLink] = useState('')
     const selectTimeHandler = useRef()
     const [curWallet] = useGetNodeWallet()
+    useGetAssetsList(curWallet)
     const [assetsList] = useStore('common.assetsList')
     const [curNodeId] = useStore('common.curNodeId')
     const changeNode = useChangeNode()
     const [gasInfo, setGasInfo] = useState({})
     const isLedger = curWallet.type == 'ledger'
+    const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(true)
+
+    useEffect(() => {
+        checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
+            setIsWalletPassowrdEnabled(res)
+            setPassword(context.state.pin)
+        })
+    }, [curWallet.id, canShowDappDialog])
     const show = () => {
         // requestAnimationFrame(() => {
         setShow(true)
@@ -38,7 +49,7 @@ export const DappDialog = () => {
         setShow(false)
         Toast.hideLoading()
     }
-    const onHandleCancel = async ({ type }) => {
+    const onHandleCancel = async ({ type, reqId }) => {
         switch (type) {
             case 'iota_sign':
             case 'iota_connect':
@@ -46,27 +57,14 @@ export const DappDialog = () => {
             case 'eth_sendTransaction':
                 Bridge.sendErrorMessage(type, {
                     msg: 'cancel'
-                })
+                },reqId)
                 break
 
             default:
                 break
         }
     }
-    const onExecute = async ({
-        address,
-        return_url,
-        content,
-        type,
-        amount,
-        origin,
-        expires,
-        taggedData,
-        contract,
-        foundryData,
-        tag,
-        nftId
-    }) => {
+    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
             if (!isLedger) {
@@ -85,9 +83,7 @@ export const DappDialog = () => {
                     let mainBalance = 0
                     let curToken = IotaSDK.curNode?.token
                     if (contract) {
-                        curToken =
-                            (IotaSDK.curNode.contractList || []).find((e) => e.contract === contract)?.token ||
-                            IotaSDK.curNode?.token
+                        curToken = (IotaSDK.curNode.contractList || []).find((e) => e.contract === contract)?.token || IotaSDK.curNode?.token
                     }
                     let assets = assetsList.find((e) => e.name === curToken) || {}
                     if (foundryData) {
@@ -150,14 +146,14 @@ export const DappDialog = () => {
                         messageId = res.messageId
                         // Toast.hideLoading()
                         if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
-                            Bridge.sendMessage(type, res)
+                            Bridge.sendMessage(type, res, reqId)
                         } else {
                             // Toast.success(I18n.t('assets.sendSucc'))
                         }
                     } catch (error) {
                         Toast.hideLoading()
                         if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
-                            Bridge.sendErrorMessage(type, String(error))
+                            Bridge.sendErrorMessage(type, String(error), reqId)
                         } else {
                             Toast.error(String(error))
                             // Toast.error(
@@ -185,7 +181,7 @@ export const DappDialog = () => {
                 break
             case 'iota_getPublicKey':
                 {
-                    await Bridge.iota_getPublicKey(origin, expires)
+                    await Bridge.iota_getPublicKey(origin, expires, reqId)
                 }
                 break
             case 'iota_changeAccount':
@@ -195,18 +191,18 @@ export const DappDialog = () => {
                         address: curWallet.address,
                         nodeId: curWallet.nodeId,
                         network: IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.network
-                    })
+                    },reqId)
                     Toast.hideLoading()
                 }
                 break
             case 'iota_connect':
                 {
-                    await Bridge.iota_connect(origin, expires)
+                    await Bridge.iota_connect(origin, expires, reqId)
                 }
                 break
             case 'iota_sign':
                 {
-                    await Bridge.iota_sign(origin, expires, content, password)
+                    await Bridge.iota_sign(origin, expires, content, password, reqId)
                 }
                 break
             default:
@@ -233,22 +229,7 @@ export const DappDialog = () => {
         for (const i in res) {
             res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
         }
-        let {
-            network,
-            value,
-            unit,
-            return_url,
-            item_desc = '',
-            merchant = '',
-            content = '',
-            origin = '',
-            expires,
-            taggedData = '',
-            assetId = '',
-            nftId = '',
-            tag = '',
-            gas = ''
-        } = res
+        let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
         let toNetId
         if (network) {
             await IotaSDK.getNodes()
@@ -310,10 +291,7 @@ export const DappDialog = () => {
                                 // contract
                                 if (taggedData) {
                                     contract = address
-                                    const { functionName, params, web3Contract, isErc20 } = IotaSDK.getAbiParams(
-                                        address,
-                                        taggedData
-                                    )
+                                    const { functionName, params, web3Contract, isErc20 } = IotaSDK.getAbiParams(address, taggedData)
                                     for (const i in params) {
                                         if (Object.hasOwnProperty.call(params, i) && /^\d$/.test(i)) {
                                             abiParams.push(params[i])
@@ -329,19 +307,9 @@ export const DappDialog = () => {
                                             contractAmount = params[1]
                                             break
                                         case 'approve':
-                                            const contractGasLimit =
-                                                (IotaSDK.curNode.contractList || []).find(
-                                                    (e) => e.contract === contract
-                                                )?.gasLimit || 0
-                                            const { gasPrice } = await IotaSDK.getGasLimit(
-                                                contractGasLimit,
-                                                curWallet.address,
-                                                0
-                                            )
-                                            gasFee = IotaSDK.client.utils.fromWei(
-                                                IotaSDK.getNumberStr(BigNumber(gasPrice).valueOf()),
-                                                'ether'
-                                            )
+                                            const contractGasLimit = (IotaSDK.curNode.contractList || []).find((e) => e.contract === contract)?.gasLimit || 0
+                                            const { gasPrice } = await IotaSDK.getGasLimit(contractGasLimit, curWallet.address, 0)
+                                            gasFee = IotaSDK.client.utils.fromWei(IotaSDK.getNumberStr(BigNumber(gasPrice).valueOf()), 'ether')
                                             gasFee = `${gasFee} ${IotaSDK.curNode.token}`
                                             address = params[0]
                                             contractAmount = params[1]
@@ -363,9 +331,7 @@ export const DappDialog = () => {
                                         if (isErc20) {
                                             IotaSDK.importContract(contract, curToken)
                                         }
-                                        showContractAmount = new BigNumber(contractAmount)
-                                            .div(BigNumber(10).pow(decimals))
-                                            .valueOf()
+                                        showContractAmount = new BigNumber(contractAmount).div(BigNumber(10).pow(decimals)).valueOf()
                                     } catch (error) {}
                                     Toast.hideLoading()
                                 } else {
@@ -374,34 +340,21 @@ export const DappDialog = () => {
                                 Toast.showLoading()
                                 let [gasPrice, gasLimit] = await Promise.all([
                                     IotaSDK.client.eth.getGasPrice(),
-                                    IotaSDK.getDefaultGasLimit(
-                                        curWallet.address,
-                                        taggedData ? address : '',
-                                        IotaSDK.getNumberStr(sendAmount || 0),
-                                        taggedData
-                                    )
+                                    IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? address : '', IotaSDK.getNumberStr(sendAmount || 0), taggedData)
                                 ])
                                 if (taggedData) {
                                     if (IotaSDK.curNode?.contractGasPriceRate) {
-                                        gasPrice = IotaSDK.getNumberStr(
-                                            parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate)
-                                        )
+                                        gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate))
                                     }
                                     if (IotaSDK.curNode?.contractGasLimitRate) {
-                                        gasLimit = IotaSDK.getNumberStr(
-                                            parseInt(gasLimit * IotaSDK.curNode?.contractGasLimitRate)
-                                        )
+                                        gasLimit = IotaSDK.getNumberStr(parseInt(gasLimit * IotaSDK.curNode?.contractGasLimitRate))
                                     }
                                 } else {
                                     if (IotaSDK.curNode?.gasPriceRate) {
-                                        gasPrice = IotaSDK.getNumberStr(
-                                            parseInt(gasPrice * IotaSDK.curNode?.gasPriceRate)
-                                        )
+                                        gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.gasPriceRate))
                                     }
                                     if (IotaSDK.curNode?.gasLimitRate) {
-                                        gasLimit = IotaSDK.getNumberStr(
-                                            parseInt(gasLimit * IotaSDK.curNode?.gasLimitRate)
-                                        )
+                                        gasLimit = IotaSDK.getNumberStr(parseInt(gasLimit * IotaSDK.curNode?.gasLimitRate))
                                     }
                                 }
                                 const gasPriceWei = gasPrice
@@ -474,10 +427,7 @@ export const DappDialog = () => {
                                             unit = 'SMR'
                                         }
                                         showValue = value
-                                        sendAmount =
-                                            unit !== 'Glow'
-                                                ? Math.pow(10, IotaSDK.curNode?.decimal || 0) * value
-                                                : value
+                                        sendAmount = unit !== 'Glow' ? Math.pow(10, IotaSDK.curNode?.decimal || 0) * value : value
                                         showUnit = unit
                                     }
                                 } else {
@@ -493,9 +443,7 @@ export const DappDialog = () => {
 
                             let str = I18n.t(abiFunc === 'approve' ? 'apps.approve' : 'apps.send')
                             if (abiFunc && abiFunc !== 'approve' && abiFunc !== 'transfer') {
-                                str = I18n.t('apps.contractFunc')
-                                    .replace('#abiFunc#', abiFunc)
-                                    .replace('#abiParams#', abiParams.join(','))
+                                str = I18n.t('apps.contractFunc').replace('#abiFunc#', abiFunc).replace('#abiParams#', abiParams.join(','))
                             }
                             let fromStr = I18n.t('apps.sendFrom')
                             let forStr = I18n.t('apps.sendFor')
@@ -521,7 +469,8 @@ export const DappDialog = () => {
                                 nftId,
                                 abiFunc,
                                 abiParams,
-                                gas
+                                gas,
+                                reqId
                             })
                             show()
                         }
@@ -544,7 +493,8 @@ export const DappDialog = () => {
                                 texts,
                                 return_url,
                                 type,
-                                content
+                                content,
+                                reqId
                             })
                             show()
                         }
@@ -557,13 +507,13 @@ export const DappDialog = () => {
                             //     type
                             // })
                             // show()
-                            onExecute({ type })
+                            onExecute({ type, reqId })
                         }
                         break
                     case 'iota_changeAccount': {
                         //sdk change account
                         Toast.showLoading()
-                        onExecute({ type })
+                        onExecute({ type, reqId })
                         break
                     }
                     case 'iota_connect': // sdk connect
@@ -582,7 +532,8 @@ export const DappDialog = () => {
                                 return_url,
                                 type,
                                 origin,
-                                expires
+                                expires,
+                                reqId
                             })
                             show()
                         }
@@ -607,7 +558,8 @@ export const DappDialog = () => {
                                 type,
                                 content,
                                 origin,
-                                expires
+                                expires, 
+                                reqId
                             })
                             show()
                         }
@@ -622,11 +574,7 @@ export const DappDialog = () => {
         handleUrl(deepLink, curWallet.password)
     }, [JSON.stringify(curWallet), deepLink, curNodeId])
     useEffect(() => {
-        if (
-            dappData.type === 'iota_sendTransaction' ||
-            dappData.type === 'eth_sendTransaction' ||
-            dappData.type === 'send'
-        ) {
+        if (dappData.type === 'iota_sendTransaction' || dappData.type === 'eth_sendTransaction' || dappData.type === 'send') {
             if (!IotaSDK.isNeedRestake) {
                 isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
             }
@@ -636,15 +584,17 @@ export const DappDialog = () => {
         }
     }, [dappData.type, isRequestAssets])
     useEffect(() => {
-        const params = Base.handlerParams(window.location.search)
-        const url = params.url
-        if (checkDeepLink(url)) {
-            setInit(false)
-            show()
-            setDeepLink(url)
+        if (canShowDappDialog) {
+            const params = Base.handlerParams(window.location.search)
+            const url = params.url
+            if (checkDeepLink(url)) {
+                setInit(false)
+                show()
+                setDeepLink(url)
+            }
+            setContenth(document.getElementById('app').offsetHeight)
         }
-        setContenth(document.getElementById('app').offsetHeight)
-    }, [])
+    }, [canShowDappDialog])
     return (
         <Mask className='dapp-dialog' color='white' visible={isShow}>
             <div className='flex c column w100' style={{ height: contentH }}>
@@ -667,8 +617,7 @@ export const DappDialog = () => {
                                 })}
                             </span>
                         </div>
-                        {['iota_sendTransaction', 'eth_sendTransaction', 'send'].includes(dappData.type) &&
-                        IotaSDK.checkWeb3Node(curWallet.nodeId) ? (
+                        {['iota_sendTransaction', 'eth_sendTransaction', 'send'].includes(dappData.type) && IotaSDK.checkWeb3Node(curWallet.nodeId) ? (
                             <Form.Item noStyle>
                                 <div className='flex row ac jsb pv10 mt5'>
                                     <div className='fz16'>{I18n.t('assets.estimateGasFee')}</div>
@@ -676,9 +625,7 @@ export const DappDialog = () => {
                                         <div className='cS fz16 fw400 tr mr4 ellipsis' style={{ maxWidth: 122 }}>
                                             {gasInfo.totalEth}
                                         </div>
-                                        {gasInfo.totalEth ? (
-                                            <div className='cS fz16 fw400 tr mr8'>{IotaSDK.curNode?.token}</div>
-                                        ) : null}
+                                        {gasInfo.totalEth ? <div className='cS fz16 fw400 tr mr8'>{IotaSDK.curNode?.token}</div> : null}
                                         <div
                                             className='press cP fz16 fw400'
                                             onClick={() => {
@@ -695,13 +642,9 @@ export const DappDialog = () => {
                                 </div>
                             </Form.Item>
                         ) : null}
-                        {dappData.type !== 'iota_connect' && !isLedger ? (
+                        {dappData.type !== 'iota_connect' && !isLedger && isWalletPassowrdEnabled ? (
                             <Form.Item className='pl0'>
-                                <Input
-                                    type='password'
-                                    onChange={setPassword}
-                                    placeholder={I18n.t('assets.passwordTips')}
-                                />
+                                <Input type='password' onChange={setPassword} placeholder={I18n.t('assets.passwordTips')} />
                             </Form.Item>
                         ) : null}
                         <div className='flex row jsb ac mt25'>

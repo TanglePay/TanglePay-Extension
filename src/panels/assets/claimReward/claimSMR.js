@@ -7,9 +7,14 @@ import { Nav, Toast } from '@/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useAddWallet } from '@tangle-pay/store/common'
+import { useStore } from '@tangle-pay/store'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
 const schema = Yup.object().shape({
     password: Yup.string().required()
+})
+const schemaNopassword = Yup.object().shape({
+
 })
 export const ClaimSMR = () => {
     const form = useRef()
@@ -23,7 +28,11 @@ export const ClaimSMR = () => {
     const addWallet = useAddWallet()
     const changeNode = useChangeNode()
     const [contentW, setContentW] = useState(375)
+    const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(false)
     useEffect(() => {
+        checkWalletIsPasswordEnabled(curEdit.id).then((res) => {
+            setIsWalletPassowrdEnabled(res)
+        })
         setContentW(document.getElementById('app').offsetWidth)
     }, [])
     return (
@@ -46,11 +55,16 @@ export const ClaimSMR = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={schema}
+                    validationSchema={isWalletPassowrdEnabled ? schema : schemaNopassword}
                     onSubmit={async (values) => {
-                        const { password } = values
-                        if (!Base.checkPassword(password)) {
-                            return Toast.error(I18n.t('account.intoPasswordTips'))
+                        let password = ''
+                        if (isWalletPassowrdEnabled) {
+                            password = values.password
+                            if (!Base.checkPassword(password)) {
+                                return Toast.error(I18n.t('account.intoPasswordTips'))
+                            }
+                        } else {
+                            password = context.state.pin
                         }
                         try {
                             await changeNode(IotaSDK.SMR_NODE_ID)
@@ -73,22 +87,24 @@ export const ClaimSMR = () => {
                     {({ handleChange, handleSubmit, values, errors }) => (
                         <div className='ph16'>
                             <Form>
-                                <Form.Item className={`mb16 pl0 border-b ${errors.password && 'form-error'}`}>
-                                    <div className='fz16 mb16'>
-                                        {I18n.t('account.showKeyInputPassword').replace(/{name}/, curEdit.name)}
-                                    </div>
-                                    <Input
-                                        className='fz16'
-                                        type='password'
-                                        placeholder={I18n.t('account.intoPasswordTips')}
-                                        onChange={handleChange('password')}
-                                        value={values.password}
-                                        maxLength={20}
-                                    />
-                                </Form.Item>
+                                { isWalletPassowrdEnabled && (
+                                    <Form.Item className={`mb16 pl0 border-b ${errors.password && 'form-error'}`}>
+                                        <div className='fz16 mb16'>
+                                            {I18n.t('account.showKeyInputPassword').replace(/{name}/, curEdit.name)}
+                                        </div>
+                                        <Input
+                                            className='fz16'
+                                            type='password'
+                                            placeholder={I18n.t('account.intoPasswordTips')}
+                                            onChange={handleChange('password')}
+                                            value={values.password}
+                                            maxLength={20}
+                                        />
+                                    </Form.Item>
+                                )}
                             </Form>
                             <div className='flex row ac jsb' style={{ marginTop: 100 }}>
-                                <Button onClick={handleSubmit} disabled={!values.password} color='primary' block>
+                                <Button onClick={handleSubmit} disabled={!values.password && isWalletPassowrdEnabled} color='primary' block>
                                     {I18n.t('shimmer.claim')}
                                 </Button>
                             </div>

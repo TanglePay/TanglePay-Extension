@@ -29,7 +29,9 @@ module.exports = override(
         '@': path.resolve(__dirname, 'src'),
         '@tangle-pay/common': 'tanglepay/lib/browser/common',
         '@tangle-pay/store': 'tanglepay/lib/browser/store',
-        '@tangle-pay/assets': 'tanglepay/lib/browser/assets'
+        '@tangle-pay/assets': 'tanglepay/lib/browser/assets',
+        '@tangle-pay/domain': 'tanglepay/lib/browser/domain',
+        //'@tangle-pay/viewmodel': 'tanglepay/lib/browser/viewmodel'
     }),
     addLessLoader({
         lessLoaderOptions: {

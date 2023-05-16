@@ -4,12 +4,20 @@ import { Button, Input, Mask } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useStore } from '@tangle-pay/store'
 import { useCollect, useGetWalletInfo, useGetNodeWallet } from '@tangle-pay/store/common'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
 export const WalletCollection = () => {
     const [, totalInfo, loading, getInfo] = useGetWalletInfo()
     const [curWallet] = useGetNodeWallet()
     const [contentW, setContentW] = useState(375)
     const [password, setPassword] = useState('')
+    const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(false)
+    const isLedger = curWallet.type == 'ledger'
+    useEffect(() => {
+        checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
+            setIsWalletPassowrdEnabled(res)
+        })
+    })
     const [isShow, setShow] = useState(false)
     const [list, setList] = useState([])
     const [start, stop] = useCollect()
@@ -52,18 +60,28 @@ export const WalletCollection = () => {
                             <div className='fz16 cS mr24'>{I18n.t('account.pendingNum')}</div>
                             <div className='fz18 cP fw600'>{totalNum}</div>
                         </div>
-                        <div className='fz16 mt24'>{I18n.t('assets.passwordTips')}</div>
-                        <Input type='password' value={password} onChange={setPassword} className='border-b pv10' />
+                        {isWalletPassowrdEnabled && !isLedger ? (
+                            <>
+                                <div className='fz16 mt24'>{I18n.t('assets.passwordTips')}</div>
+                                <Input type='password' value={password} onChange={setPassword} className='border-b pv10' />
+                            </>
+                        ) : null}
                         <Button
                             onClick={async () => {
-                                const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
-                                if (!isPassword) {
-                                    return Toast.error(I18n.t('assets.passwordError'))
+                                let walletPassword = password
+                                if (!isWalletPassowrdEnabled) {
+                                    walletPassword = context.state.pin
                                 }
-                                start({ ...curWallet, password }, setList)
+                                if (!isLedger) {
+                                    const isPassword = await IotaSDK.checkPassword(curWallet.seed, walletPassword)
+                                    if (!isPassword) {
+                                        return Toast.error(I18n.t('assets.passwordError'))
+                                    }
+                                }
+                                start({ ...curWallet, password: walletPassword }, setList)
                                 setShow(true)
                             }}
-                            disabled={!password}
+                            disabled={!password && isWalletPassowrdEnabled && !isLedger}
                             className='mt40 mb16'
                             block
                             color='primary'>
@@ -73,10 +91,7 @@ export const WalletCollection = () => {
                 </div>
             </div>
             {isShow ? (
-                <Mask
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    visible={isShow}
-                    opacity={0.5}>
+                <Mask style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} visible={isShow} opacity={0.5}>
                     <div
                         className='bgW'
                         style={{

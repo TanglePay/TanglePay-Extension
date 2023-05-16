@@ -5,24 +5,31 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { useStore } from '@tangle-pay/store'
 import { useGetNodeWallet, useGetAssetsList } from '@tangle-pay/store/common'
-import { Nav, Toast } from '@/common'
+import { Nav, Toast, ConfirmDialog } from '@/common'
 import BigNumber from 'bignumber.js'
 import { useLocation } from 'react-router-dom'
 import { useGetParticipationEvents } from '@tangle-pay/store/staking'
 import { GasDialog } from '@/common/components/gasDialog'
+import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 // import { SendFailDialog } from '@/common/components/sendFailDialog'
 
-const schema = {
-    // currency: Yup.string().required(),
+const schema = Yup.object().shape({
     receiver: Yup.string().required(),
     amount: Yup.number().positive().required(),
     password: Yup.string().required()
-}
+})
+const schemaNopassword = Yup.object().shape({
+    receiver: Yup.string().required(),
+    amount: Yup.number().positive().required(),
+})
 export const AssetsSend = () => {
     const gasDialog = useRef()
+    const confirmDialog = useRef()
+    const [waitPs,setWaitPs] = useState()
     // const sendFailDialog = useRef()
     // const timeHandler = useRef()
     // const [statedAmount] = useStore('staking.statedAmount')
+
     useGetParticipationEvents()
     const [assetsList] = useStore('common.assetsList')
     let params = useLocation()
@@ -55,6 +62,13 @@ export const AssetsSend = () => {
     //     }
     // }, [])
     const [gasInfo, setGasInfo] = useState({})
+    const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(false)
+    useEffect(() => {
+        checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
+            console.log('isWalletPassowrdEnabled', res)
+            setIsWalletPassowrdEnabled(res)
+        })
+    }, [])
     useEffect(() => {
         if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
             const amount = parseFloat(inputAmount) || 0
@@ -63,10 +77,7 @@ export const AssetsSend = () => {
             sendAmount = IotaSDK.getNumberStr(sendAmount || 0)
             const eth = IotaSDK.client.eth
             console.log(sendAmount)
-            Promise.all([
-                eth.getGasPrice(),
-                IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount)
-            ]).then(([gasPrice, gas]) => {
+            Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount)]).then(([gasPrice, gas]) => {
                 if (assets?.contract) {
                     if (IotaSDK.curNode?.contractGasPriceRate) {
                         gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate))
@@ -102,11 +113,7 @@ export const AssetsSend = () => {
     }, [curWallet.nodeId, assets?.contract, inputAmount, assets.decimal])
     useGetAssetsList(curWallet)
     const isLedger = curWallet.type == 'ledger'
-    if (isLedger) {
-        schema.password = Yup.string().optional()
-    } else {
-        schema.password = Yup.string().required()
-    }
+
     return (
         <div className='page'>
             <Nav title={I18n.t('assets.send')} />
@@ -117,13 +124,30 @@ export const AssetsSend = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={Yup.object().shape(schema)}
+                    validationSchema={(isLedger || !isWalletPassowrdEnabled) ? schemaNopassword : schema}
                     onSubmit={async (values) => {
+
+                        
                         let { password, amount, receiver } = values
+                        if (!isWalletPassowrdEnabled) {
+                            password = context.state.pin
+                        }
                         if (!isLedger) {
                             const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
                             if (!isPassword) {
                                 return Toast.error(I18n.t('assets.passwordError'))
+                            }
+                        }
+                        if (!isWalletPassowrdEnabled) {
+                            const wait = new Promise((resolve, reject) => {
+                                setWaitPs({resolve, reject})
+                            })
+                            confirmDialog.current.show(receiver)
+                            console.log(waitPs)
+                            try {
+                            await wait;
+                            } catch (error) {
+                                return Toast.error(I18n.t('assets.cancelSend'))
                             }
                         }
                         amount = parseFloat(amount) || 0
@@ -145,6 +169,10 @@ export const AssetsSend = () => {
                                 return Toast.error(I18n.t('assets.residueBelow1Tips'))
                             }
                         }
+                        // confirm box
+                        
+
+
                         Toast.showLoading()
                         const tokenId = assets?.tokenId
                         try {
@@ -269,14 +297,10 @@ export const AssetsSend = () => {
                                         <div className='flex row ac jsb pv10 mt5'>
                                             <div className='fz18'>{I18n.t('assets.estimateGasFee')}</div>
                                             <div className='flex row ac'>
-                                                <div
-                                                    className='cS fz16 fw400 tr mr4 ellipsis'
-                                                    style={{ maxWidth: 136 }}>
+                                                <div className='cS fz16 fw400 tr mr4 ellipsis' style={{ maxWidth: 136 }}>
                                                     {gasInfo.totalEth}
                                                 </div>
-                                                {gasInfo.totalEth ? (
-                                                    <div className='cS fz16 fw400 tr mr8'>{IotaSDK.curNode?.token}</div>
-                                                ) : null}
+                                                {gasInfo.totalEth ? <div className='cS fz16 fw400 tr mr8'>{IotaSDK.curNode?.token}</div> : null}
                                                 <div
                                                     className='press cP fz16 fw400'
                                                     onClick={() => {
@@ -293,16 +317,10 @@ export const AssetsSend = () => {
                                         </div>
                                     </Form.Item>
                                 ) : null}
-                                {!isLedger ? (
+                                {!isLedger && isWalletPassowrdEnabled ? (
                                     <Form.Item className={`mt5 pl0 ${errors.password && 'form-error'}`}>
                                         <div className='fz18 mb10'>{I18n.t('assets.password')}</div>
-                                        <Input
-                                            type='password'
-                                            className='pl0 pv4'
-                                            placeholder={I18n.t('assets.passwordTips')}
-                                            onChange={handleChange('password')}
-                                            value={values.password}
-                                        />
+                                        <Input type='password' className='pl0 pv4' placeholder={I18n.t('assets.passwordTips')} onChange={handleChange('password')} value={values.password} />
                                     </Form.Item>
                                 ) : null}
                                 <div className='pb30' style={{ marginTop: 48 }}>
@@ -316,6 +334,7 @@ export const AssetsSend = () => {
                 </Formik>
             </div>
             <GasDialog dialogRef={gasDialog} />
+            <ConfirmDialog dialogRef={confirmDialog} text={I18n.t('assets.sentTo')} promise={waitPs} />
             {/* <SendFailDialog dialogRef={sendFailDialog} /> */}
         </div>
     )

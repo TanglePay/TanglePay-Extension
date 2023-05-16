@@ -10431,6 +10431,11 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.2.0.tgz#199431eeaaa2e09f86427efbb4f1473edb47609b"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
 
+react-pin-input@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.npmjs.org/react-pin-input/-/react-pin-input-1.3.1.tgz#b99e5891ac6785dbd607910aaf183886bf965866"
+  integrity sha512-/xlrm2GDryrZfZe2DMA8EadxXeOMzkx7lcvQaHFPWbw/v2f9mMbM+tYPgeBsqex1omKMtjZbT3XCqDpBrummpw==
+
 react-refresh@^0.11.0:
   version "0.11.0"
   resolved "https://registry.npmjs.org/react-refresh/-/react-refresh-0.11.0.tgz#77198b944733f0f1f1a90e791de4541f9f074046"
@@ -11648,10 +11653,10 @@ tailwindcss@^3.0.2:
     resolve "^1.22.1"
     sucrase "^3.29.0"
 
-tanglepay@^2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/tanglepay/-/tanglepay-2.5.0.tgz#bc957e0853fa8328684c0f3209abde8ae442ded9"
-  integrity sha512-ol5TnBi6qBfd4wpgOwWN1gLdQsXw1PwRC9HLGuLLkEwbjtZvZwZOmuTHjGQC9bi9O1PxMdRXjqwg/VQ7Frg2mQ==
+tanglepay@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-2.5.1.tgz#6d56ba4ba16eedb6015daced080745dc3403a758"
+  integrity sha512-F/DL3m2mvK8NXcbBuQMWhLJdDRq3u7FnexEqvGLCvhwIy3WrKNEJtqTknCbyu+WMuiaV2pWYMhXmYVAgzpHuXQ==
 
 tapable@^1.0.0:
   version "1.1.3"

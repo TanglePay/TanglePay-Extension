@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Form, Input, Button, TextArea } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { Formik } from 'formik'
@@ -7,26 +7,27 @@ import * as Yup from 'yup'
 import { useCreateCheck } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 import { Nav, SvgIcon, Toast } from '@/common'
+import { context, setPin, shouldShowSetPin } from '@tangle-pay/domain'
 import './index.less'
 import { ExpDialog } from './expDialog'
-import { markWalletPasswordEnabled } from '@tangle-pay/domain';
 
-
-const schema = Yup.object().shape({
+const schemaNopassword = Yup.object().shape({
     mnemonic: Yup.string().required(),
     name: Yup.string().required(),
-    password: Yup.string().required(),
-    rePassword: Yup.string().required(),
     agree: Yup.bool().isTrue().required()
 })
-
-export const AccountInto = () => {
+export const AccountIntoPin = () => {
     const dialogRef = useRef()
     let params = useLocation()
     params = Base.handlerParams(params.search)
     const type = parseInt(params.type)
     const from = params.from
     const form = useRef()
+    const [shouldShowPin, setShouldShowPin ] = useState( true )
+    useEffect(() => {
+        console.log(context)
+        setShouldShowPin(shouldShowSetPin())
+    }, [])
     useCreateCheck((name) => {
         form.current.setFieldValue('name', name)
     })
@@ -43,22 +44,27 @@ export const AccountInto = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={schema}
+                    validationSchema={schemaNopassword}
                     onSubmit={async (values) => {
                         
                         //import mnenomics
                         if (type === 1) {
                             const { password, rePassword } = values
-                            if (!Base.checkPassword(password)) {
-                                return Toast.error(I18n.t('account.intoPasswordTips'))
-                            }
-                            if (password !== rePassword) {
-                                return Toast.error(I18n.t('account.checkPasswrod'))
+                            if (shouldShowPin) {
+                                if (!Base.checkPin(password)) {
+                                    return Toast.error(I18n.t('account.intoPinTips'))
+                                }
+                                if (password !== rePassword) {
+                                    return Toast.error(I18n.t('account.checkPin'))
+                                }
+                                await setPin(password)
+                            } else {
+                                values.password = context.state.pin
+                                values.rePassword = context.state.pin
                             }
                             const res = await IotaSDK.importMnemonic({
                                 ...values
                             })
-                            await markWalletPasswordEnabled(res.id);
                             addWallet({
                                 ...res
                             })
@@ -122,34 +128,29 @@ export const AccountInto = () => {
                                         value={values.name}
                                     />
                                 </Form.Item>
-
-                                <Form.Item className={`mt16 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz16 mb10'>
-                                        {I18n.t(type === 1 ? 'account.intoPassword' : 'account.intoFilePassword')}
-                                    </div>
+                                {shouldShowPin &&
+                                (<Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
+                                    <div className='fz18 mb10'>{I18n.t('account.intoPin')}</div>
                                     <Input
-                                        style={{ paddingTop: 3, paddingBottom: 3 }}
+                                        className='pt4'
                                         type='password'
-                                        placeholder={I18n.t(
-                                            type === 1 ? 'account.intoPasswordTips' : 'account.intoFilePasswordTips'
-                                        )}
+                                        placeholder={I18n.t('account.intoPinTips')}
                                         onChange={handleChange('password')}
                                         value={values.password}
                                         maxLength={20}
                                     />
-                                </Form.Item>
-                                {type === 1 && (
-                                    <Form.Item className={`pl0 mb5 ${errors.rePassword && 'form-error'}`}>
-                                        <Input
-                                            style={{ paddingTop: 3, paddingBottom: 3 }}
-                                            type='password'
-                                            placeholder={I18n.t('account.intoRePasswordTips')}
-                                            onChange={handleChange('rePassword')}
-                                            value={values.rePassword}
-                                            maxLength={20}
-                                        />
-                                    </Form.Item>
-                                )}
+                                </Form.Item>)}
+                                {type === 1 && shouldShowPin &&
+                                (<Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
+                                    <Input
+                                        type='password'
+                                        className='pt4'
+                                        placeholder={I18n.t('account.intoRePin')}
+                                        onChange={handleChange('rePassword')}
+                                        value={values.rePassword}
+                                        maxLength={20}
+                                    />
+                                </Form.Item>)}
                             </Form>
                             <div
                                 className='flex row as pl0 mt30 mb20'
