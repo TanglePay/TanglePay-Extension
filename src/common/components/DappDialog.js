@@ -33,14 +33,17 @@ export const DappDialog = () => {
     const [gasInfo, setGasInfo] = useState({})
     const isLedger = curWallet.type == 'ledger'
     const [isWalletPassowrdEnabled, setIsWalletPassowrdEnabled] = useState(true)
-
-    useEffect(() => {
+    const ensureWalletStatus = () => {
         checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
             setIsWalletPassowrdEnabled(res)
             setPassword(context.state.pin)
         })
+    }
+    useEffect(() => {
+        ensureWalletStatus();
     }, [curWallet.id, canShowDappDialog])
     const show = () => {
+        ensureWalletStatus();
         // requestAnimationFrame(() => {
         setShow(true)
         // })
