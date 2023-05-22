@@ -4582,17 +4582,31 @@
                             if (isGreaterOrEquals) {
                                 // We didn't use all the balance from the last input
                                 // so return the rest to the same address.
-                                if (consumedBalance.minus(requiredBalance).greater(0) && addressOutput.output.type === BASIC_OUTPUT_TYPE) {
+                                const minus = consumedBalance.minus(requiredBalance)
+                                if (minus.greater(0) && addressOutput.output.type === BASIC_OUTPUT_TYPE) {
                                     const addressUnlockCondition = addressOutput.output.unlockConditions.find((u) => u.type === ADDRESS_UNLOCK_CONDITION_TYPE)
-                                    if (addressUnlockCondition && addressUnlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE && addressUnlockCondition.address.type === ED25519_ADDRESS_TYPE) {
+                                    if (
+                                        minus.greaterOrEquals(minBalance) &&
+                                        addressUnlockCondition &&
+                                        addressUnlockCondition.type === ADDRESS_UNLOCK_CONDITION_TYPE &&
+                                        addressUnlockCondition.address.type === ED25519_ADDRESS_TYPE
+                                    ) {
                                         outputs.push({
-                                            amount: consumedBalance.minus(requiredBalance),
+                                            amount: minus,
                                             address: addressUnlockCondition.address.pubKeyHash,
                                             addressType: addressUnlockCondition.address.type
                                         })
                                     }
+                                    //差值小于最小金额
+                                    if (minus.lesser(minBalance)) {
+                                        outputs.push({
+                                            amount: minBalance,
+                                            address: addressUnlockCondition.address.pubKeyHash,
+                                            addressType: addressUnlockCondition.address.type
+                                        })
+                                        requiredBalance = requiredBalance.plus(minBalance)
+                                    }
                                 }
-                                const minus = consumedBalance.minus(requiredBalance)
                                 if (minus.equals(0) || minus.greaterOrEquals(minBalance)) {
                                     finished = true
                                 }
