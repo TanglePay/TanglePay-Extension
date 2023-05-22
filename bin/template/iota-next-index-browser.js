@@ -4597,7 +4597,6 @@
                                             addressType: addressUnlockCondition.address.type
                                         })
                                     }
-                                    //差值小于最小金额
                                     if (minus.lesser(minBalance)) {
                                         outputs.push({
                                             amount: minBalance,
