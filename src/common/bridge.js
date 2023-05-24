@@ -1,6 +1,7 @@
 import { Base, IotaSDK, API_URL, Trace } from '@tangle-pay/common'
 import BigNumber from 'bignumber.js'
 import { Toast } from './components/Toast'
+import { send } from '@iota/iota.js-next'
 export default {
     async connect(url) {
         const query = Base.handlerParams(url) || {}
@@ -235,6 +236,22 @@ export default {
             }
         }
     },
+    async sendToContentScriptGetUUID() {
+        const sendMessage = window.chrome?.runtime?.sendMessage
+        if (sendMessage) {
+            try {
+                const value = await sendMessage({
+                    cmd: `contentToBackground##bgUuidGet`
+                })
+                console.log('sendToContentScriptGetUUID',value)
+                return value.data.payload;
+            } catch (error) {
+                console.log('sendToContentScriptGetUUID error',error)
+                return null;
+            }
+        }
+    },
+
     sendToContentScript(cmd, { method, response, code = 200 }, reqId = 0) {
         // V2
         // const bg = window.chrome?.extension?.getBackgroundPage()

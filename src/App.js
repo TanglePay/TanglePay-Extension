@@ -6,10 +6,11 @@ import { HashRouter, Route, Redirect } from 'react-router-dom'
 import { StoreContext, useStoreReducer } from '@tangle-pay/store'
 import { context, ensureInited, getIsUnlocked, init as pinInit, markWalletPasswordEnabled, isNewWalletFlow, setStorageFacade } from '@tangle-pay/domain'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
-import { PasswordDialog, StorageFacade } from '@/common'
+import { PasswordDialog, StorageFacade, bridge } from '@/common'
 import { CacheSwitch, CacheRoute } from 'react-router-cache-route'
 import { Toast } from '@/common'
 import { DappDialog } from '@/common/components/DappDialog'
+
 import './App.less'
 
 const AnimatedSwitch = (props) => {
@@ -111,14 +112,18 @@ const App = () => {
         })
     }
     useEffect(() => {
-        setStorageFacade(StorageFacade)
-        Base.globalInit({
-            store,
-            dispatch,
-            Toast
-        })
-        IotaSDK.passwordDialog = passwordDialog
-        init()
+        const fn = async () => {
+            const uuid = await bridge.sendToContentScriptGetUUID()
+            setStorageFacade(StorageFacade, uuid)
+            Base.globalInit({
+                store,
+                dispatch,
+                Toast
+            })
+            IotaSDK.passwordDialog = passwordDialog
+            init()
+        }
+        fn()
     }, [])
     if (sceneList.length === 0) {
         return null

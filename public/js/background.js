@@ -15,6 +15,25 @@ var sendToInject = function (params) {
 
 const flatten = (arr, depth = 1) => (depth != 1 ? arr.reduce((a, v) => a.concat(Array.isArray(v) ? flatten(v, depth - 1) : v), []) : arr.reduce((a, v) => a.concat(v), []))
 
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+
+const getUuid = async () => {
+    const key = 'key_uuid'
+    let uuid = await getLocalStorage(key)
+    if (!uuid) {
+        uuid = generateUUID()
+        setLocalStorage(key, uuid)
+    }
+    return uuid
+}
+
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
         chrome.storage.local.get(key, (res) => {
@@ -393,7 +412,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     const cmd = (request?.cmd || '').replace('contentToBackground##', '')
-    if (['bgDataSet', 'bgDataGet'].includes(cmd)) {
+    if (['bgDataSet', 'bgDataGet', 'bgUuidGet'].includes(cmd)) {
         switch (cmd) {
             case 'bgDataSet':
                 {
@@ -405,6 +424,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 {
                     const { key } = request.sendData
                     getLocalStorage(key).then((res) => {
+                        sendResponse({
+                            cmd: cmd,
+                            data: {
+                                payload: res ?? ''
+                            }
+                        })
+                    })
+                    return true
+                }
+                break
+            case 'bgUuidGet':
+                {
+                    getUuid().then((res) => {
                         sendResponse({
                             cmd: cmd,
                             data: {
