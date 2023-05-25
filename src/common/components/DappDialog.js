@@ -40,10 +40,10 @@ export const DappDialog = () => {
         })
     }
     useEffect(() => {
-        ensureWalletStatus();
+        ensureWalletStatus()
     }, [curWallet.id, canShowDappDialog])
     const show = () => {
-        ensureWalletStatus();
+        ensureWalletStatus()
         // requestAnimationFrame(() => {
         setShow(true)
         // })
@@ -58,9 +58,13 @@ export const DappDialog = () => {
             case 'iota_connect':
             case 'iota_sendTransaction':
             case 'eth_sendTransaction':
-                Bridge.sendErrorMessage(type, {
-                    msg: 'cancel'
-                },reqId)
+                Bridge.sendErrorMessage(
+                    type,
+                    {
+                        msg: 'cancel'
+                    },
+                    reqId
+                )
                 break
 
             default:
@@ -189,12 +193,16 @@ export const DappDialog = () => {
                 break
             case 'iota_changeAccount':
                 {
-                    Bridge.sendMessage(type, {
-                        code: 200,
-                        address: curWallet.address,
-                        nodeId: curWallet.nodeId,
-                        network: IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.network
-                    },reqId)
+                    Bridge.sendMessage(
+                        type,
+                        {
+                            code: 200,
+                            address: curWallet.address,
+                            nodeId: curWallet.nodeId,
+                            network: IotaSDK.nodes.find((e) => e.id == curWallet.nodeId)?.network
+                        },
+                        reqId
+                    )
                     Toast.hideLoading()
                 }
                 break
@@ -332,7 +340,7 @@ export const DappDialog = () => {
                                             decimals = await web3Contract.methods.decimals().call()
                                         }
                                         if (isErc20) {
-                                            IotaSDK.importContract(contract, curToken)
+                                            IotaSDK.importContract(contract, curToken, decimals)
                                         }
                                         showContractAmount = new BigNumber(contractAmount).div(BigNumber(10).pow(decimals)).valueOf()
                                     } catch (error) {}
@@ -561,7 +569,7 @@ export const DappDialog = () => {
                                 type,
                                 content,
                                 origin,
-                                expires, 
+                                expires,
                                 reqId
                             })
                             show()
