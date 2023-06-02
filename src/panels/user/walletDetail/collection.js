@@ -28,7 +28,11 @@ export const WalletCollection = () => {
         Base.globalTemData.toastStr = I18n.t('account.collectSuccTips')
         stop()
         setShow(false)
-        Base.goBack()
+        if (isLedger) {
+            Base.replace('/main')
+        } else {
+            Base.goBack()
+        }
         getInfo()
         setTimeout(() => {
             getInfo()

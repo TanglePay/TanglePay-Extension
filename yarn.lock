@@ -11653,10 +11653,10 @@ tailwindcss@^3.0.2:
     resolve "^1.22.1"
     sucrase "^3.29.0"
 
-tanglepay@^2.5.1:
-  version "2.5.1"
-  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-2.5.1.tgz#6d56ba4ba16eedb6015daced080745dc3403a758"
-  integrity sha512-F/DL3m2mvK8NXcbBuQMWhLJdDRq3u7FnexEqvGLCvhwIy3WrKNEJtqTknCbyu+WMuiaV2pWYMhXmYVAgzpHuXQ==
+tanglepay@^2.5.5:
+  version "2.5.5"
+  resolved "https://registry.npmjs.org/tanglepay/-/tanglepay-2.5.5.tgz#3158e628f1e0fa89f36ccd98b22b3acc962f52ef"
+  integrity sha512-TXiOWvPA/w0CNyQlLb8WCjiyoeghm+yadY0cXlI4H4Uqsqi6qZQgLaYKQkph8GUSETrX6wjqlcwIlusClk5FYA==
 
 tapable@^1.0.0:
   version "1.1.3"

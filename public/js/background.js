@@ -15,6 +15,24 @@ var sendToInject = function (params) {
 
 const flatten = (arr, depth = 1) => (depth != 1 ? arr.reduce((a, v) => a.concat(Array.isArray(v) ? flatten(v, depth - 1) : v), []) : arr.reduce((a, v) => a.concat(v), []))
 
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (Math.random() * 16) | 0,
+            v = c === 'x' ? r : (r & 0x3) | 0x8
+        return v.toString(16)
+    })
+}
+
+const getUuid = async () => {
+    const key = 'key_uuid'
+    let uuid = await getLocalStorage(key)
+    if (!uuid) {
+        uuid = generateUUID()
+        setLocalStorage(key, uuid)
+    }
+    return uuid
+}
+
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
         chrome.storage.local.get(key, (res) => {
@@ -146,6 +164,71 @@ const getNodeInfo = async () => {
     const nodeInfo = TanglePayNodeInfo.list.find((e) => e.id == nodeId)
     return nodeInfo || {}
 }
+
+const importContract = async (contract, reqId, method) => {
+    await ensureWeb3Client()
+    TanglePayNodeInfo = (await getBackgroundData('tanglePayNodeList')) || { list: [] }
+    const nodeInfo = await getNodeInfo()
+    const sendError = (error) => {
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: -1,
+            data: {
+                method,
+                response: error
+            }
+        })
+    }
+    if (nodeInfo?.type == 2) {
+        const tokenAbi = [...TanglePay_TokenERC20]
+        const web3 = web3_
+        try {
+            const web3Contract = new web3.eth.Contract(tokenAbi, contract)
+            const [token, decimal] = await Promise.all([web3Contract.methods.symbol().call(), web3Contract.methods.decimals().call()])
+            TanglePayNodeInfo.list.forEach((e) => {
+                if (e.id == nodeInfo.id) {
+                    const index = (e.contractList || []).findIndex((c) => c.contract.toLocaleLowerCase() == contract)
+                    if (index == -1) {
+                        e.contractList.push({
+                            contract,
+                            token,
+                            decimal
+                        })
+                    } else {
+                        e.contractList[index] = {
+                            ...e.contractList[index],
+                            contract,
+                            token,
+                            decimal
+                        }
+                    }
+                }
+            })
+            setBackgroundData('tanglePayNodeList', {
+                list: TanglePayNodeInfo.list
+            })
+            sendToContentScript({
+                cmd: 'iota_request',
+                id: reqId,
+                code: 200,
+                data: {
+                    method,
+                    response: {
+                        contract,
+                        token,
+                        decimal
+                    }
+                }
+            })
+        } catch (error) {
+            sendError(error)
+        }
+    } else {
+        sendError(new Error('node is error'))
+    }
+}
+
 const getBalanceNodeMatch = async (method, addressList) => {
     const addressInfo = await getAddressInfo()
     const nodeId = addressInfo?.nodeId
@@ -393,7 +476,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     // sendResponse('It\'s TanglePay, message recieved: ' + JSON.stringify(request))
     const cmd = (request?.cmd || '').replace('contentToBackground##', '')
-    if (['bgDataSet', 'bgDataGet'].includes(cmd)) {
+    if (['bgDataSet', 'bgDataGet', 'bgUuidGet'].includes(cmd)) {
         switch (cmd) {
             case 'bgDataSet':
                 {
@@ -405,6 +488,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 {
                     const { key } = request.sendData
                     getLocalStorage(key).then((res) => {
+                        sendResponse({
+                            cmd: cmd,
+                            data: {
+                                payload: res ?? ''
+                            }
+                        })
+                    })
+                    return true
+                }
+                break
+            case 'bgUuidGet':
+                {
+                    getUuid().then((res) => {
                         sendResponse({
                             cmd: cmd,
                             data: {
@@ -528,6 +624,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                             }
                                         })
                                     })
+                                }
+                                break
+                            case 'eth_importContract':
+                                {
+                                    importContract(requestParams.contract, reqId, method)
                                 }
                                 break
                             case 'get_login_token':

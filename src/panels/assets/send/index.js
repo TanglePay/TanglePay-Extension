@@ -20,12 +20,12 @@ const schema = Yup.object().shape({
 })
 const schemaNopassword = Yup.object().shape({
     receiver: Yup.string().required(),
-    amount: Yup.number().positive().required(),
+    amount: Yup.number().positive().required()
 })
 export const AssetsSend = () => {
     const gasDialog = useRef()
     const confirmDialog = useRef()
-    const [waitPs,setWaitPs] = useState()
+    const [waitPs, setWaitPs] = useState()
     // const sendFailDialog = useRef()
     // const timeHandler = useRef()
     // const [statedAmount] = useStore('staking.statedAmount')
@@ -124,10 +124,8 @@ export const AssetsSend = () => {
                     validateOnBlur={false}
                     validateOnChange={false}
                     validateOnMount={false}
-                    validationSchema={(isLedger || !isWalletPassowrdEnabled) ? schemaNopassword : schema}
+                    validationSchema={isLedger || !isWalletPassowrdEnabled ? schemaNopassword : schema}
                     onSubmit={async (values) => {
-
-                        
                         let { password, amount, receiver } = values
                         if (!isWalletPassowrdEnabled) {
                             password = context.state.pin
@@ -140,14 +138,14 @@ export const AssetsSend = () => {
                         }
                         if (!isWalletPassowrdEnabled) {
                             const wait = new Promise((resolve, reject) => {
-                                setWaitPs({resolve, reject})
+                                setWaitPs({ resolve, reject })
                             })
                             confirmDialog.current.show(receiver)
                             console.log(waitPs)
                             try {
-                            await wait;
+                                await wait
                             } catch (error) {
-                                return Toast.error(I18n.t('assets.cancelSend'))
+                                // return Toast.error(I18n.t('assets.cancelSend'))
                             }
                         }
                         amount = parseFloat(amount) || 0
@@ -170,8 +168,6 @@ export const AssetsSend = () => {
                             }
                         }
                         // confirm box
-                        
-
 
                         Toast.showLoading()
                         const tokenId = assets?.tokenId
