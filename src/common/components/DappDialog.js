@@ -216,6 +216,12 @@ export const DappDialog = () => {
                     await Bridge.iota_sign(origin, expires, content, password, reqId)
                 }
                 break
+            case 'iota_im':
+                {
+
+                    await Bridge.iota_im(password, reqId)
+                }
+                break
             default:
                 break
         }
@@ -575,6 +581,25 @@ export const DappDialog = () => {
                             show()
                         }
                         break
+                    case 'iota_im':
+                        {
+                            let str = I18n.t('apps.ImAuthorize')
+                            const texts = [
+                                {
+                                    text: str.replace(/\n/g, '<br/>')
+                                }
+                            ]
+                            setDappData({
+                                texts,
+                                return_url,
+                                type,
+                                content,
+                                origin,
+                                expires,
+                                reqId
+                            })
+                            show()
+                        }
                     default:
                         break
                 }
