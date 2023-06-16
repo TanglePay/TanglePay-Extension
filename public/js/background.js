@@ -5,6 +5,13 @@ importScripts('./sdk/web3.min.js')
 importScripts('./sdk/sdkcommon.min.js')
 importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
+importScripts('./iotacat/BigInteger.min.js')
+importScripts('./iotacat/util.js')
+importScripts('./iotacat/crypto.js')
+importScripts('./iotacat/pow-browser.min.js')
+importScripts('./iotacat/iota.js')
+importScripts('./iotacat/core.js')
+importScripts('./iotacat/client.js')
 const API_URL = 'https://api.iotaichi.com'
 
 // send message to inject
@@ -463,6 +470,68 @@ const ensureWeb3Client = () => {
         }
     })
 }
+const getSeedAuthorizeCacheKey = (dappOrigin,address) => {
+    return `${dappOrigin}_${address}`
+}
+// :Record<string,{hexSeed:string}>
+const hexSeedCache = {}
+const pendingImRequests = {}
+const ifImNeedAuthorize = (dappOrigin, address) => {
+    const key = getSeedAuthorizeCacheKey(dappOrigin, address)
+    return hexSeedCache[key] ? false : true
+}
+const handleImRequests = ({reqId, dappOrigin, senderAddr, group, message}) => {
+    window.iotacatclient.sendMessage(senderAddr, group, message).then((res) => {
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: res ? 200 : -1,
+            data: {
+                method,
+                response: res
+            }
+        })
+    }).catch((error) => {
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: -1,
+            data: {
+                method,
+                response: error
+            }
+        })
+    })
+}
+/*
+pendingImRequests[key].payload.push({
+                                            ...content,
+                                            reqId,
+                                            dappOrigin:dappOrigin
+                                        })
+                                        */
+const sendPendingImRequestsByKey = async (key) => {
+    for (const pendingImRequest of pendingImRequests[key].payload) {
+        try {
+            await handleImRequests(pendingImRequest)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}
+const rejectPendingImRequestsByKey = (key, error) => {
+    for (const pendingImRequest of pendingImRequests[key].payload) {
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: pendingImRequest.reqId,
+            code: -1,
+            data: {
+                method:'iota_im',
+                response: error
+            }
+        })
+    }
+}
 // get message from content-script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
@@ -513,6 +582,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 break
         }
     } else {
+        const dappOrigin = request?.dappOrigin
         const origin = request?.origin
         const reqId = request?.id ? request?.id : 0
         window.tanglepayCallBack[cmd + '_' + reqId] = sendResponse
@@ -739,6 +809,40 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
+                            case 'iota_im':
+                                {
+                                    if (ifImNeedAuthorize()) {
+                                        const key = getSeedAuthorizeCacheKey(dappOrigin, content.senderAddr)
+                                        if (!pendingImRequests[key]) pendingImRequests[key] = {isAuthorizing:false,payload:[]}
+                                        pendingImRequests[key].payload.push({
+                                            ...content,
+                                            reqId,
+                                            dappOrigin:dappOrigin
+                                        })
+                                        if (!pendingImRequests[key].isAuthorizing) {   
+                                            pendingImRequests[key].isAuthorizing = true
+                                            const url = `tanglepay://${method}?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}`
+                                            params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                        }
+                                    } else {
+                                        handleImRequests(reqId, content)
+                                    }
+                                }
+                                break
+                            case 'iota_im_authorized':
+                                {
+                                    if (requestParams?.sendData) {
+                                        const { hex, reqId, dappOrigin, address } = requestParams?.sendData
+                                        if (hex && reqId && dappOrigin && address) {
+                                            const key = getSeedAuthorizeCacheKey(dappOrigin, address)
+                                            window.iotacatclient.setHexSeed(hex).then((res) => {
+                                                sendPendingImRequestsByKey(key).catch(e=>console.log(e))
+                                            }).catch((error) => {
+                                                rejectPendingImRequestsByKey(key,error).catch(e=>console.log(e))
+                                            })
+                                        }
+                                    }
+                                }
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
