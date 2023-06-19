@@ -8,12 +8,56 @@ importScripts('./sdk/TokenERC20.js')
 importScripts('./iotacat/BigInteger.min.js')
 importScripts('./iotacat/util.js')
 importScripts('./iotacat/crypto.js')
-importScripts('./iotacat/pow-browser.min.js')
+importScripts('./iotacat/pow-browser.js')
 importScripts('./iotacat/iota.js')
 importScripts('./iotacat/core.js')
 importScripts('./iotacat/client.js')
 const API_URL = 'https://api.iotaichi.com'
 
+/*
+IotaUtil.RandomHelper.randomPolyfill = length => {
+    const randomBytes = new Uint8Array(length);
+    crypto.getRandomValues(randomBytes);
+    return randomBytes;
+};
+*/
+//TODO window.navigator.hardwareConcurrency
+//TODO bad init
+iotacatclient.setup(101)
+
+const getLocalStorage = async (key) => {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(key, (res) => {
+            res = res[key] || null
+            resolve(res)
+        })
+    })
+}
+const setLocalStorage = (key, value) => {
+    chrome.storage.local.set({
+        [key]: value
+    })
+}
+const setLocalStorageAsync = async (key, value) => {
+    await chrome.storage.local.set({
+        [key]: value
+    })
+}
+/*
+interface StorageFacade {
+    get(key: string): Promise<string | null>;
+    set(key: string, value: string): Promise<void>;
+}
+*/
+const storageFacade = {
+    prefix:'1',
+    get: getLocalStorage,
+    set: setLocalStorageAsync
+}
+iotacatclient.setupStorage(storageFacade)
+
+//TODO clear storage for testing purpose
+chrome.storage.local.clear().catch(e=>console.log(e))
 // send message to inject
 var sendToInject = function (params) {
     params.cmd = `contentToInject##${params.cmd}`
@@ -40,19 +84,6 @@ const getUuid = async () => {
     return uuid
 }
 
-const getLocalStorage = async (key) => {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(key, (res) => {
-            res = res[key] || null
-            resolve(res)
-        })
-    })
-}
-const setLocalStorage = (key, value) => {
-    chrome.storage.local.set({
-        [key]: value
-    })
-}
 const getFoundry = async (nodeUrl, id) => {
     const localTokensConfig = (await getLocalStorage('shimmer.sdk.tokensConfig')) || {}
     if (localTokensConfig[id]) {
@@ -481,7 +512,7 @@ const ifImNeedAuthorize = (dappOrigin, address) => {
     return hexSeedCache[key] ? false : true
 }
 const handleImRequests = ({reqId, dappOrigin, senderAddr, group, message}) => {
-    window.iotacatclient.sendMessage(senderAddr, group, message).then((res) => {
+    iotacatclient.sendMessage(senderAddr, group, message).then((res) => {
         sendToContentScript({
             cmd: 'iota_request',
             id: reqId,
@@ -497,22 +528,17 @@ const handleImRequests = ({reqId, dappOrigin, senderAddr, group, message}) => {
             id: reqId,
             code: -1,
             data: {
-                method,
+                method:'iota_im',
                 response: error
             }
         })
     })
 }
-/*
-pendingImRequests[key].payload.push({
-                                            ...content,
-                                            reqId,
-                                            dappOrigin:dappOrigin
-                                        })
-                                        */
+
 const sendPendingImRequestsByKey = async (key) => {
-    for (const pendingImRequest of pendingImRequests[key].payload) {
+    while (pendingImRequests[key].payload.length > 0) {
         try {
+            const pendingImRequest = pendingImRequests[key].payload.shift()
             await handleImRequests(pendingImRequest)
         } catch (error) {
             console.log(error)
@@ -520,7 +546,8 @@ const sendPendingImRequestsByKey = async (key) => {
     }
 }
 const rejectPendingImRequestsByKey = (key, error) => {
-    for (const pendingImRequest of pendingImRequests[key].payload) {
+    while (pendingImRequests[key].payload.length > 0) {
+        const pendingImRequest = pendingImRequests[key].payload.shift()
         sendToContentScript({
             cmd: 'iota_request',
             id: pendingImRequest.reqId,
@@ -811,7 +838,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 break
                             case 'iota_im':
                                 {
-                                    if (ifImNeedAuthorize()) {
+                                    if (ifImNeedAuthorize(dappOrigin,content.senderAddr)) {
                                         const key = getSeedAuthorizeCacheKey(dappOrigin, content.senderAddr)
                                         if (!pendingImRequests[key]) pendingImRequests[key] = {isAuthorizing:false,payload:[]}
                                         pendingImRequests[key].payload.push({
@@ -820,7 +847,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                             dappOrigin:dappOrigin
                                         })
                                         if (!pendingImRequests[key].isAuthorizing) {   
-                                            pendingImRequests[key].isAuthorizing = true
+                                            //pendingImRequests[key].isAuthorizing = true
                                             const url = `tanglepay://${method}?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}`
                                             params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                         }
@@ -829,20 +856,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     }
                                 }
                                 break
-                            case 'iota_im_authorized':
-                                {
-                                    if (requestParams?.sendData) {
-                                        const { hex, reqId, dappOrigin, address } = requestParams?.sendData
-                                        if (hex && reqId && dappOrigin && address) {
-                                            const key = getSeedAuthorizeCacheKey(dappOrigin, address)
-                                            window.iotacatclient.setHexSeed(hex).then((res) => {
-                                                sendPendingImRequestsByKey(key).catch(e=>console.log(e))
-                                            }).catch((error) => {
-                                                rejectPendingImRequestsByKey(key,error).catch(e=>console.log(e))
-                                            })
-                                        }
-                                    }
-                                }
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
@@ -1048,6 +1061,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     chrome.windows.remove(window.tanglepayDialog)
                 }
                 break
+            case 'iota_im_authorized':
+                {
+                    if (request?.sendData) {
+                        const { hex, reqId, dappOrigin, address } = request?.sendData
+                        if (hex && reqId && dappOrigin && address) {
+                            const key = getSeedAuthorizeCacheKey(dappOrigin, address)
+                            // TODO init client first
+                            iotacatclient.setHexSeed(hex).then((res) => {
+                                sendPendingImRequestsByKey(key).catch(e=>console.log(e))
+                            }).catch((error) => {
+                                rejectPendingImRequestsByKey(key,error).catch(e=>console.log(e))
+                            })
+                        }
+                    }
+                }
+                break
+                            
             default:
                 sendResponse({ success: 'ok' })
                 break
