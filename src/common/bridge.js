@@ -71,13 +71,12 @@ export default {
             },reqId)
         }
     },
-    async iota_im(password, dappOrigin, reqId = 0) {
+    async iota_im(curWallet, password, dappOrigin, reqId = 0) {
         try {
-            const curWallet = await this.getCurWallet()
             const seed = await IotaSDK.getSeed(curWallet.seed, password)
             const bytes = seed.toBytes()
             const hex = Converter.bytesToHex(bytes)
-            this.sendToContentScriptGeneric('iota_im_authorized', {hex, dappOrigin, address: curWallet.address, reqId})
+            this.sendToContentScriptGeneric('iota_im_authorized', {hex, dappOrigin, address: curWallet.address, reqId}, dappOrigin, reqId)
         } catch (error) {
             this.sendToContentScriptGeneric('iota_im_authorized', false)
         }
@@ -264,11 +263,13 @@ export default {
             }
         }
     },
-    sendToContentScriptGeneric(cmd, data) {
+    sendToContentScriptGeneric(cmd, data, dappOrigin, reqId) {
         const sendMessage = window.chrome?.runtime?.sendMessage
         if (sendMessage) {
             sendMessage({
                 cmd: `contentToBackground##${cmd}`,
+                id:reqId,
+                dappOrigin,
                 sendData: data
             })
         }

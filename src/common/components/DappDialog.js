@@ -219,7 +219,7 @@ export const DappDialog = () => {
             case 'iota_im':
                 {
 
-                    await Bridge.iota_im(password, reqId)
+                    await Bridge.iota_im(curWallet, password, content, reqId)
                 }
                 break
             default:
