@@ -23,7 +23,7 @@ IotaUtil.RandomHelper.randomPolyfill = length => {
 */
 //TODO window.navigator.hardwareConcurrency
 //TODO bad init
-iotacatclient.setup(101)
+iotacatclient.setup(102)
 
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
@@ -506,23 +506,38 @@ const getSeedAuthorizeCacheKey = (dappOrigin,address) => {
 }
 // :Record<string,{hexSeed:string}>
 const hexSeedCache = {}
+
+const setSeedByKey = async (key) => {
+    // from cache
+    if (hexSeedCache[key]) {
+        const seed = hexSeedCache[key].hexSeed
+        await iotacatclient.setHexSeed(seed)
+        return true
+    }
+    return
+}
+
 const pendingImRequests = {}
 const ifImNeedAuthorize = (dappOrigin, address) => {
     const key = getSeedAuthorizeCacheKey(dappOrigin, address)
-    return hexSeedCache[key] ? false : true
+    return true
+    //return hexSeedCache[key] ? false : true
 }
-const handleImRequests = ({reqId, dappOrigin, senderAddr, group, message}) => {
-    iotacatclient.sendMessage(senderAddr, group, message).then((res) => {
+const handleImRequests = async ({reqId, dappOrigin, senderAddr, group, message}) => {
+    try {
+        const key = getSeedAuthorizeCacheKey(dappOrigin, senderAddr)
+        await setSeedByKey(key)
+        const res = await iotacatclient.sendMessage(senderAddr, group, message)
         sendToContentScript({
             cmd: 'iota_request',
             id: reqId,
             code: res ? 200 : -1,
             data: {
-                method,
+                method:'iota_im',
                 response: res
             }
         })
-    }).catch((error) => {
+    }catch(error){
         sendToContentScript({
             cmd: 'iota_request',
             id: reqId,
@@ -532,7 +547,7 @@ const handleImRequests = ({reqId, dappOrigin, senderAddr, group, message}) => {
                 response: error
             }
         })
-    })
+    }
 }
 
 const sendPendingImRequestsByKey = async (key) => {
@@ -856,6 +871,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     }
                                 }
                                 break
+                            case 'iota_im_readone':
+                                const fn = async () => {
+                                    try {
+                                        const {outputId,senderAddr} = content;
+                                        const message = await iotacatclient.getMessageFromOutputId(outputId,senderAddr)
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            id: reqId,
+                                            code: message ? 200 : -1,
+                                            data: {
+                                                method,
+                                                response: message
+                                            }
+                                        })
+                                    }catch(error){
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            id: reqId,
+                                            code: -1,
+                                            data: {
+                                                method,
+                                                response: error
+                                            }
+                                        })
+                                    }
+                                }
+                                fn()
+                                break
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
@@ -1067,8 +1110,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         const { hex, reqId, dappOrigin, address } = request?.sendData
                         if (hex && reqId && dappOrigin && address) {
                             const key = getSeedAuthorizeCacheKey(dappOrigin, address)
-                            // TODO init client first
-                            iotacatclient.setHexSeed(hex).then((res) => {
+                            hexSeedCache[key] = { hexSeed: hex }
+                            setSeedByKey(key).then((res) => {
                                 sendPendingImRequestsByKey(key).catch(e=>console.log(e))
                             }).catch((error) => {
                                 rejectPendingImRequestsByKey(key,error).catch(e=>console.log(e))
