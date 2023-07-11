@@ -133,6 +133,7 @@ export const DappDialog = () => {
                             decimal = 0
                         }
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
+                            domain: origin,
                             contract: contract || assets?.contract,
                             token: assets?.name,
                             taggedData,
@@ -302,7 +303,7 @@ export const DappDialog = () => {
                                 // contract
                                 if (taggedData) {
                                     contract = address
-                                    const { functionName, params, web3Contract, isErc20 } = IotaSDK.getAbiParams(address, taggedData)
+                                    const { functionName, params, web3Contract, isErc20 } = await IotaSDK.getAbiParams(address, taggedData)
                                     for (const i in params) {
                                         if (Object.hasOwnProperty.call(params, i) && /^\d$/.test(i)) {
                                             abiParams.push(params[i])
