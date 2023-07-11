@@ -133,6 +133,7 @@ export const DappDialog = () => {
                             decimal = 0
                         }
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
+                            domain: origin,
                             contract: contract || assets?.contract,
                             token: assets?.name,
                             taggedData,
