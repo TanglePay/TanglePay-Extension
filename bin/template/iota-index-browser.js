@@ -1355,6 +1355,7 @@
          * @param code The code in the payload.
          */
         constructor(message, route, httpStatus, code) {
+            message = `route=${route}, ${message}`
             super(message)
             this.route = route
             this.httpStatus = httpStatus
@@ -1794,7 +1795,7 @@
                 })
                 return response
             } catch (err) {
-                throw err instanceof Error && err.name === 'AbortError' ? new Error('Timeout') : err
+                throw err instanceof Error && err.name === 'AbortError' ? new Error('Timeout') : `route=${route} ` + String(err)
             } finally {
                 if (timerId) {
                     clearTimeout(timerId)
