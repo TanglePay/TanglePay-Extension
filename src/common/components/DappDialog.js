@@ -243,6 +243,19 @@ export const DappDialog = () => {
         }
         let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
         let toNetId
+        if (!network) {
+            const path = url.replace('tanglepay://', '').split('?')[0]
+            let [, address] = (path || '').split('/')
+            if (/^iota/.test(address)) {
+                network = 'mainnet'
+            } else if (/^atoi/.test(address)) {
+                network = 'devnet'
+            } else if (/^smr/.test(address)) {
+                network = 'shimmer'
+            } else if (/^rms/.test(address)) {
+                network = 'testnet'
+            }
+        }
         if (network) {
             await IotaSDK.getNodes()
             toNetId = IotaSDK.nodes.find((e) => e.network == network)?.id
