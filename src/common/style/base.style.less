@@ -121,7 +121,9 @@
 .loopFont(@i) when (@i<=32) {
     .fz@{i} {
         @fz:@i - 2;
+        @lh: @fz + 4;
         font-size: ~'@{fz}px';
+        line-height: ~'@{lh}px';
     }
     .loopFont(@i+1);
 }
