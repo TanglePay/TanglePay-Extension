@@ -264,6 +264,11 @@
 .adm-form {
     .adm-list-default {
         border: 0;
+        // The defaul value here is -1, if it is -1, it will cause the last child's border-bottom disappear.
+        // Recommend not to use negative margins which may cause strange phenomena easily.
+        .adm-list-inner {
+            margin-bottom: 0;
+        }
     }
     .adm-input,
     .adm-text-area {
