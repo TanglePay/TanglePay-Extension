@@ -133,6 +133,7 @@ export const DappDialog = () => {
                             decimal = 0
                         }
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
+                            domain: origin,
                             contract: contract || assets?.contract,
                             token: assets?.name,
                             taggedData,
@@ -242,6 +243,19 @@ export const DappDialog = () => {
         }
         let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
         let toNetId
+        if (!network) {
+            const path = url.replace('tanglepay://', '').split('?')[0]
+            let [, address] = (path || '').split('/')
+            if (/^iota/.test(address)) {
+                network = 'mainnet'
+            } else if (/^atoi/.test(address)) {
+                network = 'devnet'
+            } else if (/^smr/.test(address)) {
+                network = 'shimmer'
+            } else if (/^rms/.test(address)) {
+                network = 'testnet'
+            }
+        }
         if (network) {
             await IotaSDK.getNodes()
             toNetId = IotaSDK.nodes.find((e) => e.network == network)?.id
@@ -302,7 +316,7 @@ export const DappDialog = () => {
                                 // contract
                                 if (taggedData) {
                                     contract = address
-                                    const { functionName, params, web3Contract, isErc20 } = IotaSDK.getAbiParams(address, taggedData)
+                                    const { functionName, params, web3Contract, isErc20 } = await IotaSDK.getAbiParams(address, taggedData)
                                     for (const i in params) {
                                         if (Object.hasOwnProperty.call(params, i) && /^\d$/.test(i)) {
                                             abiParams.push(params[i])
@@ -481,7 +495,8 @@ export const DappDialog = () => {
                                 abiFunc,
                                 abiParams,
                                 gas,
-                                reqId
+                                reqId,
+                                origin
                             })
                             show()
                         }
@@ -505,7 +520,8 @@ export const DappDialog = () => {
                                 return_url,
                                 type,
                                 content,
-                                reqId
+                                reqId,
+                                origin
                             })
                             show()
                         }
