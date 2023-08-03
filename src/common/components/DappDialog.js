@@ -481,6 +481,7 @@ export const DappDialog = () => {
                                 .replace('#unit#', showUnit)
                                 .replace(/\n/g, '<br/>')
                                 .replace('#fee#', gasFee)
+                            str = `${origin}<br/>` + str;
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
