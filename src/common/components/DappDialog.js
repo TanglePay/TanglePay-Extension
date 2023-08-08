@@ -468,7 +468,7 @@ export const DappDialog = () => {
 
                             let str = I18n.t(abiFunc === 'approve' ? 'apps.approve' : 'apps.send')
                             if (abiFunc && abiFunc !== 'approve' && abiFunc !== 'transfer') {
-                                str = I18n.t('apps.contractFunc').replace('#abiFunc#', abiFunc).replace('#abiParams#', abiParams.join(','))
+                                str = I18n.t('apps.contractFunc').replace('#abiFunc#', abiFunc)
                             }
                             let fromStr = I18n.t('apps.sendFrom')
                             let forStr = I18n.t('apps.sendFor')
@@ -481,6 +481,7 @@ export const DappDialog = () => {
                                 .replace('#unit#', showUnit)
                                 .replace(/\n/g, '<br/>')
                                 .replace('#fee#', gasFee)
+                            str = `${origin}<br/>` + str;
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
