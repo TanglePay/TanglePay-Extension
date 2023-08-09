@@ -5,6 +5,7 @@ importScripts('./sdk/web3.min.js')
 importScripts('./sdk/sdkcommon.min.js')
 importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
+importScripts('./sdk/NonfungiblePositionManager.js')
 const API_URL = 'https://api.iotaichi.com'
 
 // send message to inject
@@ -163,6 +164,62 @@ const getNodeInfo = async () => {
     TanglePayNodeInfo = (await getBackgroundData('tanglePayNodeList')) || { list: [] }
     const nodeInfo = TanglePayNodeInfo.list.find((e) => e.id == nodeId)
     return nodeInfo || {}
+}
+
+const importNFT = async ({nft, tokenId}, reqId, method) => {
+    const nodeInfo = await getNodeInfo()
+    const callBack = (code, response = null) => {
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code,
+            data: {
+                method,
+                response
+            }
+        })
+    }
+    if (nodeInfo?.type == 2) {
+        try {
+            await ensureWeb3Client()
+            // cur_wallet_address  => `${curWallet.address || ''}_${curWallet.nodeId || ''}`
+            const cacheAddress = await getBackgroundData('cur_wallet_address')
+            const address = cacheAddress.split('_')[0]
+
+            const importedNFTKey = `${address}.nft.importedList`
+            const importedNFTInStorage = (await getBackgroundData(importedNFTKey)) ?? {}
+
+            if(importedNFTInStorage?.[nft] && importedNFTInStorage[nft].find(nft => nft.tokenId === tokenId))  {
+                throw new Error('This NFT has already been imported.')
+            }
+
+            const nftContract = new web3_.eth.Contract([...NonfungiblePositionManager], nft)
+            const owner = await nftContract.methods.ownerOf(tokenId).call()
+            if(owner.toLocaleLowerCase() !== address.toLocaleLowerCase()) {
+                throw new Error('This NFT is not owned by the user')
+            }
+            
+            const tokenURI = await nftContract.methods.tokenURI(tokenId).call()
+            const name = await nftContract.methods.name().call()
+            const tokenURIRes = await fetch(tokenURI).then(res => res.json())
+            const importedNFTInfo = {
+                tokenId,
+                name,
+                image: tokenURIRes.image,
+                description: tokenURIRes.description
+            }
+            importedNFTInStorage[nft] = [
+                ...(importedNFTInStorage[nft] ?? []),
+                importedNFTInfo
+            ]
+            setBackgroundData(importedNFTKey, importedNFTInStorage)  
+            callBack(200, {nft, tokenId})    
+        }catch(error) {
+            callBack(-1, error.message)
+        }   
+    }else{
+        callBack(-1, 'Node is error')
+    }
 }
 
 const importContract = async (contract, reqId, method) => {
@@ -631,6 +688,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     importContract(requestParams.contract, reqId, method)
                                 }
                                 break
+                            case 'eth_importNFT':
+                                {
+                                    importNFT({nft: requestParams.nft, tokenId: requestParams.tokenId}, reqId, method)
+                                }
+                                break;
                             case 'get_login_token':
                                 {
                                     getLoginToken().then((res) => {

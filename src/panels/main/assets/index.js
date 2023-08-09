@@ -22,6 +22,7 @@ export const Assets = ({ tabKey }) => {
     const [lockedList] = useStore('common.lockedList')
     const [nftUnlockList] = useStore('nft.unlockList')
     const [nftLockList] = useStore('nft.lockList')
+    const [nftImportedList] = useStore('nft.importedList')
     useGetNftList()
     const [isShowAssets, setShowAssets] = useStore('common.showAssets')
     const [, refreshAssets] = useStore('common.forceRequest')
