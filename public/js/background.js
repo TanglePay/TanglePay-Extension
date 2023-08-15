@@ -6,24 +6,34 @@ importScripts('./sdk/sdkcommon.min.js')
 importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
 importScripts('./iotacat/BigInteger.min.js')
+importScripts('./iotacat/mqtt.min.js')
 importScripts('./iotacat/util.js')
 importScripts('./iotacat/crypto.js')
-importScripts('./iotacat/pow-browser.js')
 importScripts('./iotacat/iota.js')
 importScripts('./iotacat/core.js')
 importScripts('./iotacat/client.js')
 const API_URL = 'https://api.iotaichi.com'
-
-/*
-IotaUtil.RandomHelper.randomPolyfill = length => {
-    const randomBytes = new Uint8Array(length);
-    crypto.getRandomValues(randomBytes);
-    return randomBytes;
-};
-*/
-//TODO window.navigator.hardwareConcurrency
+const emitEvent = (message) =>{
+    window.eventsTabIdList = window.eventsTabIdList || []
+    chrome.tabs.query({}, function (tabs) {
+        tabs.forEach((e) => {
+            const port = window.eventsTabIdList[e.id] || chrome.tabs.connect(e.id, { name: 'tanglepay_connect' })
+            port.postMessage(message)
+        })
+    })
+    
+}
 //TODO bad init
-iotacatclient.setup(102)
+iotacatclient.setup(102).then(()=>{
+    const mqttEndpoint = iotacatclient.getCurNodeMqttEndpoint()
+    const mqttClient = window.mqtt.connect(mqttEndpoint)
+    iotacatclient.setupMqttClient(mqttClient)
+    iotacatclient.on('inbox',(pushed)=>{
+        const method = 'inbox'
+        const message = {cmd:'iota_event',method,data:{method,response:pushed}}
+        emitEvent(message)
+    })
+}).catch((e) => console.log(e))
 
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
@@ -56,8 +66,6 @@ const storageFacade = {
 }
 iotacatclient.setupStorage(storageFacade)
 
-//TODO clear storage for testing purpose
-chrome.storage.local.clear().catch(e=>console.log(e))
 // send message to inject
 var sendToInject = function (params) {
     params.cmd = `contentToInject##${params.cmd}`
@@ -517,17 +525,18 @@ const setSeedByKey = async (key) => {
     return
 }
 
-const pendingImRequests = {}
+const pendingImSendRequests = {}
+const pendingImReadRequests = {}
 const ifImNeedAuthorize = (dappOrigin, address) => {
     const key = getSeedAuthorizeCacheKey(dappOrigin, address)
-    return true
-    //return hexSeedCache[key] ? false : true
+    //return true
+    return hexSeedCache[key] ? false : true
 }
-const handleImRequests = async ({reqId, dappOrigin, senderAddr, group, message}) => {
+const handleImSendRequests = async ({reqId, dappOrigin, senderAddr, group, message}) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, senderAddr)
         await setSeedByKey(key)
-        const res = await iotacatclient.sendMessage(senderAddr, group, message)
+        const res = await iotacatclient.sendMessage(senderAddr, message.group, message)
         sendToContentScript({
             cmd: 'iota_request',
             id: reqId,
@@ -550,22 +559,76 @@ const handleImRequests = async ({reqId, dappOrigin, senderAddr, group, message})
     }
 }
 
-const sendPendingImRequestsByKey = async (key) => {
-    while (pendingImRequests[key].payload.length > 0) {
+const handleImReadRequests = async ({reqId, dappOrigin, readerAddr, group, continuationToken, limit, method}) => {
+    try {
+        const key = getSeedAuthorizeCacheKey(dappOrigin, readerAddr)
+        await setSeedByKey(key)
+        let messages
+        if (method == 'iota_im_groupmessagelist_from') { 
+            messages = await iotacatclient.fetchMessageListFrom(group,readerAddr,continuationToken, limit)
+        } else if (method == 'iota_im_groupmessagelist_until') {
+            messages = await iotacatclient.fetchMessageListUntil(group, readerAddr, continuationToken, limit)
+        }
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: messages ? 200 : -1,
+            data: {
+                method,
+                response: messages
+            }
+        })
+    } catch(error){
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: -1,
+            data: {
+                method,
+                response: error
+            }
+        })
+    }
+}
+        
+
+
+const processPendingImSendRequestsByKey = async (key) => {
+    if (!pendingImSendRequests[key]) {
+        return
+    }
+    while (pendingImSendRequests[key].payload.length > 0) {
         try {
-            const pendingImRequest = pendingImRequests[key].payload.shift()
-            await handleImRequests(pendingImRequest)
+            const pendingImSendRequest = pendingImSendRequests[key].payload.shift()
+            await handleImSendRequests(pendingImSendRequest)
         } catch (error) {
             console.log(error)
         }
     }
 }
-const rejectPendingImRequestsByKey = (key, error) => {
-    while (pendingImRequests[key].payload.length > 0) {
-        const pendingImRequest = pendingImRequests[key].payload.shift()
+const processPendingImReadRequestsByKey = async (key) => {
+    if (!pendingImReadRequests[key]) {
+        return
+    }
+    while (pendingImReadRequests[key].payload.length > 0) {
+        try {
+            const pendingImReadRequest = pendingImReadRequests[key].payload.shift()
+            await handleImReadRequests(pendingImReadRequest)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}
+
+const rejectpendingImSendRequestsByKey = async (key, error) => {
+    if (!pendingImSendRequests[key]) {
+        return
+    }
+    while (pendingImSendRequests[key].payload.length > 0) {
+        const pendingImSendRequest = pendingImSendRequests[key].payload.shift()
         sendToContentScript({
             cmd: 'iota_request',
-            id: pendingImRequest.reqId,
+            id: pendingImSendRequest.reqId,
             code: -1,
             data: {
                 method:'iota_im',
@@ -574,6 +637,24 @@ const rejectPendingImRequestsByKey = (key, error) => {
         })
     }
 }
+const rejectpendingImReadRequestsByKey = async (key, error) => {
+    if (!pendingImReadRequests[key]) {
+        return
+    }
+    while (pendingImReadRequests[key].payload.length > 0) {
+        const pendingImReadRequest = pendingImReadRequests[key].payload.shift()
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: pendingImReadRequest.reqId,
+            code: -1,
+            data: {
+                method:pendingImReadRequest.method,
+                response: error
+            }
+        })
+    }
+}
+                
 // get message from content-script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
@@ -855,19 +936,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 {
                                     if (ifImNeedAuthorize(dappOrigin,content.senderAddr)) {
                                         const key = getSeedAuthorizeCacheKey(dappOrigin, content.senderAddr)
-                                        if (!pendingImRequests[key]) pendingImRequests[key] = {isAuthorizing:false,payload:[]}
-                                        pendingImRequests[key].payload.push({
+                                        if (!pendingImSendRequests[key]) pendingImSendRequests[key] = {isAuthorizing:false,payload:[]}
+                                        pendingImSendRequests[key].payload.push({
                                             ...content,
                                             reqId,
                                             dappOrigin:dappOrigin
                                         })
-                                        if (!pendingImRequests[key].isAuthorizing) {   
-                                            //pendingImRequests[key].isAuthorizing = true
-                                            const url = `tanglepay://${method}?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}`
+                                        if (!pendingImSendRequests[key].isAuthorizing) {   
+                                            //pendingImSendRequests[key].isAuthorizing = true
+                                            const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
                                             params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                         }
                                     } else {
-                                        handleImRequests(reqId, content)
+                                        handleImSendRequests({
+                                            ...content,
+                                            reqId,
+                                            dappOrigin:dappOrigin
+                                        })
                                     }
                                 }
                                 break
@@ -899,6 +984,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 }
                                 fn()
                                 break
+                            case 'iota_im_groupmessagelist_from':
+                            case 'iota_im_groupmessagelist_until':
+                                {
+                                    //TODO 
+                                    if (ifImNeedAuthorize(dappOrigin,content.readerAddr)) {
+                                        const key = getSeedAuthorizeCacheKey(dappOrigin, content.readerAddr)
+                                        if (!pendingImReadRequests[key]) pendingImReadRequests[key] = {isAuthorizing:false,payload:[]}
+                                        pendingImReadRequests[key].payload.push({
+                                            ...content,
+                                            reqId,
+                                            dappOrigin:dappOrigin,
+                                            method
+                                        })
+                                        if (!pendingImReadRequests[key].isAuthorizing) {   
+                                            const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
+                                            params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                        }
+                                    } else {
+                                        handleImReadRequests({
+                                            ...content,
+                                            reqId,
+                                            dappOrigin:dappOrigin,
+                                            method
+                                        })
+                                    }
+                                }
+                                break
+                            
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
@@ -1106,16 +1219,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 break
             case 'iota_im_authorized':
                 {
+                    //TODO handle cancle case
+                    // pendingImSendRequests[key].isAuthorizing = false
                     if (request?.sendData) {
                         const { hex, reqId, dappOrigin, address } = request?.sendData
                         if (hex && reqId && dappOrigin && address) {
                             const key = getSeedAuthorizeCacheKey(dappOrigin, address)
+                            
                             hexSeedCache[key] = { hexSeed: hex }
-                            setSeedByKey(key).then((res) => {
-                                sendPendingImRequestsByKey(key).catch(e=>console.log(e))
-                            }).catch((error) => {
-                                rejectPendingImRequestsByKey(key,error).catch(e=>console.log(e))
-                            })
+                            try {
+                                processPendingImSendRequestsByKey(key).catch(e=>console.log(e))
+                                processPendingImReadRequestsByKey(key).catch(e=>console.log(e))
+                            }catch(error) {
+                                rejectpendingImSendRequestsByKey(key,error).catch(e=>console.log(e))
+                                rejectpendingImReadRequestsByKey(key,error).catch(e=>console.log(e))
+                            }
                         }
                     }
                 }

@@ -18,7 +18,7 @@
         "service_worker": "./js/background.js"
     },
     "permissions": ["storage", "unlimitedStorage"],
-    "host_permissions": ["https://explorer-api.iota.org/", "https://node.iotaichi.com/", "https://api.lb-0.h.chrysalis-devnet.iota.cafe/"],
+    "host_permissions": ["https://test.api.iotacat.com/","https://test2.api.iotacat.com/","https://explorer-api.iota.org/", "https://node.iotaichi.com/", "https://api.lb-0.h.chrysalis-devnet.iota.cafe/"],
     "web_accessible_resources": [
         {
             "resources": ["js/inject.js", "font/OpenSans-Regular.ttf", "font/OpenSans-Semibold.ttf"],

@@ -73,10 +73,12 @@ const App = () => {
     const getLocalInfo = async () => {
         const list = ['common.curNodeId', 'common.showAssets', 'common.activityData', 'common.walletsList']
         const res = await Promise.all(list.map((e) => Base.getLocalData(e)))
+        console.log('getLocalInfo', res)
         list.forEach((e, i) => {
             switch (e) {
                 case 'common.walletsList':
                     IotaSDK.getWalletList().then((list) => {
+                        console.log('getWalletList', list)
                         if (list.length == 0) pinInit(0).catch((e) => console.log(e))
                         dispatch({ type: e, data: list })
                     })
