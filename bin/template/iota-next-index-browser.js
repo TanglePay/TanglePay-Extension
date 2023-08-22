@@ -3709,7 +3709,7 @@
                     outputDatas.push(output)
                     const nativeTokenOutput = output.output?.nativeTokens || []
                     const isCheckOutput = checkOutput(output)
-                    if (isCheckOutput) {
+                    if (isCheckOutput || !!output?.output?.nftId) {
                         available = available.plus(output.output.amount)
                         availableOutputIds.push(outputId)
                         availableOutputDatas.push(output)
