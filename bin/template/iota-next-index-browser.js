@@ -4449,7 +4449,8 @@ const { async } = require('q')
             return {
                 address: util_js.Converter.bytesToHex(bech32Details.addressBytes, true),
                 addressType: bech32Details.addressType,
-                amount: output.amount
+                amount: output.amount,
+                features: output.features || []
             }
         })
         return sendWithAddressGenerator(
