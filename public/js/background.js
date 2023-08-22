@@ -6,7 +6,6 @@ importScripts('./sdk/sdkcommon.min.js')
 importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
 importScripts('./iotacat/BigInteger.min.js')
-importScripts('./iotacat/mqtt.min.js')
 importScripts('./iotacat/util.js')
 importScripts('./iotacat/crypto.js')
 importScripts('./iotacat/iota.js')
@@ -24,16 +23,7 @@ const emitEvent = (message) =>{
     
 }
 //TODO bad init
-iotacatclient.setup(102).then(()=>{
-    const mqttEndpoint = iotacatclient.getCurNodeMqttEndpoint()
-    const mqttClient = window.mqtt.connect(mqttEndpoint)
-    iotacatclient.setupMqttClient(mqttClient)
-    iotacatclient.on('inbox',(pushed)=>{
-        const method = 'inbox'
-        const message = {cmd:'iota_event',method,data:{method,response:pushed}}
-        emitEvent(message)
-    })
-}).catch((e) => console.log(e))
+iotacatclient.setup(102).catch((e) => console.log(e))
 
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
@@ -525,57 +515,36 @@ const setSeedByKey = async (key) => {
     return
 }
 
-const pendingImSendRequests = {}
-const pendingImReadRequests = {}
+const pendingImRequests = {}
 const ifImNeedAuthorize = (dappOrigin, address) => {
     const key = getSeedAuthorizeCacheKey(dappOrigin, address)
     //return true
     return hexSeedCache[key] ? false : true
 }
-const handleImSendRequests = async ({reqId, dappOrigin, senderAddr, group, message}) => {
+
+const handleImRequests = async ({reqId, dappOrigin, addr, groupId, continuationToken, limit, method, outputId, message}) => {
     try {
-        const key = getSeedAuthorizeCacheKey(dappOrigin, senderAddr)
+        const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
-        const res = await iotacatclient.sendMessage(senderAddr, message.group, message)
+        let res
+        if (method == 'iota_im_groupmessagelist_from') { 
+            res = await iotacatclient.fetchMessageListFrom(groupId,addr,continuationToken, limit)
+        } else if (method == 'iota_im_groupmessagelist_until') {
+            res = await iotacatclient.fetchMessageListUntil(groupId, addr, continuationToken, limit)
+        } else if (method == 'iota_im_readone') {
+            res = await iotacatclient.getMessageFromOutputId(outputId,addr)
+        } else if (method == 'iota_im') {
+            res = await iotacatclient.sendMessage(addr, groupId, message)
+        } else if (method == 'iota_im_ensure_group_shared') {
+            res = await iotacatclient.ensureGroupHaveSharedOutput(groupId)
+        }
         sendToContentScript({
             cmd: 'iota_request',
             id: reqId,
             code: res ? 200 : -1,
             data: {
-                method:'iota_im',
-                response: res
-            }
-        })
-    }catch(error){
-        sendToContentScript({
-            cmd: 'iota_request',
-            id: reqId,
-            code: -1,
-            data: {
-                method:'iota_im',
-                response: error
-            }
-        })
-    }
-}
-
-const handleImReadRequests = async ({reqId, dappOrigin, readerAddr, group, continuationToken, limit, method}) => {
-    try {
-        const key = getSeedAuthorizeCacheKey(dappOrigin, readerAddr)
-        await setSeedByKey(key)
-        let messages
-        if (method == 'iota_im_groupmessagelist_from') { 
-            messages = await iotacatclient.fetchMessageListFrom(group,readerAddr,continuationToken, limit)
-        } else if (method == 'iota_im_groupmessagelist_until') {
-            messages = await iotacatclient.fetchMessageListUntil(group, readerAddr, continuationToken, limit)
-        }
-        sendToContentScript({
-            cmd: 'iota_request',
-            id: reqId,
-            code: messages ? 200 : -1,
-            data: {
                 method,
-                response: messages
+                response: res
             }
         })
     } catch(error){
@@ -591,58 +560,26 @@ const handleImReadRequests = async ({reqId, dappOrigin, readerAddr, group, conti
     }
 }
         
-
-
-const processPendingImSendRequestsByKey = async (key) => {
-    if (!pendingImSendRequests[key]) {
+const processPendingImRequestsByKey = async (key) => {
+    if (!pendingImRequests[key]) {
         return
     }
-    while (pendingImSendRequests[key].payload.length > 0) {
+    while (pendingImRequests[key].payload.length > 0) {
         try {
-            const pendingImSendRequest = pendingImSendRequests[key].payload.shift()
-            await handleImSendRequests(pendingImSendRequest)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-}
-const processPendingImReadRequestsByKey = async (key) => {
-    if (!pendingImReadRequests[key]) {
-        return
-    }
-    while (pendingImReadRequests[key].payload.length > 0) {
-        try {
-            const pendingImReadRequest = pendingImReadRequests[key].payload.shift()
-            await handleImReadRequests(pendingImReadRequest)
+            const pendingImReadRequest = pendingImRequests[key].payload.shift()
+            await handleImRequests(pendingImReadRequest)
         } catch (error) {
             console.log(error)
         }
     }
 }
 
-const rejectpendingImSendRequestsByKey = async (key, error) => {
-    if (!pendingImSendRequests[key]) {
+const rejectpendingImRequestsByKey = async (key, error) => {
+    if (!pendingImRequests[key]) {
         return
     }
-    while (pendingImSendRequests[key].payload.length > 0) {
-        const pendingImSendRequest = pendingImSendRequests[key].payload.shift()
-        sendToContentScript({
-            cmd: 'iota_request',
-            id: pendingImSendRequest.reqId,
-            code: -1,
-            data: {
-                method:'iota_im',
-                response: error
-            }
-        })
-    }
-}
-const rejectpendingImReadRequestsByKey = async (key, error) => {
-    if (!pendingImReadRequests[key]) {
-        return
-    }
-    while (pendingImReadRequests[key].payload.length > 0) {
-        const pendingImReadRequest = pendingImReadRequests[key].payload.shift()
+    while (pendingImRequests[key].payload.length > 0) {
+        const pendingImReadRequest = pendingImRequests[key].payload.shift()
         sendToContentScript({
             cmd: 'iota_request',
             id: pendingImReadRequest.reqId,
@@ -933,76 +870,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 }
                                 break
                             case 'iota_im':
-                                {
-                                    if (ifImNeedAuthorize(dappOrigin,content.senderAddr)) {
-                                        const key = getSeedAuthorizeCacheKey(dappOrigin, content.senderAddr)
-                                        if (!pendingImSendRequests[key]) pendingImSendRequests[key] = {isAuthorizing:false,payload:[]}
-                                        pendingImSendRequests[key].payload.push({
-                                            ...content,
-                                            reqId,
-                                            dappOrigin:dappOrigin
-                                        })
-                                        if (!pendingImSendRequests[key].isAuthorizing) {   
-                                            //pendingImSendRequests[key].isAuthorizing = true
-                                            const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
-                                            params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
-                                        }
-                                    } else {
-                                        handleImSendRequests({
-                                            ...content,
-                                            reqId,
-                                            dappOrigin:dappOrigin
-                                        })
-                                    }
-                                }
-                                break
                             case 'iota_im_readone':
-                                const fn = async () => {
-                                    try {
-                                        const {outputId,senderAddr} = content;
-                                        const message = await iotacatclient.getMessageFromOutputId(outputId,senderAddr)
-                                        sendToContentScript({
-                                            cmd: 'iota_request',
-                                            id: reqId,
-                                            code: message ? 200 : -1,
-                                            data: {
-                                                method,
-                                                response: message
-                                            }
-                                        })
-                                    }catch(error){
-                                        sendToContentScript({
-                                            cmd: 'iota_request',
-                                            id: reqId,
-                                            code: -1,
-                                            data: {
-                                                method,
-                                                response: error
-                                            }
-                                        })
-                                    }
-                                }
-                                fn()
-                                break
+                            case 'iota_im_ensure_group_shared':
                             case 'iota_im_groupmessagelist_from':
                             case 'iota_im_groupmessagelist_until':
                                 {
                                     //TODO 
-                                    if (ifImNeedAuthorize(dappOrigin,content.readerAddr)) {
-                                        const key = getSeedAuthorizeCacheKey(dappOrigin, content.readerAddr)
-                                        if (!pendingImReadRequests[key]) pendingImReadRequests[key] = {isAuthorizing:false,payload:[]}
-                                        pendingImReadRequests[key].payload.push({
+                                    if (ifImNeedAuthorize(dappOrigin,content.addr)) {
+                                        const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
+                                        if (!pendingImRequests[key]) pendingImRequests[key] = {isAuthorizing:false,payload:[]}
+                                        pendingImRequests[key].payload.push({
                                             ...content,
                                             reqId,
                                             dappOrigin:dappOrigin,
                                             method
                                         })
-                                        if (!pendingImReadRequests[key].isAuthorizing) {   
+                                        if (!pendingImRequests[key].isAuthorizing) {   
+                                            pendingImRequests[key].isAuthorizing = true
                                             const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
                                             params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                         }
                                     } else {
-                                        handleImReadRequests({
+                                        handleImRequests({
                                             ...content,
                                             reqId,
                                             dappOrigin:dappOrigin,
@@ -1220,19 +1109,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             case 'iota_im_authorized':
                 {
                     //TODO handle cancle case
-                    // pendingImSendRequests[key].isAuthorizing = false
                     if (request?.sendData) {
                         const { hex, reqId, dappOrigin, address } = request?.sendData
                         if (hex && reqId && dappOrigin && address) {
                             const key = getSeedAuthorizeCacheKey(dappOrigin, address)
-                            
+                            pendingImRequests[key].isAuthorizing = false
                             hexSeedCache[key] = { hexSeed: hex }
                             try {
-                                processPendingImSendRequestsByKey(key).catch(e=>console.log(e))
-                                processPendingImReadRequestsByKey(key).catch(e=>console.log(e))
-                            }catch(error) {
-                                rejectpendingImSendRequestsByKey(key,error).catch(e=>console.log(e))
-                                rejectpendingImReadRequestsByKey(key,error).catch(e=>console.log(e))
+                                processPendingImRequestsByKey(key).catch(e=>console.log(e))
+                            } catch(error) {
+                                rejectpendingImRequestsByKey(key,error).catch(e=>console.log(e))
                             }
                         }
                     }
