@@ -1,5 +1,3 @@
-const { async } = require('q')
-
 ;(function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined'
         ? factory(exports, require('@iota/crypto.js-next'), require('@iota/util.js-next'), require('big-integer'))
