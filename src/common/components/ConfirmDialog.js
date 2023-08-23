@@ -39,9 +39,9 @@ export const ConfirmDialog = ({ dialogRef, promise, text }) => {
     return (
         <Mask opacity={0.3} onMaskClick={hide} visible={isShow}>
             <div style={{ width: contentW - 32 }} className='radius10 bgW pv16 pa-c disable-password-dialog'>
-                <div className='fz18 fw600 ph16 pb16 border-b'>Send Confirmation</div>
+                <div className='fz18 fw600 ph16 pb16 border-b'>{I18n.t('assets.sendConfirmation')}</div>
                 <div className='ph16'>
-                    <div className='fz16 fw400 mt12 mb16'>Please confirm the sending of this transaction </div>
+                    <div className='fz16 fw400 mt12 mb16'>{I18n.t('assets.sendConfirmationTips')}</div>
                     <div className='flex row jc ac pt4'>
                         <Button color='primary' fill='outline' className='mr16' size='large' block onClick={handleCancel}>
                             {I18n.t('apps.cancel')}
