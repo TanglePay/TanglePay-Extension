@@ -393,7 +393,6 @@ export const CollectiblesList = () => {
     const [curWallet] = useGetNodeWallet()
     const [list] = useStore('nft.list')
     let [importedNFT] = useStore('nft.importedList')
-    importedNFT = importedNFT || []
     const ListEl = useMemo(() => {
         return list.map((e) => {
             return <CollectiblesItem isLedger={curWallet.type == 'ledger'} key={e.space} {...e} />
