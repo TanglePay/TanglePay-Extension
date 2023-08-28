@@ -71,7 +71,7 @@ export const DappDialog = () => {
                 break
         }
     }
-    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId }) => {
+    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId, dataPerRequest }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
             if (!isLedger) {
@@ -144,6 +144,7 @@ export const DappDialog = () => {
                             decimal: assets?.decimal,
                             mainBalance,
                             tag,
+                            metadata: dataPerRequest?.metadata,
                             nftId,
                             gas: gasInfo.gasLimit,
                             gasPrice: gasInfo.gasPriceWei
@@ -242,6 +243,7 @@ export const DappDialog = () => {
             res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
         }
         let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
+        debugger;
         let toNetId
         if (!network) {
             const path = url.replace('tanglepay://', '').split('?')[0]
@@ -482,6 +484,7 @@ export const DappDialog = () => {
                                 .replace(/\n/g, '<br/>')
                                 .replace('#fee#', gasFee)
                             str = `${origin}<br/>` + str;
+                            const dataPerRequest = await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId)
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
@@ -497,7 +500,8 @@ export const DappDialog = () => {
                                 abiParams,
                                 gas,
                                 reqId,
-                                origin
+                                origin,
+                                dataPerRequest
                             })
                             show()
                         }
