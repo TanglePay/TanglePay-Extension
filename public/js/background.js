@@ -522,7 +522,7 @@ const ifImNeedAuthorize = (dappOrigin, address) => {
     return hexSeedCache[key] ? false : true
 }
 
-const handleImRequests = async ({reqId, dappOrigin, addr, groupId, continuationToken, limit, method, outputId, message}) => {
+const handleImRequests = async ({reqId, dappOrigin, addr, groupId, continuationToken, limit, method, outputId, message, pushed}) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
@@ -537,7 +537,13 @@ const handleImRequests = async ({reqId, dappOrigin, addr, groupId, continuationT
             res = await iotacatclient.sendMessage(addr, groupId, message)
         } else if (method == 'iota_im_ensure_group_shared') {
             res = await iotacatclient.ensureGroupHaveSharedOutput(groupId)
-        }
+        } else if (method == 'iota_im_p2p_pushed') {
+            res = await iotacatclient.getMessageFromMetafeaturepayloadAndSender({address:addr,data:pushed.meta,senderAddressBytes:pushed.sender})
+        } else if (method == 'iota_im_check_and_consolidate_messages') { 
+            res = await iotacatclient.checkThenConsolidateMessages()
+        } else if (method == 'iota_im_check_and_consolidate_shareds') { 
+            res = await iotacatclient.checkThenConsolidateShared()
+        } 
         sendToContentScript({
             cmd: 'iota_request',
             id: reqId,
@@ -874,6 +880,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_ensure_group_shared':
                             case 'iota_im_groupmessagelist_from':
                             case 'iota_im_groupmessagelist_until':
+                            case 'iota_im_p2p_pushed':
+                            case 'iota_im_check_and_consolidate_messages':
+                            case 'iota_im_check_and_consolidate_shareds':
                                 {
                                     //TODO 
                                     if (ifImNeedAuthorize(dappOrigin,content.addr)) {
