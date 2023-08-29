@@ -71,15 +71,23 @@ export default {
             },reqId)
         }
     },
+<<<<<<< HEAD
     async iota_im_authorized(curWallet, password, dappOrigin, reqId = 0) {
         try {
             console.log('iota_im_authorized called',curWallet, password, dappOrigin, reqId)
+=======
+    async iota_im(curWallet, password, dappOrigin, reqId = 0) {
+        try {
+>>>>>>> a34aad2fe7bbd4cf904096d41549091b64672889
             const seed = await IotaSDK.getSeed(curWallet.seed, password)
             const bytes = seed.toBytes()
             const hex = Converter.bytesToHex(bytes)
             this.sendToContentScriptGeneric('iota_im_authorized', {hex, dappOrigin, address: curWallet.address, reqId}, dappOrigin, reqId)
         } catch (error) {
+<<<<<<< HEAD
             console.log('iota_im_authorized error',error)
+=======
+>>>>>>> a34aad2fe7bbd4cf904096d41549091b64672889
             this.sendToContentScriptGeneric('iota_im_authorized', false)
         }
     },
