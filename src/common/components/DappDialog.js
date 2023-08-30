@@ -217,17 +217,10 @@ export const DappDialog = () => {
                     await Bridge.iota_sign(origin, expires, content, password, reqId)
                 }
                 break
-<<<<<<< HEAD
             case 'iota_im_authorize':
                 {
 
                     await Bridge.iota_im_authorized(curWallet, password, content, reqId)
-=======
-            case 'iota_im':
-                {
-
-                    await Bridge.iota_im(curWallet, password, content, reqId)
->>>>>>> a34aad2fe7bbd4cf904096d41549091b64672889
                 }
                 break
             default:
@@ -589,11 +582,7 @@ export const DappDialog = () => {
                             show()
                         }
                         break
-<<<<<<< HEAD
                     case 'iota_im_authorize':
-=======
-                    case 'iota_im':
->>>>>>> a34aad2fe7bbd4cf904096d41549091b64672889
                         {
                             let str = I18n.t('apps.ImAuthorize')
                             const texts = [
