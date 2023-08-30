@@ -17,7 +17,7 @@
     "background": {
         "service_worker": "./js/background.js"
     },
-    "permissions": ["storage", "unlimitedStorage"],
+    "permissions": ["storage", "unlimitedStorage", "tabs"],
     "host_permissions": ["https://explorer-api.iota.org/", "https://node.iotaichi.com/", "https://api.lb-0.h.chrysalis-devnet.iota.cafe/"],
     "web_accessible_resources": [
         {
