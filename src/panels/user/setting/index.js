@@ -31,18 +31,18 @@ export const UserSetting = () => {
             size: 22
         },
         {
-            icon: 'advanced',
-            label: 'Advanced',
-            onClick: () => {
-                Base.push('/user/advanced')
-            },
-            size: 22
-        },
-        {
             icon: 'pin',
             label: context.state.isPinSet ? I18n.t('account.resetPinTitle') : I18n.t('account.setPinButton'),
             onClick: () => {
                 Base.push(context.state.isPinSet ? '/account/pin/reset' : '/account/pin/set')
+            },
+            size: 22
+        },
+        {
+            icon: 'advanced',
+            label: 'Test Mode',
+            onClick: () => {
+                Base.push('/user/advanced')
             },
             size: 22
         }
@@ -81,25 +81,14 @@ export const UserSetting = () => {
             <div>
                 <div>
                     {list.map((e, i) => {
-                        console.log(i,e);
+                        console.log(i, e)
                         return (
-                            <div
-                                onClick={e.onClick ? e.onClick : null}
-                                key={i}
-                                className={`${!!e.onClick ? 'press' : ''} flex row ac jsb p16 border-b`}>
+                            <div onClick={e.onClick ? e.onClick : null} key={i} className={`${!!e.onClick ? 'press' : ''} flex row ac jsb p16 border-b`}>
                                 <div className='flex row ac'>
                                     <SvgIcon name={e.icon} size={e.size} className='cB' />
                                     <div className='fz18 ml12'>{e.label}</div>
                                 </div>
-                                <div>
-                                    {e.type === 'switch' ? (
-                                        <Switch key={i} checked={e.value} onChange={e.onChange} />
-                                    ) : e.right ? (
-                                        e.right
-                                    ) : (
-                                        <SvgIcon name='right' size={16} className='cB' />
-                                    )}
-                                </div>
+                                <div>{e.type === 'switch' ? <Switch key={i} checked={e.value} onChange={e.onChange} /> : e.right ? e.right : <SvgIcon name='right' size={16} className='cB' />}</div>
                             </div>
                         )
                     })}

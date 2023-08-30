@@ -72,7 +72,7 @@ export const DappDialog = () => {
                 break
         }
     }
-    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId }) => {
+    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId, dataPerRequest }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey', 'iota_im_authorize']
         if (!noPassword.includes(type)) {
             if (!isLedger) {
@@ -134,6 +134,7 @@ export const DappDialog = () => {
                             decimal = 0
                         }
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
+                            domain: origin,
                             contract: contract || assets?.contract,
                             token: assets?.name,
                             taggedData,
@@ -144,6 +145,7 @@ export const DappDialog = () => {
                             decimal: assets?.decimal,
                             mainBalance,
                             tag,
+                            metadata: dataPerRequest?.metadata,
                             nftId,
                             gas: gasInfo.gasLimit,
                             gasPrice: gasInfo.gasPriceWei
@@ -248,7 +250,21 @@ export const DappDialog = () => {
             res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
         }
         let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
+        debugger;
         let toNetId
+        if (!network) {
+            const path = url.replace('tanglepay://', '').split('?')[0]
+            let [, address] = (path || '').split('/')
+            if (/^iota/.test(address)) {
+                network = 'mainnet'
+            } else if (/^atoi/.test(address)) {
+                network = 'devnet'
+            } else if (/^smr/.test(address)) {
+                network = 'shimmer'
+            } else if (/^rms/.test(address)) {
+                network = 'testnet'
+            }
+        }
         if (network) {
             await IotaSDK.getNodes()
             toNetId = IotaSDK.nodes.find((e) => e.network == network)?.id
@@ -309,7 +325,7 @@ export const DappDialog = () => {
                                 // contract
                                 if (taggedData) {
                                     contract = address
-                                    const { functionName, params, web3Contract, isErc20 } = IotaSDK.getAbiParams(address, taggedData)
+                                    const { functionName, params, web3Contract, isErc20 } = await IotaSDK.getAbiParams(address, taggedData)
                                     for (const i in params) {
                                         if (Object.hasOwnProperty.call(params, i) && /^\d$/.test(i)) {
                                             abiParams.push(params[i])
@@ -461,7 +477,7 @@ export const DappDialog = () => {
 
                             let str = I18n.t(abiFunc === 'approve' ? 'apps.approve' : 'apps.send')
                             if (abiFunc && abiFunc !== 'approve' && abiFunc !== 'transfer') {
-                                str = I18n.t('apps.contractFunc').replace('#abiFunc#', abiFunc).replace('#abiParams#', abiParams.join(','))
+                                str = I18n.t('apps.contractFunc').replace('#abiFunc#', abiFunc)
                             }
                             let fromStr = I18n.t('apps.sendFrom')
                             let forStr = I18n.t('apps.sendFor')
@@ -474,6 +490,8 @@ export const DappDialog = () => {
                                 .replace('#unit#', showUnit)
                                 .replace(/\n/g, '<br/>')
                                 .replace('#fee#', gasFee)
+                            str = `${origin}<br/>` + str;
+                            const dataPerRequest = await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId)
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
@@ -488,7 +506,9 @@ export const DappDialog = () => {
                                 abiFunc,
                                 abiParams,
                                 gas,
-                                reqId
+                                reqId,
+                                origin,
+                                dataPerRequest
                             })
                             show()
                         }
@@ -512,7 +532,8 @@ export const DappDialog = () => {
                                 return_url,
                                 type,
                                 content,
-                                reqId
+                                reqId,
+                                origin
                             })
                             show()
                         }

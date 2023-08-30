@@ -17,14 +17,16 @@ export const CoinList = () => {
     const [unlockConditions] = useStore('common.unlockConditions')
     // const curLegal = useGetLegal()
     const contractList = IotaSDK.curNode?.contractList || []
-    // assetsList = assetsList.filter((e) => {
-    //     const { name } = e
-    //     if (!e.contract) {
-    //         return true
-    //     }
-    //     const contract = contractList.find((e) => e.token === name)?.contract
-    //     return IotaSDK.contracAssetsShowDic[contract] || e.realBalance > 0
-    // })
+    assetsList = assetsList.filter((e) => {
+        const { name } = e
+        if (!e.contract) {
+            return true
+        }
+        const contractItem = contractList.find((e) => e.token === name)
+        const contract = contractItem?.contract
+        const isShowZero = !contractItem?.isSystem || IotaSDK.contracAssetsShowDic[contract]
+        return e.realBalance > 0 || isShowZero
+    })
     const isSMRNode = IotaSDK.checkSMR(IotaSDK.curNode?.id)
     const isLedger = curWallet.type == 'ledger'
     return (
@@ -390,6 +392,7 @@ export const CollectiblesList = () => {
     const [isRequestNft] = useStore('nft.isRequestNft')
     const [curWallet] = useGetNodeWallet()
     const [list] = useStore('nft.list')
+    let [importedNFT] = useStore('nft.importedList')
     const ListEl = useMemo(() => {
         return list.map((e) => {
             return <CollectiblesItem isLedger={curWallet.type == 'ledger'} key={e.space} {...e} />
@@ -398,6 +401,22 @@ export const CollectiblesList = () => {
     return (
         <div>
             {ListEl}
+            {Object.keys(importedNFT).map((key) => {
+                const list = importedNFT[key] ?? []
+                if (list.length === 0) {
+                    return null
+                }
+                const firstNFT = list[0]
+                return (
+                    <CollectiblesItem
+                        isLedger={curWallet.type === 'ledger'}
+                        logo={firstNFT.image}
+                        name={firstNFT.name}
+                        link={''}
+                        list={list.map((item) => ({ ...item, thumbnailImage: item.image }))}
+                    />
+                )
+            })}
             {!isRequestNft && (
                 <div className='p30 flex c row'>
                     <Loading color='gray' />
