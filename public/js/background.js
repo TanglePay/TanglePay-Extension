@@ -76,50 +76,6 @@ const storageFacade = {
 }
 iotacatclient.setupStorage(storageFacade)
 
-/*
-IotaUtil.RandomHelper.randomPolyfill = length => {
-    const randomBytes = new Uint8Array(length);
-    crypto.getRandomValues(randomBytes);
-    return randomBytes;
-};
-*/
-//TODO window.navigator.hardwareConcurrency
-//TODO bad init
-iotacatclient.setup(102)
-
-const getLocalStorage = async (key) => {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(key, (res) => {
-            res = res[key] || null
-            resolve(res)
-        })
-    })
-}
-const setLocalStorage = (key, value) => {
-    chrome.storage.local.set({
-        [key]: value
-    })
-}
-const setLocalStorageAsync = async (key, value) => {
-    await chrome.storage.local.set({
-        [key]: value
-    })
-}
-/*
-interface StorageFacade {
-    get(key: string): Promise<string | null>;
-    set(key: string, value: string): Promise<void>;
-}
-*/
-const storageFacade = {
-    prefix:'1',
-    get: getLocalStorage,
-    set: setLocalStorageAsync
-}
-iotacatclient.setupStorage(storageFacade)
-
-//TODO clear storage for testing purpose
-chrome.storage.local.clear().catch(e=>console.log(e))
 // send message to inject
 var sendToInject = function (params) {
     params.cmd = `contentToInject##${params.cmd}`
