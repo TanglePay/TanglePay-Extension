@@ -11,6 +11,7 @@ export const AssetsWallets = () => {
     const dialogRef = useRef()
     const selectWallet = useSelectWallet()
     let [, walletsList] = useGetNodeWallet()
+    walletsList = walletsList.filter((e) => !e.isHideTest)
     const [curActive, setActive] = useState('')
     let params = useLocation()
     params = Base.handlerParams(params?.search) || {}
@@ -53,9 +54,7 @@ export const AssetsWallets = () => {
                                         style={isActive ? { background: '#1D70F7' } : { border: '1px solid #000' }}>
                                         <div className='flex row ac jsb'>
                                             <div className={`fz18 fw600 ${isActive && 'cW'}`}>{e.name}</div>
-                                            <div className={`fz16 ${isActive ? 'cW' : 'cS'}`}>
-                                                {curNode?.type == 2 ? 'EVM' : curNode?.name}
-                                            </div>
+                                            <div className={`fz16 ${isActive ? 'cW' : 'cS'}`}>{curNode?.type == 2 ? 'EVM' : curNode?.name}</div>
                                         </div>
 
                                         <div className='mt5 row ac flex'>

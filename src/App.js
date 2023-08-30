@@ -71,7 +71,7 @@ const App = () => {
     const [sceneList, setSceneList] = useState([])
     const passwordDialog = useRef()
     const getLocalInfo = async () => {
-        const list = ['common.curNodeId', 'common.showAssets', 'common.activityData', 'common.walletsList']
+        const list = ['common.curNodeId', 'common.showAssets', 'common.activityData', 'common.walletsList', 'common.polyganSupport']
         const res = await Promise.all(list.map((e) => Base.getLocalData(e)))
         console.log('getLocalInfo', res)
         list.forEach((e, i) => {

@@ -3,13 +3,19 @@ import { NavBar, Mask } from 'antd-mobile'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
 import { useGetNodeWallet, useChangeNode } from '@tangle-pay/store/common'
 import { SvgIcon } from '../assets'
+import { useStore } from '@tangle-pay/store'
 
 export const AssetsNav = ({ hasChangeNode }) => {
     const [curWallet] = useGetNodeWallet()
+    const [polyganSupport] = useStore('common.polyganSupport')
     const nodeId = curWallet?.nodeId
     const curNode = IotaSDK.nodes.find((e) => e.id == nodeId) || {}
     const isWeb3 = IotaSDK.checkWeb3Node(nodeId)
     const web3Nodes = IotaSDK.nodes.filter((e) => IotaSDK.checkWeb3Node(e.id))
+    let nodeList = [...web3Nodes]
+    if (polyganSupport != 1) {
+        nodeList = web3Nodes.filter((e) => e.id != 8)
+    }
     const [isOpenChange, setOpenChange] = useState(false)
     const [isOpenMore, setOpenMore] = useState(false)
     const changeNode = useChangeNode()
@@ -25,9 +31,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                             }}
                             className='wallet-name-con flex row ac ph10 press'
                             style={{ background: '#1D70F7', borderRadius: 24, height: '32px', lineHeight: '32px' }}>
-                            <div className='wallet-name ellipsis fz16 fw600 cW'>
-                                {curWallet.name || I18n.t('assets.addWallets')}
-                            </div>
+                            <div className='wallet-name ellipsis fz16 fw600 cW'>{curWallet.name || I18n.t('assets.addWallets')}</div>
                             {curWallet.address && (
                                 // <CopyToClipboard
                                 //     text={curWallet.address}
@@ -39,13 +43,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                     {Base.handleAddress(curWallet.address)}
                                 </div>
                             )}
-                            <SvgIcon
-                                style={{ marginBottom: 2 }}
-                                className='ml10'
-                                name='right'
-                                color='white'
-                                size='12'
-                            />
+                            <SvgIcon style={{ marginBottom: 2 }} className='ml10' name='right' color='white' size='12' />
                         </div>
                         {isWeb3 && hasChangeNode && (
                             <div
@@ -105,7 +103,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                         <div className='flex c border-b' style={{ height: 44, minWidth: 260 }}>
                             EVM {I18n.t('user.network')}
                         </div>
-                        {web3Nodes.map((e) => {
+                        {nodeList.map((e) => {
                             return (
                                 <div
                                     key={e.id}
@@ -115,11 +113,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                                         changeNode(e.id)
                                     }}
                                     style={{ height: 44, minWidth: 260 }}>
-                                    <div style={{ width: 30 }}>
-                                        {nodeId == e.id && (
-                                            <SvgIcon name='tick' style={{ marginTop: 3 }} color='#5BB3AE' size='18' />
-                                        )}
-                                    </div>
+                                    <div style={{ width: 30 }}>{nodeId == e.id && <SvgIcon name='tick' style={{ marginTop: 3 }} color='#5BB3AE' size='18' />}</div>
                                     <div
                                         style={{
                                             width: 10,
@@ -146,11 +140,7 @@ export const AssetsNav = ({ hasChangeNode }) => {
                         }}>
                         <div
                             onClick={() => {
-                                Base.push(
-                                    `${curNode.explorer}/${
-                                        IotaSDK.checkWeb3Node(curWallet.nodeId) ? 'address' : 'addr'
-                                    }/${curWallet.address}`
-                                )
+                                Base.push(`${curNode.explorer}/${IotaSDK.checkWeb3Node(curWallet.nodeId) ? 'address' : 'addr'}/${curWallet.address}`)
                             }}
                             className='flex ac ph15 press'
                             style={{ height: 48, minWidth: 260 }}>

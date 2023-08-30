@@ -145,6 +145,7 @@ export const AssetsSend = () => {
                             try {
                                 await wait
                             } catch (error) {
+                                return
                                 // return Toast.error(I18n.t('assets.cancelSend'))
                             }
                         }

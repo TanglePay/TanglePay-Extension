@@ -18,10 +18,10 @@ const PinInputView = ({ errorMessage, onSubmit }) => {
       <img className='logo' src={logo_nobg} alt="logo" />
       <div className="flex column jc as btUnlock" style={{marginTop:'114px'}}>
         <div className='fz32'>{I18n.t('account.welcomeBack')}</div>
-        <div className='fz14' style={{marginTop:'18.5px'}}>{I18n.t('account.typeYourPin')}</div>
+        <div style={{margin: '24px 0px 8px 0px'}}>{I18n.t('account.typeYourPin')}</div>
         <Input
           type='password'
-          style={{borderBottom:'1px solid #E5E5E5',fontSize:'12px'}}
+          style={{padding:"10px 0",borderBottom:'1px solid #EEEEEE'}}
           onChange={setPinValue}
           value={pinValue}
           maxLength={20}
