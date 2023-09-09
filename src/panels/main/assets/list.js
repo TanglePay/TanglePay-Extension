@@ -413,7 +413,7 @@ export const CollectiblesList = () => {
                         logo={firstNFT.image}
                         name={firstNFT.name}
                         link={''}
-                        list={list.map((item) => ({ ...item, thumbnailImage: item.image }))}
+                        list={list.map((item) => ({ ...item, media: item.image }))}
                     />
                 )
             })}
