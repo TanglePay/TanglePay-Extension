@@ -278,6 +278,7 @@ export const ActivityList = ({ search }) => {
 const imgW = (375 - 20 * 2 - 16 * 2) / 3
 const CollectiblesItem = ({ logo, name, link, list, isLedger }) => {
     const [isOpen, setOpen] = useState(false)
+    const [imgLoadError, setImgLoadError] = useState(false)
     const images = list.map((e) => {
         return e.imageType === 'mp4' ? e.thumbnailImage : e.media
     })
@@ -291,7 +292,16 @@ const CollectiblesItem = ({ logo, name, link, list, isLedger }) => {
                 }}
                 style={{ height: 64 }}>
                 <SvgIcon size={14} name='up' style={!isOpen && { transform: 'rotate(180deg)' }} />
-                <img style={{ width: 32, height: 32, borderRadius: 4 }} className='mr10 ml15' src={Base.getIcon(logo)} />
+                {!imgLoadError ? 
+                <img style={{ width: 32, height: 32, borderRadius: 4 }} 
+                    className='mr10 ml15' 
+                    src={Base.getIcon(logo)} 
+                    onError={() => {
+                        setImgLoadError(true)
+                    }}
+                />  : <div className='mr10 ml15 border bgP flex c cW fw600 fz24' style={{ width: 32, height: 32, borderRadius: 32 }}>
+                            {String(logo).toLocaleUpperCase()[0]}
+                        </div>}
                 <div>{name}</div>
                 <div className='bgS ml10 ph5' style={{ paddingTop: 3, paddingBottom: 3, borderRadius: 4 }}>
                     <div className='fz12'>{list.length}</div>
@@ -402,7 +412,9 @@ export const CollectiblesList = () => {
         <div>
             {ListEl}
             {Object.keys(importedNFT).map((key) => {
-                const list = importedNFT[key] ?? []
+                const nft = importedNFT[key] ?? {}
+                const { list=[] ,logo, name } = nft
+                
                 if (list.length === 0) {
                     return null
                 }
@@ -410,8 +422,8 @@ export const CollectiblesList = () => {
                 return (
                     <CollectiblesItem
                         isLedger={curWallet.type === 'ledger'}
-                        logo={firstNFT.image}
-                        name={firstNFT.name}
+                        logo={logo || name || firstNFT.name || 'N'}
+                        name={name || firstNFT.name}
                         link={''}
                         list={list.map((item) => ({ ...item, media: item.image }))}
                     />

@@ -186,6 +186,8 @@ const getNodeInfo = async () => {
 }
 
 const importNFT = async ({nft, tokenId}, reqId, method) => {
+    // Lowercase nft
+    nft = nft.toLocaleLowerCase()
     const nodeInfo = await getNodeInfo()
     const callBack = (code, response = null) => {
         sendToContentScript({
