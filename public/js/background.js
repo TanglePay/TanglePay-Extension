@@ -10,21 +10,21 @@ const API_URL = 'https://api.iotaichi.com'
 
 const DATA_PER_REQUEST_PREFIX = 'data_per_request_prefix_'
 const dataPerRequestHelper = {
-    getDataPerRequestKey(reqId){
+    getDataPerRequestKey(reqId) {
         return DATA_PER_REQUEST_PREFIX + reqId
     },
-    storeDataPerRequest(reqId, data){
-        if(!data) {
+    storeDataPerRequest(reqId, data) {
+        if (!data) {
             return
         }
-        setBackgroundData(this.getDataPerRequestKey(reqId), data);
+        setBackgroundData(this.getDataPerRequestKey(reqId), data)
     },
-    removeDataPerRequest(reqId, hasDataOnRequest = true){
-        if(!hasDataOnRequest) {
+    removeDataPerRequest(reqId, hasDataOnRequest = true) {
+        if (!hasDataOnRequest) {
             return
         }
         removeBackgroundData(this.getDataPerRequestKey(reqId))
-    },
+    }
 }
 
 // send message to inject
@@ -185,7 +185,7 @@ const getNodeInfo = async () => {
     return nodeInfo || {}
 }
 
-const importNFT = async ({nft, tokenId}, reqId, method) => {
+const importNFT = async ({ nft, tokenId }, reqId, method) => {
     // Lowercase nft
     nft = nft.toLocaleLowerCase()
     const nodeInfo = await getNodeInfo()
@@ -210,35 +210,32 @@ const importNFT = async ({nft, tokenId}, reqId, method) => {
             const importedNFTKey = `${address}.nft.importedList`
             const importedNFTInStorage = (await getBackgroundData(importedNFTKey)) ?? {}
 
-            if(importedNFTInStorage?.[nft] && importedNFTInStorage[nft].find(nft => nft.tokenId === tokenId))  {
+            if (importedNFTInStorage?.[nft] && importedNFTInStorage[nft].find((nft) => nft.tokenId === tokenId)) {
                 throw new Error('This NFT has already been imported.')
             }
 
             const nftContract = new web3_.eth.Contract([...NonfungiblePositionManager], nft)
             const owner = await nftContract.methods.ownerOf(tokenId).call()
-            if(owner.toLocaleLowerCase() !== address.toLocaleLowerCase()) {
+            if (owner.toLocaleLowerCase() !== address.toLocaleLowerCase()) {
                 throw new Error('This NFT is not owned by the user')
             }
-            
+
             const tokenURI = await nftContract.methods.tokenURI(tokenId).call()
             const name = await nftContract.methods.name().call()
-            const tokenURIRes = await fetch(tokenURI).then(res => res.json())
+            const tokenURIRes = await fetch(tokenURI).then((res) => res.json())
             const importedNFTInfo = {
                 tokenId,
                 name,
                 image: tokenURIRes.image,
                 description: tokenURIRes.description
             }
-            importedNFTInStorage[nft] = [
-                ...(importedNFTInStorage[nft] ?? []),
-                importedNFTInfo
-            ]
-            setBackgroundData(importedNFTKey, importedNFTInStorage)  
-            callBack(200, {nft, tokenId})    
-        }catch(error) {
+            importedNFTInStorage[nft] = [...(importedNFTInStorage[nft] ?? []), importedNFTInfo]
+            setBackgroundData(importedNFTKey, importedNFTInStorage)
+            callBack(200, { nft, tokenId })
+        } catch (error) {
             callBack(-1, error.message)
-        }   
-    }else{
+        }
+    } else {
         callBack(-1, 'Node is error')
     }
 }
@@ -503,7 +500,8 @@ chrome.windows.onRemoved.addListener(async (id) => {
                     response: {
                         msg: 'cancel'
                     }
-                }
+                },
+                id: curReqId
             })
         }
     }
@@ -726,9 +724,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 break
                             case 'eth_importNFT':
                                 {
-                                    importNFT({nft: requestParams.nft, tokenId: requestParams.tokenId}, reqId, method)
+                                    importNFT({ nft: requestParams.nft, tokenId: requestParams.tokenId }, reqId, method)
                                 }
-                                break;
+                                break
                             case 'get_login_token':
                                 {
                                     getLoginToken().then((res) => {
@@ -995,25 +993,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             //     }
                             const { windowId, tabId, curReqId: lastReqId, hasDataOnRequest } = window.tanglepayDialog
 
-
                             // Step 1: make window focused
-                            chrome.windows.update(windowId, {
-                                focused: true,
-                            }, () => {
-                                // Step 2: change tab url
-                                chrome.tabs.update(tabId, {
-                                    url: params.url
-                                }, () => {
-                                    // Step3: clear last reqId and store current reqId
-                                    dataPerRequestHelper.removeDataPerRequest(lastReqId, hasDataOnRequest)
-                                    dataPerRequestHelper.storeDataPerRequest(reqId, dataPerRequest)
-                                    window.tanglepayDialog = {
-                                        ...window.tanglepayDialog,
-                                        curReqId: reqId,
-                                        hasDataOnRequest: !!dataPerRequest
-                                    }
-                                })
-                            })
+                            chrome.windows.update(
+                                windowId,
+                                {
+                                    focused: true
+                                },
+                                () => {
+                                    // Step 2: change tab url
+                                    chrome.tabs.update(
+                                        tabId,
+                                        {
+                                            url: params.url
+                                        },
+                                        () => {
+                                            // Step3: clear last reqId and store current reqId
+                                            dataPerRequestHelper.removeDataPerRequest(lastReqId, hasDataOnRequest)
+                                            dataPerRequestHelper.storeDataPerRequest(reqId, dataPerRequest)
+                                            window.tanglepayDialog = {
+                                                ...window.tanglepayDialog,
+                                                curReqId: reqId,
+                                                hasDataOnRequest: !!dataPerRequest
+                                            }
+                                        }
+                                    )
+                                }
+                            )
                         } else {
                             // const popupList = chrome.extension.getViews({ type: 'popup' })
                             // if (popupList?.length > 0 && popupList[0].Bridge) {
