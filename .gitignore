@@ -11,6 +11,8 @@
 # production
 /build
 
+*.zip
+
 # misc
 .DS_Store
 .env.local
@@ -26,3 +28,5 @@ yarn-error.log*
 
 #ide
 .idea
+
+
