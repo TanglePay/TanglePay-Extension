@@ -621,6 +621,8 @@ const handleImRequests = async ({reqId, dappOrigin, addr, groupId, continuationT
             res = await iotacatclient.fetchMessageListFrom(groupId,addr,continuationToken, limit)
         } else if (method == 'iota_im_groupmessagelist_until') {
             res = await iotacatclient.fetchMessageListUntil(groupId, addr, continuationToken, limit)
+        } else if (method == 'iota_im_groupinboxmessagelist') {
+            res = await iotacatclient.fetchInboxMessageList(addr, continuationToken, limit)
         } else if (method == 'iota_im_readone') {
             res = await iotacatclient.getMessageFromOutputId(outputId,addr)
         } else if (method == 'iota_im') {
@@ -980,6 +982,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_ensure_group_shared':
                             case 'iota_im_groupmessagelist_from':
                             case 'iota_im_groupmessagelist_until':
+                            case 'iota_im_groupinboxmessagelist':
                             case 'iota_im_p2p_pushed':
                             case 'iota_im_check_and_consolidate_messages':
                             case 'iota_im_check_and_consolidate_shareds':
