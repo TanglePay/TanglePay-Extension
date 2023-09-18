@@ -623,6 +623,7 @@ const handleImRequests = async ({reqId, dappOrigin, addr, groupId, continuationT
             res = await iotacatclient.fetchMessageListUntil(groupId, addr, continuationToken, limit)
         } else if (method == 'iota_im_groupinboxmessagelist') {
             res = await iotacatclient.fetchInboxMessageList(addr, continuationToken, limit)
+            res = JSON.stringify(res)
         } else if (method == 'iota_im_readone') {
             res = await iotacatclient.getMessageFromOutputId(outputId,addr)
         } else if (method == 'iota_im') {
