@@ -145,6 +145,7 @@ export const AssetsSend = () => {
                             try {
                                 await wait
                             } catch (error) {
+                                return
                                 // return Toast.error(I18n.t('assets.cancelSend'))
                             }
                         }
@@ -210,7 +211,14 @@ export const AssetsSend = () => {
                             Toast.hideLoading()
                             // Toast.error(I18n.t('assets.sendError'))
                             console.log(error)
-                            Toast.error(error.toString())
+                            if (/Failed to fetch/i.test(error.toString())) {
+                                setTimeout(() => {
+                                    IotaSDK.refreshAssets()
+                                }, 10000)
+                                IotaSDK.refreshAssets()
+                            } else {
+                                Toast.error(error.toString())
+                            }
                             // Toast.error(
                             //     `${error.toString()}---input:${
                             //         values.amount

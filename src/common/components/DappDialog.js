@@ -71,7 +71,7 @@ export const DappDialog = () => {
                 break
         }
     }
-    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId }) => {
+    const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId, dataPerRequest }) => {
         const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
         if (!noPassword.includes(type)) {
             if (!isLedger) {
@@ -144,6 +144,7 @@ export const DappDialog = () => {
                             decimal: assets?.decimal,
                             mainBalance,
                             tag,
+                            metadata: dataPerRequest?.metadata,
                             nftId,
                             gas: gasInfo.gasLimit,
                             gasPrice: gasInfo.gasPriceWei
@@ -160,18 +161,25 @@ export const DappDialog = () => {
                         }
                     } catch (error) {
                         Toast.hideLoading()
-                        if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
-                            Bridge.sendErrorMessage(type, String(error), reqId)
+                        if (/Failed to fetch/i.test(error.toString())) {
+                            IotaSDK.refreshAssets()
+                            setTimeout(() => {
+                                IotaSDK.refreshAssets()
+                            }, 10000)
                         } else {
-                            Toast.error(String(error))
-                            // Toast.error(
-                            //     `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
-                            //         realBalance
-                            //     )}`,
-                            //     {
-                            //         duration: 5000
-                            //     }
-                            // )
+                            if (type === 'iota_sendTransaction' || type === 'eth_sendTransaction') {
+                                Bridge.sendErrorMessage(type, String(error), reqId)
+                            } else {
+                                Toast.error(String(error))
+                                // Toast.error(
+                                //     `${String(error)}---amount:${amount}---residue:${residue}---realBalance:${Number(
+                                //         realBalance
+                                //     )}`,
+                                //     {
+                                //         duration: 5000
+                                //     }
+                                // )
+                            }
                         }
                     }
                 }
@@ -242,6 +250,7 @@ export const DappDialog = () => {
             res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
         }
         let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
+        debugger
         let toNetId
         if (!network) {
             const path = url.replace('tanglepay://', '').split('?')[0]
@@ -468,7 +477,7 @@ export const DappDialog = () => {
 
                             let str = I18n.t(abiFunc === 'approve' ? 'apps.approve' : 'apps.send')
                             if (abiFunc && abiFunc !== 'approve' && abiFunc !== 'transfer') {
-                                str = I18n.t('apps.contractFunc').replace('#abiFunc#', abiFunc).replace('#abiParams#', abiParams.join(','))
+                                str = I18n.t('apps.contractFunc').replace('#abiFunc#', abiFunc)
                             }
                             let fromStr = I18n.t('apps.sendFrom')
                             let forStr = I18n.t('apps.sendFor')
@@ -481,6 +490,8 @@ export const DappDialog = () => {
                                 .replace('#unit#', showUnit)
                                 .replace(/\n/g, '<br/>')
                                 .replace('#fee#', gasFee)
+                            str = `${origin}<br/>` + str
+                            const dataPerRequest = await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId)
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
@@ -496,7 +507,8 @@ export const DappDialog = () => {
                                 abiParams,
                                 gas,
                                 reqId,
-                                origin
+                                origin,
+                                dataPerRequest
                             })
                             show()
                         }
