@@ -438,6 +438,7 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 const isGetSoonaverse = assetsList.includes('soonaverse')
                 const url = nodeInfo.url
                 if (isGetEvm) {
+                    web3_ = undefined
                     await ensureWeb3Client()
                     const web3 = web3_
                     amount = await web3.eth.getBalance(address)
