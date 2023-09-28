@@ -11,6 +11,8 @@ import { Unit } from '@iota/unit-converter'
 import { GasDialog } from '@/common/components/gasDialog'
 import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
+const contractTokenMethod = ['approve', 'transfer']
+
 export const DappDialog = () => {
     const gasDialog = useRef()
     const [isShow, setShow] = useState(false)
@@ -135,6 +137,7 @@ export const DappDialog = () => {
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
                             domain: origin,
                             contract: contract || assets?.contract,
+                            contractDetail: dappData.contractDetail,
                             token: assets?.name,
                             taggedData,
                             residue,
@@ -250,7 +253,6 @@ export const DappDialog = () => {
             res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
         }
         let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
-        debugger
         let toNetId
         if (!network) {
             const path = url.replace('tanglepay://', '').split('?')[0]
@@ -309,6 +311,7 @@ export const DappDialog = () => {
                             let showUnit = ''
                             let sendAmount = 0
                             let contract = ''
+                            let contractDetail = null
                             let abiFunc = ''
                             let abiParams = []
                             let gasFee = ''
@@ -405,6 +408,15 @@ export const DappDialog = () => {
                                     total,
                                     totalEth
                                 })
+
+                                if(abiFunc && !contractTokenMethod.includes(abiFunc)) {
+                                    contractDetail = {
+                                        abiFunc,
+                                        value: showValue,
+                                        unit: showUnit
+                                    }
+                                }
+
                                 setInit(true)
                                 Toast.hideLoading()
                             } else {
@@ -500,6 +512,7 @@ export const DappDialog = () => {
                                 address,
                                 taggedData,
                                 contract,
+                                contractDetail: contractDetail,
                                 foundryData,
                                 tag,
                                 nftId,
