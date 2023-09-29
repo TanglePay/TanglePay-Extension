@@ -467,9 +467,18 @@ export const DappDialog = () => {
                                         showValue = value / Math.pow(10, foundryData.decimals || 0)
                                         sendAmount = value
                                         showUnit = unit
-                                    } else {
+                                    } else if (IotaSDK.isIotaStardust(curNodeId)){
+                                        const iotaDecimal = IotaSDK.curNode?.decimal || 6
+                                        unit = 'IOTA'
+                                        showValue = BigNumber(value).div(Math.pow(10, iotaDecimal)).valueOf()
+                                        if(parseFloat(showValue) < Math.pow(10, -iotaDecimal)) {
+                                            showValue = Math.pow(10, -iotaDecimal)
+                                        }
+                                        sendAmount = BigNumber(showValue).times(Math.pow(10, iotaDecimal)).valueOf()
+                                        showUnit = unit
+                                    }else {
                                         unit = unit || 'SMR'
-                                        if (!['SMR', 'Glow'].includes(unit)) {
+                                        if (!['SMR', 'Glow', 'IOTA'].includes(unit)) {
                                             unit = 'SMR'
                                         }
                                         showValue = value

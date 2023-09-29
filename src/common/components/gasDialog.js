@@ -94,7 +94,7 @@ export const GasDialog = ({ dialogRef }) => {
                         {({ setFieldValue, handleSubmit, values, errors }) => (
                             <Form>
                                 <Form.Item className={`pl0 ${errors.gasPrice && 'form-error'}`}>
-                                    <div className='fz18 mb10'>{I18n.t('assets.gasFee')} (GWEI)</div>
+                                    <div className='fz18 mb10'>{I18n.t('assets.gasPrice')} (GWEI)</div>
                                     <StepInput
                                         className='name-input'
                                         onChange={(e) => {
