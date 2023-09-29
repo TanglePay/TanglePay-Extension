@@ -22,6 +22,7 @@ export const AccountChangeNode = () => {
     })
     const evmData = list.find((e) => IotaSDK.checkWeb3Node(e.id))
     if (evmData) {
+        evmName = evmName.filter(name  => ['BSC', 'Polygon', 'ETH', 'Shimmer EVM'].map(chain => chain.toLocaleLowerCase()).includes(name.toLocaleLowerCase()))
         evmData.name = `EVM (${evmName.join(' / ')})`
     }
     return (

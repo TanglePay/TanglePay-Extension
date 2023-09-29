@@ -213,6 +213,7 @@ export const ActivityList = ({ search }) => {
     const showList = list.filter((e) => !search || (e.address || '').toLocaleUpperCase().includes(search.toLocaleUpperCase()))
     const ListEl = useMemo(() => {
         return showList.map((e, i) => {
+            const isContract = e.contractDetail
             const isOutto = [1, 3, 6, 8].includes(e.type)
             const isStake = [2, 3].includes(e.type)
             const isSign = e.type == 4
@@ -224,10 +225,12 @@ export const ActivityList = ({ search }) => {
                     onClick={() => {
                         e.viewUrl && Base.push(e.viewUrl)
                     }}>
-                    <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
+                    <SvgIcon className='mr20' name={isContract ? 'interaction' : isOutto ? 'outto' : 'into'} size={36} />
                     <div className='border-b flex flex1 row ac jsb pb15'>
                         <div>
-                            {isSign ? (
+                            {isContract ? <div className='fz17 mb5'>
+                                {e.contractDetail.abiFunc}
+                            </div> : isSign ? (
                                 <div className='fz17 mb5'>TanglePay.Sign</div>
                             ) : isStake ? (
                                 <div className='fz17 mb5'>{I18n.t(isOutto ? 'staking.unstake' : 'staking.stake')}</div>
@@ -241,7 +244,16 @@ export const ActivityList = ({ search }) => {
                         </div>
                         {!isStake ? (
                             <>
-                                {isShowAssets ? (
+                                {isShowAssets ? 
+                                isContract ? (
+                                    <div>
+                                        {/* <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
+                                            {isOutto ? '-' : '+'} {e.contractDetail.value + ' '}
+                                            {e.contractDetail.unit}
+                                        </div>
+                                        <div className='fz15 tr cS'>$ {e.contractDetail.assets}</div> */}
+                                    </div>
+                                ): (
                                     <div>
                                         <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
                                             {isOutto ? '-' : '+'} {!isNft ? `${e.num} ` : ''}
