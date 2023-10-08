@@ -74,7 +74,7 @@ export const DappDialog = () => {
         }
     }
     const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId, dataPerRequest }) => {
-        const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey']
+        const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey', 'iota_getWalletType']
         if (!noPassword.includes(type)) {
             if (!isLedger) {
                 const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
@@ -201,6 +201,11 @@ export const DappDialog = () => {
             case 'iota_getPublicKey':
                 {
                     await Bridge.iota_getPublicKey(origin, expires, reqId)
+                }
+                break
+            case 'iota_getWalletType':
+                {
+                    await Bridge.iota_getWalletType(origin, expires, reqId)
                 }
                 break
             case 'iota_changeAccount':
@@ -409,7 +414,7 @@ export const DappDialog = () => {
                                     totalEth
                                 })
 
-                                if(abiFunc && !contractTokenMethod.includes(abiFunc)) {
+                                if (abiFunc && !contractTokenMethod.includes(abiFunc)) {
                                     contractDetail = {
                                         abiFunc,
                                         value: showValue,
@@ -552,6 +557,17 @@ export const DappDialog = () => {
                         }
                         break
                     case 'iota_getPublicKey':
+                        {
+                            Toast.showLoading()
+                            // setDappData({
+                            //     texts: [{ text: 'get public key' }],
+                            //     type
+                            // })
+                            // show()
+                            onExecute({ type, reqId })
+                        }
+                        break
+                    case 'iota_getWalletType':
                         {
                             Toast.showLoading()
                             // setDappData({

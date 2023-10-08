@@ -718,6 +718,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     })
                                 }
                                 break
+                            case 'iota_getWalletType':
+                                {
+                                    getAddressInfo(requestParams?.address).then((addressInfo) => {
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            id: reqId,
+                                            code: addressInfo ? 200 : -1,
+                                            data: {
+                                                method,
+                                                response: addressInfo ? addressInfo?.type : ''
+                                            }
+                                        })
+                                    })
+                                }
+                                break
                             case 'eth_importContract':
                                 {
                                     importContract(requestParams.contract, reqId, method)
