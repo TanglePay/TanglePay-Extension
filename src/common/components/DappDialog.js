@@ -470,7 +470,7 @@ export const DappDialog = () => {
                                     } else if (IotaSDK.isIotaStardust(curNodeId)){
                                         const iotaDecimal = IotaSDK.curNode?.decimal || 6
                                         unit = 'IOTA'
-                                        showValue = BigNumber(value).div(Math.pow(10, iotaDecimal)).valueOf()
+                                        showValue = Base.formatNum(BigNumber(value).div(Math.pow(10, iotaDecimal)).valueOf(), iotaDecimal)
                                         if(parseFloat(showValue) < Math.pow(10, -iotaDecimal)) {
                                             showValue = Math.pow(10, -iotaDecimal)
                                         }
