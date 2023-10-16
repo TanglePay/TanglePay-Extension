@@ -347,6 +347,21 @@ const getBalanceNodeMatch = async (method, addressList) => {
     }
     return nodeInfo
 }
+
+const IOTA_NODE_ID = 1
+
+function isIotaStardust(nodeId, nodeType) {
+    return isIotaAccordingId(nodeId) && checkSMR(nodeType);
+}
+
+function checkSMR(nodeType) {
+    return nodeType === 3
+}
+
+function isIotaAccordingId(nodeId) {
+    return nodeId === IOTA_NODE_ID 
+}
+
 const getBalanceInfo = async (address, nodeInfo, assetsList) => {
     assetsList = assetsList || []
     let amount = 0
@@ -369,11 +384,12 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 isGetStakingAsmb = assetsList.includes('asmb')
             }
             if (nodeInfo.type == 3) {
+                isGetIota = assetsList.includes('iota')
                 isGetSmr = assetsList.includes('smr')
                 isGetSoonaverse = assetsList.includes('soonaverse')
             }
             if (isGetIota || isGetSmr) {
-                if (isGetSmr) {
+                if (isGetSmr || isIotaStardust(nodeInfo.id, nodeInfo.type)) {
                     // const res = await fetch(
                     //     `${nodeInfo.explorerApiUrl}/balance/chronicle/${nodeInfo.network}/${address}`
                     // ).then((res) => res.json())
@@ -516,7 +532,7 @@ var createDialog = function (params, reqId, dataPerRequest) {
                 dataPerRequestHelper.storeDataPerRequest(reqId, dataPerRequest)
                 window.tanglepayDialog = {
                     windowId: w.id,
-                    tabId: w.tabs[0].id,
+                    // tabId: w.tabs[0].id,
                     curReqId: reqId,
                     hasDataOnRequest: !!dataPerRequest
                 }
@@ -713,6 +729,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                             data: {
                                                 method,
                                                 response: addressInfo ? addressInfo?.publicKey : ''
+                                            }
+                                        })
+                                    })
+                                }
+                                break
+                            case 'iota_getWalletType':
+                                {
+                                    getAddressInfo(requestParams?.address).then((addressInfo) => {
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            id: reqId,
+                                            code: addressInfo ? 200 : -1,
+                                            data: {
+                                                method,
+                                                response: addressInfo ? addressInfo?.type : ''
                                             }
                                         })
                                     })
@@ -986,52 +1017,53 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         if (!params.url) {
                             return true
                         }
-                        if (window.tanglepayDialog) {
-                            // chrome.windows.getAll(null,res=>{
-                            //     const curView = res.find(e=>e.id === window.tanglepayDialog);
-                            //     if(curView){
-                            //         curView.Bridge.connect(params.url)
-                            //     }
-                            const { windowId, tabId, curReqId: lastReqId, hasDataOnRequest } = window.tanglepayDialog
+                        // if (window.tanglepayDialog) {
+                        //     // chrome.windows.getAll(null,res=>{
+                        //     //     const curView = res.find(e=>e.id === window.tanglepayDialog);
+                        //     //     if(curView){
+                        //     //         curView.Bridge.connect(params.url)
+                        //     //     }
+                        //     // const { windowId, tabId, curReqId: lastReqId, hasDataOnRequest } = window.tanglepayDialog
 
-                            // Step 1: make window focused
-                            chrome.windows.update(
-                                windowId,
-                                {
-                                    focused: true
-                                },
-                                () => {
-                                    // Step 2: change tab url
-                                    chrome.tabs.update(
-                                        tabId,
-                                        {
-                                            url: params.url
-                                        },
-                                        () => {
-                                            // Step3: clear last reqId and store current reqId
-                                            dataPerRequestHelper.removeDataPerRequest(lastReqId, hasDataOnRequest)
-                                            dataPerRequestHelper.storeDataPerRequest(reqId, dataPerRequest)
-                                            window.tanglepayDialog = {
-                                                ...window.tanglepayDialog,
-                                                curReqId: reqId,
-                                                hasDataOnRequest: !!dataPerRequest
-                                            }
-                                        }
-                                    )
-                                }
-                            )
-                        } else {
-                            // const popupList = chrome.extension.getViews({ type: 'popup' })
-                            // if (popupList?.length > 0 && popupList[0].Bridge) {
-                            //     if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
-                            //         popupList[0].location.href = params.url
-                            //     } else {
-                            //         popupList[0].Bridge.connect(params.url)
-                            //     }
-                            // } else {
-                            createDialog(params, reqId, dataPerRequest)
-                            // }
-                        }
+                        //     // Step 1: make window focused
+                        //     // chrome.windows.update(
+                        //     //     windowId,
+                        //     //     {
+                        //     //         focused: true
+                        //     //     },
+                        //     //     () => {
+                        //     //         // Step 2: change tab url
+                        //     //         chrome.tabs.update(
+                        //     //             tabId,
+                        //     //             {
+                        //     //                 url: params.url
+                        //     //             },
+                        //     //             () => {
+                        //     //                 // Step3: clear last reqId and store current reqId
+                        //     //                 dataPerRequestHelper.removeDataPerRequest(lastReqId, hasDataOnRequest)
+                        //     //                 dataPerRequestHelper.storeDataPerRequest(reqId, dataPerRequest)
+                        //     //                 window.tanglepayDialog = {
+                        //     //                     ...window.tanglepayDialog,
+                        //     //                     curReqId: reqId,
+                        //     //                     hasDataOnRequest: !!dataPerRequest
+                        //     //                 }
+                        //     //             }
+                        //     //         )
+                        //     //     }
+                        //     // )
+                        // } else {
+                        //     // const popupList = chrome.extension.getViews({ type: 'popup' })
+                        //     // if (popupList?.length > 0 && popupList[0].Bridge) {
+                        //     //     if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
+                        //     //         popupList[0].location.href = params.url
+                        //     //     } else {
+                        //     //         popupList[0].Bridge.connect(params.url)
+                        //     //     }
+                        //     // } else {
+                        //     // createDialog(params, reqId, dataPerRequest)
+                        //     // }
+                        // }
+                        createDialog(params, reqId, dataPerRequest)
                         // if (window.tanglepayDialog) {
                         //     chrome.windows.getAll(null,res=>{
                         //         const curView = res.find(e=>e.id === window.tanglepayDialog);

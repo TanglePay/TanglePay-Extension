@@ -19,17 +19,17 @@ export const UserSetting = () => {
                 Base.push('/user/lang')
             }
         },
-        {
-            icon: 'stake',
-            label: I18n.t('staking.restake'),
-            type: 'switch',
-            value: isNoRestake,
-            onChange: (e) => {
-                setNoRestake(e)
-                Base.setLocalData('common.isNoRestake', e ? 0 : 1)
-            },
-            size: 22
-        },
+        // {
+        //     icon: 'stake',
+        //     label: I18n.t('staking.restake'),
+        //     type: 'switch',
+        //     value: isNoRestake,
+        //     onChange: (e) => {
+        //         setNoRestake(e)
+        //         Base.setLocalData('common.isNoRestake', e ? 0 : 1)
+        //     },
+        //     size: 22
+        // },
         {
             icon: 'pin',
             label: context.state.isPinSet ? I18n.t('account.resetPinTitle') : I18n.t('account.setPinButton'),
@@ -71,9 +71,10 @@ export const UserSetting = () => {
         })
     }
     useEffect(() => {
-        Base.getLocalData('common.isNoRestake').then((res) => {
-            setNoRestake(res != 1)
-        })
+        // "Automatic Restake" default to false
+        // Base.getLocalData('common.isNoRestake').then((res) => {
+        //     setNoRestake(res != 1)
+        // })
     }, [])
     return (
         <div className='page'>
