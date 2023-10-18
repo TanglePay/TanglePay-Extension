@@ -612,7 +612,7 @@ const ifImNeedAuthorize = (dappOrigin, address) => {
     return hexSeedCache[key] ? false : true
 }
 
-const handleImRequests = async ({reqId, dappOrigin, addr, groupId, continuationToken, limit, method, outputId, message, pushed}) => {
+const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, message, pushed, vote}) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
@@ -636,7 +636,26 @@ const handleImRequests = async ({reqId, dappOrigin, addr, groupId, continuationT
             res = await iotacatclient.checkThenConsolidateMessages()
         } else if (method == 'iota_im_check_and_consolidate_shareds') { 
             res = await iotacatclient.checkThenConsolidateShared()
-        } 
+        } else if (method == 'iota_im_mark_group') { 
+            res = await iotacatclient.markGroup(groupId)
+        } else if (method == 'iota_im_unmark_group') {
+            res = await iotacatclient.unmarkGroup(groupId)
+        } else if (method == 'iota_im_getMarkedGroupIds') {
+            res = await iotacatclient.getMarkedGroupIds()
+        } else if (method == 'iota_im_getAllGroupVotes') {
+            res = await iotacatclient.getAllGroupVotes()
+        } else if (method == 'iota_im_voteGroup') {
+            res = await iotacatclient.voteGroup(groupId,vote)
+        } else if (method == 'iota_im_unvoteGroup') {
+            res = await iotacatclient.unvoteGroup(groupId)
+        } else if (method == 'iota_im_getAllUserMuteGroupMembers') {
+            res = await iotacatclient.getAllUserMuteGroupMembers(groupId)
+        } else if (method == 'iota_im_muteGroupMember') {
+            res = await iotacatclient.muteGroupMember(groupId,addrHash)
+        } else if (method == 'iota_im_unmuteGroupMember') {
+            res = await iotacatclient.unmuteGroupMember(groupId,addrHash)
+        }
+
         sendToContentScript({
             cmd: 'iota_request',
             id: reqId,
@@ -987,6 +1006,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_p2p_pushed':
                             case 'iota_im_check_and_consolidate_messages':
                             case 'iota_im_check_and_consolidate_shareds':
+                            case 'iota_im_mark_group':
+                            case 'iota_im_unmark_group':
+                            case 'iota_im_getMarkedGroupIds':
+                            case 'iota_im_getAllGroupVotes':
+                            case 'iota_im_voteGroup':
+                            case 'iota_im_unvoteGroup':
+                            case 'iota_im_getAllUserMuteGroupMembers':
+                            case 'iota_im_muteGroupMember':
+                            case 'iota_im_unmuteGroupMember':
                                 {
                                     //TODO 
                                     if (ifImNeedAuthorize(dappOrigin,content.addr)) {
