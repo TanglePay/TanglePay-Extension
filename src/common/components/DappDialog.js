@@ -11,6 +11,8 @@ import { Unit } from '@iota/unit-converter'
 import { GasDialog } from '@/common/components/gasDialog'
 import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
+const contractTokenMethod = ['approve', 'transfer']
+
 export const DappDialog = () => {
     const gasDialog = useRef()
     const [isShow, setShow] = useState(false)
@@ -73,7 +75,7 @@ export const DappDialog = () => {
         }
     }
     const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId, dataPerRequest }) => {
-        const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey', 'iota_im_authorize']
+        const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey', 'iota_im_authorize', 'iota_getWalletType']
         if (!noPassword.includes(type)) {
             if (!isLedger) {
                 const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
@@ -136,6 +138,7 @@ export const DappDialog = () => {
                         const res = await IotaSDK.send({ ...curWallet, password }, address, amount, {
                             domain: origin,
                             contract: contract || assets?.contract,
+                            contractDetail: dappData.contractDetail,
                             token: assets?.name,
                             taggedData,
                             residue,
@@ -201,6 +204,11 @@ export const DappDialog = () => {
                     await Bridge.iota_getPublicKey(origin, expires, reqId)
                 }
                 break
+            case 'iota_getWalletType':
+                {
+                    await Bridge.iota_getWalletType(origin, expires, reqId)
+                }
+                break
             case 'iota_changeAccount':
                 {
                     Bridge.sendMessage(
@@ -257,7 +265,6 @@ export const DappDialog = () => {
             res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
         }
         let { network, value, unit, return_url, item_desc = '', merchant = '', content = '', origin = '', expires, taggedData = '', assetId = '', nftId = '', tag = '', gas = '', reqId = 0 } = res
-        debugger
         let toNetId
         if (!network) {
             const path = url.replace('tanglepay://', '').split('?')[0]
@@ -316,6 +323,7 @@ export const DappDialog = () => {
                             let showUnit = ''
                             let sendAmount = 0
                             let contract = ''
+                            let contractDetail = null
                             let abiFunc = ''
                             let abiParams = []
                             let gasFee = ''
@@ -412,6 +420,15 @@ export const DappDialog = () => {
                                     total,
                                     totalEth
                                 })
+
+                                if (abiFunc && !contractTokenMethod.includes(abiFunc)) {
+                                    contractDetail = {
+                                        abiFunc,
+                                        value: showValue,
+                                        unit: showUnit
+                                    }
+                                }
+
                                 setInit(true)
                                 Toast.hideLoading()
                             } else {
@@ -462,9 +479,18 @@ export const DappDialog = () => {
                                         showValue = value / Math.pow(10, foundryData.decimals || 0)
                                         sendAmount = value
                                         showUnit = unit
-                                    } else {
+                                    } else if (IotaSDK.isIotaStardust(curNodeId)){
+                                        const iotaDecimal = IotaSDK.curNode?.decimal || 6
+                                        unit = 'IOTA'
+                                        showValue = Base.formatNum(BigNumber(value).div(Math.pow(10, iotaDecimal)).valueOf(), iotaDecimal)
+                                        if(parseFloat(showValue) < Math.pow(10, -iotaDecimal)) {
+                                            showValue = Math.pow(10, -iotaDecimal)
+                                        }
+                                        sendAmount = BigNumber(showValue).times(Math.pow(10, iotaDecimal)).valueOf()
+                                        showUnit = unit
+                                    }else {
                                         unit = unit || 'SMR'
-                                        if (!['SMR', 'Glow'].includes(unit)) {
+                                        if (!['SMR', 'Glow', 'IOTA'].includes(unit)) {
                                             unit = 'SMR'
                                         }
                                         showValue = value
@@ -507,6 +533,7 @@ export const DappDialog = () => {
                                 address,
                                 taggedData,
                                 contract,
+                                contractDetail: contractDetail,
                                 foundryData,
                                 tag,
                                 nftId,
@@ -546,6 +573,17 @@ export const DappDialog = () => {
                         }
                         break
                     case 'iota_getPublicKey':
+                        {
+                            Toast.showLoading()
+                            // setDappData({
+                            //     texts: [{ text: 'get public key' }],
+                            //     type
+                            // })
+                            // show()
+                            onExecute({ type, reqId })
+                        }
+                        break
+                    case 'iota_getWalletType':
                         {
                             Toast.showLoading()
                             // setDappData({

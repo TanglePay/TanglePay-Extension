@@ -43,9 +43,13 @@ export default {
                 obj.chainId = await IotaSDK.client.eth.getChainId()
             }
             this.cacheBgData(key, { ...obj, expires: new Date().getTime() + parseInt(expires || 0) })
-            this.sendMessage('iota_connect', {
-                ...obj
-            },reqId)
+            this.sendMessage(
+                'iota_connect',
+                {
+                    ...obj
+                },
+                reqId
+            )
 
             Trace.dappConnect(origin.replace(/.+\/\//, ''), curWallet.address, curWallet.nodeId, IotaSDK.curNode.token)
         }
@@ -84,6 +88,16 @@ export default {
         }
     },
 
+    async iota_getWalletType(origin, expires, reqId = 0) {
+        try {
+            const curWallet = await this.getCurWallet()
+            this.sendMessage('iota_getWalletType', curWallet.type, reqId)
+        } catch (error) {
+            this.sendErrorMessage('iota_getWalletType', {
+                msg: error.toString()
+            })
+        }
+    },
     async eth_getBalance(origin, { assetsList, addressList }, reqId = 0) {
         Toast.showLoading()
         try {
@@ -149,9 +163,7 @@ export default {
                 }
             } else {
                 if (assetsList.includes('smr') || assetsList.includes('asmb')) {
-                    let eventConfig = await fetch(`${API_URL}/events.json?v=${new Date().getTime()}`).then((res) =>
-                        res.json()
-                    )
+                    let eventConfig = await fetch(`${API_URL}/events.json?v=${new Date().getTime()}`).then((res) => res.json())
                     eventConfig = eventConfig?.rewards || {}
                     const othersRes = await IotaSDK.getAddressListRewards(addressList)
                     for (const i in othersRes) {
@@ -208,29 +220,37 @@ export default {
 
                 this.sendMessage('iota_accounts', addressList, reqId)
             } else {
-                this.sendErrorMessage('iota_accounts', {
-                    msg: 'Wallet not authorized',
-                    status: 2
-                }, reqId)
+                this.sendErrorMessage(
+                    'iota_accounts',
+                    {
+                        msg: 'Wallet not authorized',
+                        status: 2
+                    },
+                    reqId
+                )
             }
             Toast.hideLoading()
         } catch (error) {
             Toast.hideLoading()
-            this.sendErrorMessage('iota_accounts', {
-                msg: error.toString(),
-                status: 3
-            }, reqId)
+            this.sendErrorMessage(
+                'iota_accounts',
+                {
+                    msg: error.toString(),
+                    status: 3
+                },
+                reqId
+            )
         }
     },
     async iota_merge_nft() {
         Base.push('assets/nftMerge')
     },
-    sendToContentScriptSetData(key,value) {
+    sendToContentScriptSetData(key, value) {
         const sendMessage = window.chrome?.runtime?.sendMessage
         if (sendMessage) {
             sendMessage({
                 cmd: `contentToBackground##bgDataSet`,
-                sendData: {key,value}
+                sendData: { key, value }
             })
         }
     },
@@ -240,13 +260,13 @@ export default {
             try {
                 const value = await sendMessage({
                     cmd: `contentToBackground##bgDataGet`,
-                    sendData: {key}
+                    sendData: { key }
                 })
-                console.log('sendToContentScriptGetData',value)
-                return value.data.payload;
+                console.log('sendToContentScriptGetData', value)
+                return value.data.payload
             } catch (error) {
-                console.log('sendToContentScriptGetData error',error)
-                return null;
+                console.log('sendToContentScriptGetData error', error)
+                return null
             }
         }
     },
@@ -257,11 +277,11 @@ export default {
                 const value = await sendMessage({
                     cmd: `contentToBackground##bgUuidGet`
                 })
-                console.log('sendToContentScriptGetUUID',value)
-                return value.data.payload;
+                console.log('sendToContentScriptGetUUID', value)
+                return value.data.payload
             } catch (error) {
-                console.log('sendToContentScriptGetUUID error',error)
-                return null;
+                console.log('sendToContentScriptGetUUID error', error)
+                return null
             }
         }
     },
@@ -297,7 +317,7 @@ export default {
                 id: reqId,
                 sendData: {
                     cmd,
-                    id:reqId,
+                    id: reqId,
                     code,
                     data: {
                         method,

@@ -213,6 +213,7 @@ export const ActivityList = ({ search }) => {
     const showList = list.filter((e) => !search || (e.address || '').toLocaleUpperCase().includes(search.toLocaleUpperCase()))
     const ListEl = useMemo(() => {
         return showList.map((e, i) => {
+            const isContract = e.contractDetail
             const isOutto = [1, 3, 6, 8].includes(e.type)
             const isStake = [2, 3].includes(e.type)
             const isSign = e.type == 4
@@ -224,10 +225,12 @@ export const ActivityList = ({ search }) => {
                     onClick={() => {
                         e.viewUrl && Base.push(e.viewUrl)
                     }}>
-                    <SvgIcon className='mr20' name={isOutto ? 'outto' : 'into'} size={36} />
+                    <SvgIcon className='mr20' name={isContract ? 'interaction' : isOutto ? 'outto' : 'into'} size={36} />
                     <div className='border-b flex flex1 row ac jsb pb15'>
                         <div>
-                            {isSign ? (
+                            {isContract ? <div className='fz17 mb5'>
+                                {e.contractDetail.abiFunc}
+                            </div> : isSign ? (
                                 <div className='fz17 mb5'>TanglePay.Sign</div>
                             ) : isStake ? (
                                 <div className='fz17 mb5'>{I18n.t(isOutto ? 'staking.unstake' : 'staking.stake')}</div>
@@ -241,7 +244,16 @@ export const ActivityList = ({ search }) => {
                         </div>
                         {!isStake ? (
                             <>
-                                {isShowAssets ? (
+                                {isShowAssets ? 
+                                isContract ? (
+                                    <div>
+                                        {/* <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
+                                            {isOutto ? '-' : '+'} {e.contractDetail.value + ' '}
+                                            {e.contractDetail.unit}
+                                        </div>
+                                        <div className='fz15 tr cS'>$ {e.contractDetail.assets}</div> */}
+                                    </div>
+                                ): (
                                     <div>
                                         <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
                                             {isOutto ? '-' : '+'} {!isNft ? `${e.num} ` : ''}
@@ -278,6 +290,7 @@ export const ActivityList = ({ search }) => {
 const imgW = (375 - 20 * 2 - 16 * 2) / 3
 const CollectiblesItem = ({ logo, name, link, list, isLedger }) => {
     const [isOpen, setOpen] = useState(false)
+    const [imgLoadError, setImgLoadError] = useState(false)
     const images = list.map((e) => {
         return e.imageType === 'mp4' ? e.thumbnailImage : e.media
     })
@@ -291,7 +304,16 @@ const CollectiblesItem = ({ logo, name, link, list, isLedger }) => {
                 }}
                 style={{ height: 64 }}>
                 <SvgIcon size={14} name='up' style={!isOpen && { transform: 'rotate(180deg)' }} />
-                <img style={{ width: 32, height: 32, borderRadius: 4 }} className='mr10 ml15' src={Base.getIcon(logo)} />
+                {!imgLoadError ? 
+                <img style={{ width: 32, height: 32, borderRadius: 4 }} 
+                    className='mr10 ml15' 
+                    src={Base.getIcon(logo)} 
+                    onError={() => {
+                        setImgLoadError(true)
+                    }}
+                />  : <div className='mr10 ml15 border bgP flex c cW fw600 fz24' style={{ width: 32, height: 32, borderRadius: 32 }}>
+                            {String(logo).toLocaleUpperCase()[0]}
+                        </div>}
                 <div>{name}</div>
                 <div className='bgS ml10 ph5' style={{ paddingTop: 3, paddingBottom: 3, borderRadius: 4 }}>
                     <div className='fz12'>{list.length}</div>
@@ -402,7 +424,9 @@ export const CollectiblesList = () => {
         <div>
             {ListEl}
             {Object.keys(importedNFT).map((key) => {
-                const list = importedNFT[key] ?? []
+                const nft = importedNFT[key] ?? {}
+                const { list=[] ,logo, name } = nft
+                
                 if (list.length === 0) {
                     return null
                 }
@@ -410,8 +434,8 @@ export const CollectiblesList = () => {
                 return (
                     <CollectiblesItem
                         isLedger={curWallet.type === 'ledger'}
-                        logo={firstNFT.image}
-                        name={firstNFT.name}
+                        logo={logo || name || firstNFT.name || 'N'}
+                        name={name || firstNFT.name}
                         link={''}
                         list={list.map((item) => ({ ...item, media: item.image }))}
                     />

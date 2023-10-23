@@ -94,7 +94,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 className='pv24 flex c press'>
                                 <div className='fz18'>{I18n.t('account.createTitle')}</div>
                             </div>
-                            {curNode?.type == 3 && (
+                            {/* {curNode?.type == 3 && (
                                 <div
                                     onClick={() => {
                                         hide()
@@ -104,7 +104,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                     className='pv24 border-t flex c press'>
                                     <div className='fz18'>{I18n.t('shimmer.claimStakingReward')}</div>
                                 </div>
-                            )}
+                            )} */}
                         </div>
                         <div className='fz16 cS mv16'>{I18n.t('account.intoBtn')}</div>
                         <div className='bgW radius10'>
@@ -144,7 +144,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                 </div>
                             )}
                         </div>
-                        <>
+                        {IotaSDK.isIotaAccordingId(curNodeId) ? null : <>
                             <div className='fz16 cS mv16'>{I18n.t('account.hardwareWallet')}</div>
                             <div className='bgW radius10'>
                                 <div
@@ -157,7 +157,7 @@ export const AddDialog = ({ dialogRef, nodeId }) => {
                                     <div className='fz18'>{I18n.t('account.hardwareWallet')}</div>
                                 </div>
                             </div>
-                        </>
+                        </>}
                     </>
                 )}
             </div>

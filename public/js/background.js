@@ -16,21 +16,21 @@ const API_URL = 'https://api.iotaichi.com'
 
 const DATA_PER_REQUEST_PREFIX = 'data_per_request_prefix_'
 const dataPerRequestHelper = {
-    getDataPerRequestKey(reqId){
+    getDataPerRequestKey(reqId) {
         return DATA_PER_REQUEST_PREFIX + reqId
     },
-    storeDataPerRequest(reqId, data){
-        if(!data) {
+    storeDataPerRequest(reqId, data) {
+        if (!data) {
             return
         }
-        setBackgroundData(this.getDataPerRequestKey(reqId), data);
+        setBackgroundData(this.getDataPerRequestKey(reqId), data)
     },
-    removeDataPerRequest(reqId, hasDataOnRequest = true){
-        if(!hasDataOnRequest) {
+    removeDataPerRequest(reqId, hasDataOnRequest = true) {
+        if (!hasDataOnRequest) {
             return
         }
         removeBackgroundData(this.getDataPerRequestKey(reqId))
-    },
+    }
 }
 const emitEvent = (message) =>{
     window.eventsTabIdList = window.eventsTabIdList || []
@@ -221,7 +221,9 @@ const getNodeInfo = async () => {
     return nodeInfo || {}
 }
 
-const importNFT = async ({nft, tokenId}, reqId, method) => {
+const importNFT = async ({ nft, tokenId }, reqId, method) => {
+    // Lowercase nft
+    nft = nft.toLocaleLowerCase()
     const nodeInfo = await getNodeInfo()
     const callBack = (code, response = null) => {
         sendToContentScript({
@@ -244,35 +246,32 @@ const importNFT = async ({nft, tokenId}, reqId, method) => {
             const importedNFTKey = `${address}.nft.importedList`
             const importedNFTInStorage = (await getBackgroundData(importedNFTKey)) ?? {}
 
-            if(importedNFTInStorage?.[nft] && importedNFTInStorage[nft].find(nft => nft.tokenId === tokenId))  {
+            if (importedNFTInStorage?.[nft] && importedNFTInStorage[nft].find((nft) => nft.tokenId === tokenId)) {
                 throw new Error('This NFT has already been imported.')
             }
 
             const nftContract = new web3_.eth.Contract([...NonfungiblePositionManager], nft)
             const owner = await nftContract.methods.ownerOf(tokenId).call()
-            if(owner.toLocaleLowerCase() !== address.toLocaleLowerCase()) {
+            if (owner.toLocaleLowerCase() !== address.toLocaleLowerCase()) {
                 throw new Error('This NFT is not owned by the user')
             }
-            
+
             const tokenURI = await nftContract.methods.tokenURI(tokenId).call()
             const name = await nftContract.methods.name().call()
-            const tokenURIRes = await fetch(tokenURI).then(res => res.json())
+            const tokenURIRes = await fetch(tokenURI).then((res) => res.json())
             const importedNFTInfo = {
                 tokenId,
                 name,
                 image: tokenURIRes.image,
                 description: tokenURIRes.description
             }
-            importedNFTInStorage[nft] = [
-                ...(importedNFTInStorage[nft] ?? []),
-                importedNFTInfo
-            ]
-            setBackgroundData(importedNFTKey, importedNFTInStorage)  
-            callBack(200, {nft, tokenId})    
-        }catch(error) {
+            importedNFTInStorage[nft] = [...(importedNFTInStorage[nft] ?? []), importedNFTInfo]
+            setBackgroundData(importedNFTKey, importedNFTInStorage)
+            callBack(200, { nft, tokenId })
+        } catch (error) {
             callBack(-1, error.message)
-        }   
-    }else{
+        }
+    } else {
         callBack(-1, 'Node is error')
     }
 }
@@ -384,6 +383,21 @@ const getBalanceNodeMatch = async (method, addressList) => {
     }
     return nodeInfo
 }
+
+const IOTA_NODE_ID = 1
+
+function isIotaStardust(nodeId, nodeType) {
+    return isIotaAccordingId(nodeId) && checkSMR(nodeType);
+}
+
+function checkSMR(nodeType) {
+    return nodeType === 3
+}
+
+function isIotaAccordingId(nodeId) {
+    return nodeId === IOTA_NODE_ID 
+}
+
 const getBalanceInfo = async (address, nodeInfo, assetsList) => {
     assetsList = assetsList || []
     let amount = 0
@@ -406,11 +420,12 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 isGetStakingAsmb = assetsList.includes('asmb')
             }
             if (nodeInfo.type == 3) {
+                isGetIota = assetsList.includes('iota')
                 isGetSmr = assetsList.includes('smr')
                 isGetSoonaverse = assetsList.includes('soonaverse')
             }
             if (isGetIota || isGetSmr) {
-                if (isGetSmr) {
+                if (isGetSmr || isIotaStardust(nodeInfo.id, nodeInfo.type)) {
                     // const res = await fetch(
                     //     `${nodeInfo.explorerApiUrl}/balance/chronicle/${nodeInfo.network}/${address}`
                     // ).then((res) => res.json())
@@ -475,6 +490,7 @@ const getBalanceInfo = async (address, nodeInfo, assetsList) => {
                 const isGetSoonaverse = assetsList.includes('soonaverse')
                 const url = nodeInfo.url
                 if (isGetEvm) {
+                    web3_ = undefined
                     await ensureWeb3Client()
                     const web3 = web3_
                     amount = await web3.eth.getBalance(address)
@@ -537,7 +553,8 @@ chrome.windows.onRemoved.addListener(async (id) => {
                     response: {
                         msg: 'cancel'
                     }
-                }
+                },
+                id: curReqId
             })
         }
     }
@@ -551,7 +568,7 @@ var createDialog = function (params, reqId, dataPerRequest) {
                 dataPerRequestHelper.storeDataPerRequest(reqId, dataPerRequest)
                 window.tanglepayDialog = {
                     windowId: w.id,
-                    tabId: w.tabs[0].id,
+                    // tabId: w.tabs[0].id,
                     curReqId: reqId,
                     hasDataOnRequest: !!dataPerRequest
                 }
@@ -875,6 +892,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     })
                                 }
                                 break
+                            case 'iota_getWalletType':
+                                {
+                                    getAddressInfo(requestParams?.address).then((addressInfo) => {
+                                        sendToContentScript({
+                                            cmd: 'iota_request',
+                                            id: reqId,
+                                            code: addressInfo ? 200 : -1,
+                                            data: {
+                                                method,
+                                                response: addressInfo ? addressInfo?.type : ''
+                                            }
+                                        })
+                                    })
+                                }
+                                break
                             case 'eth_importContract':
                                 {
                                     importContract(requestParams.contract, reqId, method)
@@ -882,9 +914,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 break
                             case 'eth_importNFT':
                                 {
-                                    importNFT({nft: requestParams.nft, tokenId: requestParams.tokenId}, reqId, method)
+                                    importNFT({ nft: requestParams.nft, tokenId: requestParams.tokenId }, reqId, method)
                                 }
-                                break;
+                                break
                             case 'get_login_token':
                                 {
                                     getLoginToken().then((res) => {
@@ -1188,45 +1220,53 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         if (!params.url) {
                             return true
                         }
-                        if (window.tanglepayDialog) {
-                            // chrome.windows.getAll(null,res=>{
-                            //     const curView = res.find(e=>e.id === window.tanglepayDialog);
-                            //     if(curView){
-                            //         curView.Bridge.connect(params.url)
-                            //     }
-                            const { windowId, tabId, curReqId: lastReqId, hasDataOnRequest } = window.tanglepayDialog
+                        // if (window.tanglepayDialog) {
+                        //     // chrome.windows.getAll(null,res=>{
+                        //     //     const curView = res.find(e=>e.id === window.tanglepayDialog);
+                        //     //     if(curView){
+                        //     //         curView.Bridge.connect(params.url)
+                        //     //     }
+                        //     // const { windowId, tabId, curReqId: lastReqId, hasDataOnRequest } = window.tanglepayDialog
 
-
-                            // Step 1: make window focused
-                            chrome.windows.update(windowId, {
-                                focused: true,
-                            }, () => {
-                                // Step 2: change tab url
-                                chrome.tabs.update(tabId, {
-                                    url: params.url
-                                }, () => {
-                                    // Step3: clear last reqId and store current reqId
-                                    dataPerRequestHelper.removeDataPerRequest(lastReqId, hasDataOnRequest)
-                                    dataPerRequestHelper.storeDataPerRequest(reqId, dataPerRequest)
-                                    window.tanglepayDialog = {
-                                        ...window.tanglepayDialog,
-                                        curReqId: reqId,
-                                        hasDataOnRequest: !!dataPerRequest
-                                    }
-                                })
-                            })
-                        } else {
-                            // const popupList = chrome.extension.getViews({ type: 'popup' })
-                            // if (popupList?.length > 0 && popupList[0].Bridge) {
-                            //     if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
-                            //         popupList[0].location.href = params.url
-                            //     } else {
-                            //         popupList[0].Bridge.connect(params.url)
-                            //     }
-                            // } else {
-                            createDialog(params, reqId, dataPerRequest)
-                            // }
-                        }
+                        //     // Step 1: make window focused
+                        //     // chrome.windows.update(
+                        //     //     windowId,
+                        //     //     {
+                        //     //         focused: true
+                        //     //     },
+                        //     //     () => {
+                        //     //         // Step 2: change tab url
+                        //     //         chrome.tabs.update(
+                        //     //             tabId,
+                        //     //             {
+                        //     //                 url: params.url
+                        //     //             },
+                        //     //             () => {
+                        //     //                 // Step3: clear last reqId and store current reqId
+                        //     //                 dataPerRequestHelper.removeDataPerRequest(lastReqId, hasDataOnRequest)
+                        //     //                 dataPerRequestHelper.storeDataPerRequest(reqId, dataPerRequest)
+                        //     //                 window.tanglepayDialog = {
+                        //     //                     ...window.tanglepayDialog,
+                        //     //                     curReqId: reqId,
+                        //     //                     hasDataOnRequest: !!dataPerRequest
+                        //     //                 }
+                        //     //             }
+                        //     //         )
+                        //     //     }
+                        //     // )
+                        // } else {
+                        //     // const popupList = chrome.extension.getViews({ type: 'popup' })
+                        //     // if (popupList?.length > 0 && popupList[0].Bridge) {
+                        //     //     if (/url=tanglepay:\/\//.test(decodeURIComponent(params.url))) {
+                        //     //         popupList[0].location.href = params.url
+                        //     //     } else {
+                        //     //         popupList[0].Bridge.connect(params.url)
+                        //     //     }
+                        //     // } else {
+                        //     // createDialog(params, reqId, dataPerRequest)
+                        //     // }
+                        // }
+                        createDialog(params, reqId, dataPerRequest)
                         // if (window.tanglepayDialog) {
                         //     chrome.windows.getAll(null,res=>{
                         //         const curView = res.find(e=>e.id === window.tanglepayDialog);
