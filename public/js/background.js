@@ -810,6 +810,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     sendResponse({
                         cmd: cmd,
                         data: {
+                            env: 'chrome',
                             version: chrome?.runtime?.getManifest()?.version
                         }
                     })
