@@ -2,6 +2,7 @@ import { Base, IotaSDK, API_URL, Trace } from '@tangle-pay/common'
 import BigNumber from 'bignumber.js'
 import { Toast } from './components/Toast'
 import { send } from '@iota/iota.js-next'
+import { Converter } from '@iota/util.js-next'
 export default {
     async connect(url) {
         const query = Base.handlerParams(url) || {}
@@ -71,9 +72,22 @@ export default {
         } catch (error) {
             this.sendErrorMessage('iota_getPublicKey', {
                 msg: error.toString()
-            })
+            },reqId)
         }
     },
+    async iota_im_authorized(curWallet, password, dappOrigin, reqId = 0) {
+        try {
+            console.log('iota_im_authorized called',curWallet, password, dappOrigin, reqId)
+            const seed = await IotaSDK.getSeed(curWallet.seed, password)
+            const bytes = seed.toBytes()
+            const hex = Converter.bytesToHex(bytes)
+            this.sendToContentScriptGeneric('iota_im_authorized', {hex, dappOrigin, address: curWallet.address, reqId}, dappOrigin, reqId)
+        } catch (error) {
+            console.log('iota_im_authorized error',error)
+            this.sendToContentScriptGeneric('iota_im_authorized', false)
+        }
+    },
+
     async iota_getWalletType(origin, expires, reqId = 0) {
         try {
             const curWallet = await this.getCurWallet()
@@ -271,7 +285,17 @@ export default {
             }
         }
     },
-
+    sendToContentScriptGeneric(cmd, data, dappOrigin, reqId) {
+        const sendMessage = window.chrome?.runtime?.sendMessage
+        if (sendMessage) {
+            sendMessage({
+                cmd: `contentToBackground##${cmd}`,
+                id:reqId,
+                dappOrigin,
+                sendData: data
+            })
+        }
+    },
     sendToContentScript(cmd, { method, response, code = 200 }, reqId = 0) {
         // V2
         // const bg = window.chrome?.extension?.getBackgroundPage()

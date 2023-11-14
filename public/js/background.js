@@ -6,6 +6,12 @@ importScripts('./sdk/sdkcommon.min.js')
 importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
 importScripts('./sdk/NonfungiblePositionManager.js')
+importScripts('./iotacat/BigInteger.min.js')
+importScripts('./iotacat/util.js')
+importScripts('./iotacat/crypto.js')
+importScripts('./iotacat/iota.js')
+importScripts('./iotacat/core.js')
+importScripts('./iotacat/client.js')
 const API_URL = 'https://api.iotaichi.com'
 
 const DATA_PER_REQUEST_PREFIX = 'data_per_request_prefix_'
@@ -26,6 +32,49 @@ const dataPerRequestHelper = {
         removeBackgroundData(this.getDataPerRequestKey(reqId))
     }
 }
+const emitEvent = (message) =>{
+    window.eventsTabIdList = window.eventsTabIdList || []
+    chrome.tabs.query({}, function (tabs) {
+        tabs.forEach((e) => {
+            const port = window.eventsTabIdList[e.id] || chrome.tabs.connect(e.id, { name: 'tanglepay_connect' })
+            port.postMessage(message)
+        })
+    })
+    
+}
+//TODO bad init
+iotacatclient.setup(102).catch((e) => console.log(e))
+
+const getLocalStorage = async (key) => {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(key, (res) => {
+            res = res[key] || null
+            resolve(res)
+        })
+    })
+}
+const setLocalStorage = (key, value) => {
+    chrome.storage.local.set({
+        [key]: value
+    })
+}
+const setLocalStorageAsync = async (key, value) => {
+    await chrome.storage.local.set({
+        [key]: value
+    })
+}
+/*
+interface StorageFacade {
+    get(key: string): Promise<string | null>;
+    set(key: string, value: string): Promise<void>;
+}
+*/
+const storageFacade = {
+    prefix:'1',
+    get: getLocalStorage,
+    set: setLocalStorageAsync
+}
+iotacatclient.setupStorage(storageFacade)
 
 // send message to inject
 var sendToInject = function (params) {
@@ -53,19 +102,6 @@ const getUuid = async () => {
     return uuid
 }
 
-const getLocalStorage = async (key) => {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(key, (res) => {
-            res = res[key] || null
-            resolve(res)
-        })
-    })
-}
-const setLocalStorage = (key, value) => {
-    chrome.storage.local.set({
-        [key]: value
-    })
-}
 const getFoundry = async (nodeUrl, id) => {
     const localTokensConfig = (await getLocalStorage('shimmer.sdk.tokensConfig')) || {}
     if (localTokensConfig[id]) {
@@ -570,6 +606,127 @@ const ensureWeb3Client = () => {
         }
     })
 }
+const getSeedAuthorizeCacheKey = (dappOrigin,address) => {
+    return `${dappOrigin}_${address}`
+}
+// :Record<string,{hexSeed:string}>
+const hexSeedCache = {}
+
+const setSeedByKey = async (key) => {
+    // from cache
+    if (hexSeedCache[key]) {
+        const seed = hexSeedCache[key].hexSeed
+        await iotacatclient.setHexSeed(seed)
+        return true
+    }
+    return
+}
+
+const pendingImRequests = {}
+const ifImNeedAuthorize = (dappOrigin, address) => {
+    const key = getSeedAuthorizeCacheKey(dappOrigin, address)
+    //return true
+    return hexSeedCache[key] ? false : true
+}
+
+const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, message, pushed, vote}) => {
+    try {
+        const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
+        await setSeedByKey(key)
+        let res
+        if (method == 'iota_im_groupmessagelist_from') { 
+            res = await iotacatclient.fetchMessageListFrom(groupId,addr,continuationToken, limit)
+        } else if (method == 'iota_im_groupmessagelist_until') {
+            res = await iotacatclient.fetchMessageListUntil(groupId, addr, continuationToken, limit)
+        } else if (method == 'iota_im_groupinboxmessagelist') {
+            res = await iotacatclient.fetchInboxMessageList(addr, continuationToken, limit)
+            res = JSON.stringify(res)
+        } else if (method == 'iota_im_readone') {
+            res = await iotacatclient.getMessageFromOutputId(outputId,addr)
+        } else if (method == 'iota_im') {
+            res = await iotacatclient.sendMessage(addr, groupId, message)
+        } else if (method == 'iota_im_ensure_group_shared') {
+            res = await iotacatclient.ensureGroupHaveSharedOutput(groupId)
+        } else if (method == 'iota_im_p2p_pushed') {
+            res = await iotacatclient.getMessageFromMetafeaturepayloadAndSender({address:addr,data:pushed.meta,senderAddressBytes:pushed.sender})
+        } else if (method == 'iota_im_check_and_consolidate_messages') { 
+            res = await iotacatclient.checkThenConsolidateMessages()
+        } else if (method == 'iota_im_check_and_consolidate_shareds') { 
+            res = await iotacatclient.checkThenConsolidateShared()
+        } else if (method == 'iota_im_mark_group') { 
+            res = await iotacatclient.markGroup(groupId)
+        } else if (method == 'iota_im_unmark_group') {
+            res = await iotacatclient.unmarkGroup(groupId)
+        } else if (method == 'iota_im_getMarkedGroupIds') {
+            res = await iotacatclient.getMarkedGroupIds()
+        } else if (method == 'iota_im_getAllGroupVotes') {
+            res = await iotacatclient.getAllGroupVotes()
+        } else if (method == 'iota_im_voteGroup') {
+            res = await iotacatclient.voteGroup(groupId,vote)
+        } else if (method == 'iota_im_unvoteGroup') {
+            res = await iotacatclient.unvoteGroup(groupId)
+        } else if (method == 'iota_im_getAllUserMuteGroupMembers') {
+            res = await iotacatclient.getAllUserMuteGroupMembers(groupId)
+        } else if (method == 'iota_im_muteGroupMember') {
+            res = await iotacatclient.muteGroupMember(groupId,addrHash)
+        } else if (method == 'iota_im_unmuteGroupMember') {
+            res = await iotacatclient.unmuteGroupMember(groupId,addrHash)
+        }
+
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: res ? 200 : -1,
+            data: {
+                method,
+                response: res
+            }
+        })
+    } catch(error){
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: -1,
+            data: {
+                method,
+                response: error
+            }
+        })
+    }
+}
+        
+const processPendingImRequestsByKey = async (key) => {
+    if (!pendingImRequests[key]) {
+        return
+    }
+    while (pendingImRequests[key].payload.length > 0) {
+        try {
+            const pendingImReadRequest = pendingImRequests[key].payload.shift()
+            await handleImRequests(pendingImReadRequest)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}
+
+const rejectpendingImRequestsByKey = async (key, error) => {
+    if (!pendingImRequests[key]) {
+        return
+    }
+    while (pendingImRequests[key].payload.length > 0) {
+        const pendingImReadRequest = pendingImRequests[key].payload.shift()
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: pendingImReadRequest.reqId,
+            code: -1,
+            data: {
+                method:pendingImReadRequest.method,
+                response: error
+            }
+        })
+    }
+}
+                
 // get message from content-script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
@@ -621,6 +778,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 break
         }
     } else {
+        const dappOrigin = request?.dappOrigin
         const origin = request?.origin
         const reqId = request?.id ? request?.id : 0
         window.tanglepayCallBack[cmd + '_' + reqId] = sendResponse
@@ -652,6 +810,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     sendResponse({
                         cmd: cmd,
                         data: {
+                            env: 'chrome',
                             version: chrome?.runtime?.getManifest()?.version
                         }
                     })
@@ -871,6 +1030,51 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
+                            case 'iota_im':
+                            case 'iota_im_readone':
+                            case 'iota_im_ensure_group_shared':
+                            case 'iota_im_groupmessagelist_from':
+                            case 'iota_im_groupmessagelist_until':
+                            case 'iota_im_groupinboxmessagelist':
+                            case 'iota_im_p2p_pushed':
+                            case 'iota_im_check_and_consolidate_messages':
+                            case 'iota_im_check_and_consolidate_shareds':
+                            case 'iota_im_mark_group':
+                            case 'iota_im_unmark_group':
+                            case 'iota_im_getMarkedGroupIds':
+                            case 'iota_im_getAllGroupVotes':
+                            case 'iota_im_voteGroup':
+                            case 'iota_im_unvoteGroup':
+                            case 'iota_im_getAllUserMuteGroupMembers':
+                            case 'iota_im_muteGroupMember':
+                            case 'iota_im_unmuteGroupMember':
+                                {
+                                    //TODO 
+                                    if (ifImNeedAuthorize(dappOrigin,content.addr)) {
+                                        const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
+                                        if (!pendingImRequests[key]) pendingImRequests[key] = {isAuthorizing:false,payload:[]}
+                                        pendingImRequests[key].payload.push({
+                                            ...content,
+                                            reqId,
+                                            dappOrigin:dappOrigin,
+                                            method
+                                        })
+                                        if (!pendingImRequests[key].isAuthorizing) {   
+                                            pendingImRequests[key].isAuthorizing = true
+                                            const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
+                                            params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                        }
+                                    } else {
+                                        handleImRequests({
+                                            ...content,
+                                            reqId,
+                                            dappOrigin:dappOrigin,
+                                            method
+                                        })
+                                    }
+                                }
+                                break
+                            
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
@@ -1100,6 +1304,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     chrome.windows.remove(window.tanglepayDialog.windowId)
                 }
                 break
+            case 'iota_im_authorized':
+                {
+                    //TODO handle cancle case
+                    if (request?.sendData) {
+                        const { hex, reqId, dappOrigin, address } = request?.sendData
+                        if (hex && reqId && dappOrigin && address) {
+                            const key = getSeedAuthorizeCacheKey(dappOrigin, address)
+                            pendingImRequests[key].isAuthorizing = false
+                            hexSeedCache[key] = { hexSeed: hex }
+                            try {
+                                processPendingImRequestsByKey(key).catch(e=>console.log(e))
+                            } catch(error) {
+                                rejectpendingImRequestsByKey(key,error).catch(e=>console.log(e))
+                            }
+                        }
+                    }
+                }
+                break
+                            
             default:
                 sendResponse({ success: 'ok' })
                 break
