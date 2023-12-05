@@ -42,8 +42,8 @@ const emitEvent = (message) =>{
     })
     
 }
-//TODO bad init
-iotacatclient.setup(102).catch((e) => console.log(e))
+
+iotacatclient.setup().catch((e) => console.log(e))
 
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
@@ -629,7 +629,7 @@ const ifImNeedAuthorize = (dappOrigin, address) => {
     return hexSeedCache[key] ? false : true
 }
 
-const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, message, pushed, vote}) => {
+const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, message, pushed, vote, memberList}) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
@@ -638,11 +638,11 @@ const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, con
             res = await iotacatclient.fetchMessageListFrom(groupId,addr,continuationToken, limit)
         } else if (method == 'iota_im_groupmessagelist_until') {
             res = await iotacatclient.fetchMessageListUntil(groupId, addr, continuationToken, limit)
-        } else if (method == 'iota_im_groupinboxmessagelist') {
-            res = await iotacatclient.fetchInboxMessageList(addr, continuationToken, limit)
+        } else if (method == 'iota_im_groupinboxitemlist') {
+            res = await iotacatclient.fetchInboxItemList(addr, continuationToken, limit)
             res = JSON.stringify(res)
         } else if (method == 'iota_im_readone') {
-            res = await iotacatclient.getMessageFromOutputId(outputId,addr)
+            res = await iotacatclient.getMessageFromOutputId({outputId,address:addr,type:1})
         } else if (method == 'iota_im') {
             res = await iotacatclient.sendMessage(addr, groupId, message)
         } else if (method == 'iota_im_ensure_group_shared') {
@@ -654,7 +654,7 @@ const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, con
         } else if (method == 'iota_im_check_and_consolidate_shareds') { 
             res = await iotacatclient.checkThenConsolidateShared()
         } else if (method == 'iota_im_mark_group') { 
-            res = await iotacatclient.markGroup(groupId)
+            res = await iotacatclient.markGroup({groupId,memberList})
         } else if (method == 'iota_im_unmark_group') {
             res = await iotacatclient.unmarkGroup(groupId)
         } else if (method == 'iota_im_getMarkedGroupIds') {
@@ -671,6 +671,8 @@ const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, con
             res = await iotacatclient.muteGroupMember(groupId,addrHash)
         } else if (method == 'iota_im_unmuteGroupMember') {
             res = await iotacatclient.unmuteGroupMember(groupId,addrHash)
+        } else if (method == 'iota_im_send_anyone_toself') {
+            res = await iotacatclient.sendAnyOneOutputToSelf()
         }
 
         sendToContentScript({
@@ -1035,7 +1037,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_ensure_group_shared':
                             case 'iota_im_groupmessagelist_from':
                             case 'iota_im_groupmessagelist_until':
-                            case 'iota_im_groupinboxmessagelist':
+                            case 'iota_im_groupinboxitemlist':
                             case 'iota_im_p2p_pushed':
                             case 'iota_im_check_and_consolidate_messages':
                             case 'iota_im_check_and_consolidate_shareds':
@@ -1048,6 +1050,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_getAllUserMuteGroupMembers':
                             case 'iota_im_muteGroupMember':
                             case 'iota_im_unmuteGroupMember':
+                            case 'iota_im_send_anyone_toself':
                                 {
                                     //TODO 
                                     if (ifImNeedAuthorize(dappOrigin,content.addr)) {
