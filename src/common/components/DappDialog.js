@@ -389,7 +389,7 @@ export const DappDialog = () => {
                                 Toast.showLoading()
                                 let [gasPrice, gasLimit] = await Promise.all([
                                     IotaSDK.client.eth.getGasPrice(),
-                                    IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? address : '', IotaSDK.getNumberStr(sendAmount || 0), taggedData)
+                                    IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? contract : '', IotaSDK.getNumberStr(sendAmount || 0), taggedData, undefined)
                                 ])
                                 if (taggedData) {
                                     if (IotaSDK.curNode?.contractGasPriceRate) {
