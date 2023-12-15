@@ -40,6 +40,7 @@ export const AssetsSend = () => {
     const nftImg = params?.nftImg
     currency = currency || assetsList[0]?.name
     const form = useRef()
+    const [receiver, setReceiver] = useState('')
     const [inputAmount, setInputAmount] = useState('')
     const [curWallet] = useGetNodeWallet()
     let assets = assetsList.find((e) => e.name === currency) || {}
@@ -70,14 +71,14 @@ export const AssetsSend = () => {
         })
     }, [])
     useEffect(() => {
-        if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+        if (IotaSDK.checkWeb3Node(curWallet.nodeId) && !!receiver) {
             const amount = parseFloat(inputAmount) || 0
             let decimal = Math.pow(10, assets.decimal)
             let sendAmount = Number(BigNumber(amount).times(decimal))
             sendAmount = IotaSDK.getNumberStr(sendAmount || 0)
             const eth = IotaSDK.client.eth
             console.log(sendAmount)
-            Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount)]).then(([gasPrice, gas]) => {
+            Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount, undefined, receiver)]).then(([gasPrice, gas]) => {
                 if (assets?.contract) {
                     if (IotaSDK.curNode?.contractGasPriceRate) {
                         gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate))
@@ -110,7 +111,7 @@ export const AssetsSend = () => {
                 })
             })
         }
-    }, [curWallet.nodeId, assets?.contract, inputAmount, assets.decimal])
+    }, [curWallet.nodeId, assets?.contract, receiver, inputAmount, assets.decimal])
     useGetAssetsList(curWallet)
     const isLedger = curWallet.type == 'ledger'
 
@@ -266,6 +267,9 @@ export const AssetsSend = () => {
                                         placeholder={I18n.t('assets.receiverTips')}
                                         onChange={handleChange('receiver')}
                                         value={values.receiver}
+                                        onBlur={() => {
+                                            setReceiver(values.receiver)
+                                        }}
                                     />
                                 </Form.Item>
                                 {!nftId ? (
