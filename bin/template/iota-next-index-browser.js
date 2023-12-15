@@ -3654,7 +3654,7 @@
         return [!isError, tips]
     }
     function checkUnLock(output) {
-        const nowTime = parseInt(new Date().getTime() / 1000)
+        const nowTime = Math.floor(Date.now() / 1000)
         let unlockConditions = output?.output?.unlockConditions || []
         let lockData = unlockConditions.find((e) => e.type != ADDRESS_UNLOCK_CONDITION_TYPE)
         if (lockData && lockData.type == TIMELOCK_UNLOCK_CONDITION_TYPE && nowTime > lockData.unixTime) {
@@ -3663,8 +3663,15 @@
         const features = output?.output?.features || []
         let featuresLock = false
         if (features.length > 0) {
-            const PARTICIPATE = `0x${util_js.Converter.utf8ToHex('PARTICIPATE')}`
-            featuresLock = !!features.find((e) => e.tag === PARTICIPATE)
+            const tagFeature = features.find((e) => e.type == TAG_FEATURE_TYPE)
+            if (tagFeature) {
+                const tagHex = tagFeature.tag
+                const tagStr = util_js.Converter.hexToUtf8(tagHex)
+                // if tagStr start with PARTICIPATE, GROUPFIMARK, GROUPFIMUTE, GROUPFIVOTE,
+                if (tagStr && (tagStr.startsWith('PARTICIPATE') || tagStr.startsWith('GROUPFIMARK') || tagStr.startsWith('GROUPFIMUTE') || tagStr.startsWith('GROUPFIVOTE'))) {
+                    featuresLock = true
+                }
+            }
         }
 
         return !lockData && !featuresLock
@@ -3760,7 +3767,9 @@
                     const nativeTokenOutput = output.output?.nativeTokens || []
                     const isCheckOutput = checkOutput(output)
                     if (isCheckOutput) {
+                        //const deposit = TransactionHelper.getStorageDeposit(output.output, output.output.type, client.protocol.rentStructure)
                         available = available.plus(output.output.amount)
+                        //.minus(deposit)
                         availableOutputIds.push(outputId)
                         availableOutputDatas.push(output)
                     }

@@ -629,7 +629,7 @@ const ifImNeedAuthorize = (dappOrigin, address) => {
     return hexSeedCache[key] ? false : true
 }
 
-const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, message, pushed, vote, memberList}) => {
+const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, outputIds, message, pushed, vote, memberList}) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
@@ -643,6 +643,8 @@ const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, con
             res = JSON.stringify(res)
         } else if (method == 'iota_im_readone') {
             res = await iotacatclient.getMessageFromOutputId({outputId,address:addr,type:1})
+        } else if (method == 'iota_im_readmany') {
+            res = await iotacatclient.getMessagesFromOutputIds({outputIds,address:addr,type:1})
         } else if (method == 'iota_im') {
             res = await iotacatclient.sendMessage(addr, groupId, message)
         } else if (method == 'iota_im_ensure_group_shared') {

@@ -47,6 +47,8 @@ export const AssetsSend = () => {
         assets = assetsList.find((e) => e.tokenId === assetsId || e.contract === assetsId) || {}
     }
     // const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
+    // log assets
+    console.log('AssetsSend', assets)
     // let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
     let realBalance = BigNumber(assets.realBalance || 0)
     if (IotaSDK.checkSMR(curWallet.nodeId) && !assets.isSMRToken) {
