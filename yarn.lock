@@ -12123,10 +12123,10 @@ tailwindcss@^3.0.2:
     resolve "^1.22.2"
     sucrase "^3.32.0"
 
-tanglepay@^2.6.7:
-  version "2.6.7"
-  resolved "https://registry.yarnpkg.com/tanglepay/-/tanglepay-2.6.7.tgz#3204032ed154c44699c5a1bd67060261a83398aa"
-  integrity sha512-Z//VjnJOO58y7zavfXtx9B/wUSw/dFsm/AWxzWKBH3YFpk/ClYaw7fPMekj3vf2+jxb1mX2kJBVu8E8uM7TZ/Q==
+tanglepay@^2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/tanglepay/-/tanglepay-2.7.0.tgz#7c3063d27bffae6aabe2aa8c6975b6263ec02580"
+  integrity sha512-/q777xIBfax7nTq9ebZuEpocoBzqs3xqwTXv7jPwnbpkoJIZMCAjHrcw81A3uqqYpybe0hDqMyQh6E+qoKGcGg==
 
 tapable@^1.0.0:
   version "1.1.3"
