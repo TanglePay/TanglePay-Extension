@@ -1036,6 +1036,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 break
                             case 'iota_im':
                             case 'iota_im_readone':
+                            case 'iota_im_readmany':
                             case 'iota_im_ensure_group_shared':
                             case 'iota_im_groupmessagelist_from':
                             case 'iota_im_groupmessagelist_until':
