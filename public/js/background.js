@@ -43,7 +43,6 @@ const emitEvent = (message) =>{
     
 }
 
-iotacatclient.setup().catch((e) => console.log(e))
 
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
@@ -63,6 +62,75 @@ const setLocalStorageAsync = async (key, value) => {
         [key]: value
     })
 }
+// pin related
+const getUuid = async () => {
+    const key = 'key_uuid'
+    let uuid = await getLocalStorage(key)
+    if (!uuid) {
+        uuid = generateUUID()
+        setLocalStorage(key, uuid)
+    }
+    return uuid
+}
+function getCurrentDateString() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    // PIN expiration is to be adjusted to a day, so remove it
+    // const day = date.getDate().toString().padStart(2, '0');
+  
+    return `${year}-${month}`;
+  }
+const domainName = 'pin-domain';
+const storageFacadeForPin = {
+    get: async (key) => {
+        const value = await getLocalStorage(key);
+        return value;
+    },
+    set:  (key, value) => {
+        setLocalStorageAsync(key, value).then(() => {
+            console.log('set storage',key, value)
+        })
+    }
+}
+const getPinStorage = async (name) => {
+    const storageKey = `state.${name}`;
+    const encrypted = await storageFacadeForPin.get(storageKey);
+    console.log('get storage',storageKey, encrypted)
+    try {
+        const json = encrypted ? iotacatclient.tpDecrypt(encrypted, storageFacadeForPin.salt): encrypted;
+        console.log('get storage',storageKey, json)
+        return json;
+    } catch (e) {
+        console.log('get storage',e);
+        return undefined;
+    }
+}
+const getLocalSeed = async (address) => {
+    const key = 'common.walletsList'
+    const list = await getLocalStorage(key) ?? []
+    const wallet = list.find((e) => e.address === address)
+    const seed = wallet?.seed
+    console.log('getLocalSeed',list)
+    return seed
+}
+const getPin = async () => {
+    const uuid = await getUuid()
+    storageFacadeForPin.salt = uuid + '-' + getCurrentDateString();
+    let pinContext = await getPinStorage(domainName);
+    pinContext = JSON.parse(pinContext)
+    if (pinContext) return pinContext.pin;
+}
+const getHexSeed = async (pin, address) => {
+    const localSeed = await getLocalSeed(address)
+    // log pin and localSeed
+    console.log('getHexSeed',pin,localSeed)
+    const hexSeed = iotacatclient.tpDecrypt(localSeed, pin)
+    console.log('getHexSeed',hexSeed)
+    return hexSeed
+}
+// local seed related
+
 /*
 interface StorageFacade {
     get(key: string): Promise<string | null>;
@@ -90,16 +158,6 @@ function generateUUID() {
             v = c === 'x' ? r : (r & 0x3) | 0x8
         return v.toString(16)
     })
-}
-
-const getUuid = async () => {
-    const key = 'key_uuid'
-    let uuid = await getLocalStorage(key)
-    if (!uuid) {
-        uuid = generateUUID()
-        setLocalStorage(key, uuid)
-    }
-    return uuid
 }
 
 const getFoundry = async (nodeUrl, id) => {
@@ -623,10 +681,21 @@ const setSeedByKey = async (key) => {
 }
 
 const pendingImRequests = {}
-const ifImNeedAuthorize = (dappOrigin, address) => {
+const ifImNeedAuthorize = async (dappOrigin, address) => {
     const key = getSeedAuthorizeCacheKey(dappOrigin, address)
-    //return true
-    return hexSeedCache[key] ? false : true
+    if (hexSeedCache[key]) return false;
+    const pin = await getPin()
+    if (!pin) return true;
+    const hexSeed = await getHexSeed(pin, address)
+    if (!hexSeed) {
+        // log has pin but no hexSeed
+        console.log('ifImNeedAuthorize has pin but no hexSeed',pin,address)
+        return true;
+    }
+    hexSeedCache[key] = {
+        hexSeed
+    }
+    return false
 }
 
 const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, outputIds, message, pushed, vote, memberList}) => {
@@ -1055,29 +1124,36 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_unmuteGroupMember':
                             case 'iota_im_send_anyone_toself':
                                 {
-                                    //TODO 
-                                    if (ifImNeedAuthorize(dappOrigin,content.addr)) {
-                                        const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
-                                        if (!pendingImRequests[key]) pendingImRequests[key] = {isAuthorizing:false,payload:[]}
-                                        pendingImRequests[key].payload.push({
-                                            ...content,
-                                            reqId,
-                                            dappOrigin:dappOrigin,
-                                            method
-                                        })
-                                        if (!pendingImRequests[key].isAuthorizing) {   
-                                            pendingImRequests[key].isAuthorizing = true
-                                            const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
-                                            params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                    const imFn = async () => {
+                                        await iotacatclient.setup();
+                                        const isNeedAuthorize = await ifImNeedAuthorize(dappOrigin,content.addr)
+                                        if (isNeedAuthorize) {
+                                            const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
+                                            if (!pendingImRequests[key]) pendingImRequests[key] = {isAuthorizing:false,payload:[]}
+                                            pendingImRequests[key].payload.push({
+                                                ...content,
+                                                reqId,
+                                                dappOrigin:dappOrigin,
+                                                method
+                                            })
+                                            if (!pendingImRequests[key].isAuthorizing) {   
+                                                pendingImRequests[key].isAuthorizing = true
+                                                setTimeout(() => {
+                                                    pendingImRequests[key].isAuthorizing = false
+                                                }, 15*1000);
+                                                const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
+                                                params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                            }
+                                        } else {
+                                            await handleImRequests({
+                                                ...content,
+                                                reqId,
+                                                dappOrigin:dappOrigin,
+                                                method
+                                            })
                                         }
-                                    } else {
-                                        handleImRequests({
-                                            ...content,
-                                            reqId,
-                                            dappOrigin:dappOrigin,
-                                            method
-                                        })
                                     }
+                                    imFn()
                                 }
                                 break
                             
