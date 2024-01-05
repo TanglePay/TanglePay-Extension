@@ -38,6 +38,7 @@ export const AssetsSend = () => {
     let currency = params?.currency
     const nftId = params?.nftId
     const nftImg = params?.nftImg
+    const collectionId = params.collectionId
     currency = currency || assetsList[0]?.name
     const form = useRef()
     const [receiver, setReceiver] = useState('')
@@ -199,6 +200,7 @@ export const AssetsSend = () => {
                                 decimal: assets?.decimal,
                                 mainBalance,
                                 nftId,
+                                collectionId,
                                 gas: gasInfo.gasLimit,
                                 gasPrice: gasInfo.gasPriceWei
                             })

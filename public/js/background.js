@@ -32,7 +32,7 @@ const dataPerRequestHelper = {
         removeBackgroundData(this.getDataPerRequestKey(reqId))
     }
 }
-const emitEvent = (message) =>{
+const emitEvent = (message) => {
     window.eventsTabIdList = window.eventsTabIdList || []
     chrome.tabs.query({}, function (tabs) {
         tabs.forEach((e) => {
@@ -40,9 +40,7 @@ const emitEvent = (message) =>{
             port.postMessage(message)
         })
     })
-    
 }
-
 
 const getLocalStorage = async (key) => {
     return new Promise((resolve) => {
@@ -73,60 +71,60 @@ const getUuid = async () => {
     return uuid
 }
 function getCurrentDateString() {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
     // PIN expiration is to be adjusted to a day, so remove it
     // const day = date.getDate().toString().padStart(2, '0');
-  
-    return `${year}-${month}`;
-  }
-const domainName = 'pin-domain';
+
+    return `${year}-${month}`
+}
+const domainName = 'pin-domain'
 const storageFacadeForPin = {
     get: async (key) => {
-        const value = await getLocalStorage(key);
-        return value;
+        const value = await getLocalStorage(key)
+        return value
     },
-    set:  (key, value) => {
+    set: (key, value) => {
         setLocalStorageAsync(key, value).then(() => {
-            console.log('set storage',key, value)
+            console.log('set storage', key, value)
         })
     }
 }
 const getPinStorage = async (name) => {
-    const storageKey = `state.${name}`;
-    const encrypted = await storageFacadeForPin.get(storageKey);
-    console.log('get storage',storageKey, encrypted)
+    const storageKey = `state.${name}`
+    const encrypted = await storageFacadeForPin.get(storageKey)
+    console.log('get storage', storageKey, encrypted)
     try {
-        const json = encrypted ? iotacatclient.tpDecrypt(encrypted, storageFacadeForPin.salt): encrypted;
-        console.log('get storage',storageKey, json)
-        return json;
+        const json = encrypted ? iotacatclient.tpDecrypt(encrypted, storageFacadeForPin.salt) : encrypted
+        console.log('get storage', storageKey, json)
+        return json
     } catch (e) {
-        console.log('get storage',e);
-        return undefined;
+        console.log('get storage', e)
+        return undefined
     }
 }
 const getLocalSeed = async (address) => {
     const key = 'common.walletsList'
-    const list = await getLocalStorage(key) ?? []
+    const list = (await getLocalStorage(key)) ?? []
     const wallet = list.find((e) => e.address === address)
     const seed = wallet?.seed
-    console.log('getLocalSeed',list)
+    console.log('getLocalSeed', list)
     return seed
 }
 const getPin = async () => {
     const uuid = await getUuid()
-    storageFacadeForPin.salt = uuid + '-' + getCurrentDateString();
-    let pinContext = await getPinStorage(domainName);
+    storageFacadeForPin.salt = uuid + '-' + getCurrentDateString()
+    let pinContext = await getPinStorage(domainName)
     pinContext = JSON.parse(pinContext)
-    if (pinContext) return pinContext.pin;
+    if (pinContext) return pinContext.pin
 }
 const getHexSeed = async (pin, address) => {
     const localSeed = await getLocalSeed(address)
     // log pin and localSeed
-    console.log('getHexSeed',pin,localSeed)
+    console.log('getHexSeed', pin, localSeed)
     const hexSeed = iotacatclient.tpDecrypt(localSeed, pin)
-    console.log('getHexSeed',hexSeed)
+    console.log('getHexSeed', hexSeed)
     return hexSeed
 }
 // local seed related
@@ -138,7 +136,7 @@ interface StorageFacade {
 }
 */
 const storageFacade = {
-    prefix:'1',
+    prefix: '1',
     get: getLocalStorage,
     set: setLocalStorageAsync
 }
@@ -321,7 +319,9 @@ const importNFT = async ({ nft, tokenId }, reqId, method) => {
                 tokenId,
                 name,
                 image: tokenURIRes.image,
-                description: tokenURIRes.description
+                description: tokenURIRes.description,
+                standard: 'ERC 721',
+                collectionId: nft
             }
             importedNFTInStorage[nft] = [...(importedNFTInStorage[nft] ?? []), importedNFTInfo]
             setBackgroundData(importedNFTKey, importedNFTInStorage)
@@ -445,7 +445,7 @@ const getBalanceNodeMatch = async (method, addressList) => {
 const IOTA_NODE_ID = 1
 
 function isIotaStardust(nodeId, nodeType) {
-    return isIotaAccordingId(nodeId) && checkSMR(nodeType);
+    return isIotaAccordingId(nodeId) && checkSMR(nodeType)
 }
 
 function checkSMR(nodeType) {
@@ -453,7 +453,7 @@ function checkSMR(nodeType) {
 }
 
 function isIotaAccordingId(nodeId) {
-    return nodeId === IOTA_NODE_ID 
+    return nodeId === IOTA_NODE_ID
 }
 
 const getBalanceInfo = async (address, nodeInfo, assetsList) => {
@@ -664,7 +664,7 @@ const ensureWeb3Client = () => {
         }
     })
 }
-const getSeedAuthorizeCacheKey = (dappOrigin,address) => {
+const getSeedAuthorizeCacheKey = (dappOrigin, address) => {
     return `${dappOrigin}_${address}`
 }
 // :Record<string,{hexSeed:string}>
@@ -683,14 +683,14 @@ const setSeedByKey = async (key) => {
 const pendingImRequests = {}
 const ifImNeedAuthorize = async (dappOrigin, address) => {
     const key = getSeedAuthorizeCacheKey(dappOrigin, address)
-    if (hexSeedCache[key]) return false;
+    if (hexSeedCache[key]) return false
     const pin = await getPin()
-    if (!pin) return true;
+    if (!pin) return true
     const hexSeed = await getHexSeed(pin, address)
     if (!hexSeed) {
         // log has pin but no hexSeed
-        console.log('ifImNeedAuthorize has pin but no hexSeed',pin,address)
-        return true;
+        console.log('ifImNeedAuthorize has pin but no hexSeed', pin, address)
+        return true
     }
     hexSeedCache[key] = {
         hexSeed
@@ -698,34 +698,34 @@ const ifImNeedAuthorize = async (dappOrigin, address) => {
     return false
 }
 
-const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, outputIds, message, pushed, vote, memberList}) => {
+const handleImRequests = async ({ reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, outputIds, message, pushed, vote, memberList }) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
         let res
-        if (method == 'iota_im_groupmessagelist_from') { 
-            res = await iotacatclient.fetchMessageListFrom(groupId,addr,continuationToken, limit)
+        if (method == 'iota_im_groupmessagelist_from') {
+            res = await iotacatclient.fetchMessageListFrom(groupId, addr, continuationToken, limit)
         } else if (method == 'iota_im_groupmessagelist_until') {
             res = await iotacatclient.fetchMessageListUntil(groupId, addr, continuationToken, limit)
         } else if (method == 'iota_im_groupinboxitemlist') {
             res = await iotacatclient.fetchInboxItemList(addr, continuationToken, limit)
             res = JSON.stringify(res)
         } else if (method == 'iota_im_readone') {
-            res = await iotacatclient.getMessageFromOutputId({outputId,address:addr,type:1})
+            res = await iotacatclient.getMessageFromOutputId({ outputId, address: addr, type: 1 })
         } else if (method == 'iota_im_readmany') {
-            res = await iotacatclient.getMessagesFromOutputIds({outputIds,address:addr,type:1})
+            res = await iotacatclient.getMessagesFromOutputIds({ outputIds, address: addr, type: 1 })
         } else if (method == 'iota_im') {
             res = await iotacatclient.sendMessage(addr, groupId, message)
         } else if (method == 'iota_im_ensure_group_shared') {
             res = await iotacatclient.ensureGroupHaveSharedOutput(groupId)
         } else if (method == 'iota_im_p2p_pushed') {
-            res = await iotacatclient.getMessageFromMetafeaturepayloadAndSender({address:addr,data:pushed.meta,senderAddressBytes:pushed.sender})
-        } else if (method == 'iota_im_check_and_consolidate_messages') { 
+            res = await iotacatclient.getMessageFromMetafeaturepayloadAndSender({ address: addr, data: pushed.meta, senderAddressBytes: pushed.sender })
+        } else if (method == 'iota_im_check_and_consolidate_messages') {
             res = await iotacatclient.checkThenConsolidateMessages()
-        } else if (method == 'iota_im_check_and_consolidate_shareds') { 
+        } else if (method == 'iota_im_check_and_consolidate_shareds') {
             res = await iotacatclient.checkThenConsolidateShared()
-        } else if (method == 'iota_im_mark_group') { 
-            res = await iotacatclient.markGroup({groupId,memberList})
+        } else if (method == 'iota_im_mark_group') {
+            res = await iotacatclient.markGroup({ groupId, memberList })
         } else if (method == 'iota_im_unmark_group') {
             res = await iotacatclient.unmarkGroup(groupId)
         } else if (method == 'iota_im_getMarkedGroupIds') {
@@ -733,15 +733,15 @@ const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, con
         } else if (method == 'iota_im_getAllGroupVotes') {
             res = await iotacatclient.getAllGroupVotes()
         } else if (method == 'iota_im_voteGroup') {
-            res = await iotacatclient.voteGroup(groupId,vote)
+            res = await iotacatclient.voteGroup(groupId, vote)
         } else if (method == 'iota_im_unvoteGroup') {
             res = await iotacatclient.unvoteGroup(groupId)
         } else if (method == 'iota_im_getAllUserMuteGroupMembers') {
             res = await iotacatclient.getAllUserMuteGroupMembers(groupId)
         } else if (method == 'iota_im_muteGroupMember') {
-            res = await iotacatclient.muteGroupMember(groupId,addrHash)
+            res = await iotacatclient.muteGroupMember(groupId, addrHash)
         } else if (method == 'iota_im_unmuteGroupMember') {
-            res = await iotacatclient.unmuteGroupMember(groupId,addrHash)
+            res = await iotacatclient.unmuteGroupMember(groupId, addrHash)
         } else if (method == 'iota_im_send_anyone_toself') {
             res = await iotacatclient.sendAnyOneOutputToSelf()
         }
@@ -755,7 +755,7 @@ const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, con
                 response: res
             }
         })
-    } catch(error){
+    } catch (error) {
         sendToContentScript({
             cmd: 'iota_request',
             id: reqId,
@@ -767,7 +767,7 @@ const handleImRequests = async ({reqId, dappOrigin, addr, addrHash, groupId, con
         })
     }
 }
-        
+
 const processPendingImRequestsByKey = async (key) => {
     if (!pendingImRequests[key]) {
         return
@@ -793,13 +793,13 @@ const rejectpendingImRequestsByKey = async (key, error) => {
             id: pendingImReadRequest.reqId,
             code: -1,
             data: {
-                method:pendingImReadRequest.method,
+                method: pendingImReadRequest.method,
                 response: error
             }
         })
     }
 }
-                
+
 // get message from content-script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
@@ -1125,22 +1125,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_send_anyone_toself':
                                 {
                                     const imFn = async () => {
-                                        await iotacatclient.setup();
-                                        const isNeedAuthorize = await ifImNeedAuthorize(dappOrigin,content.addr)
+                                        await iotacatclient.setup()
+                                        const isNeedAuthorize = await ifImNeedAuthorize(dappOrigin, content.addr)
                                         if (isNeedAuthorize) {
                                             const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
-                                            if (!pendingImRequests[key]) pendingImRequests[key] = {isAuthorizing:false,payload:[]}
+                                            if (!pendingImRequests[key]) pendingImRequests[key] = { isAuthorizing: false, payload: [] }
                                             pendingImRequests[key].payload.push({
                                                 ...content,
                                                 reqId,
-                                                dappOrigin:dappOrigin,
+                                                dappOrigin: dappOrigin,
                                                 method
                                             })
-                                            if (!pendingImRequests[key].isAuthorizing) {   
+                                            if (!pendingImRequests[key].isAuthorizing) {
                                                 pendingImRequests[key].isAuthorizing = true
                                                 setTimeout(() => {
                                                     pendingImRequests[key].isAuthorizing = false
-                                                }, 15*1000);
+                                                }, 15 * 1000)
                                                 const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
                                                 params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                             }
@@ -1148,7 +1148,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                             await handleImRequests({
                                                 ...content,
                                                 reqId,
-                                                dappOrigin:dappOrigin,
+                                                dappOrigin: dappOrigin,
                                                 method
                                             })
                                         }
@@ -1156,7 +1156,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     imFn()
                                 }
                                 break
-                            
+
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
@@ -1396,15 +1396,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             pendingImRequests[key].isAuthorizing = false
                             hexSeedCache[key] = { hexSeed: hex }
                             try {
-                                processPendingImRequestsByKey(key).catch(e=>console.log(e))
-                            } catch(error) {
-                                rejectpendingImRequestsByKey(key,error).catch(e=>console.log(e))
+                                processPendingImRequestsByKey(key).catch((e) => console.log(e))
+                            } catch (error) {
+                                rejectpendingImRequestsByKey(key, error).catch((e) => console.log(e))
                             }
                         }
                     }
                 }
                 break
-                            
+
             default:
                 sendResponse({ success: 'ok' })
                 break
