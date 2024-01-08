@@ -301,7 +301,7 @@ export const AssetsSend = () => {
                                                 }}
                                             />
                                             <div className='fz16 cS'>
-                                                {I18n.t('staking.available')} {Base.formatNum(available)} {assets.unit}
+                                                {I18n.t('staking.available')} {Base.formatNum(available,6)} {assets.unit}
                                             </div>
                                         </div>
                                     </Form.Item>
