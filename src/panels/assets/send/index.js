@@ -299,7 +299,7 @@ export const AssetsSend = () => {
                                                 }}
                                             />
                                             <div className='fz16 cS'>
-                                                {I18n.t('staking.available')} {Base.formatNum(available,6)} {assets.unit}
+                                                {I18n.t('staking.available')} {Base.formatNum(available,IotaSDK.checkWeb3Node(curWallet.nodeId) ? 4:6)} {assets.unit}
                                             </div>
                                         </div>
                                     </Form.Item>
