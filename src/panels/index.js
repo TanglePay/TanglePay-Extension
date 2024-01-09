@@ -25,6 +25,7 @@ import { AccountChangeNode } from './account/changeNode'
 import { StakingAdd } from './staking/add'
 import { StakingHistory } from './staking/history'
 import { PrivateKey } from './user/privateKey'
+import { PrivateKeyMnemonic } from './user/privateKey/mnemonic'
 import { AccountIntoPrivateKey } from './account/into/privateKey'
 import { Staking } from './main/staking'
 import { RemoveWallet } from './user/editWallet/removeWallet'
@@ -44,13 +45,13 @@ import { AccountHardwareInto } from './account/hardware/into'
 import { AccountHardwareImport } from './account/hardware/import'
 import { AccountIntoPin } from './account/into/pin'
 export const panelsList = [
-    { 
-        path: 'account/pin/set', 
-        component: AccountSetPin 
+    {
+        path: 'account/pin/set',
+        component: AccountSetPin
     },
-    { 
-        path: 'account/pin/reset', 
-        component: AccountResetPin 
+    {
+        path: 'account/pin/reset',
+        component: AccountResetPin
     },
     {
         path: 'account/hardware/import',
@@ -123,6 +124,10 @@ export const panelsList = [
     {
         path: 'user/privateKey',
         component: PrivateKey
+    },
+    {
+        path: 'user/exportMnemonic',
+        component: PrivateKeyMnemonic
     },
     {
         path: 'staking/history',
@@ -208,8 +213,8 @@ export const panelsList = [
         path: 'account/registerPin',
         component: AccountRegisterPin
     },
-    { 
-        path: 'unlock', 
+    {
+        path: 'unlock',
         component: UnlockScreen
     },
     {

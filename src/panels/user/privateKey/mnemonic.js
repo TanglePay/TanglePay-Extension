@@ -7,7 +7,7 @@ import { Nav, Toast } from '@/common'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { context, checkWalletIsPasswordEnabled } from '@tangle-pay/domain'
 
-export const PrivateKey = () => {
+export const PrivateKeyMnemonic = () => {
     let params = useLocation()
     params = Base.handlerParams(params.search)
     const id = params.id
@@ -21,7 +21,7 @@ export const PrivateKey = () => {
         const func = async () => {
             const isEnabled = await checkWalletIsPasswordEnabled(curEdit.id)
             if (!isEnabled && context.state.isPinSet) {
-                const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, context.state.pin)
+                const privateKeyStr = await IotaSDK.decryptSeed(curEdit.mnemonic, context.state.pin, true)
                 setKeyStr(privateKeyStr.replace(/^0x/, ''))
             }
         }
@@ -41,10 +41,10 @@ export const PrivateKey = () => {
                 </div>
                 <div className='ph16'>
                     <div className='flex c pt8 pb24'>
-                        <div className='fz18 fw600'>{I18n.t('account.showKey')}</div>
+                        <div className='fz18 fw600'>{I18n.t('account.showKeyMnemonic')}</div>
                     </div>
                     <div>
-                        <div className='fz16'>{I18n.t(keyStr ? 'account.copyKeyTips' : 'assets.passwordTips').replace('{name}', name)}</div>
+                        <div className='fz16'>{I18n.t(keyStr ? 'account.copyKeyTipsMnemonic' : 'assets.passwordTips').replace('{name}', name)}</div>
                         {!keyStr ? (
                             <Input type='password' value={password} onChange={setPassword} className='border-b mt15 mb8' />
                         ) : (
@@ -57,7 +57,7 @@ export const PrivateKey = () => {
                     </div>
                     <div className='mt16 mb32 radius10 p10' style={{ backgroundColor: 'rgba(213, 53, 84, 0.05)' }}>
                         <div className='fz14' style={{ color: '#D53554' }}>
-                            {I18n.t('account.showKeyTips')}
+                            {I18n.t('account.showKeyTipsMnemonic')}
                         </div>
                     </div>
                     {!keyStr ? (
