@@ -102,11 +102,11 @@ export const CoinList = () => {
                             {isShowAssets ? (
                                 <div>
                                     <div className='fz16 tr mb8'>
-                                        {e.balance} {String(e.unit || e.name).toLocaleUpperCase()}
+                                        {Base.formatNum(e.balance)} {String(e.unit || e.name).toLocaleUpperCase()}
                                     </div>
                                     {isSMR ? (
                                         <div className='fz14 tr cS'>
-                                            {I18n.t('staking.available')} {e.available} {/* {String(e.unit || e.name).toLocaleUpperCase()} */}
+                                            {I18n.t('staking.available')} {Base.formatNum(e.available)} {/* {String(e.unit || e.name).toLocaleUpperCase()} */}
                                         </div>
                                     ) : null}
                                 </div>

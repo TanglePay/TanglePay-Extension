@@ -59,7 +59,8 @@ export const AssetsSend = () => {
     if (Number(realBalance) < 0) {
         realBalance = BigNumber(0)
     }
-    let available = Base.formatNum(IotaSDK.getNumberStr(Number(realBalance.div(Math.pow(10, assets.decimal)))))
+    let available = assets.available
+    //Base.formatNum(IotaSDK.getNumberStr(Number(realBalance.div(Math.pow(10, assets.decimal)))))
     // useEffect(() => {
     //     return () => {
     //         clearTimeout(timeHandler.current)
