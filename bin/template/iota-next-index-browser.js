@@ -3653,6 +3653,22 @@
         }
         return [!isError, tips]
     }
+    function isOutputGroupfi(output) {
+        const features = output?.output?.features || []
+        let isGroupfi = false
+        if (features.length > 0) {
+            const tagFeature = features.find((e) => e.type == TAG_FEATURE_TYPE)
+            if (tagFeature) {
+                const tagHex = tagFeature.tag
+                const tagStr = util_js.Converter.hexToUtf8(tagHex)
+                // if tagStr starts with GROUPFI,
+                if (tagStr && tagStr.startsWith('GROUPFI')) {
+                    isGroupfi = true
+                }
+            }
+        }
+        return isGroupfi
+    }
     function checkUnLock(output) {
         const nowTime = Math.floor(Date.now() / 1000)
         let unlockConditions = output?.output?.unlockConditions || []
@@ -3759,7 +3775,8 @@
                 const output = localOutputDatas[index]
                 if (!output.metadata.isSpent) {
                     const isUnLock = checkUnLock(output)
-                    if (isUnLock) {
+                    const isGroupfi = isOutputGroupfi(output)
+                    if (isUnLock || isGroupfi) {
                         total = total.plus(output.output.amount)
                     }
                     outputIds.push(outputId)
