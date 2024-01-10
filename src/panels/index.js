@@ -7,6 +7,7 @@ import { AccountResetPin } from './account/pin/reset'
 import { AccountSetPin } from './account/pin/set'
 import { UnlockScreen } from './account/unlock'
 import { AccountInto } from './account/into'
+import { AccountImportSelect } from './account/into/importSelect'
 import { AccountBackup } from './account/backup'
 import { AccountMnemonic } from './account/mnemonic'
 import { AccountVerifyMnemonic } from './account/verifyMnemonic'
@@ -200,6 +201,10 @@ export const panelsList = [
     {
         path: 'account/into',
         component: AccountInto
+    },
+    {
+        path: 'account/into/import',
+        component: AccountImportSelect
     },
     {
         path: 'account/intopin',

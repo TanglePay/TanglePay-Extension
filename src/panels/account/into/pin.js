@@ -8,6 +8,7 @@ import { useCreateCheck } from '@tangle-pay/store/common'
 import { useLocation } from 'react-router-dom'
 import { Nav, SvgIcon, Toast } from '@/common'
 import { context, setPin, shouldShowSetPin } from '@tangle-pay/domain'
+import { useStore } from '@tangle-pay/store'
 import './index.less'
 import { ExpDialog } from './expDialog'
 
@@ -18,12 +19,13 @@ const schemaNopassword = Yup.object().shape({
 })
 export const AccountIntoPin = () => {
     const dialogRef = useRef()
+    const [_, setRegisterInfo] = useStore('common.registerInfo')
     let params = useLocation()
     params = Base.handlerParams(params.search)
     const type = parseInt(params.type)
     const from = params.from
     const form = useRef()
-    const [shouldShowPin, setShouldShowPin ] = useState( true )
+    const [shouldShowPin, setShouldShowPin] = useState(true)
     useEffect(() => {
         console.log(context)
         setShouldShowPin(shouldShowSetPin())
@@ -46,7 +48,6 @@ export const AccountIntoPin = () => {
                     validateOnMount={false}
                     validationSchema={schemaNopassword}
                     onSubmit={async (values) => {
-                        
                         //import mnenomics
                         if (type === 1) {
                             const { password, rePassword } = values
@@ -62,21 +63,49 @@ export const AccountIntoPin = () => {
                                 values.password = context.state.pin
                                 values.rePassword = context.state.pin
                             }
-                            const res = await IotaSDK.importMnemonic({
-                                ...values
-                            })
-                            addWallet({
-                                ...res
-                            })
-                            if (from === 'smr') {
-                                Base.replace('/assets/claimReward/claimSMR', {
-                                    id: res.id
+
+                            Toast.showLoading()
+
+                            const checkList = await IotaSDK.importMnemonicCheckBalance({ ...values })
+                            let hasBalanceList = checkList.filter((e) => e.balances.find((d) => Number(d.balance) > 0))
+                            for (let i = 0; i < checkList.length; i++) {
+                                const e = checkList[i]
+                                checkList[i].hasImport = await IotaSDK.checkImport(e.address)
+                            }
+                            Toast.hideLoading()
+                            const needImportList = hasBalanceList.filter((e) => !e.hasImport)
+                            const jump = (res) => {
+                                if (from === 'smr') {
+                                    Base.replace('/assets/claimReward/claimSMR', {
+                                        id: res.id
+                                    })
+                                } else {
+                                    Base.replace('/main')
+                                }
+                            }
+                            if (needImportList.length == 0) {
+                                const res = await IotaSDK.importMnemonic({
+                                    ...values
                                 })
+                                addWallet({
+                                    ...res
+                                })
+                                jump(res)
+                            } else if (needImportList.length == 1) {
+                                const res = await IotaSDK.importMnemonic({
+                                    ...values,
+                                    path: needImportList[0].path
+                                })
+                                addWallet({
+                                    ...res
+                                })
+                                jump(res)
                             } else {
-                                Base.replace('/main')
+                                setRegisterInfo({ ...values })
+                                Base.push('/account/into/import', { list: JSON.stringify(hasBalanceList) })
+                                return
                             }
                         }
-                    
                     }}>
                     {({ handleChange, handleSubmit, setFieldValue, values, errors }) => (
                         <div className='p16 pt12 flex column jsb'>
@@ -95,23 +124,13 @@ export const AccountIntoPin = () => {
                                                 style={{ height: 23 }}
                                             />
                                         </div>
-                                        <div
-                                            className={`border radius10 mt12 flex c column ${
-                                                !errors.mnemonic ? 'border-color-b' : 'border-color-r'
-                                            }`}>
-                                            <TextArea
-                                                rows={4}
-                                                className='p10'
-                                                onChange={handleChange('mnemonic')}
-                                                value={values.mnemonic}
-                                            />
+                                        <div className={`border radius10 mt12 flex c column ${!errors.mnemonic ? 'border-color-b' : 'border-color-r'}`}>
+                                            <TextArea rows={4} className='p10' onChange={handleChange('mnemonic')} value={values.mnemonic} />
                                         </div>
                                     </div>
                                 ) : (
                                     <div
-                                        className={`border radius10 mt10 flex c column ${
-                                            !errors.mnemonic ? 'border-color-b' : 'border-color-r'
-                                        }`}
+                                        className={`border radius10 mt10 flex c column ${!errors.mnemonic ? 'border-color-b' : 'border-color-r'}`}
                                         style={{
                                             height: 140
                                         }}>
@@ -121,50 +140,34 @@ export const AccountIntoPin = () => {
                                 )}
                                 <Form.Item className={`mt10 pl0 ${errors.name && 'form-error'}`}>
                                     <div className='fz16 mb10'>{I18n.t('account.intoName')}</div>
-                                    <Input
-                                        style={{ paddingTop: 3, paddingBottom: 3 }}
-                                        placeholder={I18n.t('account.intoNameTips')}
-                                        onChange={handleChange('name')}
-                                        value={values.name}
-                                    />
+                                    <Input style={{ paddingTop: 3, paddingBottom: 3 }} placeholder={I18n.t('account.intoNameTips')} onChange={handleChange('name')} value={values.name} />
                                 </Form.Item>
-                                {shouldShowPin &&
-                                (<Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz18 mb10'>{I18n.t('account.intoPin')}</div>
-                                    <Input
-                                        className='pt4'
-                                        type='password'
-                                        placeholder={I18n.t('account.intoPinTips')}
-                                        onChange={handleChange('password')}
-                                        value={values.password}
-                                        maxLength={20}
-                                    />
-                                </Form.Item>)}
-                                {type === 1 && shouldShowPin &&
-                                (<Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
-                                    <Input
-                                        type='password'
-                                        className='pt4'
-                                        placeholder={I18n.t('account.intoRePin')}
-                                        onChange={handleChange('rePassword')}
-                                        value={values.rePassword}
-                                        maxLength={20}
-                                    />
-                                </Form.Item>)}
+                                {shouldShowPin && (
+                                    <Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
+                                        <div className='fz18 mb10'>{I18n.t('account.intoPin')}</div>
+                                        <Input className='pt4' type='password' placeholder={I18n.t('account.intoPinTips')} onChange={handleChange('password')} value={values.password} maxLength={20} />
+                                    </Form.Item>
+                                )}
+                                {type === 1 && shouldShowPin && (
+                                    <Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
+                                        <Input
+                                            type='password'
+                                            className='pt4'
+                                            placeholder={I18n.t('account.intoRePin')}
+                                            onChange={handleChange('rePassword')}
+                                            value={values.rePassword}
+                                            maxLength={20}
+                                        />
+                                    </Form.Item>
+                                )}
                             </Form>
                             <div
                                 className='flex row as pl0 mt30 mb20'
                                 onClick={() => {
                                     setFieldValue('agree', !values.agree)
                                 }}>
-                                <SvgIcon
-                                    size={15}
-                                    className={`mr8 fz20 ${values.agree ? 'cP' : 'cB'}`}
-                                    name={values.agree ? 'checkbox_1' : 'checkbox_0'}
-                                />
-                                <div
-                                    className={`fz16 tl ${!errors.agree ? 'cB' : 'cR'}`}
-                                    style={{ lineHeight: '22px' }}>
+                                <SvgIcon size={15} className={`mr8 fz20 ${values.agree ? 'cP' : 'cB'}`} name={values.agree ? 'checkbox_1' : 'checkbox_0'} />
+                                <div className={`fz16 tl ${!errors.agree ? 'cB' : 'cR'}`} style={{ lineHeight: '22px' }}>
                                     {I18n.t('account.intoAgree')
                                         .split('##')
                                         .filter((e) => !!e)
@@ -174,11 +177,7 @@ export const AccountIntoPin = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         e.preventDefault()
-                                                        Base.push(
-                                                            i === 1
-                                                                ? 'https://tanglepay.com/terms.html'
-                                                                : 'https://tanglepay.com/policy.html'
-                                                        )
+                                                        Base.push(i === 1 ? 'https://tanglepay.com/terms.html' : 'https://tanglepay.com/policy.html')
                                                     }}
                                                     key={i}
                                                     className='cP press'>

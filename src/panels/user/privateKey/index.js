@@ -21,7 +21,7 @@ export const PrivateKey = () => {
         const func = async () => {
             const isEnabled = await checkWalletIsPasswordEnabled(curEdit.id)
             if (!isEnabled && context.state.isPinSet) {
-                const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, context.state.pin)
+                const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, context.state.pin, curEdit.path)
                 setKeyStr(privateKeyStr.replace(/^0x/, ''))
             }
         }
@@ -73,7 +73,7 @@ export const PrivateKey = () => {
                             <Button
                                 onClick={async () => {
                                     try {
-                                        const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, password)
+                                        const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, password, curEdit.path)
                                         setKeyStr(privateKeyStr.replace(/^0x/, ''))
                                     } catch (error) {
                                         return Toast.error(I18n.t('assets.passwordError'))

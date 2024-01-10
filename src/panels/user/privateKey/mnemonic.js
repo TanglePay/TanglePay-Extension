@@ -73,7 +73,7 @@ export const PrivateKeyMnemonic = () => {
                             <Button
                                 onClick={async () => {
                                     try {
-                                        const privateKeyStr = await IotaSDK.getPrivateKey(curEdit.seed, password)
+                                        const privateKeyStr = await IotaSDK.decryptSeed(curEdit.mnemonic, password, true)
                                         setKeyStr(privateKeyStr.replace(/^0x/, ''))
                                     } catch (error) {
                                         return Toast.error(I18n.t('assets.passwordError'))
