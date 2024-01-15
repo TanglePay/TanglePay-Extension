@@ -6,12 +6,12 @@ importScripts('./sdk/sdkcommon.min.js')
 importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
 importScripts('./sdk/NonfungiblePositionManager.js')
-importScripts('./iotacat/BigInteger.min.js')
-importScripts('./iotacat/util.js')
-importScripts('./iotacat/crypto.js')
-importScripts('./iotacat/iota.js')
-importScripts('./iotacat/core.js')
-importScripts('./iotacat/client.js')
+importScripts('./groupfi/BigInteger.min.js')
+importScripts('./groupfi/util.js')
+importScripts('./groupfi/crypto.js')
+importScripts('./groupfi/iota.js')
+importScripts('./groupfi/core.js')
+importScripts('./groupfi/walletembed.js')
 const API_URL = 'https://api.iotaichi.com'
 
 const DATA_PER_REQUEST_PREFIX = 'data_per_request_prefix_'
@@ -96,7 +96,7 @@ const getPinStorage = async (name) => {
     const encrypted = await storageFacadeForPin.get(storageKey)
     console.log('get storage', storageKey, encrypted)
     try {
-        const json = encrypted ? iotacatclient.tpDecrypt(encrypted, storageFacadeForPin.salt) : encrypted
+        const json = encrypted ? walletembed.tpDecrypt(encrypted, storageFacadeForPin.salt) : encrypted
         console.log('get storage', storageKey, json)
         return json
     } catch (e) {
@@ -123,7 +123,7 @@ const getHexSeed = async (pin, address) => {
     const localSeed = await getLocalSeed(address)
     // log pin and localSeed
     console.log('getHexSeed', pin, localSeed)
-    const hexSeed = iotacatclient.tpDecrypt(localSeed, pin)
+    const hexSeed = walletembed.tpDecrypt(localSeed, pin)
     console.log('getHexSeed', hexSeed)
     return hexSeed
 }
@@ -140,7 +140,7 @@ const storageFacade = {
     get: getLocalStorage,
     set: setLocalStorageAsync
 }
-iotacatclient.setupStorage(storageFacade)
+walletembed.setupStorage(storageFacade)
 
 // send message to inject
 var sendToInject = function (params) {
@@ -674,7 +674,7 @@ const setSeedByKey = async (key) => {
     // from cache
     if (hexSeedCache[key]) {
         const seed = hexSeedCache[key].hexSeed
-        await iotacatclient.setHexSeed(seed)
+        await walletembed.setHexSeed(seed)
         return true
     }
     return
@@ -698,53 +698,16 @@ const ifImNeedAuthorize = async (dappOrigin, address) => {
     return false
 }
 
-const handleImRequests = async ({ reqId, dappOrigin, addr, addrHash, groupId, continuationToken, limit, method, outputId, outputIds, message, pushed, vote, memberList }) => {
+const handleImRequests = async ({ reqId, dappOrigin, addr, method, idx, groupId, transactionEssence,recipientsWithPayload,  }) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
         let res
-        if (method == 'iota_im_groupmessagelist_from') {
-            res = await iotacatclient.fetchMessageListFrom(groupId, addr, continuationToken, limit)
-        } else if (method == 'iota_im_groupmessagelist_until') {
-            res = await iotacatclient.fetchMessageListUntil(groupId, addr, continuationToken, limit)
-        } else if (method == 'iota_im_groupinboxitemlist') {
-            res = await iotacatclient.fetchInboxItemList(addr, continuationToken, limit)
-            res = JSON.stringify(res)
-        } else if (method == 'iota_im_readone') {
-            res = await iotacatclient.getMessageFromOutputId({ outputId, address: addr, type: 1 })
-        } else if (method == 'iota_im_readmany') {
-            res = await iotacatclient.getMessagesFromOutputIds({ outputIds, address: addr, type: 1 })
-        } else if (method == 'iota_im') {
-            res = await iotacatclient.sendMessage(addr, groupId, message)
-        } else if (method == 'iota_im_ensure_group_shared') {
-            res = await iotacatclient.ensureGroupHaveSharedOutput(groupId)
-        } else if (method == 'iota_im_p2p_pushed') {
-            res = await iotacatclient.getMessageFromMetafeaturepayloadAndSender({ address: addr, data: pushed.meta, senderAddressBytes: pushed.sender })
-        } else if (method == 'iota_im_check_and_consolidate_messages') {
-            res = await iotacatclient.checkThenConsolidateMessages()
-        } else if (method == 'iota_im_check_and_consolidate_shareds') {
-            res = await iotacatclient.checkThenConsolidateShared()
-        } else if (method == 'iota_im_mark_group') {
-            res = await iotacatclient.markGroup({ groupId, memberList })
-        } else if (method == 'iota_im_unmark_group') {
-            res = await iotacatclient.unmarkGroup(groupId)
-        } else if (method == 'iota_im_getMarkedGroupIds') {
-            res = await iotacatclient.getMarkedGroupIds()
-        } else if (method == 'iota_im_getAllGroupVotes') {
-            res = await iotacatclient.getAllGroupVotes()
-        } else if (method == 'iota_im_voteGroup') {
-            res = await iotacatclient.voteGroup(groupId, vote)
-        } else if (method == 'iota_im_unvoteGroup') {
-            res = await iotacatclient.unvoteGroup(groupId)
-        } else if (method == 'iota_im_getAllUserMuteGroupMembers') {
-            res = await iotacatclient.getAllUserMuteGroupMembers(groupId)
-        } else if (method == 'iota_im_muteGroupMember') {
-            res = await iotacatclient.muteGroupMember(groupId, addrHash)
-        } else if (method == 'iota_im_unmuteGroupMember') {
-            res = await iotacatclient.unmuteGroupMember(groupId, addrHash)
-        } else if (method == 'iota_im_send_anyone_toself') {
-            res = await iotacatclient.sendAnyOneOutputToSelf()
-        }
+        if (method == 'iota_im_decrypt_key') {
+            res = await walletembed.decryptAesKeyFromRecipientsWithPayload(idx,recipientsWithPayload)
+        } else if (method == 'iota_im_sign_and_send_transaction_to_self') {
+            res = await walletembed.signAndSendTransactionToSelf(transactionEssence)
+        } 
 
         sendToContentScript({
             cmd: 'iota_request',
@@ -1103,29 +1066,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
-                            case 'iota_im':
-                            case 'iota_im_readone':
-                            case 'iota_im_readmany':
-                            case 'iota_im_ensure_group_shared':
-                            case 'iota_im_groupmessagelist_from':
-                            case 'iota_im_groupmessagelist_until':
-                            case 'iota_im_groupinboxitemlist':
-                            case 'iota_im_p2p_pushed':
-                            case 'iota_im_check_and_consolidate_messages':
-                            case 'iota_im_check_and_consolidate_shareds':
-                            case 'iota_im_mark_group':
-                            case 'iota_im_unmark_group':
-                            case 'iota_im_getMarkedGroupIds':
-                            case 'iota_im_getAllGroupVotes':
-                            case 'iota_im_voteGroup':
-                            case 'iota_im_unvoteGroup':
-                            case 'iota_im_getAllUserMuteGroupMembers':
-                            case 'iota_im_muteGroupMember':
-                            case 'iota_im_unmuteGroupMember':
-                            case 'iota_im_send_anyone_toself':
+                            case 'iota_im_decrypt_key':                            
+                            case 'iota_im_sign_and_send_transaction_to_self':
                                 {
                                     const imFn = async () => {
-                                        await iotacatclient.setup()
+                                        await walletembed.setup()
                                         const isNeedAuthorize = await ifImNeedAuthorize(dappOrigin, content.addr)
                                         if (isNeedAuthorize) {
                                             const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
