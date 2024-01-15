@@ -524,7 +524,9 @@ export const DappDialog = () => {
                                 .replace(/\n/g, '<br/>')
                                 .replace('#fee#', gasFee)
                             str = `${origin}<br/>` + str
-                            const dataPerRequest = await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId)
+
+                            const dataFromLink = res.metadata ? {metadata: res.metadata} : null
+                            const dataPerRequest = await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId) || dataFromLink
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
