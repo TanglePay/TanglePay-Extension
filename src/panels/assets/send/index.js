@@ -60,10 +60,7 @@ export const AssetsSend = () => {
         realBalance = BigNumber(0)
     }
     // let available = assets.available
-    let available = Base.formatNum(
-        IotaSDK.getNumberStr(Number(realBalance.div(Math.pow(10, assets.decimal)))),
-        6
-        )
+    let available = Base.formatNum(IotaSDK.getNumberStr(Number(realBalance.div(Math.pow(10, assets.decimal)))), 6)
     // useEffect(() => {
     //     return () => {
     //         clearTimeout(timeHandler.current)
@@ -85,7 +82,14 @@ export const AssetsSend = () => {
             sendAmount = IotaSDK.getNumberStr(sendAmount || 0)
             const eth = IotaSDK.client.eth
             console.log(sendAmount)
-            Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount, undefined, receiver)]).then(([gasPrice, gas]) => {
+            const getDefaultGasLimit = async () => {
+                if (!collectionId) {
+                    return IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount, undefined, receiver)
+                } else {
+                    return IotaSDK.getNftDefaultGasLimit(curWallet.address, collectionId, nftId, receiver)
+                }
+            }
+            Promise.all([eth.getGasPrice(), getDefaultGasLimit()]).then(([gasPrice, gas]) => {
                 if (assets?.contract) {
                     if (IotaSDK.curNode?.contractGasPriceRate) {
                         gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate))
@@ -305,7 +309,7 @@ export const AssetsSend = () => {
                                                 }}
                                             />
                                             <div className='fz16 cS'>
-                                                {I18n.t('staking.available')} {Base.formatNum(available,IotaSDK.checkWeb3Node(curWallet.nodeId) ? 4:6)} {assets.unit}
+                                                {I18n.t('staking.available')} {Base.formatNum(available, IotaSDK.checkWeb3Node(curWallet.nodeId) ? 4 : 6)} {assets.unit}
                                             </div>
                                         </div>
                                     </Form.Item>
