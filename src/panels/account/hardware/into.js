@@ -30,7 +30,7 @@ export const AccountHardwareInto = () => {
 
     useEffect(() => {
         const fn = async () => {
-            await ensureInited();
+            await ensureInited()
             console.log(context)
             setShouldShowPin(shouldShowSetPin())
         }
@@ -74,27 +74,60 @@ export const AccountHardwareInto = () => {
                             const curNodeId = IotaSDK.curNode?.id
                             const isIota = IotaSDK.checkIota(curNodeId)
                             const isShimmer = IotaSDK.checkSMR(curNodeId)
+                            let checkList = []
+                            Toast.showLoading()
+                            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+                            await sleep(500)
                             if (isIota || isShimmer) {
-                                Toast.showLoading()
-                                const [{ address, path }] = await IotaSDK.getHardwareAddressInIota(curNodeId, 0, true, 1)
-                                const info = await IotaSDK.importHardware({
-                                    address: address,
-                                    name: values.name,
-                                    publicKey: '',
-                                    path: path,
-                                    type: 'ledger'
+                                checkList = await IotaSDK.getHardwareAccountInIota(curNodeId, 0, false, 20)
+                                const balanceList = await Promise.all(
+                                    checkList.map((d) => {
+                                        return IotaSDK.getBalance(
+                                            {
+                                                id: '',
+                                                address: d.address,
+                                                nodeId: curNodeId
+                                            },
+                                            [d.address]
+                                        )
+                                    })
+                                )
+                                checkList.forEach((e) => {
+                                    e.balances = [
+                                        {
+                                            balance: balanceList[e.index]?.list?.[0]?.realBalance,
+                                            nodeId: curNodeId
+                                        }
+                                    ]
                                 })
-                                addWallet(info)
-                                Toast.hideLoading()
-                                Base.replace('/main')
                             } else if (IotaSDK.checkWeb3Node(curNodeId)) {
                                 await IotaSDK.checkHardwareConnect()
-                                Base.push('/account/hardware/import', {
-                                    name: values.name,
-                                    type: IotaSDK.curNode?.type
-                                })
+                                checkList = await IotaSDK.getHardwareAddressList(1, 20)
                             }
-                            
+                            let hasBalanceList = checkList.filter((e) => e.balances.find((d) => Number(d.balance) > 0))
+                            for (let i = 0; i < checkList.length; i++) {
+                                const e = checkList[i]
+                                checkList[i].hasImport = await IotaSDK.checkImport(e.address)
+                            }
+                            Toast.hideLoading()
+                            const needImportList = hasBalanceList.filter((e) => !e.hasImport)
+                            if (needImportList.length <= 1) {
+                                const obj = needImportList[0] || checkList[0]
+                                const res = await IotaSDK.importHardware({
+                                    address: obj.address,
+                                    name: `${values.name} ${obj.index}`,
+                                    publicKey: obj.publicKey || '',
+                                    path: obj.path,
+                                    type: 'ledger'
+                                })
+                                addWallet({
+                                    ...res
+                                })
+                                Base.replace('/main')
+                            } else {
+                                // 进入硬件钱包导入，传入list
+                                Base.push('/account/hardware/import', { name: values.name, list: JSON.stringify(hasBalanceList) })
+                            }
                             setLoading(false)
                         } catch (error) {
                             setLoading(false)
@@ -108,29 +141,24 @@ export const AccountHardwareInto = () => {
                                     <div className='fz18 mb10'>{I18n.t('account.intoName')}</div>
                                     <Input className='pt4' placeholder={I18n.t('account.intoNameTips')} onChange={handleChange('name')} value={values.name} />
                                 </Form.Item>
-                                {shouldShowPin &&
-                                (<Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
-                                    <div className='fz18 mb10'>{I18n.t('account.intoPin')}</div>
-                                    <Input
-                                        className='pt4'
-                                        type='password'
-                                        placeholder={I18n.t('account.intoPinTips')}
-                                        onChange={handleChange('password')}
-                                        value={values.password}
-                                        maxLength={20}
-                                    />
-                                </Form.Item>)}
-                                {shouldShowPin &&
-                                (<Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
-                                    <Input
-                                        type='password'
-                                        className='pt4'
-                                        placeholder={I18n.t('account.intoRePin')}
-                                        onChange={handleChange('rePassword')}
-                                        value={values.rePassword}
-                                        maxLength={20}
-                                    />
-                                </Form.Item>)}
+                                {shouldShowPin && (
+                                    <Form.Item className={`mt10 pl0 ${errors.password && 'form-error'}`}>
+                                        <div className='fz18 mb10'>{I18n.t('account.intoPin')}</div>
+                                        <Input className='pt4' type='password' placeholder={I18n.t('account.intoPinTips')} onChange={handleChange('password')} value={values.password} maxLength={20} />
+                                    </Form.Item>
+                                )}
+                                {shouldShowPin && (
+                                    <Form.Item className={`pl0 ${errors.rePassword && 'form-error'}`}>
+                                        <Input
+                                            type='password'
+                                            className='pt4'
+                                            placeholder={I18n.t('account.intoRePin')}
+                                            onChange={handleChange('rePassword')}
+                                            value={values.rePassword}
+                                            maxLength={20}
+                                        />
+                                    </Form.Item>
+                                )}
                                 <div
                                     className='flex row as pl0 mt20'
                                     onClick={() => {
