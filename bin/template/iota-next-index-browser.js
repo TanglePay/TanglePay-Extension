@@ -3809,6 +3809,7 @@
         let availableNativeTokens = {}
         let response
         let cursor
+        let isSomeOutputSpending = false
         do {
             const nftOutpusDatas = await getNftsOutputs(client, addressBech32)
             nftOutpusDatas.forEach((e) => {
@@ -3847,6 +3848,8 @@
                             }
                         }
                     }
+                } else {
+                    isSomeOutputSpending = true
                 }
                 ledgerIndex = output.metadata.ledgerIndex
             }
@@ -3861,7 +3864,8 @@
             outputIds,
             availableOutputIds,
             outputDatas,
-            availableOutputDatas
+            availableOutputDatas,
+            isSomeOutputSpending
         }
     }
 
