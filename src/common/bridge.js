@@ -154,7 +154,7 @@ export default {
             let othersDic = {}
             if (IotaSDK.checkSMR(curWallet.nodeId)) {
                 if (assetsList.includes('smr')) {
-                    const smrAessets = (await IotaSDK.getBalance(curWallet, addressList)) || []
+                    const {list: smrAessets} = (await IotaSDK.getBalance(curWallet, addressList)) || { list: []}
                     othersDic.smr = {
                         amount: smrAessets.find((e) => e.token === IotaSDK.curNode?.token)?.realBalance,
                         symbol: 'smr',
