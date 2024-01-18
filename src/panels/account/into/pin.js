@@ -66,7 +66,7 @@ export const AccountIntoPin = () => {
 
                             Toast.showLoading()
 
-                            const checkList = await IotaSDK.importMnemonicCheckBalance({ ...values })
+                            const checkList = await IotaSDK.importMnemonicCheckBalance({ ...values }, 5)
                             let hasBalanceList = checkList.filter((e) => e.balances.find((d) => Number(d.balance) > 0))
                             for (let i = 0; i < checkList.length; i++) {
                                 const e = checkList[i]
