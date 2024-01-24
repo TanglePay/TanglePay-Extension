@@ -1070,7 +1070,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_sign_and_send_transaction_to_self':
                                 {
                                     const imFn = async () => {
-                                        await walletembed.setup()
+                                        await walletembed.setup(content.nodeUrlHint)
                                         const isNeedAuthorize = await ifImNeedAuthorize(dappOrigin, content.addr)
                                         if (isNeedAuthorize) {
                                             const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
