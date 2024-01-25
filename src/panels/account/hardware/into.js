@@ -117,17 +117,21 @@ export const AccountHardwareInto = () => {
                             const needImportList = hasBalanceList.filter((e) => !e.hasImport)
                             if (needImportList.length <= 1) {
                                 const obj = needImportList[0] || checkList[0]
-                                const res = await IotaSDK.importHardware({
-                                    address: obj.address,
-                                    name: `${values.name}-${obj.index}`,
-                                    publicKey: obj.publicKey || '',
-                                    path: obj.path,
-                                    type: 'ledger'
-                                })
-                                addWallet({
-                                    ...res
-                                })
-                                Base.replace('/main')
+                                try {
+                                    const res = await IotaSDK.importHardware({
+                                        address: obj.address,
+                                        name: `${values.name}-${obj.index}`,
+                                        publicKey: obj.publicKey || '',
+                                        path: obj.path,
+                                        type: 'ledger'
+                                    })
+                                    addWallet({
+                                        ...res
+                                    })
+                                    Base.replace('/main')
+                                } catch (error) {
+                                    Toast.show(String(error))
+                                }
                             } else {
                                 // 进入硬件钱包导入，传入list
                                 Base.push('/account/hardware/import', { name: values.name, list: JSON.stringify(hasBalanceList) })
