@@ -698,7 +698,7 @@ const ifImNeedAuthorize = async (dappOrigin, address) => {
     return false
 }
 
-const handleImRequests = async ({ reqId, dappOrigin, addr, method, idx, groupId, transactionEssence,inputsOutputMap,recipientsWithPayload,  }) => {
+const handleImRequests = async ({ reqId, dappOrigin, addr, method, idx, groupId, transactionEssence,recipientsWithPayload,  }) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
@@ -706,7 +706,7 @@ const handleImRequests = async ({ reqId, dappOrigin, addr, method, idx, groupId,
         if (method == 'iota_im_decrypt_key') {
             res = await walletembed.decryptAesKeyFromRecipientsWithPayload(idx,recipientsWithPayload)
         } else if (method == 'iota_im_sign_and_send_transaction_to_self') {
-            res = await walletembed.signAndSendTransactionToSelf({transactionEssence,inputsOutputMap})
+            res = await walletembed.signAndSendTransactionToSelf({transactionEssence})
         } 
 
         sendToContentScript({
