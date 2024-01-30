@@ -674,7 +674,13 @@ const setSeedByKey = async (key) => {
     // from cache
     if (hexSeedCache[key]) {
         const seed = hexSeedCache[key].hexSeed
-        await walletembed.setHexSeed(seed)
+        const [addressInfo] = await Promise.all(
+            [
+                getAddressInfo(),
+                walletembed.setHexSeed(seed)
+            ]
+        )
+        walletembed.switchAddressUsingPath(addressInfo.path)
         return true
     }
     return
@@ -1070,12 +1076,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_sign_and_send_transaction_to_self':
                                 {
                                     const imFn = async () => {
-                                        const [addressInfo] = await Promise.all(
-                                            [
-                                                getAddressInfo(),
-                                                walletembed.setup(content.nodeUrlHint)
-                                            ]) 
-                                        walletembed.switchAddress(addressInfo.address)
+                                        
+                                        await walletembed.setup(content.nodeUrlHint)
                                         const isNeedAuthorize = await ifImNeedAuthorize(dappOrigin, content.addr)
                                         if (isNeedAuthorize) {
                                             const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
