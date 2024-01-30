@@ -7,7 +7,7 @@ import { DisablePasswordDialog } from './disablePasswordDialog'
 import { Switch } from 'antd-mobile'
 import { useGetNodeWallet } from '@tangle-pay/store/common'
 import { Nav, SvgIcon, Toast } from '@/common'
-import { checkWalletIsPasswordEnabled, context } from '@tangle-pay/domain';
+import { checkWalletIsPasswordEnabled, context } from '@tangle-pay/domain'
 
 export const UserEditWallet = () => {
     // let params = useLocation()
@@ -26,7 +26,7 @@ export const UserEditWallet = () => {
     }
     useEffect(() => {
         console.log('curEdit', curEdit)
-        syncIsPasswordEnabled().catch(e=>console.log(e))
+        syncIsPasswordEnabled().catch((e) => console.log(e))
         setContentW(document.getElementById('app').offsetWidth)
     }, [])
     const curNode = IotaSDK.nodes.find((d) => d.id == curEdit.nodeId)
@@ -55,16 +55,8 @@ export const UserEditWallet = () => {
                             <div style={{ width: contentW - 100 }}>
                                 <div className='fz16 cS' style={{ wordWrap: 'break-word', lineHeight: '20px' }}>
                                     {curEdit.address}
-                                    <CopyToClipboard
-                                        text={curEdit.address}
-                                        onCopy={() => Toast.success(I18n.t('assets.copied'))}>
-                                        <SvgIcon
-                                            style={{ display: 'inline-block', verticalAlign: 'middle' }}
-                                            wrapper='span'
-                                            name='copy'
-                                            size={16}
-                                            className='cB press ml10'
-                                        />
+                                    <CopyToClipboard text={curEdit.address} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                                        <SvgIcon style={{ display: 'inline-block', verticalAlign: 'middle' }} wrapper='span' name='copy' size={16} className='cB press ml10' />
                                     </CopyToClipboard>
                                 </div>
                             </div>
@@ -88,26 +80,25 @@ export const UserEditWallet = () => {
                     </div>
                 ) : null}
                 {!isLedger ? (
-                    <div
-                    onClick={(e)=>console.log(e)}
-                    key={10}
-                    className={`press flex row ac jsb p16 border-b`}>
+                    <div onClick={(e) => console.log(e)} key={10} className={`press flex row ac jsb p16 border-b`}>
                         <div className='fz16'>{I18n.t('account.toggleWalletPassword')}</div>
                         <div>
-                            
-                        <Switch key={10} checked={passwordEnabled} onChange={(e) => {
-                            if (e) {
-                                enableDialogRef.current.show(syncIsPasswordEnabled)
-                            } else {
-                                if (context.state.isPinSet) {
-                                disableDialogRef.current.show(syncIsPasswordEnabled)
-                                } else {
-                                    Toast.error(I18n.t('account.needPinToTurnoffPassword'))
-                                }
-                            }
-                            // Base.setLocalData('common.isNoRestake', e ? 0 : 1)
-                        }} />
-                            
+                            <Switch
+                                key={10}
+                                checked={passwordEnabled}
+                                onChange={(e) => {
+                                    if (e) {
+                                        enableDialogRef.current.show(syncIsPasswordEnabled)
+                                    } else {
+                                        if (context.state.isPinSet) {
+                                            disableDialogRef.current.show(syncIsPasswordEnabled)
+                                        } else {
+                                            Toast.error(I18n.t('account.needPinToTurnoffPassword'))
+                                        }
+                                    }
+                                    // Base.setLocalData('common.isNoRestake', e ? 0 : 1)
+                                }}
+                            />
                         </div>
                     </div>
                 ) : null}
@@ -120,6 +111,18 @@ export const UserEditWallet = () => {
                         }}
                         className='press ph16 pv20 flex row jsb ac border-b'>
                         <div className='fz16'>{I18n.t('account.exportKey')}</div>
+                        <SvgIcon name='right' size={15} className='cB' />
+                    </div>
+                ) : null}
+                {curEdit?.mnemonic ? (
+                    <div
+                        onClick={() => {
+                            Base.push('/user/exportMnemonic', {
+                                ...curEdit
+                            })
+                        }}
+                        className='press ph16 pv20 flex row jsb ac border-b'>
+                        <div className='fz16'>{I18n.t('account.exportMnemonic')}</div>
                         <SvgIcon name='right' size={15} className='cB' />
                     </div>
                 ) : null}

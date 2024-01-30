@@ -16,11 +16,11 @@ function injectCustomJs(jsPath) {
 }
 
 // send message to background
-function sendToBackground({ cmd, data, id }) {
+function sendToBackground({ cmd, data, id, origin }) {
     var left = window.document.body.offsetWidth - 400
-    var origin = window.location.origin
+    var curOrigin = window.location.origin
     chrome.runtime.sendMessage(
-        { id, cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin },
+        { id, cmd: `contentToBackground##${cmd}`, greeting: data, left: left, origin: curOrigin, dappOrigin: origin },
         function (response) {
             switch (response?.cmd) {
                 case 'getTanglePayInfo':
@@ -47,7 +47,7 @@ window.addEventListener(
             case 'bgDataGet':
             case 'bgDataSet':
             case 'iota_request':
-                sendToBackground({ ...e.data, cmd })
+                sendToBackground({ ...e.data, cmd, origin: e.origin })
                 break
         }
     },

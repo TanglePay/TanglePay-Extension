@@ -7,6 +7,7 @@ import { AccountResetPin } from './account/pin/reset'
 import { AccountSetPin } from './account/pin/set'
 import { UnlockScreen } from './account/unlock'
 import { AccountInto } from './account/into'
+import { AccountImportSelect } from './account/into/importSelect'
 import { AccountBackup } from './account/backup'
 import { AccountMnemonic } from './account/mnemonic'
 import { AccountVerifyMnemonic } from './account/verifyMnemonic'
@@ -25,6 +26,7 @@ import { AccountChangeNode } from './account/changeNode'
 import { StakingAdd } from './staking/add'
 import { StakingHistory } from './staking/history'
 import { PrivateKey } from './user/privateKey'
+import { PrivateKeyMnemonic } from './user/privateKey/mnemonic'
 import { AccountIntoPrivateKey } from './account/into/privateKey'
 import { Staking } from './main/staking'
 import { RemoveWallet } from './user/editWallet/removeWallet'
@@ -44,13 +46,13 @@ import { AccountHardwareInto } from './account/hardware/into'
 import { AccountHardwareImport } from './account/hardware/import'
 import { AccountIntoPin } from './account/into/pin'
 export const panelsList = [
-    { 
-        path: 'account/pin/set', 
-        component: AccountSetPin 
+    {
+        path: 'account/pin/set',
+        component: AccountSetPin
     },
-    { 
-        path: 'account/pin/reset', 
-        component: AccountResetPin 
+    {
+        path: 'account/pin/reset',
+        component: AccountResetPin
     },
     {
         path: 'account/hardware/import',
@@ -125,6 +127,10 @@ export const panelsList = [
         component: PrivateKey
     },
     {
+        path: 'user/exportMnemonic',
+        component: PrivateKeyMnemonic
+    },
+    {
         path: 'staking/history',
         component: StakingHistory
     },
@@ -197,6 +203,10 @@ export const panelsList = [
         component: AccountInto
     },
     {
+        path: 'account/into/import',
+        component: AccountImportSelect
+    },
+    {
         path: 'account/intopin',
         component: AccountIntoPin
     },
@@ -208,8 +218,8 @@ export const panelsList = [
         path: 'account/registerPin',
         component: AccountRegisterPin
     },
-    { 
-        path: 'unlock', 
+    {
+        path: 'unlock',
         component: UnlockScreen
     },
     {

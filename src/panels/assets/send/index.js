@@ -38,8 +38,10 @@ export const AssetsSend = () => {
     let currency = params?.currency
     const nftId = params?.nftId
     const nftImg = params?.nftImg
+    const collectionId = params.collectionId
     currency = currency || assetsList[0]?.name
     const form = useRef()
+    const [receiver, setReceiver] = useState('')
     const [inputAmount, setInputAmount] = useState('')
     const [curWallet] = useGetNodeWallet()
     let assets = assetsList.find((e) => e.name === currency) || {}
@@ -47,6 +49,8 @@ export const AssetsSend = () => {
         assets = assetsList.find((e) => e.tokenId === assetsId || e.contract === assetsId) || {}
     }
     // const bigStatedAmount = BigNumber(statedAmount).times(IotaSDK.IOTA_MI)
+    // log assets
+    console.log('AssetsSend', assets)
     // let realBalance = BigNumber(assets.realBalance || 0).minus(bigStatedAmount)
     let realBalance = BigNumber(assets.realBalance || 0)
     if (IotaSDK.checkSMR(curWallet.nodeId) && !assets.isSMRToken) {
@@ -55,7 +59,8 @@ export const AssetsSend = () => {
     if (Number(realBalance) < 0) {
         realBalance = BigNumber(0)
     }
-    let available = Base.formatNum(IotaSDK.getNumberStr(Number(realBalance.div(Math.pow(10, assets.decimal)))))
+    // let available = assets.available
+    let available = Base.formatNum(IotaSDK.getNumberStr(Number(realBalance.div(Math.pow(10, assets.decimal)))), 6)
     // useEffect(() => {
     //     return () => {
     //         clearTimeout(timeHandler.current)
@@ -70,14 +75,21 @@ export const AssetsSend = () => {
         })
     }, [])
     useEffect(() => {
-        if (IotaSDK.checkWeb3Node(curWallet.nodeId)) {
+        if (IotaSDK.checkWeb3Node(curWallet.nodeId) && !!receiver) {
             const amount = parseFloat(inputAmount) || 0
             let decimal = Math.pow(10, assets.decimal)
             let sendAmount = Number(BigNumber(amount).times(decimal))
             sendAmount = IotaSDK.getNumberStr(sendAmount || 0)
             const eth = IotaSDK.client.eth
             console.log(sendAmount)
-            Promise.all([eth.getGasPrice(), IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount)]).then(([gasPrice, gas]) => {
+            const getDefaultGasLimit = async () => {
+                if (!collectionId) {
+                    return IotaSDK.getDefaultGasLimit(curWallet.address, assets?.contract, sendAmount, undefined, receiver)
+                } else {
+                    return IotaSDK.getNftDefaultGasLimit(curWallet.address, collectionId, nftId, receiver)
+                }
+            }
+            Promise.all([eth.getGasPrice(), getDefaultGasLimit()]).then(([gasPrice, gas]) => {
                 if (assets?.contract) {
                     if (IotaSDK.curNode?.contractGasPriceRate) {
                         gasPrice = IotaSDK.getNumberStr(parseInt(gasPrice * IotaSDK.curNode?.contractGasPriceRate))
@@ -110,7 +122,7 @@ export const AssetsSend = () => {
                 })
             })
         }
-    }, [curWallet.nodeId, assets?.contract, inputAmount, assets.decimal])
+    }, [curWallet.nodeId, assets?.contract, receiver, inputAmount, assets.decimal])
     useGetAssetsList(curWallet)
     const isLedger = curWallet.type == 'ledger'
 
@@ -196,6 +208,7 @@ export const AssetsSend = () => {
                                 decimal: assets?.decimal,
                                 mainBalance,
                                 nftId,
+                                collectionId,
                                 gas: gasInfo.gasLimit,
                                 gasPrice: gasInfo.gasPriceWei
                             })
@@ -266,6 +279,9 @@ export const AssetsSend = () => {
                                         placeholder={I18n.t('assets.receiverTips')}
                                         onChange={handleChange('receiver')}
                                         value={values.receiver}
+                                        onBlur={() => {
+                                            setReceiver(values.receiver)
+                                        }}
                                     />
                                 </Form.Item>
                                 {!nftId ? (
@@ -293,7 +309,7 @@ export const AssetsSend = () => {
                                                 }}
                                             />
                                             <div className='fz16 cS'>
-                                                {I18n.t('staking.available')} {Base.formatNum(available)} {assets.unit}
+                                                {I18n.t('staking.available')} {Base.formatNum(available, IotaSDK.checkWeb3Node(curWallet.nodeId) ? 4 : 6)} {assets.unit}
                                             </div>
                                         </div>
                                     </Form.Item>

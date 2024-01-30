@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Base, I18n, IotaSDK } from '@tangle-pay/common'
-import { Formik } from 'formik'
-import { Form, Input, Button, Picker } from 'antd-mobile'
-import * as Yup from 'yup'
-import { useCreateCheck } from '@tangle-pay/store/common'
-import { Nav, SvgIcon, Toast } from '@/common'
+import { Button } from 'antd-mobile'
+import { Nav, Toast } from '@/common'
 import { useLocation } from 'react-router-dom'
-import { useGetNodeWallet, useChangeNode, useSelectWallet } from '@tangle-pay/store/common'
+import { useStore } from '@tangle-pay/store'
 
-export const AccountHardwareImport = () => {
+export const AccountImportSelect = () => {
+    const [registerInfo, setRegisterInfo] = useStore('common.registerInfo')
     let params = useLocation()
     params = Base.handlerParams(params.search)
     let list = []
@@ -46,7 +44,7 @@ export const AccountHardwareImport = () => {
     }, [])
     return (
         <div className='page'>
-            <Nav title={I18n.t('account.lederImport')} />
+            <Nav title='Select an Account' />
             <div className='ph16'>
                 {showList.length > 0 ? (
                     <>
@@ -115,15 +113,14 @@ export const AccountHardwareImport = () => {
                                     }
                                     const addressList = await Promise.all(
                                         selectList.map((e) => {
-                                            return IotaSDK.importHardware({
-                                                address: e.address,
-                                                name: `${params.name} ${e.index}`,
-                                                publicKey: e.publicKey,
-                                                path: e.path,
-                                                type: 'ledger'
+                                            return IotaSDK.importMnemonic({
+                                                ...registerInfo,
+                                                name: `${registerInfo.name}-${Number(String(e.path).split('/').pop()) + 1}`,
+                                                path: e.path
                                             })
                                         })
                                     )
+                                    setRegisterInfo({})
                                     let walletsList = await IotaSDK.getWalletList()
                                     walletsList = [...walletsList, ...addressList]
                                     walletsList = [

@@ -102,11 +102,11 @@ export const CoinList = () => {
                             {isShowAssets ? (
                                 <div>
                                     <div className='fz16 tr mb8'>
-                                        {e.balance} {String(e.unit || e.name).toLocaleUpperCase()}
+                                        {Base.formatNum(e.balance)} {String(e.unit || e.name).toLocaleUpperCase()}
                                     </div>
                                     {isSMR ? (
                                         <div className='fz14 tr cS'>
-                                            {I18n.t('staking.available')} {e.available} {/* {String(e.unit || e.name).toLocaleUpperCase()} */}
+                                            {I18n.t('staking.available')} {Base.formatNum(e.available)} {/* {String(e.unit || e.name).toLocaleUpperCase()} */}
                                         </div>
                                     ) : null}
                                 </div>
@@ -228,9 +228,9 @@ export const ActivityList = ({ search }) => {
                     <SvgIcon className='mr20' name={isContract ? 'interaction' : isOutto ? 'outto' : 'into'} size={36} />
                     <div className='border-b flex flex1 row ac jsb pb15'>
                         <div>
-                            {isContract ? <div className='fz17 mb5'>
-                                {e.contractDetail.abiFunc}
-                            </div> : isSign ? (
+                            {isContract ? (
+                                <div className='fz17 mb5'>{e.contractDetail.abiFunc}</div>
+                            ) : isSign ? (
                                 <div className='fz17 mb5'>TanglePay.Sign</div>
                             ) : isStake ? (
                                 <div className='fz17 mb5'>{I18n.t(isOutto ? 'staking.unstake' : 'staking.stake')}</div>
@@ -244,23 +244,24 @@ export const ActivityList = ({ search }) => {
                         </div>
                         {!isStake ? (
                             <>
-                                {isShowAssets ? 
-                                isContract ? (
-                                    <div>
-                                        {/* <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
+                                {isShowAssets ? (
+                                    isContract ? (
+                                        <div>
+                                            {/* <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
                                             {isOutto ? '-' : '+'} {e.contractDetail.value + ' '}
                                             {e.contractDetail.unit}
                                         </div>
                                         <div className='fz15 tr cS'>$ {e.contractDetail.assets}</div> */}
-                                    </div>
-                                ): (
-                                    <div>
-                                        <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
-                                            {isOutto ? '-' : '+'} {!isNft ? `${e.num} ` : ''}
-                                            {e.coin}
                                         </div>
-                                        <div className='fz15 tr cS'>$ {e.assets}</div>
-                                    </div>
+                                    ) : (
+                                        <div>
+                                            <div className='fz15 tr mb5 ellipsis' style={{ maxWidth: 125 }}>
+                                                {isOutto ? '-' : '+'} {!isNft ? `${e.num} ` : ''}
+                                                {e.coin}
+                                            </div>
+                                            <div className='fz15 tr cS'>$ {e.assets}</div>
+                                        </div>
+                                    )
                                 ) : (
                                     <div>
                                         <div className='fz15 tr mb5'>****</div>
@@ -295,6 +296,7 @@ const CollectiblesItem = ({ logo, name, link, list, isLedger }) => {
         return e.imageType === 'mp4' ? e.thumbnailImage : e.media
     })
     const isSMRNode = IotaSDK.checkSMR(IotaSDK.curNode?.id)
+    const isEvm = IotaSDK.checkWeb3Node(IotaSDK.curNode?.id)
     return (
         <div>
             <div
@@ -304,16 +306,20 @@ const CollectiblesItem = ({ logo, name, link, list, isLedger }) => {
                 }}
                 style={{ height: 64 }}>
                 <SvgIcon size={14} name='up' style={!isOpen && { transform: 'rotate(180deg)' }} />
-                {!imgLoadError ? 
-                <img style={{ width: 32, height: 32, borderRadius: 4 }} 
-                    className='mr10 ml15' 
-                    src={Base.getIcon(logo)} 
-                    onError={() => {
-                        setImgLoadError(true)
-                    }}
-                />  : <div className='mr10 ml15 border bgP flex c cW fw600 fz24' style={{ width: 32, height: 32, borderRadius: 32 }}>
-                            {String(logo).toLocaleUpperCase()[0]}
-                        </div>}
+                {!imgLoadError ? (
+                    <img
+                        style={{ width: 32, height: 32, borderRadius: 4 }}
+                        className='mr10 ml15'
+                        src={Base.getIcon(logo)}
+                        onError={() => {
+                            setImgLoadError(true)
+                        }}
+                    />
+                ) : (
+                    <div className='mr10 ml15 border bgP flex c cW fw600 fz24' style={{ width: 32, height: 32, borderRadius: 32 }}>
+                        {String(logo).toLocaleUpperCase()[0]}
+                    </div>
+                )}
                 <div>{name}</div>
                 <div className='bgS ml10 ph5' style={{ paddingTop: 3, paddingBottom: 3, borderRadius: 4 }}>
                     <div className='fz12'>{list.length}</div>
@@ -351,13 +357,14 @@ const CollectiblesItem = ({ logo, name, link, list, isLedger }) => {
                                             color='white'
                                             size='20'
                                         />
-                                        {isSMRNode && e.nftId && e.isUnlock ? (
+                                        {(isSMRNode && e.nftId && e.isUnlock) || (isEvm && e.tokenId) ? (
                                             <SvgIcon
                                                 onClick={(d) => {
-                                                    if (isSMRNode && e.nftId) {
+                                                    if ((isSMRNode && e.nftId) || (isEvm && e.tokenId && e.collectionId)) {
                                                         const func = isLedger ? 'openInTab' : 'push'
                                                         Base[func]('assets/send', {
-                                                            nftId: e.nftId,
+                                                            nftId: e.nftId || e.tokenId,
+                                                            collectionId: e.collectionId,
                                                             currency: e.name,
                                                             nftImg: e.thumbnailImage || e.media
                                                         })
@@ -425,8 +432,8 @@ export const CollectiblesList = () => {
             {ListEl}
             {Object.keys(importedNFT).map((key) => {
                 const nft = importedNFT[key] ?? {}
-                const { list=[] ,logo, name } = nft
-                
+                const { list = [], logo, name } = nft
+
                 if (list.length === 0) {
                     return null
                 }

@@ -59,6 +59,7 @@ export const DappDialog = () => {
             case 'iota_sign':
             case 'iota_connect':
             case 'iota_sendTransaction':
+            case 'iota_im_authorize':
             case 'eth_sendTransaction':
                 Bridge.sendErrorMessage(
                     type,
@@ -74,7 +75,7 @@ export const DappDialog = () => {
         }
     }
     const onExecute = async ({ address, return_url, content, type, amount, origin, expires, taggedData, contract, foundryData, tag, nftId, reqId, dataPerRequest }) => {
-        const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey', 'iota_getWalletType']
+        const noPassword = ['iota_connect', 'iota_changeAccount', 'iota_getPublicKey', 'iota_im_authorize', 'iota_getWalletType']
         if (!noPassword.includes(type)) {
             if (!isLedger) {
                 const isPassword = await IotaSDK.checkPassword(curWallet.seed, password)
@@ -233,6 +234,12 @@ export const DappDialog = () => {
                     await Bridge.iota_sign(origin, expires, content, password, reqId)
                 }
                 break
+            case 'iota_im_authorize':
+                {
+
+                    await Bridge.iota_im_authorized(curWallet, password, content, reqId)
+                }
+                break
             default:
                 break
         }
@@ -382,7 +389,7 @@ export const DappDialog = () => {
                                 Toast.showLoading()
                                 let [gasPrice, gasLimit] = await Promise.all([
                                     IotaSDK.client.eth.getGasPrice(),
-                                    IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? address : '', IotaSDK.getNumberStr(sendAmount || 0), taggedData)
+                                    IotaSDK.getDefaultGasLimit(curWallet.address, taggedData ? contract : '', IotaSDK.getNumberStr(sendAmount || 0), taggedData, undefined)
                                 ])
                                 if (taggedData) {
                                     if (IotaSDK.curNode?.contractGasPriceRate) {
@@ -517,7 +524,9 @@ export const DappDialog = () => {
                                 .replace(/\n/g, '<br/>')
                                 .replace('#fee#', gasFee)
                             str = `${origin}<br/>` + str
-                            const dataPerRequest = await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId)
+
+                            const dataFromLink = res.metadata ? {metadata: res.metadata} : null
+                            const dataPerRequest = await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId) || dataFromLink
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
@@ -641,6 +650,25 @@ export const DappDialog = () => {
                             show()
                         }
                         break
+                    case 'iota_im_authorize':
+                        {
+                            let str = I18n.t('apps.ImAuthorize')
+                            const texts = [
+                                {
+                                    text: str.replace(/\n/g, '<br/>')
+                                }
+                            ]
+                            setDappData({
+                                texts,
+                                return_url,
+                                type,
+                                content,
+                                origin,
+                                expires,
+                                reqId
+                            })
+                            show()
+                        }
                     default:
                         break
                 }
@@ -660,11 +688,45 @@ export const DappDialog = () => {
             isRequestAssets ? Toast.hideLoading() : Toast.showLoading()
         }
     }, [dappData.type, isRequestAssets])
-    useEffect(() => {
+    useEffect(async () => {
+        console.log('entering effect of dappdialog')
         if (canShowDappDialog) {
             const params = Base.handlerParams(window.location.search)
             const url = params.url
+            console.log('deeplinkurl',url)
             if (checkDeepLink(url)) {
+                // handle silent case
+                let res = Base.handlerParams(url)
+                const regex = /(<([^>]+)>)/gi
+                for (const i in res) {
+                    res[i] = (res[i] || '').replace(/#\/.+/, '').replace(regex, '')
+                }
+                const path = url.replace('tanglepay://', '').split('?')[0]
+                if (path) {
+                    let [type, address] = path.split('/')
+                    res = Object.assign(res, { type, address })
+                }
+                console.log('dapp data',res)
+                let { isSilent = '' } = res
+                if (isSilent) {
+                    const isPasswordEnabled = await checkWalletIsPasswordEnabled(curWallet.id)
+                    if (!isPasswordEnabled) {
+                        console.log('entering silent ')
+                        const {type, content, reqId} = res
+                        let isSilentProcessed = false
+                        switch (type) {
+                            case 'iota_im_authorize':
+                                await Bridge.iota_im_authorized(curWallet, context.state.pin, content, reqId)
+                                isSilentProcessed = true
+                                break;
+                        }
+                        if (isSilentProcessed) {
+                            Bridge.closeWindow()
+                            return
+                        }
+                    }
+                }
+
                 setInit(false)
                 show()
                 setDeepLink(url)

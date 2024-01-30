@@ -6,6 +6,12 @@ importScripts('./sdk/sdkcommon.min.js')
 importScripts('./sdk/Converter.js')
 importScripts('./sdk/TokenERC20.js')
 importScripts('./sdk/NonfungiblePositionManager.js')
+importScripts('./groupfi/BigInteger.min.js')
+importScripts('./groupfi/util.js')
+importScripts('./groupfi/crypto.js')
+importScripts('./groupfi/iota.js')
+importScripts('./groupfi/core.js')
+importScripts('./groupfi/walletembed.js')
 const API_URL = 'https://api.iotaichi.com'
 
 const DATA_PER_REQUEST_PREFIX = 'data_per_request_prefix_'
@@ -26,6 +32,115 @@ const dataPerRequestHelper = {
         removeBackgroundData(this.getDataPerRequestKey(reqId))
     }
 }
+const emitEvent = (message) => {
+    window.eventsTabIdList = window.eventsTabIdList || []
+    chrome.tabs.query({}, function (tabs) {
+        tabs.forEach((e) => {
+            const port = window.eventsTabIdList[e.id] || chrome.tabs.connect(e.id, { name: 'tanglepay_connect' })
+            port.postMessage(message)
+        })
+    })
+}
+
+const getLocalStorage = async (key) => {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(key, (res) => {
+            res = res[key] || null
+            resolve(res)
+        })
+    })
+}
+const setLocalStorage = (key, value) => {
+    chrome.storage.local.set({
+        [key]: value
+    })
+}
+const setLocalStorageAsync = async (key, value) => {
+    await chrome.storage.local.set({
+        [key]: value
+    })
+}
+// pin related
+const getUuid = async () => {
+    const key = 'key_uuid'
+    let uuid = await getLocalStorage(key)
+    if (!uuid) {
+        uuid = generateUUID()
+        setLocalStorage(key, uuid)
+    }
+    return uuid
+}
+function getCurrentDateString() {
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    // PIN expiration is to be adjusted to a day, so remove it
+    // const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}`
+}
+const domainName = 'pin-domain'
+const storageFacadeForPin = {
+    get: async (key) => {
+        const value = await getLocalStorage(key)
+        return value
+    },
+    set: (key, value) => {
+        setLocalStorageAsync(key, value).then(() => {
+            console.log('set storage', key, value)
+        })
+    }
+}
+const getPinStorage = async (name) => {
+    const storageKey = `state.${name}`
+    const encrypted = await storageFacadeForPin.get(storageKey)
+    console.log('get storage', storageKey, encrypted)
+    try {
+        const json = encrypted ? walletembed.tpDecrypt(encrypted, storageFacadeForPin.salt) : encrypted
+        console.log('get storage', storageKey, json)
+        return json
+    } catch (e) {
+        console.log('get storage', e)
+        return undefined
+    }
+}
+const getLocalSeed = async (address) => {
+    const key = 'common.walletsList'
+    const list = (await getLocalStorage(key)) ?? []
+    const wallet = list.find((e) => e.address === address)
+    const seed = wallet?.seed
+    console.log('getLocalSeed', list)
+    return seed
+}
+const getPin = async () => {
+    const uuid = await getUuid()
+    storageFacadeForPin.salt = uuid + '-' + getCurrentDateString()
+    let pinContext = await getPinStorage(domainName)
+    pinContext = JSON.parse(pinContext)
+    if (pinContext) return pinContext.pin
+}
+const getHexSeed = async (pin, address) => {
+    const localSeed = await getLocalSeed(address)
+    // log pin and localSeed
+    console.log('getHexSeed', pin, localSeed)
+    const hexSeed = walletembed.tpDecrypt(localSeed, pin)
+    console.log('getHexSeed', hexSeed)
+    return hexSeed
+}
+// local seed related
+
+/*
+interface StorageFacade {
+    get(key: string): Promise<string | null>;
+    set(key: string, value: string): Promise<void>;
+}
+*/
+const storageFacade = {
+    prefix: '1',
+    get: getLocalStorage,
+    set: setLocalStorageAsync
+}
+walletembed.setupStorage(storageFacade)
 
 // send message to inject
 var sendToInject = function (params) {
@@ -43,29 +158,6 @@ function generateUUID() {
     })
 }
 
-const getUuid = async () => {
-    const key = 'key_uuid'
-    let uuid = await getLocalStorage(key)
-    if (!uuid) {
-        uuid = generateUUID()
-        setLocalStorage(key, uuid)
-    }
-    return uuid
-}
-
-const getLocalStorage = async (key) => {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(key, (res) => {
-            res = res[key] || null
-            resolve(res)
-        })
-    })
-}
-const setLocalStorage = (key, value) => {
-    chrome.storage.local.set({
-        [key]: value
-    })
-}
 const getFoundry = async (nodeUrl, id) => {
     const localTokensConfig = (await getLocalStorage('shimmer.sdk.tokensConfig')) || {}
     if (localTokensConfig[id]) {
@@ -227,7 +319,9 @@ const importNFT = async ({ nft, tokenId }, reqId, method) => {
                 tokenId,
                 name,
                 image: tokenURIRes.image,
-                description: tokenURIRes.description
+                description: tokenURIRes.description,
+                standard: 'ERC 721',
+                collectionId: nft
             }
             importedNFTInStorage[nft] = [...(importedNFTInStorage[nft] ?? []), importedNFTInfo]
             setBackgroundData(importedNFTKey, importedNFTInStorage)
@@ -351,7 +445,7 @@ const getBalanceNodeMatch = async (method, addressList) => {
 const IOTA_NODE_ID = 1
 
 function isIotaStardust(nodeId, nodeType) {
-    return isIotaAccordingId(nodeId) && checkSMR(nodeType);
+    return isIotaAccordingId(nodeId) && checkSMR(nodeType)
 }
 
 function checkSMR(nodeType) {
@@ -359,7 +453,7 @@ function checkSMR(nodeType) {
 }
 
 function isIotaAccordingId(nodeId) {
-    return nodeId === IOTA_NODE_ID 
+    return nodeId === IOTA_NODE_ID
 }
 
 const getBalanceInfo = async (address, nodeInfo, assetsList) => {
@@ -570,6 +664,111 @@ const ensureWeb3Client = () => {
         }
     })
 }
+const getSeedAuthorizeCacheKey = (dappOrigin, address) => {
+    return `${dappOrigin}_${address}`
+}
+// :Record<string,{hexSeed:string}>
+const hexSeedCache = {}
+
+const setSeedByKey = async (key) => {
+    // from cache
+    if (hexSeedCache[key]) {
+        const seed = hexSeedCache[key].hexSeed
+        const [addressInfo] = await Promise.all(
+            [
+                getAddressInfo(),
+                walletembed.setHexSeed(seed)
+            ]
+        )
+        walletembed.switchAddressUsingPath(addressInfo.path)
+        return true
+    }
+    return
+}
+
+const pendingImRequests = {}
+const ifImNeedAuthorize = async (dappOrigin, address) => {
+    const key = getSeedAuthorizeCacheKey(dappOrigin, address)
+    if (hexSeedCache[key]) return false
+    const pin = await getPin()
+    if (!pin) return true
+    const hexSeed = await getHexSeed(pin, address)
+    if (!hexSeed) {
+        // log has pin but no hexSeed
+        console.log('ifImNeedAuthorize has pin but no hexSeed', pin, address)
+        return true
+    }
+    hexSeedCache[key] = {
+        hexSeed
+    }
+    return false
+}
+
+const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, transactionEssenceUrl,recipientPayloadUrl,  }) => {
+    try {
+        const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
+        await setSeedByKey(key)
+        let res
+        if (method == 'iota_im_decrypt_key') {
+            res = await walletembed.decryptAesKeyFromRecipientsWithPayload(recipientPayloadUrl)
+        } else if (method == 'iota_im_sign_and_send_transaction_to_self') {
+            res = await walletembed.signAndSendTransactionToSelf({transactionEssenceUrl})
+        } 
+
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: res ? 200 : -1,
+            data: {
+                method,
+                response: res
+            }
+        })
+    } catch (error) {
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: reqId,
+            code: -1,
+            data: {
+                method,
+                response: error
+            }
+        })
+    }
+}
+
+const processPendingImRequestsByKey = async (key) => {
+    if (!pendingImRequests[key]) {
+        return
+    }
+    while (pendingImRequests[key].payload.length > 0) {
+        try {
+            const pendingImReadRequest = pendingImRequests[key].payload.shift()
+            await handleImRequests(pendingImReadRequest)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}
+
+const rejectpendingImRequestsByKey = async (key, error) => {
+    if (!pendingImRequests[key]) {
+        return
+    }
+    while (pendingImRequests[key].payload.length > 0) {
+        const pendingImReadRequest = pendingImRequests[key].payload.shift()
+        sendToContentScript({
+            cmd: 'iota_request',
+            id: pendingImReadRequest.reqId,
+            code: -1,
+            data: {
+                method: pendingImReadRequest.method,
+                response: error
+            }
+        })
+    }
+}
+
 // get message from content-script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     var isMac = /macintosh|mac os x/i.test(navigator.userAgent)
@@ -621,6 +820,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 break
         }
     } else {
+        const dappOrigin = request?.dappOrigin
         const origin = request?.origin
         const reqId = request?.id ? request?.id : 0
         window.tanglepayCallBack[cmd + '_' + reqId] = sendResponse
@@ -652,6 +852,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     sendResponse({
                         cmd: cmd,
                         data: {
+                            env: 'chrome',
                             version: chrome?.runtime?.getManifest()?.version
                         }
                     })
@@ -871,6 +1072,43 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                 }
                                 break
+                            case 'iota_im_decrypt_key':                            
+                            case 'iota_im_sign_and_send_transaction_to_self':
+                                {
+                                    const imFn = async () => {
+                                        
+                                        await walletembed.setup(content.nodeUrlHint)
+                                        const isNeedAuthorize = await ifImNeedAuthorize(dappOrigin, content.addr)
+                                        if (isNeedAuthorize) {
+                                            const key = getSeedAuthorizeCacheKey(dappOrigin, content.addr)
+                                            if (!pendingImRequests[key]) pendingImRequests[key] = { isAuthorizing: false, payload: [] }
+                                            pendingImRequests[key].payload.push({
+                                                ...content,
+                                                reqId,
+                                                dappOrigin: dappOrigin,
+                                                method
+                                            })
+                                            if (!pendingImRequests[key].isAuthorizing) {
+                                                pendingImRequests[key].isAuthorizing = true
+                                                setTimeout(() => {
+                                                    pendingImRequests[key].isAuthorizing = false
+                                                }, 15 * 1000)
+                                                const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
+                                                params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
+                                            }
+                                        } else {
+                                            await handleImRequests({
+                                                ...content,
+                                                reqId,
+                                                dappOrigin: dappOrigin,
+                                                method
+                                            })
+                                        }
+                                    }
+                                    imFn()
+                                }
+                                break
+
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
@@ -1100,6 +1338,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     chrome.windows.remove(window.tanglepayDialog.windowId)
                 }
                 break
+            case 'iota_im_authorized':
+                {
+                    //TODO handle cancle case
+                    if (request?.sendData) {
+                        const { hex, reqId, dappOrigin, address } = request?.sendData
+                        if (hex && reqId && dappOrigin && address) {
+                            const key = getSeedAuthorizeCacheKey(dappOrigin, address)
+                            pendingImRequests[key].isAuthorizing = false
+                            hexSeedCache[key] = { hexSeed: hex }
+                            try {
+                                processPendingImRequestsByKey(key).catch((e) => console.log(e))
+                            } catch (error) {
+                                rejectpendingImRequestsByKey(key, error).catch((e) => console.log(e))
+                            }
+                        }
+                    }
+                }
+                break
+
             default:
                 sendResponse({ success: 'ok' })
                 break

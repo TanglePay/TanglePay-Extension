@@ -72,21 +72,21 @@ export const NftDetail = () => {
                                     <div className='fz16 fw400'>{params.standard}</div>
                                 </div>
                             ) : null}
-                            {params.nftId ? (
+                            {params.nftId || params.tokenId ? (
                                 <div className='mb8 bgS radius10 ph12 pv10'>
                                     <div className='fz16 fw400 mb4'>NFT ID</div>
-                                    <CopyToClipboard text={params.nftId} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                                    <CopyToClipboard text={params.nftId || params.tokenId} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
                                         <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
-                                            {params.nftId}
+                                            {params.nftId || params.tokenId}
                                         </div>
                                     </CopyToClipboard>
                                 </div>
                             ) : null}
                             <div className='mb8 bgS radius10 ph12 pv10'>
                                 <div className='fz16 fw400 mb4'>URI</div>
-                                <CopyToClipboard text={params.uri || params.ipfsMedia} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
-                                    <div className='fz14 press' style={{ wordBreak: 'break-all' }}>
-                                        {params.uri || params.ipfsMedia}
+                                <CopyToClipboard text={params.uri || params.ipfsMedia || params.image} onCopy={() => Toast.success(I18n.t('assets.copied'))}>
+                                    <div className='fz14 press ellipsis-2' style={{ wordBreak: 'break-all' }}>
+                                        {params.uri || params.ipfsMedia || params.image}
                                     </div>
                                 </CopyToClipboard>
                             </div>
@@ -111,31 +111,33 @@ export const NftDetail = () => {
                         </div>
                     ) : null}
                 </div>
-                <div className='pb24 mt8'>
-                    <div
-                        className='press flex row ac'
-                        onClick={() => {
-                            setOpenProperties(!openProperties)
-                        }}
-                        style={{ height: 32 }}>
-                        <div className='fz18 fw600 mr4'>{I18n.t('assets.nftProperties')}</div>
-                        <SvgIcon size={14} name='up' style={!openProperties && { transform: 'rotate(180deg)' }} />
-                    </div>
-                    {openProperties ? (
-                        <div className='flex ac row mt8' style={{ flexWrap: 'wrap' }}>
-                            {propsList.map((e, i) => {
-                                return (
-                                    <div key={i} className='bgS radius10 p12 mr8 mb8'>
-                                        <div className='cS fz16 fw600'>{e.label}</div>
-                                        <div className='mt4 fz16 fw600' style={{ wordBreak: 'break-all' }}>
-                                            {e.value}
-                                        </div>
-                                    </div>
-                                )
-                            })}
+                {propsList.length > 0 ? (
+                    <div className='pb24 mt8'>
+                        <div
+                            className='press flex row ac'
+                            onClick={() => {
+                                setOpenProperties(!openProperties)
+                            }}
+                            style={{ height: 32 }}>
+                            <div className='fz18 fw600 mr4'>{I18n.t('assets.nftProperties')}</div>
+                            <SvgIcon size={14} name='up' style={!openProperties && { transform: 'rotate(180deg)' }} />
                         </div>
-                    ) : null}
-                </div>
+                        {openProperties ? (
+                            <div className='flex ac row mt8' style={{ flexWrap: 'wrap' }}>
+                                {propsList.map((e, i) => {
+                                    return (
+                                        <div key={i} className='bgS radius10 p12 mr8 mb8'>
+                                            <div className='cS fz16 fw600'>{e.label}</div>
+                                            <div className='mt4 fz16 fw600' style={{ wordBreak: 'break-all' }}>
+                                                {e.value}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : null}
+                    </div>
+                ) : null}
             </div>
         </div>
     )
