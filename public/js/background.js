@@ -680,7 +680,7 @@ const setSeedByKey = async (key) => {
                 walletembed.setHexSeed(seed)
             ]
         )
-        walletembed.switchAddressUsingPath(addressInfo.path)
+        walletembed.switchAddressUsingPath(addressInfo.path??0)
         return true
     }
     return
