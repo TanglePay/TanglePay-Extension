@@ -1087,12 +1087,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                 reqId,
                                                 dappOrigin: dappOrigin,
                                                 method
-                                            })
+                                            }) 
+                                            if (pendingImRequests[key].isAuthorizing && pendingImRequests[key].lastAuthroizingTimestamp && (Date.now() - pendingImRequests[key].lastAuthroizingTimestamp > 15 * 1000)) {
+                                                pendingImRequests[key].isAuthorizing = false
+                                            }
                                             if (!pendingImRequests[key].isAuthorizing) {
                                                 pendingImRequests[key].isAuthorizing = true
-                                                setTimeout(() => {
-                                                    pendingImRequests[key].isAuthorizing = false
-                                                }, 15 * 1000)
+                                                pendingImRequests[key].lastAuthroizingTimestamp = Date.now()
+
+                                                // Sometimes it does not execute.
+                                                // setTimeout(() => {
+                                                //     pendingImRequests[key].isAuthorizing = false
+                                                // }, 15 * 1000)
                                                 const url = `tanglepay://iota_im_authorize?origin=${origin}&content=${dappOrigin}&expires=${expires}&reqId=${reqId}&isSilent=1`
                                                 params.url = chrome.runtime.getURL('index.html') + `?url=${encodeURIComponent(url)}`
                                             }
