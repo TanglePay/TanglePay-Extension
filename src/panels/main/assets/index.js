@@ -34,7 +34,7 @@ export const Assets = ({ tabKey }) => {
     const checkPush = (path) => {
         if (!curWallet.address) {
             if (isNewWalletFlow()) {
-                 Base.push('/account/registerPin')
+                Base.push('/account/registerPin')
             } else {
                 Base.push('/account/register')
             }
@@ -133,7 +133,7 @@ export const Assets = ({ tabKey }) => {
                                     <div>
                                         <div>
                                             <CoinList />
-                                            {assetsTab.includes('stake') && <RewardsList />}
+                                            {/* {assetsTab.includes('stake') && <RewardsList />} */}
                                         </div>
                                         {!isRequestAssets ? (
                                             <div className='ph30 pv24 flex c row'>
