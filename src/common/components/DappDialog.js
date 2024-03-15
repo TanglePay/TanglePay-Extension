@@ -38,7 +38,9 @@ export const DappDialog = () => {
     const ensureWalletStatus = () => {
         checkWalletIsPasswordEnabled(curWallet.id).then((res) => {
             setIsWalletPassowrdEnabled(res)
-            setPassword(context.state.pin)
+            if (!res) {
+                setPassword(context.state.pin)
+            }
         })
     }
     useEffect(() => {
@@ -236,7 +238,6 @@ export const DappDialog = () => {
                 break
             case 'iota_im_authorize':
                 {
-
                     await Bridge.iota_im_authorized(curWallet, password, content, reqId)
                 }
                 break
@@ -479,16 +480,16 @@ export const DappDialog = () => {
                                         showValue = value / Math.pow(10, foundryData.decimals || 0)
                                         sendAmount = value
                                         showUnit = unit
-                                    } else if (IotaSDK.isIotaStardust(curNodeId)){
+                                    } else if (IotaSDK.isIotaStardust(curNodeId)) {
                                         const iotaDecimal = IotaSDK.curNode?.decimal || 6
                                         unit = 'IOTA'
                                         showValue = Base.formatNum(BigNumber(value).div(Math.pow(10, iotaDecimal)).valueOf(), iotaDecimal)
-                                        if(parseFloat(showValue) < Math.pow(10, -iotaDecimal)) {
+                                        if (parseFloat(showValue) < Math.pow(10, -iotaDecimal)) {
                                             showValue = Math.pow(10, -iotaDecimal)
                                         }
                                         sendAmount = BigNumber(showValue).times(Math.pow(10, iotaDecimal)).valueOf()
                                         showUnit = unit
-                                    }else {
+                                    } else {
                                         unit = unit || 'SMR'
                                         if (!['SMR', 'Glow', 'IOTA'].includes(unit)) {
                                             unit = 'SMR'
@@ -525,8 +526,8 @@ export const DappDialog = () => {
                                 .replace('#fee#', gasFee)
                             str = `${origin}<br/>` + str
 
-                            const dataFromLink = res.metadata ? {metadata: res.metadata} : null
-                            const dataPerRequest = await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId) || dataFromLink
+                            const dataFromLink = res.metadata ? { metadata: res.metadata } : null
+                            const dataPerRequest = (await Bridge.sendToContentScriptGetData('data_per_request_prefix_' + reqId)) || dataFromLink
                             setDappData({
                                 texts: [{ text: str }],
                                 return_url,
@@ -650,25 +651,24 @@ export const DappDialog = () => {
                             show()
                         }
                         break
-                    case 'iota_im_authorize':
-                        {
-                            let str = I18n.t('apps.ImAuthorize')
-                            const texts = [
-                                {
-                                    text: str.replace(/\n/g, '<br/>')
-                                }
-                            ]
-                            setDappData({
-                                texts,
-                                return_url,
-                                type,
-                                content,
-                                origin,
-                                expires,
-                                reqId
-                            })
-                            show()
-                        }
+                    case 'iota_im_authorize': {
+                        let str = I18n.t('apps.ImAuthorize')
+                        const texts = [
+                            {
+                                text: str.replace(/\n/g, '<br/>')
+                            }
+                        ]
+                        setDappData({
+                            texts,
+                            return_url,
+                            type,
+                            content,
+                            origin,
+                            expires,
+                            reqId
+                        })
+                        show()
+                    }
                     default:
                         break
                 }
@@ -693,7 +693,7 @@ export const DappDialog = () => {
         if (canShowDappDialog) {
             const params = Base.handlerParams(window.location.search)
             const url = params.url
-            console.log('deeplinkurl',url)
+            console.log('deeplinkurl', url)
             if (checkDeepLink(url)) {
                 // handle silent case
                 let res = Base.handlerParams(url)
@@ -706,19 +706,19 @@ export const DappDialog = () => {
                     let [type, address] = path.split('/')
                     res = Object.assign(res, { type, address })
                 }
-                console.log('dapp data',res)
+                console.log('dapp data', res)
                 let { isSilent = '' } = res
                 if (isSilent) {
                     const isPasswordEnabled = await checkWalletIsPasswordEnabled(curWallet.id)
                     if (!isPasswordEnabled) {
                         console.log('entering silent ')
-                        const {type, content, reqId} = res
+                        const { type, content, reqId } = res
                         let isSilentProcessed = false
                         switch (type) {
                             case 'iota_im_authorize':
                                 await Bridge.iota_im_authorized(curWallet, context.state.pin, content, reqId)
                                 isSilentProcessed = true
-                                break;
+                                break
                         }
                         if (isSilentProcessed) {
                             Bridge.closeWindow()
