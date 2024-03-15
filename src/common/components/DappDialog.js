@@ -40,6 +40,8 @@ export const DappDialog = () => {
             setIsWalletPassowrdEnabled(res)
             if (!res) {
                 setPassword(context.state.pin)
+            } else {
+                setPassword('')
             }
         })
     }
