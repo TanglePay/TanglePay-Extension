@@ -112,6 +112,30 @@ const getLocalSeed = async (address) => {
     console.log('getLocalSeed', list)
     return seed
 }
+
+const addSMRWallet = async (obj) => {
+    try {
+        const key = 'common.walletsList'
+        const list = (await getLocalStorage(key)) ?? []
+        const isExisted = list.find(account => account.address === obj.address)
+        if (isExisted) {
+            return true
+        }
+        const smrWallet = {
+            ...obj,
+            name: 'proxy-address-'+list.length,
+            isSelected: false,
+            id: generateUUID(),
+            nodeId: 102,
+        }
+        list.push(smrWallet)
+        await setLocalStorageAsync(key, list)
+        return true
+    }catch(err) {
+        return false
+    } 
+}
+
 const getPin = async () => {
     const uuid = await getUuid()
     storageFacadeForPin.salt = uuid + '-' + getCurrentDateString()
@@ -674,13 +698,23 @@ const setSeedByKey = async (key) => {
     // from cache
     if (hexSeedCache[key]) {
         const seed = hexSeedCache[key].hexSeed
-        const [addressInfo] = await Promise.all(
-            [
-                getAddressInfo(),
-                walletembed.setHexSeed(seed)
-            ]
-        )
-        walletembed.switchAddressUsingPath(addressInfo.path??0)
+        const addressInfo = await getAddressInfo()
+
+        // Call different functions based on different accounts
+        if (addressInfo.nodeId === 102) {
+            await walletembed.setSMRAccount(seed, addressInfo.path ?? 0)
+        } else if (addressInfo.nodeId === 5) {
+            const pin = await getPin()
+            walletembed.setEVMAccount(seed, pin, addressInfo.path)
+        }
+        
+        // const [addressInfo] = await Promise.all(
+        //     [
+        //         getAddressInfo(),
+        //         walletembed.setHexSeed(seed)
+        //     ]
+        // )
+        // walletembed.switchAddressUsingPath(addressInfo.path??0)
         return true
     }
     return
@@ -713,7 +747,13 @@ const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, tran
             res = await walletembed.decryptAesKeyFromRecipientsWithPayload(recipientPayloadUrl)
         } else if (method == 'iota_im_sign_and_send_transaction_to_self') {
             res = await walletembed.signAndSendTransactionToSelf({transactionEssenceUrl})
-        } 
+        } else if (method == 'iota_im_create_smr_proxy_account') {
+            const pin = await getPin()
+            const smrProxyAccount = walletembed.createSMRProxyAccount(pin)
+            // Add SMR proxy account in wallet
+            await addSMRWallet(smrProxyAccount)
+            res = smrProxyAccount.address
+        }
 
         sendToContentScript({
             cmd: 'iota_request',
@@ -1074,6 +1114,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 break
                             case 'iota_im_decrypt_key':                            
                             case 'iota_im_sign_and_send_transaction_to_self':
+                            case 'iota_im_create_smr_proxy_account':
                                 {
                                     const imFn = async () => {
                                         
