@@ -2809,15 +2809,7 @@
                 const nonce = await this._powProvider.pow(blockBytes, minPowScore)
                 block.nonce = nonce.toString()
             }
-            let response = {}
-            try {
-                response = await this.fetchJson(this._coreApiPath, 'post', 'blocks', block)
-                if (!response.blockId) {
-                    throw new Error('route=/api/core/v2/blocks: failed to fetch')
-                }
-            } catch (error) {
-                throw new Error(error)
-            }
+            const response = await this.fetchJson(this._coreApiPath, 'post', 'blocks', block)
             return response.blockId
         }
         /**

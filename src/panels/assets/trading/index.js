@@ -156,11 +156,6 @@ export const AssetsTrading = () => {
                                 //     onDismiss(curInfo.blockId)
                                 // }
                                 Toast.hideLoading()
-                                if (isLedger) {
-                                    Base.replace('/main')
-                                } else {
-                                    Base.goBack()
-                                }
                                 Toast.show(I18n.t('assets.acceptSucc'))
                                 await sleep(500)
                                 IotaSDK.refreshAssets()
@@ -170,6 +165,11 @@ export const AssetsTrading = () => {
                                 setTimeout(() => {
                                     IotaSDK.refreshAssets()
                                 }, 3000)
+                                if (isLedger) {
+                                    Base.replace('/main')
+                                } else {
+                                    Base.goBack()
+                                }
                             } catch (error) {
                                 Toast.hideLoading()
                                 error = String(error)
