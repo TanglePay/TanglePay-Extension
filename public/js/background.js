@@ -738,7 +738,7 @@ const ifImNeedAuthorize = async (dappOrigin, address) => {
     return false
 }
 
-const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, transactionEssenceUrl,recipientPayloadUrl,  }) => {
+const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, transactionEssenceUrl,recipientPayloadUrl, dataToBeSignedHex }) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
@@ -753,6 +753,10 @@ const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, tran
             // Add SMR proxy account in wallet
             await addSMRWallet(smrProxyAccount)
             res = smrProxyAccount.address
+        } else if (method === 'iota_im_eth_get_encryption_public_key') {
+            res = walletembed.getEthEncryptionPublicKey()
+        } else if (method === 'iota_im_eth_personal_sign') {
+            res = walletembed.EthPersonalSign(dataToBeSignedHex)
         }
 
         sendToContentScript({
@@ -1115,6 +1119,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_decrypt_key':                            
                             case 'iota_im_sign_and_send_transaction_to_self':
                             case 'iota_im_create_smr_proxy_account':
+                            case 'iota_im_eth_get_encryption_public_key':
+                            case 'iota_im_eth_decrypt':
+                            case 'iota_im_eth_personal_sign':
                                 {
                                     const imFn = async () => {
                                         
@@ -1155,7 +1162,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                     imFn()
                                 }
                                 break
-
                             case 'iota_getBalance':
                             case 'eth_getBalance':
                                 const { addressList, assetsList } = requestParams
