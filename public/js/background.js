@@ -115,6 +115,9 @@ const getLocalSeed = async (address) => {
 
 const addSMRWallet = async (obj) => {
     try {
+        if (!obj.address) {
+            return false
+        }
         const key = 'common.walletsList'
         const list = (await getLocalStorage(key)) ?? []
         const isExisted = list.find(account => account.address === obj.address)
@@ -747,13 +750,22 @@ const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, tran
             res = await walletembed.decryptAesKeyFromRecipientsWithPayload(recipientPayloadUrl)
         } else if (method == 'iota_im_sign_and_send_transaction_to_self') {
             res = await walletembed.signAndSendTransactionToSelf({transactionEssenceUrl})
-        } else if (method == 'iota_im_create_smr_proxy_account') {
+        } else if (method === 'iota_im_get_eth_proxy_account') {
+            res =  walletembed.getSMRProxyAccount()
+        } else if (method === 'iota_im_import_smr_proxy_account') {
             const pin = await getPin()
-            const smrProxyAccount = walletembed.createSMRProxyAccount(pin)
-            // Add SMR proxy account in wallet
+            const smrProxyAccount = walletembed.importSMRProxyAccount(pin)
             await addSMRWallet(smrProxyAccount)
             res = smrProxyAccount.address
-        } else if (method === 'iota_im_eth_get_encryption_public_key') {
+        }
+        // else if (method == 'iota_im_create_smr_proxy_account') {
+        //     const pin = await getPin()
+        //     const smrProxyAccount = walletembed.createSMRProxyAccount(pin)
+        //     // Add SMR proxy account in wallet
+        //     await addSMRWallet(smrProxyAccount)
+        //     res = smrProxyAccount.address
+        // } 
+        else if (method === 'iota_im_eth_get_encryption_public_key') {
             res = walletembed.getEthEncryptionPublicKey()
         } else if (method === 'iota_im_eth_personal_sign') {
             res = walletembed.EthPersonalSign(dataToBeSignedHex)
@@ -1118,7 +1130,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 break
                             case 'iota_im_decrypt_key':                            
                             case 'iota_im_sign_and_send_transaction_to_self':
-                            case 'iota_im_create_smr_proxy_account':
+                            case 'iota_im_import_smr_proxy_account':
+                            case 'iota_im_get_eth_proxy_account':
                             case 'iota_im_eth_get_encryption_public_key':
                             case 'iota_im_eth_decrypt':
                             case 'iota_im_eth_personal_sign':
