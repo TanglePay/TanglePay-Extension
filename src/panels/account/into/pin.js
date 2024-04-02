@@ -139,7 +139,7 @@ export const AccountIntoPin = () => {
                                     </div>
                                 )}
                                 <Form.Item className={`mt10 pl0 ${errors.name && 'form-error'}`}>
-                                    <div className='fz16 mb10'>{I18n.t('account.intoName')}</div>
+                                    <div className='fz18 mb10'>{I18n.t('account.intoName')}</div>
                                     <Input style={{ paddingTop: 3, paddingBottom: 3 }} placeholder={I18n.t('account.intoNameTips')} onChange={handleChange('name')} value={values.name} />
                                 </Form.Item>
                                 {shouldShowPin && (
