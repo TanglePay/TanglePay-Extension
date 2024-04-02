@@ -47,7 +47,7 @@
         "react-transition-group": "^4.4.2",
         "rimraf": "^5.0.1",
         "struct": "^0.0.12",
-        "tanglepay": "^2.7.2",
+        "tanglepay": "^2.7.3",
         "web-vitals": "^1.0.1",
         "web3": "^1.7.3",
         "yup": "^0.32.11"
