@@ -741,7 +741,7 @@ const ifImNeedAuthorize = async (dappOrigin, address) => {
     return false
 }
 
-const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, transactionEssenceUrl,recipientPayloadUrl, dataToBeSignedHex }) => {
+const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, transactionEssenceUrl,recipientPayloadUrl, dataToBeSignedHex, encryptedData }) => {
     try {
         const key = getSeedAuthorizeCacheKey(dappOrigin, addr)
         await setSeedByKey(key)
@@ -757,18 +757,12 @@ const handleImRequests = async ({ reqId, dappOrigin, addr, method, groupId, tran
             const smrProxyAccount = walletembed.importSMRProxyAccount(pin)
             await addSMRWallet(smrProxyAccount)
             res = smrProxyAccount.address
-        }
-        // else if (method == 'iota_im_create_smr_proxy_account') {
-        //     const pin = await getPin()
-        //     const smrProxyAccount = walletembed.createSMRProxyAccount(pin)
-        //     // Add SMR proxy account in wallet
-        //     await addSMRWallet(smrProxyAccount)
-        //     res = smrProxyAccount.address
-        // } 
-        else if (method === 'iota_im_eth_get_encryption_public_key') {
+        } else if (method === 'iota_im_eth_get_encryption_public_key') {
             res = walletembed.getEthEncryptionPublicKey()
         } else if (method === 'iota_im_eth_personal_sign') {
             res = walletembed.EthPersonalSign(dataToBeSignedHex)
+        } else if (method === 'iota_im_eth_decrypt') {
+            res = walletembed.ethDecrypt(encryptedData)
         }
 
         sendToContentScript({
@@ -1133,6 +1127,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_import_smr_proxy_account':
                             case 'iota_im_get_eth_proxy_account':
                             case 'iota_im_eth_get_encryption_public_key':
+                            case 'iota_im_eth_decrypt':
                             case 'iota_im_eth_decrypt':
                             case 'iota_im_eth_personal_sign':
                                 {
