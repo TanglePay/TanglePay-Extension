@@ -3676,16 +3676,16 @@
         let unlockConditions = output?.output?.unlockConditions || []
 
         // TIMELOCK_UNLOCK_CONDITION_TYPE
-        let timelockUnlockCondition = unlockConditions.find(e => e.type === TIMELOCK_UNLOCK_CONDITION_TYPE)
-        if(timelockUnlockCondition && nowTime > timelockUnlockCondition.unixTime) {
+        let timelockUnlockCondition = unlockConditions.find((e) => e.type === TIMELOCK_UNLOCK_CONDITION_TYPE)
+        if (timelockUnlockCondition && nowTime > timelockUnlockCondition.unixTime) {
             timelockUnlockCondition = null
         }
 
-         // Storage Deposit Return Unlock 
-         let storageDepositReturnUnlockCondition = unlockConditions.find(e => e.type === STORAGE_DEPOSIT_RETURN_UNLOCK_CONDITION_TYPE)
+        // Storage Deposit Return Unlock
+        let storageDepositReturnUnlockCondition = unlockConditions.find((e) => e.type === STORAGE_DEPOSIT_RETURN_UNLOCK_CONDITION_TYPE)
 
         // Expiration Unlock Condition
-        let expirationUnlockCondition = unlockConditions.find(e => e.type === EXPIRATION_UNLOCK_CONDITION_TYPE)
+        let expirationUnlockCondition = unlockConditions.find((e) => e.type === EXPIRATION_UNLOCK_CONDITION_TYPE)
 
         let addressInExpirationUnlockCondition
         let unixTimeInExpirationUnlockCondition
@@ -3693,14 +3693,14 @@
             addressInExpirationUnlockCondition = hexToBech32(expirationUnlockCondition.returnAddress.pubKeyHash)
             unixTimeInExpirationUnlockCondition = expirationUnlockCondition.unixTime
         }
-        
+
         if (addressInExpirationUnlockCondition && shimmerAddressList.includes(addressInExpirationUnlockCondition)) {
-            if(unixTimeInExpirationUnlockCondition < nowTime) {
+            if (unixTimeInExpirationUnlockCondition < nowTime) {
                 expirationUnlockCondition = null
                 storageDepositReturnUnlockCondition = null
             }
         }
-        
+
         const features = output?.output?.features || []
         let featuresLock = false
         if (features.length > 0) {

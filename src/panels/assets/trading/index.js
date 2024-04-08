@@ -26,6 +26,7 @@ export const AssetsTrading = () => {
     const id = params.id
     const [unlockConditions] = useStore('common.unlockConditions')
     const [nftUnlockList] = useStore('nft.unlockList')
+    const [, refreshNftAssets] = useStore('nft.forceRequest')
     useGetNftList()
     useGetAssetsList(curWallet)
     const [isWalletPasswordEnabled, setIsWalletPasswordEnabled] = useState(false)
@@ -118,7 +119,7 @@ export const AssetsTrading = () => {
                         validateOnBlur={false}
                         validateOnChange={false}
                         validateOnMount={false}
-                        validationSchema={(isLedger || !isWalletPasswordEnabled) ? schemaNopassword : schema}
+                        validationSchema={isLedger || !isWalletPasswordEnabled ? schemaNopassword : schema}
                         onSubmit={async (values) => {
                             let { password } = values
                             if (!isWalletPasswordEnabled) {
@@ -132,6 +133,8 @@ export const AssetsTrading = () => {
                             }
                             try {
                                 Toast.showLoading()
+                                const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+                                await sleep(300)
                                 const info = {
                                     ...curInfo,
                                     curWallet: { ...curWallet, password }
@@ -154,7 +157,11 @@ export const AssetsTrading = () => {
                                 // }
                                 Toast.hideLoading()
                                 Toast.show(I18n.t('assets.acceptSucc'))
+                                await sleep(500)
                                 IotaSDK.refreshAssets()
+                                if (info.nftId) {
+                                    refreshNftAssets()
+                                }
                                 setTimeout(() => {
                                     IotaSDK.refreshAssets()
                                 }, 3000)
