@@ -107,7 +107,7 @@ const getPinStorage = async (name) => {
 const getLocalSeed = async (address) => {
     const key = 'common.walletsList'
     const list = (await getLocalStorage(key)) ?? []
-    const wallet = list.find((e) => e.address === address)
+    const wallet = list.find((e) => e.address.toLowerCase() === address.toLowerCase())
     const seed = wallet?.seed
     console.log('getLocalSeed', list)
     return seed
@@ -1127,7 +1127,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             case 'iota_im_import_smr_proxy_account':
                             case 'iota_im_get_eth_proxy_account':
                             case 'iota_im_eth_get_encryption_public_key':
-                            case 'iota_im_eth_decrypt':
                             case 'iota_im_eth_decrypt':
                             case 'iota_im_eth_personal_sign':
                                 {
